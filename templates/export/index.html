@@ -1,0 +1,30 @@
+<!--
+TEMPLATE
+displays the export page
+ -->
+{% extends "base.html" %}
+
+{% block contentTitle %}Export{% endblock %}
+
+{% block content %}
+
+	<p>
+		You can download all the acts of the database on this page. <br />
+		Please select the sort variable, the sort direction and click on the submit button. The acts will be downloaded in the csv format (can be open with excel or calc).
+	</p>
+	
+	<br />
+	
+	<form action="/export/" method="post">{% csrf_token %}
+
+		{% for field in form %}
+        <span class="fieldWrapper">
+            {{ field.errors }}
+            {{ field }}
+        </span>
+		{% endfor %}
+		<input type="submit" value="Submit" />
+
+	</form>
+
+{% endblock %}

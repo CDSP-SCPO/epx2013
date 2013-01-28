@@ -1,0 +1,221 @@
+<!--
+TEMPLATE
+displays the data of a given act (data for the statistical analysis displays data from eurlex, oeil and prelex and allow to validate the act and modify its data if needed)
+-->
+{% extends "base.html" %}
+
+{% block contentTitle %}Acts information retrieval{% endblock %}
+
+{% block content %}
+
+	<p>
+		You can display, modify and save retrieved information of the validated acts on this page. Acts information can be displayed one at a time. <br />
+		Select a validated act in the drop down list and check the data in the table. Change any value (second column) if you detect a mistake. Eventually, click on the save button to validate and save the act information.
+	</p>
+	
+	<br />
+<!--
+	 act information form 
+-->
+	<form id="actsInformationValidationForm" action="{% url actsInformationRetrieval.views.actsView %}" method="post">{% csrf_token %}
+		{{ form.non_field_errors }}
+		
+		{{ form.actsToValidate.field.choices.queryset.all|length }} act(s) to validate!
+		
+		<div id="actsToValidateChoice" class="fieldWrapper">
+			{{ form.actsToValidate.errors }}
+			{{ form.actsToValidate }}
+		</div>
+
+		<div class="bold">
+<!--
+			act id: {{act.actId}}
+-->
+		</div>
+
+		<br /><br />
+		
+		<div class="bold">PRELEX:</div>
+		
+		<table id="prelexIdsTable">
+			<tr class="bold">
+				<td>proposOrigine</td>
+				<td>proposAnnee</td>
+				<td>proposChrono</td>
+				<td>dosId</td>
+				<td>url exists?</td>
+				<td>url link</td>
+			</tr>
+			<tr>
+				<td>{{actId.fileProposOrigine}}</td>
+				<td>{{actId.fileProposAnnee}}</td>
+				<td>{{actId.fileProposChrono}}</td>
+				<td>{{actId.fileDosId}}</td>
+				{% if actId.filePrelexUrlExists %}<td>{% else %}<td class="error">{% endif %}
+				{{actId.filePrelexUrlExists}}</td>
+				<td><a href="{{url.prelexUrl}}" target="_blank">prelex</a></td>
+			</tr>
+		</table>
+		
+		<br />
+		
+		<!-- prelex validation table -->
+		<table id="prelexTable" class="actsValidationTable">
+			<tr>
+				<td class="informationTableFirstColumn">adoptionProposOrigine</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.adoptionProposOrigine.errors }}
+						{{ form.adoptionProposOrigine }}
+					</div>
+				</td>
+			</tr>
+			
+			<tr>
+				<td class="informationTableFirstColumn">comProc</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.comProc.errors }}
+						{{ form.comProc }}
+					</div>
+				</td>
+			</tr>
+			
+			<tr>
+				<td class="informationTableFirstColumn">dgProposition</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.dgProposition.errors }}
+						{{ form.dgProposition }}
+					</div>
+				</td>
+			</tr>
+			
+			<tr>
+				<td class="informationTableFirstColumn">dgProposition2</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.dgProposition2.errors }}
+						{{ form.dgProposition2 }}
+					</div>
+				</td>
+			</tr>
+			
+			<tr>
+				<td class="informationTableFirstColumn">respPropos1</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.respPropos1.errors }}
+						{{ form.respPropos1 }}
+					</div>
+				</td>
+			</tr>
+			
+			<tr>
+				<td class="informationTableFirstColumn">respPropos2</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.respPropos2.errors }}
+						{{ form.respPropos2 }}
+					</div>
+				</td>
+			</tr>
+			
+			<tr>
+				<td class="informationTableFirstColumn">respPropos3</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.respPropos3.errors }}
+						{{ form.respPropos3 }}
+					</div>
+				</td>
+			</tr>
+			
+			<tr>
+				<td class="informationTableFirstColumn">transmissionCouncil</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.transmissionCouncil.errors }}
+						{{ form.transmissionCouncil }}
+					</div>
+				</td>
+			</tr>
+			
+			<tr>
+				<td class="informationTableFirstColumn">nbPointB</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.nbPointB.errors }}
+						{{ form.nbPointB }}
+					</div>
+				</td>
+			</tr>
+			
+			<tr>
+				<td class="informationTableFirstColumn">consB</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.consB.errors }}
+						{{ form.consB }}
+					</div>
+				</td>
+			</tr>
+			
+			<tr>
+				<td class="informationTableFirstColumn">adoptionConseil</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.adoptionConseil.errors }}
+						{{ form.adoptionConseil }}
+					</div>
+				</td>
+			</tr>
+			
+			<tr>
+				<td class="informationTableFirstColumn">nbPointA</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.nbPointA.errors }}
+						{{ form.nbPointA }}
+					</div>
+				</td>
+			</tr>
+			
+			<tr>
+				<td class="informationTableFirstColumn">councilA</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.councilA.errors }}
+						{{ form.councilA }}
+					</div>
+				</td>
+			</tr>
+			
+			<tr>
+				<td class="informationTableFirstColumn">nbLectures</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.nbLectures.errors }}
+						{{ form.nbLectures }}
+					</div>
+				</td>
+			</tr>
+			
+		</table>
+
+		<br /><br />
+		
+		<div id="notesDiv" class="fieldWrapper">
+			{{ idForm.notes.errors }}
+			<label for="notes">Notes:</label>
+			{{ idForm.notes }}
+		</div>
+
+		<input id="actsValidationSaveButton" name="actsValidationSaveButton" type="submit" value="SAVE" />
+				
+		<div id="actsValidationSuccessMessage">{{ success }}</div>
+	</form>
+	
+	<br /><br />
+	
+{% endblock %}

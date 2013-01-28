@@ -1,0 +1,64 @@
+<!--
+TEMPLATE
+contains the template of each webpage: doctype, left menu, right content template, css, js, etc. 
+-->
+
+<!-- if not connected the user is redirected to the login page -->
+{% if user.username == "" and request.path != "/login/" and request.path != "/"  %}
+	 <meta http-equiv="REFRESH" content="0;url=/login/">
+{% else %}
+	<!DOCTYPE html>
+	<html lang="en">
+	<head>
+	<link rel="stylesheet" href="/static/css.css" />
+
+	<title>{% block title %}Europolix project{% endblock%}</title>
+	</head>
+	<body>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+		<script language="javascript" src="/static/js.js"></script>
+<!--
+		<script type="text/javascript" src="/static/jquery-1.8.3.min.js"></script>
+-->
+
+	<nav>
+		<div class="firstHorizontalStrip">
+			<h1>Europolix project</h1>
+		</div>
+		
+		<div class="secondHorizontalStrip">	
+			<ul>
+				{% if user.username == "" %}
+					<li><a href="/login/">Log in</a></li>
+				{% else %}
+					<li>Welcome {{ user.username }} | <a href="{% url auth.views.loginView %}">Log out</a></li>
+				{% endif %}
+				<br />
+				<li><a href="/import/">csv import</a></li>
+				<br />
+				<li><a href="/actsIdsValidation/">Acts validation</a></li>
+				<br />
+				<li><a href="/actsInformationRetrieval/">Acts information retrieval</a></li>
+				<br />
+				<li><a href="/export/">csv export</a></li>
+				<br />
+				<li><a href="/admin/">Administration</a></li>
+			</ul>
+		</div>
+	</nav>
+
+	<div id="content">
+		<div class="firstHorizontalStrip">
+			<h3>
+				{% block contentTitle %}{% endblock %}
+			</h3>
+		</div>
+		
+		<div class="secondHorizontalStrip">
+			{% block content %}{% endblock %}
+		</div>
+	</div>
+
+	</body>
+	</html>
+{% endif %}
