@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 get the information from Eurlex (fields for the statistical analysis)
+TEST GITHUB
 """
 import re
 from bs4 import BeautifulSoup
