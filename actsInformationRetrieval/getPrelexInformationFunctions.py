@@ -37,7 +37,7 @@ def getAdoptionProposOrigineFromPrelex(soup, proposOrigine):
 	if proposOrigine=="JAI":
 		return getTransmissionCouncilFromPrelex(soup, proposOrigine)
 	if proposOrigine=="CONS":
-		"TODO: extraction pdf almost done (see tests)"
+		print "TODO: extraction pdf almost done (see tests)"
 		return "00-00-0000"
 
 #~ Date in front of "Adoption by Commission"
