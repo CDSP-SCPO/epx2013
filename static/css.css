@@ -72,6 +72,14 @@ p
 	padding-left: 20px;
 }
 
+table
+{
+	border-collapse: collapse;
+	font-size: 13px;
+	margin-left:auto; 
+	margin-right:auto;
+}
+
 ul
 {
     list-style-type: none;
@@ -106,9 +114,7 @@ ul
 
 .actsValidationTable
 {
-	border-collapse: collapse;
 	width: 99%;
-	font-size: 13px;
 }
 
 .bold
@@ -167,11 +173,12 @@ td
 	width: 20%;
 }
 
+#eurlexIdsTable
+{
+	width: 25%;
+}
+
 #prelexIdsTable
 {
-	border-collapse: collapse;
 	width: 50%;
-	font-size: 13px;
-	margin-left:auto; 
-	margin-right:auto;
 }

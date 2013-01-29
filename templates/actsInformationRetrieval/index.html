@@ -35,6 +35,102 @@ displays the data of a given act (data for the statistical analysis displays dat
 
 		<br /><br />
 		
+		<div class="bold">EURLEX:</div>
+		
+		<table id="eurlexIdsTable">
+			<tr class="bold">
+				<td>noCelex</td>
+				<td>url exists?</td>
+				<td>url link</td>
+			</tr>
+			<tr>
+				<td>{{actId.fileNoCelex}}</td>
+				{% if actId.fileEurlexUrlExists %}<td>{% else %}<td class="error">{% endif %}
+				{{actId.fileEurlexUrlExists}}</td>
+				<td><a href="{{url.eurlexUrl}}" target="_blank">eurlex</a></td>
+			</tr>
+		</table>
+		
+		<br />
+		
+		<!-- prelex validation table -->
+		<table id="eurlexTable" class="actsValidationTable">
+			<tr>
+				<td class="informationTableFirstColumn">titreEn</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.titreEn.errors }}
+						{{ form.titreEn }}
+					</div>
+				</td>
+			</tr>
+			
+			<tr>
+				<td class="informationTableFirstColumn">codeSectRep01</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.codeSectRep01.errors }}
+						{{ form.codeSectRep01 }}
+					</div>
+				</td>
+			</tr>
+			
+			<tr>
+				<td class="informationTableFirstColumn">codeSectRep02</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.codeSectRep02.errors }}
+						{{ form.codeSectRep02 }}
+					</div>
+				</td>
+			</tr>
+			
+			<tr>
+				<td class="informationTableFirstColumn">repEn1</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.repEn1.errors }}
+						{{ form.repEn1 }}
+					</div>
+				</td>
+			</tr>
+			
+			<tr>
+				<td class="informationTableFirstColumn">repEn2</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.repEn2.errors }}
+						{{ form.repEn2 }}
+					</div>
+				</td>
+			</tr>
+			
+			<tr>
+				<td class="informationTableFirstColumn">typeActe</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.typeActe.errors }}
+						{{ form.typeActe }}
+					</div>
+				</td>
+			</tr>
+			
+			<tr>
+				<td class="informationTableFirstColumn">baseJuridique</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.baseJuridique.errors }}
+						{{ form.baseJuridique }}
+					</div>
+				</td>
+			</tr>
+			
+		</table>
+		
+		
+		<br /><br />
+		
+		
 		<div class="bold">PRELEX:</div>
 		
 		<table id="prelexIdsTable">

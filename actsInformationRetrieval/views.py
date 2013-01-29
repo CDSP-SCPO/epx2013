@@ -47,24 +47,56 @@ def dateToIso(year, month, day):
 	return date(int(year), int(month), int(day)).isoformat()
 
 
-def getInformationFromPrelex(actIdVar):
+def getInformationFromEurlex(actId, act, eurlexUrl):
 	"""
 	FUNCTION
-	get information of a given act from prelex
+	get all the information of a given act from eurlex
 	PARAMETERS
-	actIdVar: id of the act
+	actId: ids of the act
+	act: information of the act
+	eurlexUrl: link to the eurlex page
 	RETURN
-	actId object which contains prelex ids and act object which contains retrieved information
+	act object which contains retrieved information
+	"""
+	dataDic={}
+	#check if eurlex url exists
+
+	if actId.fileEurlexUrlExists==True:
+		#if yes, retrieve the information and pass it to an object
+		
+		html=eurlexIds.getEurlexUrlContent(eurlexUrl)
+		dataDic=eurlex.getEurlexInformation(html)
+		
+		act.titreEn=dataDic['titreEn']
+		act.codeSectRep01=dataDic['codeSectRep01']
+		act.codeSectRep02=dataDic['codeSectRep02']
+		act.repEn1=dataDic['repEn1']
+		act.repEn2=dataDic['repEn2']
+		act.typeActe=dataDic['typeActe']
+		act.baseJuridique=dataDic['baseJuridique']
+	else:
+		print "No eurlex url"
+		act=None
+	
+	return act
+
+
+def getInformationFromPrelex(actId, act, prelexUrl):
+	"""
+	FUNCTION
+	get all the information of a given act from prelex
+	PARAMETERS
+	actId: ids of the act
+	act: information of the act
+	prelexUrl: link to the prelex page
+	RETURN
+	act object which contains retrieved information
 	"""
 	dataDic={}
 	#check if prelex url exists
-	actId=ActsIdsModel.objects.get(id=actIdVar)
-	
 	if actId.filePrelexUrlExists==True:
 		#if yes, retrieve the information and pass it to an object
-		act=ActsInformationModel.objects.get(actId=actIdVar)
-		url=actId.prelexUrl
-		html=prelexIds.getPrelexUrlContent(url)
+		html=prelexIds.getPrelexUrlContent(prelexUrl)
 		#store all the fields useful for the act information retrieval in a dictionary
 		from django.forms.models import model_to_dict
 		tempDic=model_to_dict(actId, fields=["prelexProposOrigine", "prelexNoUniqueType", "proposSplittee", "suite2eLecturePE"])
@@ -88,7 +120,7 @@ def getInformationFromPrelex(actIdVar):
 		print "No prelex url"
 		act=None
 	
-	return actId, act
+	return act
 
 
 def actsView(request):
@@ -105,6 +137,8 @@ def actsView(request):
 		
 		#if an act is selected
 		if actToValidate!="":
+			actId=ActsIdsModel.objects.get(id=actToValidate)
+			act=ActsInformationModel.objects.get(actId_id=actToValidate)
 			#saves the act
 			if 'actsValidationSaveButton' in request.POST:
 				print "save"
@@ -112,16 +146,13 @@ def actsView(request):
 				#delete from europolix.actsInformationRetrieval_actsinformationmodel;
 				#delete from europolix.actsIdsValidation_actsidsmodel;
 				#~ INSERT INTO europolix.actsInformationRetrieval_actsinformationmodel (actId_id) SELECT id FROM europolix.actsIdsValidation_actsidsmodel
-				act=ActsInformationModel.objects.get(actId=actToValidate)
 				act.validated=True
 				form = ActsInformationForm(request.POST, instance=act)
-
 				if form.is_valid():
 					print "form valid"
 					form.save()
 					del form
 					#save notes
-					actId=ActsIdsModel.objects.get(id=actToValidate)
 					actId.notes=request.POST.getlist('notes')[0]
 					actId.save()
 					state="saved"
@@ -135,14 +166,16 @@ def actsView(request):
 				print 'actsToValidate display'
 				#a act has been selected in the drop down list -> the related information are displayed
 				if state=="display":
-					actId, act=getInformationFromPrelex(actToValidate)
-					print "act", act
 					urlDic={}
 					urlDic["eurlexUrl"]=eurlexIds.getEurlexUrl(actId.fileNoCelex)
 					urlDic["oeilUrl"]=oeilIds.getOeilUrl(str(actId.fileNoUniqueType), str(actId.fileNoUniqueAnnee), str(actId.fileNoUniqueChrono))
 					urlDic["prelexUrl"]=actId.prelexUrl
+					act=getInformationFromEurlex(actId, act, urlDic["eurlexUrl"])
+					act=getInformationFromPrelex(actId, act, urlDic["prelexUrl"])
+					print "act", act
 					form = ActsInformationForm(instance=act, initial={'actsToValidate': actToValidate})
 					idForm=ActsIdsForm(instance=actId)
+					responseDic["url"]=urlDic
 				#an error occured while validating the act -> display of these errors
 				elif state=="ongoing":
 					print "ongoing"
@@ -151,9 +184,8 @@ def actsView(request):
 				
 				responseDic['actId']=actId
 				responseDic['act']=act
-				responseDic["url"]=urlDic
-				responseDic['form']=form
 				responseDic['idForm']=idForm
+				responseDic['form']=form
 		
 	#~ #if form has not been created yet -> unbound form
 	if 'form' not in locals():

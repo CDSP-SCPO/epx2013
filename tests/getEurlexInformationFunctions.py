@@ -19,6 +19,10 @@ def getTitreEnFromEurlex(soup):
 	"""
 	return soup.find("h2", text="Title and reference").findNext("p").get_text()
 
+#right under "Title and reference"
+#not NULL
+
+
 
 def getDirectoryCodeFromEurlex(soup):
 	"""
@@ -32,85 +36,72 @@ def getDirectoryCodeFromEurlex(soup):
 	return soup.find("strong", text="Directory code:").findParent()
 
 
-def getCodeSectRep01FromEurlex(soup):
+def getCodeSectRepFromEurlex(soup):
 	"""
 	FUNCTION
-	get the codeSectRep01 variable from the eurlex url
+	get the codeSectRep01-04 variables from the eurlex url
 	PARAMETERS
 	soup: eurlex url content
 	RETURN
-	codeSectRep01
+	codeSectRep01, codeSectRep02, codeSectRep03, codeSectRep04
 	"""
-	return soup.findNext('em').get_text().strip()
+	codeSectRep=soup.findAll('em')
+	codeSectRepVars=[]
+	for i in range(4):
+		codeSectRepVars.append(None)
 
-
-def getCodeSectRep02FromEurlex(soup):
-	"""
-	FUNCTION
-	get the codeSectRep02 variable from the eurlex url
-	PARAMETERS
-	soup: eurlex url content
-	RETURN
-	codeSectRep02
-	"""
-	return soup.findNext('em').findNext('em').get_text().strip()
-
-
-def getRepEn1FromEurlex(soup):
-	"""
-	FUNCTION
-	get the repEn1 variable from the eurlex url
-	PARAMETERS
-	soup: eurlex url content
-	RETURN
-	repEn1
-	"""
-
-	i=0
-	found=False
-	while i<20:
-		nextElement=soup.nextSibling
-		print nextElement
-		i+=1
-		if type(nextElement) is Tag:
-			print nextElement
-			if nextElement.name!=u'em':
-				if nextElement.name==u'a':
-					print nextElement.get_text()
-			else:
-				found=True
+	for i in range(len(codeSectRep)):
+		codeSectRepVars[i]=codeSectRep[i].get_text().strip()
 	
-	#~ print soup.nextSibling
-	#~ repEn1=""
-	#~ soup=soup.findNext('em')
-	#~ print soup.contents
-	#~ for item in soup.contents:
-		#~ if type(item) is Tag:
-			#~ if item.name!=u'em':
-				#~ if item.name==u'a':
-					#~ print item.get_text()
-					#~ repEn1+=item.get_text()+"; "
-			#~ else:
-				#~ print "em found"
+	return codeSectRepVars[0], codeSectRepVars[1], codeSectRepVars[2], codeSectRepVars[3]
 
-	#~ print "repEn1", repEn1
-#~ 
-	#~ for a in soup.childGenerator():
-		 #~ print "type", type(a)
-		 #~ print "str", str(a)
+#first, second, third and fourth code under "Directory code:"
+#8 chiffres sous cette forme : 12.34.56.78
+#first not NULL
+#second, third and fourth: can be null
 
-	return None
 
-def getRepEn2FromEurlex(soup):
+def getRepEnFromEurlex(soup):
 	"""
 	FUNCTION
-	get the repEn2 variable from the eurlex url
+	get the repEn1 and repEn2 variables from the eurlex url
 	PARAMETERS
 	soup: eurlex url content
 	RETURN
-	repEn2
+	repEn1 and repEn2
 	"""
-	return None
+	linksList=soup.findAll('a')
+	delimitorsList=[]
+	repEn1=repEn2=repEn3=repEn4=""
+	#find where the 2 variables get separated
+	for link in linksList:
+		if link.nextSibling.strip()!="/":
+			delimitorsList.append(linksList.index(link)+1)
+
+	#repEn1 
+	for i in range(delimitorsList[0]):
+		repEn1+=linksList[i].get_text()+"; "
+	
+	try:
+		#repEn2
+		for i in range(delimitorsList[0], delimitorsList[1]):
+			repEn2+=linksList[i].get_text()+"; "
+			
+		#repEn3
+		for i in range(delimitorsList[1], delimitorsList[2]):
+			repEn3+=linksList[i].get_text()+"; "
+		
+		#repEn4
+		for i in range(delimitorsList[2], len(linksList)):
+			repEn4+=linksList[i].get_text()+"; "
+	except:
+		print "less than four repEn"
+
+	return repEn1[:-2], repEn2[:-2], repEn3[:-2], repEn4[:-2]
+
+#texts in front of the codeSectRep01 and codeSectRep02 variables (under "Directory code:")
+#codeSectRep01 not NULL
+#codeSectRep02 can be Null
 
 
 def getTypeActeFromEurlex(soup):
@@ -126,6 +117,10 @@ def getTypeActeFromEurlex(soup):
 	form=soup.find("h2", text="Miscellaneous information").findNext("strong", text="Form:").findNext('br').next.strip()
 	return author+" "+form
 
+#act type under Miscellaneous information->Author and Miscellaneous information->Form
+#not NULL
+#List of possible values (acronyms of real values): CS DEC, CS DEC CAD, CS DVE, CS REG, DEC, DVE, REG, CS DEC SUI, DEC SUI.
+
 
 def getBaseJuridiqueFromEurlex(soup):
 	"""
@@ -137,6 +132,22 @@ def getBaseJuridiqueFromEurlex(soup):
 	baseJuridique
 	"""
 	return soup.find("h2", text="Relationship between documents").findNext("strong", text="Legal basis:").findNext('a').get_text()
+
+#under "Legal basis:"
+#not null
+#decomposition of the variable:
+#~ 1/ 1, 2, 3 ou 4
+#~ 2/ 4 chiffres suivants : année de l'acte constituant la base juridique
+#~ 3/ "E", "M", "R", "L" ou "D" 
+#~ 4/ 3 or 4 figures
+#~ 5/éventuellement tiret puis au choix:
+#~ (
+	#~ - "A": followed by figures
+	#~ - "P": followed by figures
+	#~ - "FR": followed by figures
+	#~ - "L": followed by figures
+	#~ - "PT": followed by (one figure or one caps letter or one roman figure) and one parenthesis and/or one caps letter and one parenthesis and/or figures and sometimes one parenthesis
+#~ ) -> can be repeated
 
 
 def getEurlexInformation(soup):
@@ -156,21 +167,19 @@ def getEurlexInformation(soup):
 	
 	directoryCodeSoup=getDirectoryCodeFromEurlex(soup)
 	
-	#codeSectRep01
-	dataDic['codeSectRep01']=getCodeSectRep01FromEurlex(directoryCodeSoup)
+	#codeSectRep01, codeSectRep02, codeSectRep03, codeSectRep04
+	dataDic['codeSectRep01'], dataDic['codeSectRep02'], dataDic['codeSectRep03'], dataDic['codeSectRep04']=getCodeSectRepFromEurlex(directoryCodeSoup)
 	print "codeSectRep01 (eurlex):", dataDic['codeSectRep01']
-
-	#codeSectRep02
-	dataDic['codeSectRep02']=getCodeSectRep02FromEurlex(directoryCodeSoup)
 	print "codeSectRep02 (eurlex):", dataDic['codeSectRep02']
+	print "codeSectRep03 (eurlex):", dataDic['codeSectRep03']
+	print "codeSectRep04 (eurlex):", dataDic['codeSectRep04']
 
-	#repEn1
-	dataDic['repEn1']=getRepEn1FromEurlex(directoryCodeSoup)
+	#repEn1, repEn2, repEn3, repEn4
+	dataDic['repEn1'], dataDic['repEn2'], dataDic['repEn3'], dataDic['repEn4']=getRepEnFromEurlex(directoryCodeSoup)
 	print "repEn1 (eurlex):", dataDic['repEn1']
-
-	#repEn2
-	dataDic['repEn2']=getRepEn2FromEurlex(directoryCodeSoup)
 	print "repEn2 (eurlex):", dataDic['repEn2']
+	print "repEn3 (eurlex):", dataDic['repEn3']
+	print "repEn4 (eurlex):", dataDic['repEn4']
 
 	#typeActe
 	dataDic['typeActe']=getTypeActeFromEurlex(soup)

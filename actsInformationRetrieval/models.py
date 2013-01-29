@@ -13,6 +13,15 @@ class ActsInformationModel(models.Model):
 	
 	#fields to retrieve for the statistical analysis 
 	
+	#eurlex
+	titreEn=models.CharField(max_length=500,  blank=True, null=True, default=None)
+	codeSectRep01=models.CharField(max_length=8,  blank=True, null=True, default=None)
+	codeSectRep02=models.CharField(max_length=8,  blank=True, null=True, default=None)
+	repEn1=models.CharField(max_length=200,  blank=True, null=True, default=None)
+	repEn2=models.CharField(max_length=200,  blank=True, null=True, default=None)
+	typeActe=models.CharField(max_length=100,  blank=True, null=True, default=None)
+	baseJuridique=models.CharField(max_length=50,  blank=True, null=True, default=None)
+	
 	#prelex
 	adoptionProposOrigine=models.DateField(max_length=10, blank=True, null=True, default=None)
 	comProc=models.CharField(max_length=100,  blank=True, null=True, default=None)
