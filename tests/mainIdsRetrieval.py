@@ -59,7 +59,6 @@ elif choice=="oeil":
 
 	oeil.getAllOeilIds(html)
 
-
 else:
 	if ids=="yes":
 		if choice=="prelexWithOldIds":

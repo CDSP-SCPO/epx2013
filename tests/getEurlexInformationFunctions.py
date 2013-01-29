@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 """
 get the information from Eurlex (fields for the statistical analysis)
-TEST GITHUB
 """
 import re
 from bs4 import BeautifulSoup
+from bs4 import NavigableString
+from bs4 import Tag
 
 
 def getTitreEnFromEurlex(soup):
@@ -16,7 +17,7 @@ def getTitreEnFromEurlex(soup):
 	RETURN
 	titreEn
 	"""
-	return soup.find("h2", text="Title and reference").findNext("p")
+	return soup.find("h2", text="Title and reference").findNext("p").get_text()
 
 
 def getDirectoryCodeFromEurlex(soup):
@@ -26,9 +27,9 @@ def getDirectoryCodeFromEurlex(soup):
 	PARAMETERS
 	soup: eurlex url content
 	RETURN
-	beginning of the directory code part
+	directory code part
 	"""
-	return soup.find("a", text="Directory code:")
+	return soup.find("strong", text="Directory code:").findParent()
 
 
 def getCodeSectRep01FromEurlex(soup):
@@ -40,7 +41,7 @@ def getCodeSectRep01FromEurlex(soup):
 	RETURN
 	codeSectRep01
 	"""
-	return soup.findNext('em')
+	return soup.findNext('em').get_text().strip()
 
 
 def getCodeSectRep02FromEurlex(soup):
@@ -52,7 +53,7 @@ def getCodeSectRep02FromEurlex(soup):
 	RETURN
 	codeSectRep02
 	"""
-	return soup.findNext('em').findNext('em')
+	return soup.findNext('em').findNext('em').get_text().strip()
 
 
 def getRepEn1FromEurlex(soup):
@@ -64,8 +65,41 @@ def getRepEn1FromEurlex(soup):
 	RETURN
 	repEn1
 	"""
-	return None
 
+	i=0
+	found=False
+	while i<20:
+		nextElement=soup.nextSibling
+		print nextElement
+		i+=1
+		if type(nextElement) is Tag:
+			print nextElement
+			if nextElement.name!=u'em':
+				if nextElement.name==u'a':
+					print nextElement.get_text()
+			else:
+				found=True
+	
+	#~ print soup.nextSibling
+	#~ repEn1=""
+	#~ soup=soup.findNext('em')
+	#~ print soup.contents
+	#~ for item in soup.contents:
+		#~ if type(item) is Tag:
+			#~ if item.name!=u'em':
+				#~ if item.name==u'a':
+					#~ print item.get_text()
+					#~ repEn1+=item.get_text()+"; "
+			#~ else:
+				#~ print "em found"
+
+	#~ print "repEn1", repEn1
+#~ 
+	#~ for a in soup.childGenerator():
+		 #~ print "type", type(a)
+		 #~ print "str", str(a)
+
+	return None
 
 def getRepEn2FromEurlex(soup):
 	"""
@@ -102,7 +136,7 @@ def getBaseJuridiqueFromEurlex(soup):
 	RETURN
 	baseJuridique
 	"""
-	return soup.find("h2", text="Relationship between documents").findNext("strong", text="Legal basis:").findNext('a')
+	return soup.find("h2", text="Relationship between documents").findNext("strong", text="Legal basis:").findNext('a').get_text()
 
 
 def getEurlexInformation(soup):
