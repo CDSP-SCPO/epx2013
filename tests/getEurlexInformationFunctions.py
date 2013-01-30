@@ -113,8 +113,30 @@ def getTypeActeFromEurlex(soup):
 	RETURN
 	typeActe
 	"""
-	author=soup.find("h2", text="Miscellaneous information").findNext("strong", text="Author:").findNext('br').next.strip()
-	form=soup.find("h2", text="Miscellaneous information").findNext("strong", text="Form:").findNext('br').next.strip()
+	#author part
+	author=soup.find("h2", text="Miscellaneous information").findNext("strong", text="Author:").findNext('br').next.strip().lower()
+	#form part
+	form=soup.find("h2", text="Miscellaneous information").findNext("strong", text="Form:").findNext('br').next.strip().lower()
+	
+	#return acronyms
+	authorAcronym=""
+	if "european parliament" not in author:
+		authorAcronym="CS "
+	#decision
+	if "decision" in form:
+		#framework decision
+		if "framework" in form:
+			return authorAcronym+"DEC CAD"
+		if "without addressee" in form:
+			return authorAcronym+"DEC W/O ADD"
+		return authorAcronym+"DEC"
+	#directive
+	if form=="directive":
+		return authorAcronym+"DVE"
+	#regulation
+	if form=="regulation":
+		return authorAcronym+"REG"
+
 	return author+" "+form
 
 #act type under Miscellaneous information->Author and Miscellaneous information->Form

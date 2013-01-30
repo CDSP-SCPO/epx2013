@@ -216,8 +216,10 @@ def specialDgSearch(dg):
 	"""
 	try:
 		#if there is a match in the db -> return short name (acronym)
-		dgCode=DgFullNameModel.objects.get(fullName=dg).values("dgCode_id")
-		return DgCodeModel.objects.get(id=dgCode).values("acronym")
+		print "dg", dg
+		print "dgCode", DgFullNameModel.objects.get(fullName=dg).dgCode_id
+		dgCode=DgFullNameModel.objects.get(fullName=dg).dgCode_id
+		return DgCodeModel.objects.get(id=dgCode).acronym
 	except:
 		print "Full name not stored in db"
 		return dg

@@ -70,13 +70,16 @@ def getInformationFromEurlex(actId, act, eurlexUrl):
 		act.titreEn=dataDic['titreEn']
 		act.codeSectRep01=dataDic['codeSectRep01']
 		act.codeSectRep02=dataDic['codeSectRep02']
+		act.codeSectRep03=dataDic['codeSectRep03']
+		act.codeSectRep04=dataDic['codeSectRep04']
 		act.repEn1=dataDic['repEn1']
 		act.repEn2=dataDic['repEn2']
+		act.repEn3=dataDic['repEn3']
+		act.repEn4=dataDic['repEn4']
 		act.typeActe=dataDic['typeActe']
 		act.baseJuridique=dataDic['baseJuridique']
 	else:
 		print "No eurlex url"
-		act=None
 	
 	return act
 
@@ -118,7 +121,6 @@ def getInformationFromPrelex(actId, act, prelexUrl):
 		act.nbLectures=dataDic['nbLectures']
 	else:
 		print "No prelex url"
-		act=None
 	
 	return act
 
@@ -164,12 +166,13 @@ def actsView(request):
 			#displays the retrieved information of the act to validate (selection of a act in the drop down list)
 			if state!="saved":
 				print 'actsToValidate display'
-				#a act has been selected in the drop down list -> the related information are displayed
+				#"compute" the url of the eurlex, oeil and prelex page
+				urlDic={}
+				urlDic["eurlexUrl"]=eurlexIds.getEurlexUrl(actId.fileNoCelex)
+				urlDic["oeilUrl"]=oeilIds.getOeilUrl(str(actId.fileNoUniqueType), str(actId.fileNoUniqueAnnee), str(actId.fileNoUniqueChrono))
+				urlDic["prelexUrl"]=actId.prelexUrl
+				#an act has been selected in the drop down list -> the related information are displayed
 				if state=="display":
-					urlDic={}
-					urlDic["eurlexUrl"]=eurlexIds.getEurlexUrl(actId.fileNoCelex)
-					urlDic["oeilUrl"]=oeilIds.getOeilUrl(str(actId.fileNoUniqueType), str(actId.fileNoUniqueAnnee), str(actId.fileNoUniqueChrono))
-					urlDic["prelexUrl"]=actId.prelexUrl
 					act=getInformationFromEurlex(actId, act, urlDic["eurlexUrl"])
 					act=getInformationFromPrelex(actId, act, urlDic["prelexUrl"])
 					print "act", act
