@@ -73,7 +73,7 @@ def getRepEnFromEurlex(soup):
 	linksList=soup.findAll('a')
 	delimitorsList=[]
 	repEn1=repEn2=repEn3=repEn4=""
-	#find where the 2 variables get separated
+	#find where 2 variables get separated
 	for link in linksList:
 		if link.nextSibling.strip()!="/":
 			delimitorsList.append(linksList.index(link)+1)
@@ -131,7 +131,14 @@ def getBaseJuridiqueFromEurlex(soup):
 	RETURN
 	baseJuridique
 	"""
-	return soup.find("h2", text="Relationship between documents").findNext("strong", text="Legal basis:").findNext('a').get_text()
+	#http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CELEX:32002L0090:EN:NOT
+	li=soup.find("h2", text="Relationship between documents").findNext("strong", text="Legal basis:").findParent('li')
+	legalBases=li.findAll('a')
+	var=""
+	for legalBasis in legalBases:
+		var+=legalBasis.get_text()+legalBasis.nextSibling.strip()+"; "
+	
+	return var[:-2]
 
 #under "Legal basis:"
 #not null

@@ -36,44 +36,29 @@ def getDirectoryCodeFromEurlex(soup):
 	return soup.find("strong", text="Directory code:").findParent()
 
 
-def getCodeSectRep01FromEurlex(soup):
+def getCodeSectRepFromEurlex(soup):
 	"""
 	FUNCTION
-	get the codeSectRep01 variable from the eurlex url
+	get the codeSectRep01-04 variables from the eurlex url
 	PARAMETERS
 	soup: eurlex url content
 	RETURN
-	codeSectRep01
+	codeSectRep01, codeSectRep02, codeSectRep03, codeSectRep04
 	"""
-	return soup.findNext('em').get_text().strip()
+	codeSectRep=soup.findAll('em')
+	codeSectRepVars=[]
+	for i in range(4):
+		codeSectRepVars.append(None)
 
-#first code under "Directory code:"
+	for i in range(len(codeSectRep)):
+		codeSectRepVars[i]=codeSectRep[i].get_text().strip()
+	
+	return codeSectRepVars[0], codeSectRepVars[1], codeSectRepVars[2], codeSectRepVars[3]
+
+#first, second, third and fourth code under "Directory code:"
 #8 chiffres sous cette forme : 12.34.56.78
-#not NULL
-#TODO:
-#~ Lorsqu’exceptionnellement, on ne trouve pas de code répertoire sur la fiche Celex de l’acte :
-#~ - on le cherche l’acte en question dans la liste des actes par secteur sur le site du répertoire http://eur-
-#~ lex.europa.eu/fr/repert/index.htm
-#~ - si c’est infructueux, on prend le(s) code(s) répertoire(s) de l’acte qu’il modifie.
-
-
-def getCodeSectRep02FromEurlex(soup):
-	"""
-	FUNCTION
-	get the codeSectRep02 variable from the eurlex url
-	PARAMETERS
-	soup: eurlex url content
-	RETURN
-	codeSectRep02
-	"""
-	try:
-		return soup.findNext('em').findNext('em').get_text().strip()
-	except:
-		return None
-
-#second code under "Directory code:"
-#8 chiffres sous cette forme : 12.34.56.78
-#not NULL?
+#first not NULL
+#second, third and fourth: can be null
 
 
 def getRepEnFromEurlex(soup):
@@ -86,26 +71,37 @@ def getRepEnFromEurlex(soup):
 	repEn1 and repEn2
 	"""
 	linksList=soup.findAll('a')
-	#find where the 2 variables get separated
+	delimitorsList=[]
+	repEn1=repEn2=repEn3=repEn4=""
+	#find where 2 variables get separated
 	for link in linksList:
 		if link.nextSibling.strip()!="/":
-			index=linksList.index(link)+1
-			break
+			delimitorsList.append(linksList.index(link)+1)
 
-	#repEn1
-	repEn1=""
-	for i in range(index):
+	#repEn1 
+	for i in range(delimitorsList[0]):
 		repEn1+=linksList[i].get_text()+"; "
 	
-	#repEn2
-	repEn2=""
-	for i in range(index, len(linksList)):
-		repEn2+=linksList[i].get_text()+"; "
+	try:
+		#repEn2
+		for i in range(delimitorsList[0], delimitorsList[1]):
+			repEn2+=linksList[i].get_text()+"; "
+			
+		#repEn3
+		for i in range(delimitorsList[1], delimitorsList[2]):
+			repEn3+=linksList[i].get_text()+"; "
+		
+		#repEn4
+		for i in range(delimitorsList[2], len(linksList)):
+			repEn4+=linksList[i].get_text()+"; "
+	except:
+		print "less than four repEn"
 
-	return repEn1[:-2], repEn2[:-2]
+	return repEn1[:-2], repEn2[:-2], repEn3[:-2], repEn4[:-2]
 
 #texts in front of the codeSectRep01 and codeSectRep02 variables (under "Directory code:")
-#not NULL
+#codeSectRep01 not NULL
+#codeSectRep02 can be Null
 
 
 def getTypeActeFromEurlex(soup):
@@ -135,7 +131,14 @@ def getBaseJuridiqueFromEurlex(soup):
 	RETURN
 	baseJuridique
 	"""
-	return soup.find("h2", text="Relationship between documents").findNext("strong", text="Legal basis:").findNext('a').get_text()
+	#http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CELEX:32002L0090:EN:NOT
+	li=soup.find("h2", text="Relationship between documents").findNext("strong", text="Legal basis:").findParent('li')
+	legalBases=li.findAll('a')
+	var=""
+	for legalBasis in legalBases:
+		var+=legalBasis.get_text()+legalBasis.nextSibling.strip()+"; "
+	
+	return var[:-2]
 
 #under "Legal basis:"
 #not null
@@ -171,23 +174,19 @@ def getEurlexInformation(soup):
 	
 	directoryCodeSoup=getDirectoryCodeFromEurlex(soup)
 	
-	#codeSectRep01
-	dataDic['codeSectRep01']=getCodeSectRep01FromEurlex(directoryCodeSoup)
+	#codeSectRep01, codeSectRep02, codeSectRep03, codeSectRep04
+	dataDic['codeSectRep01'], dataDic['codeSectRep02'], dataDic['codeSectRep03'], dataDic['codeSectRep04']=getCodeSectRepFromEurlex(directoryCodeSoup)
 	print "codeSectRep01 (eurlex):", dataDic['codeSectRep01']
-
-	#codeSectRep02
-	dataDic['codeSectRep02']=getCodeSectRep02FromEurlex(directoryCodeSoup)
 	print "codeSectRep02 (eurlex):", dataDic['codeSectRep02']
+	print "codeSectRep03 (eurlex):", dataDic['codeSectRep03']
+	print "codeSectRep04 (eurlex):", dataDic['codeSectRep04']
 
-	repEn=getRepEnFromEurlex(directoryCodeSoup)
-	
-	#repEn1
-	dataDic['repEn1']=repEn[0]
+	#repEn1, repEn2, repEn3, repEn4
+	dataDic['repEn1'], dataDic['repEn2'], dataDic['repEn3'], dataDic['repEn4']=getRepEnFromEurlex(directoryCodeSoup)
 	print "repEn1 (eurlex):", dataDic['repEn1']
-
-	#repEn2
-	dataDic['repEn2']=repEn[1]
 	print "repEn2 (eurlex):", dataDic['repEn2']
+	print "repEn3 (eurlex):", dataDic['repEn3']
+	print "repEn4 (eurlex):", dataDic['repEn4']
 
 	#typeActe
 	dataDic['typeActe']=getTypeActeFromEurlex(soup)
