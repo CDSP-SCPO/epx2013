@@ -5,7 +5,7 @@ get the information from Prelex (fields for the statistical analysis)
 import re
 from bs4 import BeautifulSoup
 #dg codes
-from actsInformationRetrieval.models import DgCodeModel, DgFullNameModel
+#~ from actsInformationRetrieval.models import DgCodeModel, DgFullNameModel
 
 
 def getAdoptionByCommissionTableFromPrelex(soup):
@@ -93,134 +93,136 @@ def getJointlyResponsiblesFromPrelex(soup):
 
 #NOT USED ANYMORE
 #REPLACED BY DATABASE TABLES
-#~ def specialDgSearch(dg):
-	#~ """
-	#~ FUNCTION
-	#~ gives the "official" name of special values of primarily responsible
-	#~ PARAMETERS
-	#~ dg: primarily responsible
-	#~ RETURN
-	#~ new official name or None if dg is a "normal" name
-	#~ """
-	#list of short names: http://publications.europa.eu/code/en/en-390600.htm
-	#example: http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=en&DosId=187691
-	#~ if dg==u"Secretariat-General":
-		#~ return "SG"
-	#~ if dg=="Legal Service":
-		#~ return "SJ"
-	#~ if dg=="DG Communication":
-		#~ return "COMM"
-	#~ if dg=="Bureau of European Policy Advisers":
-		#~ return "BEPA"
-	#~ if dg==u"DG Economic and Financial Affairs":
-		#~ return "ECFIN"
-	#~ if dg=="DG Enterprises" or dg=="DG Enterprise and Industry" or dg=="DG 23":
-		#~ return "ENTR"
-	#~ if dg=="DG Competition":
-		#~ return "COMP"
-	#~ if dg=="DG Employment, Social Affairs" or dg==u"DG Employment, Social Affairs and Inclusion" or dg=="DG05":
-		#~ return "EMPL"
-	#~ if dg=="DG Agriculture" or dg==u"DG Agriculture and Rural Development" or dg=="DG06":
-		#~ return "AGRI"
-	#~ if dg=="DG Energy" or dg=="DG Energy and Transport":
-		#~ return "ENER"
-	#~ if dg=="DG Mobility and Transports":
-		#~ return "MOVE"
-	#~ if dg=="DG Climate Action":
-		#~ return "CLIMA"
-	#~ if dg=="DG Environment":
-		#~ return "ENV"
-	#~ if dg=="DG Research and Innovation":
-		#~ return "RTD"
-	#~ if dg=="Joint Research Centre":
-		#~ return "JRC"
-	#~ if dg=="DG Communications Networks, Content and Technology" or dg=="Communications Networks, Content and Technology DG" or dg=="INFSO" or dg==u"DG Information Society" or dg==u"Information Society and Media DG" or dg=="DG Information Society and Media" or dg=="Directorate-General for the Information Society and Media" or dg=="Directorate-General for Communications Networks, Content and Technology":
-		#~ return "CNECT"
-	#~ if dg==u"DG Fisheries" or dg==u"DG Maritime Affairs and Fisheries":
-		#~ return "MARE"
-	#~ if dg==u"DG Internal Market" or dg==u"DG Internal Market and Services" or dg=="DG15":
-		#~ return "MARKT"
-	#~ if dg==u"Regional Policy DG" or dg=="DG Regional and Urban Policy" or dg=="Regional and Urban Policy DG":
-		#~ return "REGIO"
-	#~ if dg==u"DG Taxation and Customs Union":
-		#~ return "TAXUD"
-	#~ if dg=="DG Education et culture":
-		#~ return "EAC"
-	#~ if dg==u"DG Health and Consumers" or dg=="DG24":
-		#~ return "SANCO"
-	#~ if dg=="DG Home Affairs":
-		#~ return "HOME"
-	#~ if dg==u"DG Justice":
-		#~ return "JUST"
-	#~ if dg=="Service for Foreign Policy Instruments" or dg=="Foreign Policy Instruments Service" or dg=="FPIS":
-		#~ return "FPI"
-	#~ if dg=="DG Trade":
-		#~ return "TRADE"
-	#~ if dg=="DG Enlargement":
-		#~ return "ELARG"
-	#~ if dg==u"DG Development and Cooperation — EuropeAid" or dg=="EuropeAid Development and Cooperation DG" or dg=="EuropeAid Development and Cooperation Directorate-General" or dg=="Directorate-General for Development and Cooperation — EuropeAid" or dg=="Development and Cooperation DG — EuropeAid":
-		#~ return "DEVCO"
-	#~ if dg=="DG Humanitarian Aid and Civil Protection (ECHO)":
-		#~ return "ECHO"
-	#~ if dg=="Eurostat" or dg=="Office statistique":
-		#~ return "ESTAT"
-	#~ if dg=="DG Human Resources and Security":
-		#~ return "HR"
-	#~ if dg=="DG Informatics":
-		#~ return "DIGIT"
-	#~ if dg=="DG Budget":
-		#~ return "BUDG"
-	#~ if dg=="Internal Audit Service":
-		#~ return "IAS"
-	#~ if dg=="European Anti-Fraud Office":
-		#~ return "OLAF"
-	#~ if dg=="DG Interpretation":
-		#~ return "SCIC"
-	#~ if dg=="DG Translation":
-		#~ return "DGT"
-	#~ if dg=="Publications Office":
-		#~ return "OP"
-	#~ if dg=="Office for Infrastructure and Logistics in Brussels":
-		#~ return "OIB"
-	#~ if dg=="Office for the Administration and Payment of Individual Entitlements":
-		#~ return "PMO"
-	#~ if dg=="Office for Infrastructure and Logistics in Luxembourg":
-		#~ return "OIL"
-	#~ if dg=="European Personnel Selection Office":
-		#~ return "EPSO"
-	#~ if dg=="Executive Agency for Competitiveness and Innovation":
-		#~ return "EACI"
-	#~ if dg=="Education, Audiovisual and Culture Executive Agency":
-		#~ return "EACEA"
-	#~ if dg=="Executive Agency for Health and Consumers":
-		#~ return "EAHC"
-	#~ if dg=="Trans-European Transport Network Executive Agency":
-		#~ return "TENEA"
-	#~ if dg=="European Research Council Executive Agency":
-		#~ return "ERCEA"
-	#~ if dg=="Research Executive Agency":
-		#~ return "REA"
-	#~ if dg==u"DG Relations extérieures":
-		#~ return "RELEX"
-	#~ return None
-
-
 def specialDgSearch(dg):
 	"""
 	FUNCTION
-	gives the standard short name of special values for the primarily responsible
+	gives the "official" name of special values of primarily responsible
 	PARAMETERS
 	dg: primarily responsible
 	RETURN
-	short name or dg itself if it is not associated to an acronym in the db
+	new official name or None if dg is a "normal" name
 	"""
-	try:
-		#if there is a match in the db -> return short name (acronym)
-		dgCode=DgFullNameModel.objects.get(fullName=dg).dgCode_id
-		return DgCodeModel.objects.get(id=dgCode).acronym
-	except:
-		print "Full name not stored in db"
-		return dg
+	#~ #list of short names: http://publications.europa.eu/code/en/en-390600.htm
+	#~ #example: http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=en&DosId=187691
+	if dg==u"Secretariat-General":
+		return "SG"
+	if dg=="Legal Service":
+		return "SJ"
+	if dg=="DG Communication":
+		return "COMM"
+	if dg=="Bureau of European Policy Advisers":
+		return "BEPA"
+	if dg==u"DG Economic and Financial Affairs":
+		return "ECFIN"
+	if dg=="DG Enterprises" or dg=="DG Enterprise and Industry" or dg=="DG 23":
+		return "ENTR"
+	if dg=="DG Competition":
+		return "COMP"
+	if dg=="DG Employment, Social Affairs" or dg==u"DG Employment, Social Affairs and Inclusion" or dg=="DG05":
+		return "EMPL"
+	if dg=="DG Agriculture" or dg==u"DG Agriculture and Rural Development" or dg=="DG06":
+		return "AGRI"
+	if dg=="DG Energy" or dg=="DG Energy and Transport":
+		return "ENER"
+	if dg=="DG Mobility and Transports":
+		return "MOVE"
+	if dg=="DG Climate Action":
+		return "CLIMA"
+	if dg=="DG Environment":
+		return "ENV"
+	if dg=="DG Research and Innovation":
+		return "RTD"
+	if dg=="Joint Research Centre":
+		return "JRC"
+	if dg=="DG Communications Networks, Content and Technology" or dg=="Communications Networks, Content and Technology DG" or dg=="INFSO" or dg==u"DG Information Society" or dg==u"Information Society and Media DG" or dg=="DG Information Society and Media" or dg=="Directorate-General for the Information Society and Media" or dg=="Directorate-General for Communications Networks, Content and Technology":
+		return "CNECT"
+	if dg==u"DG Fisheries" or dg==u"DG Maritime Affairs and Fisheries":
+		return "MARE"
+	if dg==u"DG Internal Market" or dg==u"DG Internal Market and Services" or dg=="DG15":
+		return "MARKT"
+	if dg==u"Regional Policy DG" or dg=="DG Regional and Urban Policy" or dg=="Regional and Urban Policy DG":
+		return "REGIO"
+	if dg==u"DG Taxation and Customs Union":
+		return "TAXUD"
+	if dg=="DG Education et culture":
+		return "EAC"
+	if dg==u"DG Health and Consumers" or dg=="DG24":
+		return "SANCO"
+	if dg=="DG Home Affairs":
+		return "HOME"
+	if dg==u"DG Justice":
+		return "JUST"
+	if dg=="Service for Foreign Policy Instruments" or dg=="Foreign Policy Instruments Service" or dg=="FPIS":
+		return "FPI"
+	if dg=="DG Trade":
+		return "TRADE"
+	if dg=="DG Enlargement":
+		return "ELARG"
+	if dg==u"DG Development and Cooperation — EuropeAid" or dg=="EuropeAid Development and Cooperation DG" or dg=="EuropeAid Development and Cooperation Directorate-General" or dg=="Directorate-General for Development and Cooperation — EuropeAid" or dg=="Development and Cooperation DG — EuropeAid":
+		return "DEVCO"
+	if dg=="DG Humanitarian Aid and Civil Protection (ECHO)":
+		return "ECHO"
+	if dg=="Eurostat" or dg=="Office statistique":
+		return "ESTAT"
+	if dg=="DG Human Resources and Security":
+		return "HR"
+	if dg=="DG Informatics":
+		return "DIGIT"
+	if dg=="DG Budget":
+		return "BUDG"
+	if dg=="Internal Audit Service":
+		return "IAS"
+	if dg=="European Anti-Fraud Office":
+		return "OLAF"
+	if dg=="DG Interpretation":
+		return "SCIC"
+	if dg=="DG Translation":
+		return "DGT"
+	if dg=="Publications Office":
+		return "OP"
+	if dg=="Office for Infrastructure and Logistics in Brussels":
+		return "OIB"
+	if dg=="Office for the Administration and Payment of Individual Entitlements":
+		return "PMO"
+	if dg=="Office for Infrastructure and Logistics in Luxembourg":
+		return "OIL"
+	if dg=="European Personnel Selection Office":
+		return "EPSO"
+	if dg=="Executive Agency for Competitiveness and Innovation":
+		return "EACI"
+	if dg=="Education, Audiovisual and Culture Executive Agency":
+		return "EACEA"
+	if dg=="Executive Agency for Health and Consumers":
+		return "EAHC"
+	if dg=="Trans-European Transport Network Executive Agency":
+		return "TENEA"
+	if dg=="European Research Council Executive Agency":
+		return "ERCEA"
+	if dg=="Research Executive Agency":
+		return "REA"
+	if dg==u"DG Relations extérieures":
+		return "RELEX"
+	return None
+#~ 
+#~ 
+#~ def specialDgSearch(dg):
+	#~ """
+	#~ FUNCTION
+	#~ gives the standard short name of special values for the primarily responsible
+	#~ PARAMETERS
+	#~ dg: primarily responsible
+	#~ RETURN
+	#~ short name or dg itself if it is not associated to an acronym in the db
+	#~ """
+	#~ try:
+		#~ #if there is a match in the db -> return short name (acronym)
+		#~ print "dg", dg
+		#~ print "dgCode", DgFullNameModel.objects.get(fullName=dg).dgCode_id
+		#~ dgCode=DgFullNameModel.objects.get(fullName=dg).dgCode_id
+		#~ return DgCodeModel.objects.get(id=dgCode).acronym
+	#~ except:
+		#~ print "Full name not stored in db"
+		#~ return dg
 
 
 def getDgPropositionFromPrelex(soup):

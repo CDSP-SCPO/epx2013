@@ -194,21 +194,32 @@ def getEurlexInformation(soup):
 	dataDic['titreEn']=getTitreEnFromEurlex(soup)
 	print "titreEn (eurlex):", dataDic['titreEn']
 	
-	directoryCodeSoup=getDirectoryCodeFromEurlex(soup)
-	
-	#codeSectRep01, codeSectRep02, codeSectRep03, codeSectRep04
-	dataDic['codeSectRep01'], dataDic['codeSectRep02'], dataDic['codeSectRep03'], dataDic['codeSectRep04']=getCodeSectRepFromEurlex(directoryCodeSoup)
-	print "codeSectRep01 (eurlex):", dataDic['codeSectRep01']
-	print "codeSectRep02 (eurlex):", dataDic['codeSectRep02']
-	print "codeSectRep03 (eurlex):", dataDic['codeSectRep03']
-	print "codeSectRep04 (eurlex):", dataDic['codeSectRep04']
+	try:
+		directoryCodeSoup=getDirectoryCodeFromEurlex(soup)
+		
+		#codeSectRep01, codeSectRep02, codeSectRep03, codeSectRep04
+		dataDic['codeSectRep01'], dataDic['codeSectRep02'], dataDic['codeSectRep03'], dataDic['codeSectRep04']=getCodeSectRepFromEurlex(directoryCodeSoup)
+		print "codeSectRep01 (eurlex):", dataDic['codeSectRep01']
+		print "codeSectRep02 (eurlex):", dataDic['codeSectRep02']
+		print "codeSectRep03 (eurlex):", dataDic['codeSectRep03']
+		print "codeSectRep04 (eurlex):", dataDic['codeSectRep04']
 
-	#repEn1, repEn2, repEn3, repEn4
-	dataDic['repEn1'], dataDic['repEn2'], dataDic['repEn3'], dataDic['repEn4']=getRepEnFromEurlex(directoryCodeSoup)
-	print "repEn1 (eurlex):", dataDic['repEn1']
-	print "repEn2 (eurlex):", dataDic['repEn2']
-	print "repEn3 (eurlex):", dataDic['repEn3']
-	print "repEn4 (eurlex):", dataDic['repEn4']
+		#repEn1, repEn2, repEn3, repEn4
+		dataDic['repEn1'], dataDic['repEn2'], dataDic['repEn3'], dataDic['repEn4']=getRepEnFromEurlex(directoryCodeSoup)
+		print "repEn1 (eurlex):", dataDic['repEn1']
+		print "repEn2 (eurlex):", dataDic['repEn2']
+		print "repEn3 (eurlex):", dataDic['repEn3']
+		print "repEn4 (eurlex):", dataDic['repEn4']
+	except: 
+		print "No directory code section"
+		dataDic['codeSectRep01']=None
+		dataDic['codeSectRep02']=None
+		dataDic['codeSectRep03']=None
+		dataDic['codeSectRep04']=None
+		dataDic['repEn1']=None
+		dataDic['repEn2']=None
+		dataDic['repEn3']=None
+		dataDic['repEn4']=None
 
 	#typeActe
 	dataDic['typeActe']=getTypeActeFromEurlex(soup)

@@ -53,7 +53,7 @@ displays the data of a given act (data for the statistical analysis displays dat
 		
 		<br />
 		
-		<!-- prelex validation table -->
+		<!-- eurlex validation table -->
 		<table id="eurlexTable" class="actsValidationTable">
 			<tr>
 				<td class="informationTableFirstColumn">titreEn</td>
@@ -161,6 +161,195 @@ displays the data of a given act (data for the statistical analysis displays dat
 					<div class="fieldWrapper">
 						{{ form.baseJuridique.errors }}
 						{{ form.baseJuridique }}
+					</div>
+				</td>
+			</tr>
+			
+		</table>
+		
+		
+		<br /><br />
+		
+		<div class="bold">OEIL:</div>
+		
+		<table id="oeilIdsTable">
+			<tr class="bold">
+				<td>noUniqueType</td>
+				<td>noUniqueAnnee</td>
+				<td>noUniqueChrono</td>
+				<td>url exists?</td>
+				<td>url link</td>
+			</tr>
+			<tr>
+				<td>{{actId.fileNoUniqueType}}</td>
+				<td>{{actId.fileNoUniqueAnnee}}</td>
+				<td>{{actId.fileNoUniqueChrono}}</td>
+				{% if actId.fileOeilUrlExists %}<td>{% else %}<td class="error">{% endif %}
+				{{actId.fileOeilUrlExists}}</td>
+				<td><a href="{{url.oeilUrl}}" target="_blank">oeil</a></td>
+			</tr>
+		</table>
+		
+		<br />
+		
+		<!-- oeil validation table -->
+		<table id="oeilTable" class="actsValidationTable">
+			<tr>
+				<td class="informationTableFirstColumn">commissionPE</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.commissionPE.errors }}
+						{{ form.commissionPE }}
+					</div>
+				</td>
+			</tr>
+			
+			<tr>
+				<td class="informationTableFirstColumn">epComAndtTabled</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.epComAndtTabled.errors }}
+						{{ form.epComAndtTabled }}
+					</div>
+				</td>
+			</tr>
+			
+			<tr>
+				<td class="informationTableFirstColumn">epComAndtAdopt</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.epComAndtAdopt.errors }}
+						{{ form.epComAndtAdopt }}
+					</div>
+				</td>
+			</tr>
+			
+			<tr>
+				<td class="informationTableFirstColumn">epVotesFor1</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.epVotesFor1.errors }}
+						{{ form.epVotesFor1 }}
+					</div>
+				</td>
+			</tr>
+			
+				<tr>
+				<td class="informationTableFirstColumn">epVotesAgst1</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.epVotesAgst1.errors }}
+						{{ form.epVotesAgst1 }}
+					</div>
+				</td>
+			</tr>
+			
+				<tr>
+				<td class="informationTableFirstColumn">epVotesAbs1</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.epVotesAbs1.errors }}
+						{{ form.epVotesAbs1 }}
+					</div>
+				</td>
+			</tr>
+			
+				<tr>
+				<td class="informationTableFirstColumn">epVotesFor2</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.epVotesFor2.errors }}
+						{{ form.epVotesFor2 }}
+					</div>
+				</td>
+			</tr>
+			
+				<tr>
+				<td class="informationTableFirstColumn">epVotesAgst2</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.epVotesAgst2.errors }}
+						{{ form.epVotesAgst2 }}
+					</div>
+				</td>
+			</tr>
+			
+				<tr>
+				<td class="informationTableFirstColumn">epVotesAbs2</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.epVotesAbs2.errors }}
+						{{ form.epVotesAbs2 }}
+					</div>
+				</td>
+			</tr>
+			
+			<tr>
+				<td class="informationTableFirstColumn">groupePolitiqueRapporteur1</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.groupePolitiqueRapporteur1.errors }}
+						{{ form.groupePolitiqueRapporteur1 }}
+					</div>
+				</td>
+			</tr>
+			
+			<tr>
+				<td class="informationTableFirstColumn">rapporteurPE1</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.rapporteurPE1.errors }}
+						{{ form.rapporteurPE1 }}
+					</div>
+				</td>
+			</tr>
+			
+			<tr>
+				<td class="informationTableFirstColumn">etatMbRapport1</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.etatMbRapport1.errors }}
+						{{ form.etatMbRapport1 }}
+					</div>
+				</td>
+			</tr>
+			
+			<tr>
+				<td class="informationTableFirstColumn">groupePolitiqueRapporteur2</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.groupePolitiqueRapporteur2.errors }}
+						{{ form.groupePolitiqueRapporteur2 }}
+					</div>
+				</td>
+			</tr>
+			
+			<tr>
+				<td class="informationTableFirstColumn">rapporteurPE2</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.rapporteurPE2.errors }}
+						{{ form.rapporteurPE2 }}
+					</div>
+				</td>
+			</tr>
+			
+			<tr>
+				<td class="informationTableFirstColumn">modifPropos</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.modifPropos.errors }}
+						{{ form.modifPropos }}
+					</div>
+				</td>
+			</tr>
+			
+			<tr>
+				<td class="informationTableFirstColumn">nombreLectures</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.nombreLectures.errors }}
+						{{ form.nombreLectures }}
 					</div>
 				</td>
 			</tr>

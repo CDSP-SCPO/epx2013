@@ -13,8 +13,8 @@ print ""
 
 #CHO0SE SOURCE (COMMENT OTHER SOURCES)
 src="eurlex"
-#~ src="oeil"
-src="prelex"
+src="oeil"
+#~ src="prelex"
 
 
 if src=="eurlex":
@@ -27,7 +27,6 @@ if src=="eurlex":
 elif src=="oeil":
 	#MODIFY AT WILL!!
 	url="oeilContent.html"
-
 	html=oeilIds.getOeilUrlContent(url)
 	dataDic=oeilInfo.getOeilInformation(html)
 

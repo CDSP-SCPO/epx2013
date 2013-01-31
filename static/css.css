@@ -176,7 +176,12 @@ td
 
 #eurlexIdsTable
 {
-	width: 25%;
+	width: 20%;
+}
+
+#oeilIdsTable
+{
+	width: 45%;
 }
 
 #prelexIdsTable

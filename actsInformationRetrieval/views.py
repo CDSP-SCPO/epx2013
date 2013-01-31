@@ -84,6 +84,48 @@ def getInformationFromEurlex(actId, act, eurlexUrl):
 	return act
 
 
+def getInformationFromOeil(actId, act, oeilUrl):
+	"""
+	FUNCTION
+	get all the information of a given act from oeil
+	PARAMETERS
+	actId: ids of the act
+	act: information of the act
+	eurlexUrl: link to the oeil page
+	RETURN
+	act object which contains retrieved information
+	"""
+	dataDic={}
+	#check if oeil url exists
+
+	if actId.fileOeilUrlExists==True:
+		#if yes, retrieve the information and pass it to an object
+		
+		html=oeilIds.getOeilUrlContent(oeilUrl)
+		dataDic=oeil.getOeilInformation(html)
+		
+		act.commissionPE=dataDic['commissionPE']
+		act.epComAndtTabled=dataDic['epComAndtTabled']
+		act.epComAndtAdopt=dataDic['epComAndtAdopt']
+		act.epVotesFor1=dataDic['epVotesFor1']
+		act.epVotesAgst1=dataDic['epVotesAgst1']
+		act.epVotesAbs1=dataDic['epVotesAbs1']
+		act.epVotesFor2=dataDic['epVotesFor2']
+		act.epVotesAgst2=dataDic['epVotesAgst2']
+		act.epVotesAbs2=dataDic['epVotesAbs2']
+		act.groupePolitiqueRapporteur1=dataDic['groupePolitiqueRapporteur1']
+		act.rapporteurPE1=dataDic['rapporteurPE1']
+		act.etatMbRapport1=dataDic['etatMbRapport1']
+		act.groupePolitiqueRapporteur2=dataDic['groupePolitiqueRapporteur2']
+		act.rapporteurPE2=dataDic['rapporteurPE2']
+		act.modifPropos=dataDic['modifPropos']
+		act.nombreLectures=dataDic['nombreLectures']
+	else:
+		print "No oeil url"
+		
+	return act
+
+
 def getInformationFromPrelex(actId, act, prelexUrl):
 	"""
 	FUNCTION
@@ -171,14 +213,15 @@ def actsView(request):
 				urlDic["eurlexUrl"]=eurlexIds.getEurlexUrl(actId.fileNoCelex)
 				urlDic["oeilUrl"]=oeilIds.getOeilUrl(str(actId.fileNoUniqueType), str(actId.fileNoUniqueAnnee), str(actId.fileNoUniqueChrono))
 				urlDic["prelexUrl"]=actId.prelexUrl
+				responseDic["url"]=urlDic
 				#an act has been selected in the drop down list -> the related information are displayed
 				if state=="display":
 					act=getInformationFromEurlex(actId, act, urlDic["eurlexUrl"])
+					act=getInformationFromOeil(actId, act, urlDic["oeilUrl"])
 					act=getInformationFromPrelex(actId, act, urlDic["prelexUrl"])
 					print "act", act
 					form = ActsInformationForm(instance=act, initial={'actsToValidate': actToValidate})
 					idForm=ActsIdsForm(instance=actId)
-					responseDic["url"]=urlDic
 				#an error occured while validating the act -> display of these errors
 				elif state=="ongoing":
 					print "ongoing"
