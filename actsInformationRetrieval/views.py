@@ -7,6 +7,10 @@ from datetime import date
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, render_to_response
 from django.template import RequestContext
+
+#variables name
+import actsIdsValidation.variablesNameForIds as vnIds
+import variablesNameForInformation as vnInfo
 #retrieve url contents
 import sys
 sys.path.append('import')
@@ -67,17 +71,17 @@ def getInformationFromEurlex(actId, act, eurlexUrl):
 		html=eurlexIds.getEurlexUrlContent(eurlexUrl)
 		dataDic=eurlex.getEurlexInformation(html)
 		
-		act.titreEn=dataDic['titreEn']
-		act.codeSectRep01=dataDic['codeSectRep01']
-		act.codeSectRep02=dataDic['codeSectRep02']
-		act.codeSectRep03=dataDic['codeSectRep03']
-		act.codeSectRep04=dataDic['codeSectRep04']
-		act.repEn1=dataDic['repEn1']
-		act.repEn2=dataDic['repEn2']
-		act.repEn3=dataDic['repEn3']
-		act.repEn4=dataDic['repEn4']
-		act.typeActe=dataDic['typeActe']
-		act.baseJuridique=dataDic['baseJuridique']
+		act.eurlexTitreEn=dataDic['eurlexTitreEn']
+		act.eurlexCodeSectRep01=dataDic['eurlexCodeSectRep01']
+		act.eurlexCodeSectRep02=dataDic['eurlexCodeSectRep02']
+		act.eurlexCodeSectRep03=dataDic['eurlexCodeSectRep03']
+		act.eurlexCodeSectRep04=dataDic['eurlexCodeSectRep04']
+		act.eurlexRepEn1=dataDic['eurlexRepEn1']
+		act.eurlexRepEn2=dataDic['eurlexRepEn2']
+		act.eurlexRepEn3=dataDic['eurlexRepEn3']
+		act.eurlexRepEn4=dataDic['eurlexRepEn4']
+		act.eurlexTypeActe=dataDic['eurlexTypeActe']
+		act.eurlexBaseJuridique=dataDic['eurlexBaseJuridique']
 	else:
 		print "No eurlex url"
 	
@@ -104,22 +108,22 @@ def getInformationFromOeil(actId, act, oeilUrl):
 		html=oeilIds.getOeilUrlContent(oeilUrl)
 		dataDic=oeil.getOeilInformation(html)
 		
-		act.commissionPE=dataDic['commissionPE']
-		act.epComAndtTabled=dataDic['epComAndtTabled']
-		act.epComAndtAdopt=dataDic['epComAndtAdopt']
-		act.epVotesFor1=dataDic['epVotesFor1']
-		act.epVotesAgst1=dataDic['epVotesAgst1']
-		act.epVotesAbs1=dataDic['epVotesAbs1']
-		act.epVotesFor2=dataDic['epVotesFor2']
-		act.epVotesAgst2=dataDic['epVotesAgst2']
-		act.epVotesAbs2=dataDic['epVotesAbs2']
-		act.groupePolitiqueRapporteur1=dataDic['groupePolitiqueRapporteur1']
-		act.rapporteurPE1=dataDic['rapporteurPE1']
-		act.etatMbRapport1=dataDic['etatMbRapport1']
-		act.groupePolitiqueRapporteur2=dataDic['groupePolitiqueRapporteur2']
-		act.rapporteurPE2=dataDic['rapporteurPE2']
-		act.modifPropos=dataDic['modifPropos']
-		act.nombreLectures=dataDic['nombreLectures']
+		act.oeilCommissionPE=dataDic['oeilCommissionPE']
+		act.oeilEPComAndtTabled=dataDic['oeilEPComAndtTabled']
+		act.oeilEPComAndtAdopt=dataDic['oeilEPComAndtAdopt']
+		act.oeilEPVotesFor1=dataDic['oeilEPVotesFor1']
+		act.oeilEPVotesAgst1=dataDic['oeilEPVotesAgst1']
+		act.oeilEPVotesAbs1=dataDic['oeilEPVotesAbs1']
+		act.oeilEPVotesFor2=dataDic['oeilEPVotesFor2']
+		act.oeilEPVotesAgst2=dataDic['oeilEPVotesAgst2']
+		act.oeilEPVotesAbs2=dataDic['oeilEPVotesAbs2']
+		act.oeilGroupePolitiqueRapporteur1=dataDic['oeilGroupePolitiqueRapporteur1']
+		act.oeilRapporteurPE1=dataDic['oeilRapporteurPE1']
+		act.oeilEtatMbRapport1=dataDic['oeilEtatMbRapport1']
+		act.oeilGroupePolitiqueRapporteur2=dataDic['oeilGroupePolitiqueRapporteur2']
+		act.oeilRapporteurPE2=dataDic['oeilRapporteurPE2']
+		act.oeilModifPropos=dataDic['oeilModifPropos']
+		act.oeilNombreLectures=dataDic['oeilNombreLectures']
 	else:
 		print "No oeil url"
 		
@@ -147,20 +151,23 @@ def getInformationFromPrelex(actId, act, prelexUrl):
 		tempDic=model_to_dict(actId, fields=["prelexProposOrigine", "prelexNoUniqueType", "proposSplittee", "suite2eLecturePE"])
 		dataDic=prelex.getPrelexInformation(html, tempDic)
 		
-		year, month, day=splitPrelexDate(dataDic['adoptionProposOrigine'])
-		act.adoptionProposOrigine=dateToIso(year, month, day)
-		act.comProc=dataDic['comProc']
-		act.dgProposition=dataDic['dgProposition']
-		act.respPropos1=dataDic['respPropos1']
-		year, month, day=splitPrelexDate(dataDic['transmissionCouncil'])
-		act.nbPointB=dataDic['nbPointB']
-		act.consB=dataDic['consB']
-		act.transmissionCouncil=dateToIso(year, month, day)
-		year, month, day=splitPrelexDate(dataDic['adoptionConseil'])
-		act.adoptionConseil=dateToIso(year, month, day)
-		act.nbPointA=dataDic['nbPointA']
-		act.councilA=dataDic['councilA']
-		act.nbLectures=dataDic['nbLectures']
+		year, month, day=splitPrelexDate(dataDic['prelexAdoptionProposOrigine'])
+		act.prelexAdoptionProposOrigine=dateToIso(year, month, day)
+		act.prelexComProc=dataDic['prelexComProc']
+		act.prelexDGProposition=dataDic['prelexDGProposition']
+		act.prelexDGProposition2=dataDic['prelexDGProposition2']
+		act.prelexRespPropos1=dataDic['prelexRespPropos1']
+		act.prelexRespPropos2=dataDic['prelexRespPropos2']
+		act.prelexRespPropos3=dataDic['prelexRespPropos3']
+		year, month, day=splitPrelexDate(dataDic['prelexTransmissionCouncil'])
+		act.prelexTransmissionCouncil=dateToIso(year, month, day)
+		act.prelexNbPointB=dataDic['prelexNbPointB']
+		act.prelexConsB=dataDic['prelexConsB']
+		year, month, day=splitPrelexDate(dataDic['prelexAdoptionConseil'])
+		act.prelexAdoptionConseil=dateToIso(year, month, day)
+		act.prelexNbPointA=dataDic['prelexNbPointA']
+		act.prelexCouncilA=dataDic['prelexCouncilA']
+		act.prelexNombreLectures=dataDic['prelexNombreLectures']
 	else:
 		print "No prelex url"
 	
@@ -174,7 +181,11 @@ def actsView(request):
 	template called: actsInformationRetrieval/index.html
 	"""
 	responseDic={}
+	#display "real" name of variables (not the one stored in db)
+	responseDic['displayName']=vnIds.variablesNameDic
+	responseDic['displayName'].update(vnInfo.variablesNameDic)
 	state="display"
+	
 	if request.method == 'POST':
 		print "post"
 		actToValidate=request.POST.getlist('actsToValidate')[0]

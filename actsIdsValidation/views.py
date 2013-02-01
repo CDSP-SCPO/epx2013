@@ -6,6 +6,8 @@ from actsIdsValidation.forms import ActsIdsForm
 from actsIdsValidation.models import ActsIdsModel
 from actsInformationRetrieval.models import ActsInformationModel
 
+#variables name
+import variablesNameForIds as vn
 #used to recreate and display the urls
 import sys
 sys.path.append('import')
@@ -36,7 +38,10 @@ def actsView(request):
 	template called: actsIdsValidation/index.html
 	"""
 	responseDic={}
+	#display "real" name of variables (not the one stored in db)
+	responseDic['displayName']=vn.variablesNameDic
 	state="display"
+	
 	if request.method == 'POST':
 		actToValidate=request.POST.getlist('actsToValidate')[0]
 
@@ -135,7 +140,7 @@ def actsView(request):
 				
 				responseDic['form']=form
 				responseDic['act']=act
-				responseDic['infoDic']=infoDic
+				responseDic['info']=infoDic
 		
 	#~ #if form has not been created yet -> unbound form
 	if 'form' not in locals():
