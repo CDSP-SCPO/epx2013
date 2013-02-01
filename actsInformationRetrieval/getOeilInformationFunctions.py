@@ -22,6 +22,7 @@ def getOeilCommissionPE(soup):
 		#~ print "no commissionPE! (oeil)"
 		return None
 
+#Acronym under "Committee responsible"
 #can be NULL
 
 
@@ -34,21 +35,32 @@ def getOeilVotesPage(soup):
 	RETURN
 	html page about votes
 	"""
-	votesLink=soup.find(text="Results of vote in Parliament").findNext("td").find("a")["href"]
-	return BeautifulSoup(urllib.urlopen("http://www.europarl.europa.eu/"+votesLink))
+	try:
+		votesLink=soup.find(text="Results of vote in Parliament").findNext("td").find("a")["href"]
+		return BeautifulSoup(urllib.urlopen("http://www.europarl.europa.eu/"+votesLink))
+	except:
+		print "no vote page (oeil)"
+		return None
 
 
 def getOeilEPComAndtTabled(soup):
 	"""
 	FUNCTION
-	get the OeilEPComAndtTabled variable from the oeil url
+	get the oeilEPComAndtTabled variable from the oeil url
 	PARAMETERS
 	soup: oeil url content
 	RETURN
-	OeilEPComAndtTabled
+	oeilEPComAndtTabled
 	"""
-	return soup.find(text="EP Committee").findNext('td').get_text()
-	
+	try:
+		return soup.find(text="EP Committee").findNext('td').get_text()
+	except:
+		print "no oeilEPComAndtTabled!"
+		return None
+
+#on vote page: 
+#Last table "Amendments adopted in plenary": EP Committee (row) and Tabled by (column)
+
 	
 def getOeilEPComAndtAdopt(soup):
 	"""
@@ -59,7 +71,14 @@ def getOeilEPComAndtAdopt(soup):
 	RETURN
 	oeilEPComAndtAdopt
 	"""
-	return soup.find(text="EP Committee").findNext('td').findNext('td').get_text()
+	try:
+		return soup.find(text="EP Committee").findNext('td').findNext('td').get_text()
+	except:
+		print "no oeilEPComAndtAdopt"
+		return None
+
+#on vote page: 
+#Last table "Amendments adopted in plenary": EP Committee (row) and Adopted (column)
 
 
 def getOeilEPVotesFor1(soup):
@@ -77,6 +96,9 @@ def getOeilEPVotesFor1(soup):
 		#~ print "no epVotesFor1! (oeil)"
 		return None
 
+#on vote page: 
+#First table "Final vote [Date]": For (column)
+
 
 def getOeilEPVotesAgst1(soup):
 	"""
@@ -92,6 +114,9 @@ def getOeilEPVotesAgst1(soup):
 	except:
 		#~ print "no epVotesAgst1! (oeil)"
 		return None
+
+#on vote page: 
+#First table "Final vote [Date]": Against (column)
 
 
 def getOeilEPVotesAbs1(soup):
@@ -109,6 +134,9 @@ def getOeilEPVotesAbs1(soup):
 		#~ print "no epVotesAbs1! (oeil)"
 		return None
 
+#on vote page: 
+#First table "Final vote [Date]": Abstentions (column)
+
 
 def getOeilEPVotesFor2(soup):
 	"""
@@ -124,6 +152,9 @@ def getOeilEPVotesFor2(soup):
 	except:
 		#~ print "no epVotesFor2! (oeil)"
 		return None
+
+#on vote page: 
+#Second table "Final vote Part two": For (column)
 
 
 def getOeilEPVotesAgst2(soup):
@@ -141,6 +172,9 @@ def getOeilEPVotesAgst2(soup):
 		#~ print "no epVotesAgst2! (oeil)"
 		return None
 
+#on vote page: 
+#Second table "Final vote Part two": Against (column)
+
 
 def getOeilEPVotesAbs2(soup):
 	"""
@@ -156,6 +190,9 @@ def getOeilEPVotesAbs2(soup):
 	except:
 		#~ print "no epVotesAbs2! (oeil)"
 		return None
+
+#on vote page: 
+#Second table "Final vote Part two": Abstentions (column)
 
 
 def getOeilRapporteursSection(soup):
@@ -185,6 +222,7 @@ def getOeilGroupePolitiqueRapporteur1(soup):
 		#~ print "no groupePolitiqueRapporteur1! (oeil)"
 		return None
 
+#below "Rapporteur", before the name of the Rapporteur
 #can be NULL
 
 
@@ -203,6 +241,7 @@ def getOeilRapporteurPE1(soup):
 		#~ print "no rapporteurPE1! (oeil)"
 		return None
 
+#below "Rapporteur", name of the Rapporteur
 #can be NULL
 
 def getCountryAcronym(country):
@@ -214,67 +253,67 @@ def getCountryAcronym(country):
 	RETURN
 	acronym of the country
 	"""
-	if country=="Belgique":
+	if country=="Belgium":
 		return 'BE'
-	if country=="Bulgarie":
+	if country=="Bulgaria":
 		return 'BG'
-	if country=="République Tchèque":
+	if country=="Czech Republic":
 		return 'CZ'
-	if country=="Danemark":
+	if country=="Denmark":
 		return 'DK'
-	if country=="Allemagne":
+	if country=="Germany":
 		return 'DE'
-	if country=="Estonie":
+	if country=="Estonia":
 		return 'EE'
-	if country=="Irlande":
+	if country=="Ireland":
 		return 'IE'
-	if country=="Grèce":
+	if country=="Greece":
 		return 'EL'
-	if country=="Espagne":
+	if country=="Spain":
 		return 'ES'
 	if country=="France":
 		return 'FR'
-	if country=="Italie":
+	if country=="Italy":
 		return 'IT'
-	if country=="Chypre":
+	if country=="Cyprus":
 		return 'CY'
-	if country=="Lituanie":
+	if country=="Lithuania":
 		return 'LT'
-	if country=="Lettonie":
+	if country=="Latvia":
 		return 'LV'
 	if country=="Luxembourg":
 		return 'LU'
-	if country=="Hongrie":
+	if country=="Hungary":
 		return 'HU'
-	if country=="Malte":
+	if country=="Malta":
 		return 'MT'
-	if country=="Pays-bas":
+	if country=="Netherlands":
 		return 'NL'
-	if country=="Autriche":
+	if country=="Austria":
 		return 'AT'
-	if country=="Pologne":
+	if country=="Poland":
 		return 'PL'
 	if country=="Portugal":
 		return 'PT'
-	if country=="Roumanie":
+	if country=="Romania":
 		return 'RO'
-	if country=="Slovénie":
+	if country=="Slovenia":
 		return 'SI'
-	if country=="Finlande":
+	if country=="Finland":
 		return 'FI'
-	if country=="Suède":
+	if country=="Sweden":
 		return 'SE'
-	if country=="Royaume-Uni":
+	if country=="United Kingdom":
 		return 'UK'
-	if country=="Slovaquie":
+	if country=="Slovakia":
 		return 'SK'
-	if country=="Croatie":
+	if country=="Croatia":
 		return 'HR'
-	if country=="Islande":
+	if country=="Iceland":
 		return 'IS'
-	if country=="Monténégro":
+	if country=="Montenegro":
 		return 'ME'
-	if country=="Serbie":
+	if country=="Serbia":
 		return 'RS'
 
 	return country
@@ -298,6 +337,7 @@ def getOeilEtatMbRapport1(soup):
 		#~ print "no etatMbRapport1! (oeil)"
 		return None
 
+#on the deputy's personal page: country (next to the flag, next to the picture)
 #can be NULL
 #27 possible values (EU countries)
 
@@ -317,6 +357,7 @@ def getOeilGroupePolitiqueRapporteur2(soup):
 		#~ print "no groupePolitiqueRapporteur2! (oeil)"
 		return None
 
+#below "Rapporteur", before the name of the second Rapporteur
 #can be NULL
 
 
@@ -335,6 +376,121 @@ def getOeilRapporteurPE2(soup):
 		#~ print "no rapporteurPE2! (oeil)"
 		return None
 
+#below "Rapporteur", name of the second Rapporteur
+#can be NULL
+
+
+def getOeilGroupePolitiqueRapporteur3(soup):
+	"""
+	FUNCTION
+	get the oeilGroupePolitiqueRapporteur3 variable from the oeil url
+	PARAMETERS
+	soup: oeil url content
+	RETURN
+	oeilGroupePolitiqueRapporteur3
+	"""
+	try:
+		return soup.findAll("span", {"class": "tiptip"})[2].get_text()
+	except:
+		#~ print "no groupePolitiqueRapporteur3! (oeil)"
+		return None
+
+#below "Rapporteur", before the name of the third Rapporteur
+#can be NULL
+
+
+def getOeilRapporteurPE3(soup):
+	"""
+	FUNCTION
+	get the oeilRapporteurPE3 variable from the oeil url
+	PARAMETERS
+	soup: oeil url content
+	RETURN
+	oeilRapporteurPE3
+	"""
+	try:
+		return soup.findAll("span", {"class": "players_rapporter_text"})[2].get_text()
+	except:
+		#~ print "no rapporteurPE3! (oeil)"
+		return None
+
+#below "Rapporteur", name of the third Rapporteur
+#can be NULL
+
+
+def getOeilGroupePolitiqueRapporteur4(soup):
+	"""
+	FUNCTION
+	get the oeilGroupePolitiqueRapporteur4 variable from the oeil url
+	PARAMETERS
+	soup: oeil url content
+	RETURN
+	oeilGroupePolitiqueRapporteur4
+	"""
+	try:
+		return soup.findAll("span", {"class": "tiptip"})[3].get_text()
+	except:
+		#~ print "no groupePolitiqueRapporteur4! (oeil)"
+		return None
+
+#below "Rapporteur", before the name of the fourth Rapporteur
+#can be NULL
+
+
+def getOeilRapporteurPE4(soup):
+	"""
+	FUNCTION
+	get the oeilRapporteurPE4 variable from the oeil url
+	PARAMETERS
+	soup: oeil url content
+	RETURN
+	oeilRapporteurPE4
+	"""
+	try:
+		return soup.findAll("span", {"class": "players_rapporter_text"})[3].get_text()
+	except:
+		#~ print "no rapporteurPE4! (oeil)"
+		return None
+
+#below "Rapporteur", name of the fourth Rapporteur
+#can be NULL
+
+
+def getOeilGroupePolitiqueRapporteur5(soup):
+	"""
+	FUNCTION
+	get the oeilGroupePolitiqueRapporteur5 variable from the oeil url
+	PARAMETERS
+	soup: oeil url content
+	RETURN
+	oeilGroupePolitiqueRapporteur5
+	"""
+	try:
+		return soup.findAll("span", {"class": "tiptip"})[4].get_text()
+	except:
+		#~ print "no groupePolitiqueRapporteur5! (oeil)"
+		return None
+
+#below "Rapporteur", before the name of the fifth Rapporteur
+#can be NULL
+
+
+def getOeilRapporteurPE5(soup):
+	"""
+	FUNCTION
+	get the oeilRapporteurPE5 variable from the oeil url
+	PARAMETERS
+	soup: oeil url content
+	RETURN
+	oeilRapporteurPE5
+	"""
+	try:
+		return soup.findAll("span", {"class": "players_rapporter_text"})[4].get_text()
+	except:
+		#~ print "no rapporteurPE5! (oeil)"
+		return None
+
+#below "Rapporteur", name of the fifth Rapporteur
 #can be NULL
 
 
@@ -350,7 +506,7 @@ def getOeilModifPropos(soup):
 	return None
 
 
-def getOeilNombreLecturesFromOeil(soup):
+def getOeilNombreLectures(soup):
 	"""
 	FUNCTION
 	get the oeilNombreLectures variable from the oeil url
@@ -362,9 +518,26 @@ def getOeilNombreLecturesFromOeil(soup):
 	return None
 
 
+def getOeilSignPECS(soup, noUniqueType):
+	"""
+	FUNCTION
+	get the oeilSignPECS variable from the oeil url
+	PARAMETERS
+	soup: oeil url content
+	RETURN
+	oeilSignPECS
+	"""
+	if noUniqueType=="COD" or noUniqueType=="ACI":
+		return soup.find("td", text="Final act signed").findPrevious("td").get_text()
+	return "01-01-0001"
+
+#date in front of "Final act signed"
+#can be NULL
+#only if NoUniqueType = COD or ACI
 
 
-def getOeilInformation(soup):
+
+def getOeilInformation(soup, idsDic):
 	"""
 	FUNCTION
 	get all the information from the oeil url
@@ -439,12 +612,40 @@ def getOeilInformation(soup):
 	dataDic['oeilRapporteurPE2']=getOeilRapporteurPE2(rapporteursSectionSoup)
 	print "oeilRapporteurPE2:", dataDic['oeilRapporteurPE2']
 	
+	#oeilGroupePolitiqueRapporteur3
+	dataDic['oeilGroupePolitiqueRapporteur3']=getOeilGroupePolitiqueRapporteur3(rapporteursSectionSoup)
+	print "oeilGroupePolitiqueRapporteur3:", dataDic['oeilGroupePolitiqueRapporteur3']
+	
+	#oeilRapporteurPE3
+	dataDic['oeilRapporteurPE3']=getOeilRapporteurPE3(rapporteursSectionSoup)
+	print "oeilRapporteurPE3:", dataDic['oeilRapporteurPE3']
+	
+	#oeilGroupePolitiqueRapporteur4
+	dataDic['oeilGroupePolitiqueRapporteur4']=getOeilGroupePolitiqueRapporteur4(rapporteursSectionSoup)
+	print "oeilGroupePolitiqueRapporteur4:", dataDic['oeilGroupePolitiqueRapporteur4']
+	
+	#oeilRapporteurPE4
+	dataDic['oeilRapporteurPE4']=getOeilRapporteurPE4(rapporteursSectionSoup)
+	print "oeilRapporteurPE4:", dataDic['oeilRapporteurPE4']
+	
+	#oeilGroupePolitiqueRapporteur5
+	dataDic['oeilGroupePolitiqueRapporteur5']=getOeilGroupePolitiqueRapporteur5(rapporteursSectionSoup)
+	print "oeilGroupePolitiqueRapporteur5:", dataDic['oeilGroupePolitiqueRapporteur5']
+	
+	#oeilRapporteurPE5
+	dataDic['oeilRapporteurPE5']=getOeilRapporteurPE5(rapporteursSectionSoup)
+	print "oeilRapporteurPE5:", dataDic['oeilRapporteurPE5']
+	
 	#oeilModifPropos
 	dataDic['oeilModifPropos']=getOeilModifPropos(soup)
 	print "oeilModifPropos:", dataDic['oeilModifPropos']
 	
 	#oeilNombreLectures
-	dataDic['oeilNombreLectures']=getOeilNombreLecturesFromOeil(soup)
+	dataDic['oeilNombreLectures']=getOeilNombreLectures(soup)
 	print "oeilNombreLectures:", dataDic['oeilNombreLectures']
+	
+	#oeilSignPECS
+	dataDic['oeilSignPECS']=getOeilSignPECS(soup, idsDic["oeilNoUniqueType"])
+	print "oeilSignPECS:", dataDic['oeilSignPECS']
 
 	return dataDic

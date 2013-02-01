@@ -8,14 +8,14 @@ from bs4 import NavigableString
 from bs4 import Tag
 
 
-def getTitreEnFromEurlex(soup):
+def getEurlexTitreEn(soup):
 	"""
 	FUNCTION
-	get the titreEn variable from the eurlex url
+	get the eurlexTitreEn variable from the eurlex url
 	PARAMETERS
 	soup: eurlex url content
 	RETURN
-	titreEn
+	eurlexTitreEn
 	"""
 	return soup.find("h2", text="Title and reference").findNext("p").get_text()
 
@@ -24,7 +24,7 @@ def getTitreEnFromEurlex(soup):
 
 
 
-def getDirectoryCodeFromEurlex(soup):
+def getEurlexDirectoryCode(soup):
 	"""
 	FUNCTION
 	get the html code of the directory code part from the eurlex url
@@ -36,14 +36,14 @@ def getDirectoryCodeFromEurlex(soup):
 	return soup.find("strong", text="Directory code:").findParent()
 
 
-def getCodeSectRepFromEurlex(soup):
+def getEurlexCodeSectRep(soup):
 	"""
 	FUNCTION
 	get the codeSectRep01-04 variables from the eurlex url
 	PARAMETERS
 	soup: eurlex url content
 	RETURN
-	codeSectRep01, codeSectRep02, codeSectRep03, codeSectRep04
+	eurlexCodeSectRep01, eurlexCodeSectRep02, eurlexCodeSectRep03, eurlexCodeSectRep04
 	"""
 	codeSectRep=soup.findAll('em')
 	codeSectRepVars=[]
@@ -61,14 +61,14 @@ def getCodeSectRepFromEurlex(soup):
 #second, third and fourth: can be null
 
 
-def getRepEnFromEurlex(soup):
+def getEurlexRepEn(soup):
 	"""
 	FUNCTION
-	get the repEn1 and repEn2 variables from the eurlex url
+	get the eurlexRepEn1, eurlexRepEn2, eurlexRepEn3 and eurlexRepEn4 variables from the eurlex url
 	PARAMETERS
 	soup: eurlex url content
 	RETURN
-	repEn1 and repEn2
+	eurlexRepEn1, eurlexRepEn2, eurlexRepEn3 and eurlexRepEn4
 	"""
 	linksList=soup.findAll('a')
 	delimitorsList=[]
@@ -99,19 +99,19 @@ def getRepEnFromEurlex(soup):
 
 	return repEn1[:-2], repEn2[:-2], repEn3[:-2], repEn4[:-2]
 
-#texts in front of the codeSectRep01 and codeSectRep02 variables (under "Directory code:")
-#codeSectRep01 not NULL
-#codeSectRep02 can be Null
+#texts in front of the eurlexCodeSectRep01, eurlexCodeSectRep02, eurlexCodeSectRep03 and eurlexCodeSectRep04 variables (under "Directory code:")
+#eurlexRepEn1 not NULL
+#eurlexRepEn2, eurlexRepEn3, eurlexRepEn4 can be Null
 
 
-def getTypeActeFromEurlex(soup):
+def getEurlexTypeActe(soup):
 	"""
 	FUNCTION
-	get the typeActe variable from the eurlex url
+	get the eurlexTypeActe variable from the eurlex url
 	PARAMETERS
 	soup: eurlex url content
 	RETURN
-	typeActe
+	eurlexTypeActe
 	"""
 	#author part
 	author=soup.find("h2", text="Miscellaneous information").findNext("strong", text="Author:").findNext('br').next.strip().lower()
@@ -144,14 +144,14 @@ def getTypeActeFromEurlex(soup):
 #List of possible values (acronyms of real values): CS DEC, CS DEC CAD, CS DVE, CS REG, DEC, DVE, REG, CS DEC SUI, DEC SUI.
 
 
-def getBaseJuridiqueFromEurlex(soup):
+def getEurlexBaseJuridique(soup):
 	"""
 	FUNCTION
-	get the baseJuridique variable from the eurlex url
+	get the eurlexBaseJuridique variable from the eurlex url
 	PARAMETERS
 	soup: eurlex url content
 	RETURN
-	baseJuridique
+	eurlexBaseJuridique
 	"""
 	#http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CELEX:32002L0090:EN:NOT
 	li=soup.find("h2", text="Relationship between documents").findNext("strong", text="Legal basis:").findParent('li')
@@ -190,43 +190,43 @@ def getEurlexInformation(soup):
 	"""
 	dataDic={}
 	
-	#titreEn
-	dataDic['titreEn']=getTitreEnFromEurlex(soup)
-	print "titreEn (eurlex):", dataDic['titreEn']
+	#eurlexTitreEn
+	dataDic['eurlexTitreEn']=getEurlexTitreEn(soup)
+	print "eurlexTitreEn:", dataDic['eurlexTitreEn']
 	
 	try:
-		directoryCodeSoup=getDirectoryCodeFromEurlex(soup)
+		directoryCodeSoup=getEurlexDirectoryCode(soup)
 		
-		#codeSectRep01, codeSectRep02, codeSectRep03, codeSectRep04
-		dataDic['codeSectRep01'], dataDic['codeSectRep02'], dataDic['codeSectRep03'], dataDic['codeSectRep04']=getCodeSectRepFromEurlex(directoryCodeSoup)
-		print "codeSectRep01 (eurlex):", dataDic['codeSectRep01']
-		print "codeSectRep02 (eurlex):", dataDic['codeSectRep02']
-		print "codeSectRep03 (eurlex):", dataDic['codeSectRep03']
-		print "codeSectRep04 (eurlex):", dataDic['codeSectRep04']
+		#eurlexCodeSectRep01, eurlexCodeSectRep02, eurlexCodeSectRep03, eurlexCodeSectRep04
+		dataDic['eurlexCodeSectRep01'], dataDic['eurlexCodeSectRep02'], dataDic['eurlexCodeSectRep03'], dataDic['eurlexCodeSectRep04']=getEurlexCodeSectRep(directoryCodeSoup)
+		print "eurlexCodeSectRep01:", dataDic['eurlexCodeSectRep01']
+		print "eurlexCodeSectRep02:", dataDic['eurlexCodeSectRep02']
+		print "eurlexCodeSectRep03:", dataDic['eurlexCodeSectRep03']
+		print "eurlexCodeSectRep04:", dataDic['eurlexCodeSectRep04']
 
-		#repEn1, repEn2, repEn3, repEn4
-		dataDic['repEn1'], dataDic['repEn2'], dataDic['repEn3'], dataDic['repEn4']=getRepEnFromEurlex(directoryCodeSoup)
-		print "repEn1 (eurlex):", dataDic['repEn1']
-		print "repEn2 (eurlex):", dataDic['repEn2']
-		print "repEn3 (eurlex):", dataDic['repEn3']
-		print "repEn4 (eurlex):", dataDic['repEn4']
+		#eurlexRepEn1, eurlexRepEn2, eurlexRepEn3, eurlexRepEn4
+		dataDic['eurlexRepEn1'], dataDic['eurlexRepEn2'], dataDic['eurlexRepEn3'], dataDic['eurlexRepEn4']=getEurlexRepEn(directoryCodeSoup)
+		print "eurlexRepEn1:", dataDic['eurlexRepEn1']
+		print "eurlexRepEn2:", dataDic['eurlexRepEn2']
+		print "eurlexRepEn3:", dataDic['eurlexRepEn3']
+		print "eurlexRepEn4:", dataDic['eurlexRepEn4']
 	except: 
 		print "No directory code section"
-		dataDic['codeSectRep01']=None
-		dataDic['codeSectRep02']=None
-		dataDic['codeSectRep03']=None
-		dataDic['codeSectRep04']=None
-		dataDic['repEn1']=None
-		dataDic['repEn2']=None
-		dataDic['repEn3']=None
-		dataDic['repEn4']=None
+		dataDic['eurlexCodeSectRep01']=None
+		dataDic['eurlexCodeSectRep02']=None
+		dataDic['eurlexCodeSectRep03']=None
+		dataDic['eurlexCodeSectRep04']=None
+		dataDic['eurlexRepEn1']=None
+		dataDic['eurlexRepEn2']=None
+		dataDic['eurlexRepEn3']=None
+		dataDic['eurlexRepEn4']=None
 
-	#typeActe
-	dataDic['typeActe']=getTypeActeFromEurlex(soup)
-	print "typeActe (eurlex):", dataDic['typeActe']
+	#eurlexTypeActe
+	dataDic['eurlexTypeActe']=getEurlexTypeActe(soup)
+	print "eurlexTypeActe:", dataDic['eurlexTypeActe']
 	
-	#baseJuridique
-	dataDic['baseJuridique']=getBaseJuridiqueFromEurlex(soup)
-	print "baseJuridique (eurlex):", dataDic['baseJuridique']
+	#eurlexBaseJuridique
+	dataDic['eurlexBaseJuridique']=getEurlexBaseJuridique(soup)
+	print "eurlexBaseJuridique:", dataDic['eurlexBaseJuridique']
 
 	return dataDic

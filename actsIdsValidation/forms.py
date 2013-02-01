@@ -7,21 +7,7 @@ class ActsIdsForm(forms.ModelForm):
 	FORM
 	details the ActsIds form (ids of the acts only)
 	"""
-	#~ <select  onchange="this.form.submit();" name="actsToValidate" id="id_actsToValidate">
-		#~ <option value="">Select a act to validate</option>
-		#~ {% for actChoice in form.actsToValidate.field.queryset %}
-			#~ <!-- select again the previously selected act in the drop down list -->
-			#~ {% if actChoice.releveAnnee == act.releveAnnee and actChoice.releveMois == act.releveMois and actChoice.noOrdre == act.noOrdre %}
-				#~ <option value="{{ actChoice.releveAnnee }},{{ actChoice.releveMois }},{{ actChoice.noOrdre }}" selected>releveAnnee={{ actChoice.releveAnnee }}, releveMois={{ actChoice.releveMois }}, noOrdre={{ actChoice.noOrdre }}</option>
-			#~ {% else %}
-				#~ <option value="{{ actChoice.releveAnnee }},{{ actChoice.releveMois }},{{ actChoice.noOrdre }}">releveAnnee={{ actChoice.releveAnnee }}, releveMois={{ actChoice.releveMois }}, noOrdre={{ actChoice.noOrdre }}</option>
-			#~ {% endif %}
-		#~ {% endfor %}
-	#~ </select>
 	actsToValidate=forms.ModelChoiceField(queryset=ActsIdsModel.objects.filter(validated=0), empty_label="Select an act to validate", widget=forms.Select(attrs={'onchange': 'this.form.submit();'}))
-	
-	#~ actsToValidate=forms.ModelChoiceField(queryset=ActsIdsModel.objects.filter(validated=0).values("releveAnnee", "releveMois", "noOrdre"), empty_label="Select a act to validate", widget=forms.Select(attrs={'onchange': 'javascript: actToValidateDisplay(this.value);'}))
-
 	
 	#INDEX FILE (classeur)
 	releveAnnee = forms.IntegerField(min_value=1957, max_value=2020)

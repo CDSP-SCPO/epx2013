@@ -33,7 +33,11 @@ def getEurlexDirectoryCode(soup):
 	RETURN
 	directory code part
 	"""
-	return soup.find("strong", text="Directory code:").findParent()
+	try:
+		return soup.find("strong", text="Directory code:").findParent()
+	except:
+		print "no directory code section (eurlex)!"
+		return None
 
 
 def getEurlexCodeSectRep(soup):
@@ -45,13 +49,20 @@ def getEurlexCodeSectRep(soup):
 	RETURN
 	eurlexCodeSectRep01, eurlexCodeSectRep02, eurlexCodeSectRep03, eurlexCodeSectRep04
 	"""
-	codeSectRep=soup.findAll('em')
 	codeSectRepVars=[]
-	for i in range(4):
-		codeSectRepVars.append(None)
+	codeSectRepVars.append(None)
+	codeSectRepVars.append(None)
+	codeSectRepVars.append(None)
+	codeSectRepVars.append(None)
+	try:
+		codeSectRep=soup.findAll('em')
+		for i in range(4):
+			codeSectRepVars.append(None)
 
-	for i in range(len(codeSectRep)):
-		codeSectRepVars[i]=codeSectRep[i].get_text().strip()
+		for i in range(len(codeSectRep)):
+			codeSectRepVars[i]=codeSectRep[i].get_text().strip()
+	except:
+		print "no eurlexCodeSectRep!"
 	
 	return codeSectRepVars[0], codeSectRepVars[1], codeSectRepVars[2], codeSectRepVars[3]
 
@@ -70,19 +81,19 @@ def getEurlexRepEn(soup):
 	RETURN
 	eurlexRepEn1, eurlexRepEn2, eurlexRepEn3 and eurlexRepEn4
 	"""
-	linksList=soup.findAll('a')
-	delimitorsList=[]
 	repEn1=repEn2=repEn3=repEn4=""
-	#find where 2 variables get separated
-	for link in linksList:
-		if link.nextSibling.strip()!="/":
-			delimitorsList.append(linksList.index(link)+1)
-
-	#repEn1 
-	for i in range(delimitorsList[0]):
-		repEn1+=linksList[i].get_text()+"; "
-	
 	try:
+		linksList=soup.findAll('a')
+		delimitorsList=[]
+		#find where 2 variables get separated
+		for link in linksList:
+			if link.nextSibling.strip()!="/":
+				delimitorsList.append(linksList.index(link)+1)
+
+		#repEn1 
+		for i in range(delimitorsList[0]):
+			repEn1+=linksList[i].get_text()+"; "
+		
 		#repEn2
 		for i in range(delimitorsList[0], delimitorsList[1]):
 			repEn2+=linksList[i].get_text()+"; "
@@ -127,8 +138,10 @@ def getEurlexTypeActe(soup):
 		#framework decision
 		if "framework" in form:
 			return authorAcronym+"DEC CAD"
-		if "without addressee" in form:
-			return authorAcronym+"DEC W/O ADD"
+		if "addressee" in form:
+			if "without" in form:
+				return authorAcronym+"DEC W/O ADD"
+			return authorAcronym+"DEC W/ ADD"
 		return authorAcronym+"DEC"
 	#directive
 	if form=="directive":
@@ -194,32 +207,21 @@ def getEurlexInformation(soup):
 	dataDic['eurlexTitreEn']=getEurlexTitreEn(soup)
 	print "eurlexTitreEn:", dataDic['eurlexTitreEn']
 	
-	try:
-		directoryCodeSoup=getEurlexDirectoryCode(soup)
-		
-		#eurlexCodeSectRep01, eurlexCodeSectRep02, eurlexCodeSectRep03, eurlexCodeSectRep04
-		dataDic['eurlexCodeSectRep01'], dataDic['eurlexCodeSectRep02'], dataDic['eurlexCodeSectRep03'], dataDic['eurlexCodeSectRep04']=getEurlexCodeSectRep(directoryCodeSoup)
-		print "eurlexCodeSectRep01:", dataDic['eurlexCodeSectRep01']
-		print "eurlexCodeSectRep02:", dataDic['eurlexCodeSectRep02']
-		print "eurlexCodeSectRep03:", dataDic['eurlexCodeSectRep03']
-		print "eurlexCodeSectRep04:", dataDic['eurlexCodeSectRep04']
+	directoryCodeSoup=getEurlexDirectoryCode(soup)
+	
+	#eurlexCodeSectRep01, eurlexCodeSectRep02, eurlexCodeSectRep03, eurlexCodeSectRep04
+	dataDic['eurlexCodeSectRep01'], dataDic['eurlexCodeSectRep02'], dataDic['eurlexCodeSectRep03'], dataDic['eurlexCodeSectRep04']=getEurlexCodeSectRep(directoryCodeSoup)
+	print "eurlexCodeSectRep01:", dataDic['eurlexCodeSectRep01']
+	print "eurlexCodeSectRep02:", dataDic['eurlexCodeSectRep02']
+	print "eurlexCodeSectRep03:", dataDic['eurlexCodeSectRep03']
+	print "eurlexCodeSectRep04:", dataDic['eurlexCodeSectRep04']
 
-		#eurlexRepEn1, eurlexRepEn2, eurlexRepEn3, eurlexRepEn4
-		dataDic['eurlexRepEn1'], dataDic['eurlexRepEn2'], dataDic['eurlexRepEn3'], dataDic['eurlexRepEn4']=getEurlexRepEn(directoryCodeSoup)
-		print "eurlexRepEn1:", dataDic['eurlexRepEn1']
-		print "eurlexRepEn2:", dataDic['eurlexRepEn2']
-		print "eurlexRepEn3:", dataDic['eurlexRepEn3']
-		print "eurlexRepEn4:", dataDic['eurlexRepEn4']
-	except: 
-		print "No directory code section"
-		dataDic['eurlexCodeSectRep01']=None
-		dataDic['eurlexCodeSectRep02']=None
-		dataDic['eurlexCodeSectRep03']=None
-		dataDic['eurlexCodeSectRep04']=None
-		dataDic['eurlexRepEn1']=None
-		dataDic['eurlexRepEn2']=None
-		dataDic['eurlexRepEn3']=None
-		dataDic['eurlexRepEn4']=None
+	#eurlexRepEn1, eurlexRepEn2, eurlexRepEn3, eurlexRepEn4
+	dataDic['eurlexRepEn1'], dataDic['eurlexRepEn2'], dataDic['eurlexRepEn3'], dataDic['eurlexRepEn4']=getEurlexRepEn(directoryCodeSoup)
+	print "eurlexRepEn1:", dataDic['eurlexRepEn1']
+	print "eurlexRepEn2:", dataDic['eurlexRepEn2']
+	print "eurlexRepEn3:", dataDic['eurlexRepEn3']
+	print "eurlexRepEn4:", dataDic['eurlexRepEn4']
 
 	#eurlexTypeActe
 	dataDic['eurlexTypeActe']=getEurlexTypeActe(soup)

@@ -7,6 +7,7 @@ from datetime import date
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, render_to_response
 from django.template import RequestContext
+from django.forms.models import model_to_dict
 
 #variables name
 import actsIdsValidation.variablesNameForIds as vnIds
@@ -23,14 +24,14 @@ import getOeilInformationFunctions as oeil
 import getPrelexInformationFunctions as prelex
 
 
-def splitPrelexDate(dateString):
+def splitFrenchFormatDate(dateString):
 	"""
 	FUNCTION
-	split a prelex date ('DD-MM-YYYY') into year, month and day
+	split a date ('DD-MM-YYYY') into year, month and day
 	PARAMETERS
-	dateString: prelex date to split
+	dateString: date to split
 	RETURN
-	year, month and day of the prelex date
+	year, month and day of the date
 	"""
 	day=dateString[:2]
 	month=dateString[3:5]
@@ -106,7 +107,9 @@ def getInformationFromOeil(actId, act, oeilUrl):
 		#if yes, retrieve the information and pass it to an object
 		
 		html=oeilIds.getOeilUrlContent(oeilUrl)
-		dataDic=oeil.getOeilInformation(html)
+		#store all the fields useful for the act information retrieval in a dictionary
+		tempDic=model_to_dict(actId, fields=["oeilNoUniqueType"])
+		dataDic=oeil.getOeilInformation(html, tempDic)
 		
 		act.oeilCommissionPE=dataDic['oeilCommissionPE']
 		act.oeilEPComAndtTabled=dataDic['oeilEPComAndtTabled']
@@ -122,8 +125,16 @@ def getInformationFromOeil(actId, act, oeilUrl):
 		act.oeilEtatMbRapport1=dataDic['oeilEtatMbRapport1']
 		act.oeilGroupePolitiqueRapporteur2=dataDic['oeilGroupePolitiqueRapporteur2']
 		act.oeilRapporteurPE2=dataDic['oeilRapporteurPE2']
+		act.oeilGroupePolitiqueRapporteur3=dataDic['oeilGroupePolitiqueRapporteur3']
+		act.oeilRapporteurPE3=dataDic['oeilRapporteurPE3']
+		act.oeilGroupePolitiqueRapporteur4=dataDic['oeilGroupePolitiqueRapporteur4']
+		act.oeilRapporteurPE4=dataDic['oeilRapporteurPE4']
+		act.oeilGroupePolitiqueRapporteur5=dataDic['oeilGroupePolitiqueRapporteur5']
+		act.oeilRapporteurPE5=dataDic['oeilRapporteurPE5']
 		act.oeilModifPropos=dataDic['oeilModifPropos']
 		act.oeilNombreLectures=dataDic['oeilNombreLectures']
+		year, month, day=splitFrenchFormatDate(dataDic['oeilSignPECS'])
+		act.oeilSignPECS=dateToIso(year, month, day)
 	else:
 		print "No oeil url"
 		
@@ -147,11 +158,10 @@ def getInformationFromPrelex(actId, act, prelexUrl):
 		#if yes, retrieve the information and pass it to an object
 		html=prelexIds.getPrelexUrlContent(prelexUrl)
 		#store all the fields useful for the act information retrieval in a dictionary
-		from django.forms.models import model_to_dict
 		tempDic=model_to_dict(actId, fields=["prelexProposOrigine", "prelexNoUniqueType", "proposSplittee", "suite2eLecturePE"])
 		dataDic=prelex.getPrelexInformation(html, tempDic)
 		
-		year, month, day=splitPrelexDate(dataDic['prelexAdoptionProposOrigine'])
+		year, month, day=splitFrenchFormatDate(dataDic['prelexAdoptionProposOrigine'])
 		act.prelexAdoptionProposOrigine=dateToIso(year, month, day)
 		act.prelexComProc=dataDic['prelexComProc']
 		act.prelexDGProposition=dataDic['prelexDGProposition']
@@ -159,11 +169,11 @@ def getInformationFromPrelex(actId, act, prelexUrl):
 		act.prelexRespPropos1=dataDic['prelexRespPropos1']
 		act.prelexRespPropos2=dataDic['prelexRespPropos2']
 		act.prelexRespPropos3=dataDic['prelexRespPropos3']
-		year, month, day=splitPrelexDate(dataDic['prelexTransmissionCouncil'])
+		year, month, day=splitFrenchFormatDate(dataDic['prelexTransmissionCouncil'])
 		act.prelexTransmissionCouncil=dateToIso(year, month, day)
 		act.prelexNbPointB=dataDic['prelexNbPointB']
 		act.prelexConsB=dataDic['prelexConsB']
-		year, month, day=splitPrelexDate(dataDic['prelexAdoptionConseil'])
+		year, month, day=splitFrenchFormatDate(dataDic['prelexAdoptionConseil'])
 		act.prelexAdoptionConseil=dateToIso(year, month, day)
 		act.prelexNbPointA=dataDic['prelexNbPointA']
 		act.prelexCouncilA=dataDic['prelexCouncilA']
@@ -200,7 +210,8 @@ def actsView(request):
 				#update europolix.actsInformationRetrieval_actsinformationmodel set validated=0;
 				#delete from europolix.actsInformationRetrieval_actsinformationmodel;
 				#delete from europolix.actsIdsValidation_actsidsmodel;
-				#~ INSERT INTO europolix.actsInformationRetrieval_actsinformationmodel (actId_id) SELECT id FROM europolix.actsIdsValidation_actsidsmodel
+				#INSERT INTO europolix.actsInformationRetrieval_actsinformationmodel (actId_id) SELECT id FROM europolix.actsIdsValidation_actsidsmodel
+				#SELECT * FROM europolix.actsInformationRetrieval_dgfullnamemodel fn, europolix.actsInformationRetrieval_dgcodemodel code where fn.dgCode_id=code.id;
 				act.validated=True
 				form = ActsInformationForm(request.POST, instance=act)
 				if form.is_valid():

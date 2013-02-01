@@ -41,8 +41,15 @@ class ActsInformationModel(models.Model):
 	oeilEtatMbRapport1=models.CharField(max_length=5, blank=True, null=True, default=None)
 	oeilGroupePolitiqueRapporteur2=models.CharField(max_length=10, blank=True, null=True, default=None)
 	oeilRapporteurPE2=models.CharField(max_length=50, blank=True, null=True, default=None)
+	oeilGroupePolitiqueRapporteur3=models.CharField(max_length=10, blank=True, null=True, default=None)
+	oeilRapporteurPE3=models.CharField(max_length=50, blank=True, null=True, default=None)
+	oeilGroupePolitiqueRapporteur4=models.CharField(max_length=10, blank=True, null=True, default=None)
+	oeilRapporteurPE4=models.CharField(max_length=50, blank=True, null=True, default=None)
+	oeilGroupePolitiqueRapporteur5=models.CharField(max_length=10, blank=True, null=True, default=None)
+	oeilRapporteurPE5=models.CharField(max_length=50, blank=True, null=True, default=None)
 	oeilModifPropos=models.BooleanField(default=False)
 	oeilNombreLectures=models.IntegerField(max_length=1, blank=True, null=True, default=None)
+	oeilSignPECS=models.DateField(max_length=10, blank=True, null=True, default=None)
 	
 	#prelex
 	prelexAdoptionProposOrigine=models.DateField(max_length=10, blank=True, null=True, default=None)
