@@ -136,7 +136,7 @@ def actsView(request):
 				#gets urls
 				infoDic["eurlexUrl"]=eurlex.getEurlexUrl(act.fileNoCelex)
 				infoDic["oeilUrl"]=oeil.getOeilUrl(str(act.fileNoUniqueType), str(act.fileNoUniqueAnnee), str(act.fileNoUniqueChrono))
-				infoDic["prelexUrl"]=act.prelexUrl
+				infoDic["prelexUrl"]=act.filePrelexUrl
 				
 				responseDic['form']=form
 				responseDic['act']=act

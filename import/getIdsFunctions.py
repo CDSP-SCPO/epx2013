@@ -24,13 +24,13 @@ def checkAndGetEurlexIds(noCelex):
 	eurlexUrlContent=eurlex.getEurlexUrlContent(eurlexUrl)
 	if eurlexUrlContent!=False:
 		#~ #gets information from eurlex
-		dataDic['eurlexEurlexUrlExists']=True
+		dataDic['fileEurlexUrlExists']=True
 		dataDic.update(eurlex.getAllEurlexIds(eurlexUrlContent))
 	else:
-		dataDic['eurlexEurlexUrlExists']=False
+		dataDic['fileEurlexUrlExists']=False
 		print "eurlex url does not exist!!"
 	
-	dataDic['eurlexEurlexUrl']=eurlexUrl
+	#~ dataDic['eurlexEurlexUrl']=eurlexUrl
 	
 	return dataDic
 	
@@ -52,11 +52,11 @@ def checkAndGetOeilIds(noUniqueType, noUniqueAnnee, noUniqueChrono):
 	oeilUrlContent=oeil.getOeilUrlContent(oeilUrl)
 	if oeilUrlContent!=False:
 		#~ #gets information from oeil
-		dataDic['oeilOeilUrlExists']=True
+		dataDic['fileOeilUrlExists']=True
 		dataDic.update(oeil.getAllOeilIds(oeilUrlContent))
 	else:
 		print "oeil url does not exist!!"
-		dataDic['oeilOeilUrlExists']=False
+		dataDic['fileOeilUrlExists']=False
 		dataDic['oeilNoCelex']=None
 		dataDic['oeilNoUniqueAnnee']=None
 		dataDic['oeilNoUniqueType']=None
@@ -65,7 +65,7 @@ def checkAndGetOeilIds(noUniqueType, noUniqueAnnee, noUniqueChrono):
 		dataDic['oeilProposAnnee']=None
 		dataDic['oeilProposChrono']=None
 	
-	dataDic['oeilOeilUrl']=oeilUrl
+	#~ dataDic['oeilOeilUrl']=oeilUrl
 	
 	return dataDic
 	
@@ -89,11 +89,11 @@ def checkAndGetPrelexIds(idsDic):
 	prelexUrlContent=prelex.getPrelexUrlContent(prelexUrl)
 	if prelexUrlContent!=False:
 		#~ #gets information from prelex
-		dataDic['prelexPrelexUrlExists']=True
+		dataDic['filePrelexUrlExists']=True
 		dataDic.update(prelex.getAllPrelexIds(prelexUrlContent))
 	else:
 		print "prelex url does not exist!!"
-		dataDic['prelexPrelexUrlExists']=False
+		dataDic['filePrelexUrlExists']=False
 		dataDic['prelexNosCelex']=None
 		dataDic['prelexDosId']=None
 		dataDic['prelexNoUniqueAnnee']=None
@@ -103,6 +103,6 @@ def checkAndGetPrelexIds(idsDic):
 		dataDic['prelexProposAnnee']=None
 		dataDic['prelexProposChrono']=None
 		
-	dataDic['prelexPrelexUrl']=prelexUrl
+	dataDic['filePrelexUrl']=prelexUrl
 
 	return dataDic

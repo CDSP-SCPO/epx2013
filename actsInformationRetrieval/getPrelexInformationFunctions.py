@@ -5,7 +5,7 @@ get the information from Prelex (fields for the statistical analysis)
 import re
 from bs4 import BeautifulSoup
 #dg codes
-from actsInformationRetrieval.models import DgCodeModel, DgFullNameModel
+from actsInformationRetrieval.models import DGCodeModel, DGFullNameModel
 
 
 def getPrelexAdoptionByCommissionTable(soup):
@@ -224,9 +224,9 @@ def specialDgSearch(dg):
 	try:
 		#if there is a match in the db -> return short name (acronym)
 		print "dg", dg
-		print "dgCode", DgFullNameModel.objects.get(fullName=dg).dgCode_id
-		dgCode=DgFullNameModel.objects.get(fullName=dg).dgCode_id
-		return DgCodeModel.objects.get(id=dgCode).acronym
+		print "dgCode", DGFullNameModel.objects.get(fullName=dg).dgCode_id
+		dgCode=DGFullNameModel.objects.get(fullName=dg).dgCode_id
+		return DGCodeModel.objects.get(id=dgCode).acronym
 	except:
 		print "Full name not stored in db"
 		return dg

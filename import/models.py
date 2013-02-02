@@ -8,7 +8,7 @@ def uploadedFileName(instance, filename):
 	newFilename=" ".join(filename.split())
 	return '/'.join(['import', newFilename])
 
-class CsvUploadModel(models.Model):
+class CSVUploadModel(models.Model):
 	"""
 	MODEL
 	upload acts from a csv file

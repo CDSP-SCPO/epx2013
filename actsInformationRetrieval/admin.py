@@ -1,28 +1,28 @@
 from django.contrib import admin
-from models import DgCodeModel, DgFullNameModel
+from models import DGCodeModel, DGFullNameModel
 """
 administration of DgCode and DgFullName models
 """
 
-class DgCodeAdminClass(admin.ModelAdmin):
+class DGCodeAdminClass(admin.ModelAdmin):
 	"""
-	details the DgCode model administration
+	details the DGCode model administration
 	"""
 	list_display= ('acronym',)
 	ordering= ('acronym',)
 	search_fields = ('acronym',)
 
-admin.site.register(DgCodeModel, DgCodeAdminClass)
+admin.site.register(DGCodeModel, DGCodeAdminClass)
 
 
-class DgFullNameAdminClass(admin.ModelAdmin):
+class DGFullNameAdminClass(admin.ModelAdmin):
 	"""
-	details the DgFullName model administration
+	details the DGFullName model administration
 	"""
 	list_display= ('dgCode', 'fullName',)
 	list_filter= ('dgCode',)
 	ordering= ('dgCode', 'fullName',)
 	search_fields = ('dgCode', 'fullName',)
 
-admin.site.register(DgFullNameModel, DgFullNameAdminClass)
+admin.site.register(DGFullNameModel, DGFullNameAdminClass)
 

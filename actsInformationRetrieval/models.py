@@ -75,7 +75,7 @@ class ActsInformationModel(models.Model):
 		return u"%s" % self.actId
 
 
-class DgCodeModel(models.Model):
+class DGCodeModel(models.Model):
 	"""
 	MODEL
 	list of dgCodes for the dgProposition field(s)
@@ -87,7 +87,7 @@ class DgCodeModel(models.Model):
 		return u"%s" % self.acronym
 
 
-class DgFullNameModel(models.Model):
+class DGFullNameModel(models.Model):
 	"""
 	MODEL
 	list of dg full names corresponding to the dg codes

@@ -4,8 +4,8 @@ from django.conf import settings
 from django.db import IntegrityError
 from django.shortcuts import render, render_to_response
 from django.template import RequestContext
-from forms import CsvUploadForm
-from models import CsvUploadModel, DosIdModel
+from forms import CSVUploadForm
+from models import CSVUploadModel, DosIdModel
 from actsIdsValidation.models import ActsIdsModel
 from datetime import date
 import os
@@ -156,10 +156,10 @@ def saveActsToValidate(csvFile):
 	return idsList, errorList
 
 
-def saveRetrievedIds(idsList):
+def getAndSaveRetrievedIds(idsList):
 	"""
 	FUNCTION
-	save retrieved ids from eurlex, oeil and prelex in the the database
+	get and save retrieved ids from eurlex, oeil and prelex in the the database
 	PARAMETERS
 	idsList: list of act ids to save (monthly summary ids)
 	RETURN
@@ -195,41 +195,12 @@ def saveRetrievedIds(idsList):
 			idsDic['proposChrono']=str(act.fileProposChrono)
 		
 		dataDic.update(info.checkAndGetPrelexIds(idsDic))
-		
-		#~ print dataDic
-		
-		#save retrieved ids
-		act.eurlexNoCelex=dataDic['eurlexNoCelex']
-		act.oeilNoCelex=dataDic['oeilNoCelex']
-		act.prelexNosCelex=dataDic['prelexNosCelex']
-		act.fileEurlexUrlExists=dataDic['eurlexEurlexUrlExists']
-		
-		act.eurlexProposAnnee=dataDic['eurlexProposAnnee']
-		act.oeilProposAnnee=dataDic['oeilProposAnnee']
-		act.prelexProposAnnee=dataDic['prelexProposAnnee']
-		act.eurlexProposChrono=dataDic['eurlexProposChrono']
-		act.oeilProposChrono=dataDic['oeilProposChrono']
-		act.prelexProposChrono=dataDic['prelexProposChrono']
-		act.eurlexProposOrigine=dataDic['eurlexProposOrigine']
-		act.oeilProposOrigine=dataDic['oeilProposOrigine']
-		act.prelexProposOrigine=dataDic['prelexProposOrigine']
-		act.filePrelexUrlExists=dataDic['prelexPrelexUrlExists']
-		act.prelexUrl=dataDic['prelexPrelexUrl']
-		
-		act.prelexDosId=dataDic['prelexDosId']
-		act.eurlexNoUniqueAnnee=dataDic['eurlexNoUniqueAnnee']
-		act.oeilNoUniqueAnnee=dataDic['oeilNoUniqueAnnee']
-		act.prelexNoUniqueAnnee=dataDic['prelexNoUniqueAnnee']
-		act.eurlexNoUniqueType=dataDic['eurlexNoUniqueType']
-		act.oeilNoUniqueType=dataDic['oeilNoUniqueType']
-		act.prelexNoUniqueType=dataDic['prelexNoUniqueType']
-		act.eurlexNoUniqueChrono=dataDic['eurlexNoUniqueChrono']
-		act.oeilNoUniqueChrono=dataDic['oeilNoUniqueChrono']
-		act.prelexNoUniqueChrono=dataDic['prelexNoUniqueChrono']
-		act.fileOeilUrlExists=dataDic['oeilOeilUrlExists']
-		
+
+		#store dictionary ids into the model object
+		act.__dict__.update(dataDic)
 		
 		try:
+			#save the object
 			act.save()
 			print "act", releveAnneeVar, releveMoisVar, noOrdreVar,"saved"
 		except IntegrityError, e:
@@ -244,7 +215,7 @@ def importView(request):
 	"""
 	responseDic={}
 	if request.method == 'POST':
-		form = CsvUploadForm(request.POST, request.FILES)
+		form = CSVUploadForm(request.POST, request.FILES)
 		responseDic['form']=form
 		#the form is valid and the import can be processed
 		if form.is_valid():
@@ -255,7 +226,7 @@ def importView(request):
 			#if a file with the same name already exists, we delete it
 			if os.path.exists(path):
 				os.remove(path)
-			newCsvFile = CsvUploadModel(csvFile = request.FILES['csvFile'])
+			newCsvFile = CSVUploadModel(csvFile = request.FILES['csvFile'])
 			newCsvFile.save()
 			idsList=[]
 			errorList=[]
@@ -274,9 +245,9 @@ def importView(request):
 				responseDic['errorList']=errorList
 				responseDic['success']=str(len(idsList)) + " act(s) imported, "+ str(len(errorList)) +" error(s)!"
 				#save retrieved ids
-				saveRetrievedIds(idsList)
+				getAndSaveRetrievedIds(idsList)
 				
 	else:
-		responseDic['form']=CsvUploadForm()
+		responseDic['form']=CSVUploadForm()
 
 	return render_to_response('import/index.html', responseDic, context_instance=RequestContext(request))

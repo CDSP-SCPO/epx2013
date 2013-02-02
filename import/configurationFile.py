@@ -1,6 +1,6 @@
 # CONFIGURATION FILE
 # EDIT the CONTENT of the variables if needed
-# DO NOT MODIFY any variable's NAME or REMOVE any VARIABLE.
+# DO NOT MODIFY any variable NAME or REMOVE any VARIABLE.
 
 #eurlex url form
 eurlexUrl="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CELEX:NOCELEX:EN:NOT"

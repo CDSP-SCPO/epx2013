@@ -1,6 +1,6 @@
 from django import forms
 from django.core.exceptions import ValidationError
-from models import CsvUploadModel
+from models import CSVUploadModel
 
 
 def fileExtensionValidation(value):
@@ -11,7 +11,7 @@ def fileExtensionValidation(value):
 	if not value.name.endswith('.csv'):
 		raise ValidationError(u'Incorrect format. Please choose an other file.')
 
-class CsvUploadForm(forms.Form):
+class CSVUploadForm(forms.Form):
 	"""
 	FORM
 	upload a csv file containing either prelex unique ids (disId) or acts to validate
@@ -26,5 +26,5 @@ class CsvUploadForm(forms.Form):
 	csvFile = forms.FileField(label='Select a CSV file to upload.', help_text='size: max 1 Mo', validators=[fileExtensionValidation])
 	
 	class Meta:
-		model = CsvUploadModel
+		model = CSVUploadModel
 

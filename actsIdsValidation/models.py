@@ -51,7 +51,7 @@ class ActsIdsModel(models.Model):
 	
 	#PRELEX
 	filePrelexUrlExists=models.BooleanField(default=True)
-	prelexUrl=models.CharField(max_length=200,  blank=True, null=True, default=None)
+	filePrelexUrl=models.CharField(max_length=200,  blank=True, null=True, default=None)
 	prelexNosCelex = models.CharField(max_length=100, blank=True, null=True, default=None)
 	prelexNoUniqueAnnee = models.IntegerField(max_length=4, blank=True, null=True, default=None)
 	prelexNoUniqueType = models.CharField(max_length=4,  blank=True, null=True, default=None)

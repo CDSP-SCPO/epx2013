@@ -72,17 +72,8 @@ def getInformationFromEurlex(actId, act, eurlexUrl):
 		html=eurlexIds.getEurlexUrlContent(eurlexUrl)
 		dataDic=eurlex.getEurlexInformation(html)
 		
-		act.eurlexTitreEn=dataDic['eurlexTitreEn']
-		act.eurlexCodeSectRep01=dataDic['eurlexCodeSectRep01']
-		act.eurlexCodeSectRep02=dataDic['eurlexCodeSectRep02']
-		act.eurlexCodeSectRep03=dataDic['eurlexCodeSectRep03']
-		act.eurlexCodeSectRep04=dataDic['eurlexCodeSectRep04']
-		act.eurlexRepEn1=dataDic['eurlexRepEn1']
-		act.eurlexRepEn2=dataDic['eurlexRepEn2']
-		act.eurlexRepEn3=dataDic['eurlexRepEn3']
-		act.eurlexRepEn4=dataDic['eurlexRepEn4']
-		act.eurlexTypeActe=dataDic['eurlexTypeActe']
-		act.eurlexBaseJuridique=dataDic['eurlexBaseJuridique']
+		#store dictionary information variables into the model object
+		act.__dict__.update(dataDic)
 	else:
 		print "No eurlex url"
 	
@@ -110,31 +101,12 @@ def getInformationFromOeil(actId, act, oeilUrl):
 		#store all the fields useful for the act information retrieval in a dictionary
 		tempDic=model_to_dict(actId, fields=["oeilNoUniqueType"])
 		dataDic=oeil.getOeilInformation(html, tempDic)
-		
-		act.oeilCommissionPE=dataDic['oeilCommissionPE']
-		act.oeilEPComAndtTabled=dataDic['oeilEPComAndtTabled']
-		act.oeilEPComAndtAdopt=dataDic['oeilEPComAndtAdopt']
-		act.oeilEPVotesFor1=dataDic['oeilEPVotesFor1']
-		act.oeilEPVotesAgst1=dataDic['oeilEPVotesAgst1']
-		act.oeilEPVotesAbs1=dataDic['oeilEPVotesAbs1']
-		act.oeilEPVotesFor2=dataDic['oeilEPVotesFor2']
-		act.oeilEPVotesAgst2=dataDic['oeilEPVotesAgst2']
-		act.oeilEPVotesAbs2=dataDic['oeilEPVotesAbs2']
-		act.oeilGroupePolitiqueRapporteur1=dataDic['oeilGroupePolitiqueRapporteur1']
-		act.oeilRapporteurPE1=dataDic['oeilRapporteurPE1']
-		act.oeilEtatMbRapport1=dataDic['oeilEtatMbRapport1']
-		act.oeilGroupePolitiqueRapporteur2=dataDic['oeilGroupePolitiqueRapporteur2']
-		act.oeilRapporteurPE2=dataDic['oeilRapporteurPE2']
-		act.oeilGroupePolitiqueRapporteur3=dataDic['oeilGroupePolitiqueRapporteur3']
-		act.oeilRapporteurPE3=dataDic['oeilRapporteurPE3']
-		act.oeilGroupePolitiqueRapporteur4=dataDic['oeilGroupePolitiqueRapporteur4']
-		act.oeilRapporteurPE4=dataDic['oeilRapporteurPE4']
-		act.oeilGroupePolitiqueRapporteur5=dataDic['oeilGroupePolitiqueRapporteur5']
-		act.oeilRapporteurPE5=dataDic['oeilRapporteurPE5']
-		act.oeilModifPropos=dataDic['oeilModifPropos']
-		act.oeilNombreLectures=dataDic['oeilNombreLectures']
+
 		year, month, day=splitFrenchFormatDate(dataDic['oeilSignPECS'])
-		act.oeilSignPECS=dateToIso(year, month, day)
+		dataDic['oeilSignPECS']=dateToIso(year, month, day)
+		
+		#store dictionary information variables into the model object
+		act.__dict__.update(dataDic)
 	else:
 		print "No oeil url"
 		
@@ -162,22 +134,14 @@ def getInformationFromPrelex(actId, act, prelexUrl):
 		dataDic=prelex.getPrelexInformation(html, tempDic)
 		
 		year, month, day=splitFrenchFormatDate(dataDic['prelexAdoptionProposOrigine'])
-		act.prelexAdoptionProposOrigine=dateToIso(year, month, day)
-		act.prelexComProc=dataDic['prelexComProc']
-		act.prelexDGProposition=dataDic['prelexDGProposition']
-		act.prelexDGProposition2=dataDic['prelexDGProposition2']
-		act.prelexRespPropos1=dataDic['prelexRespPropos1']
-		act.prelexRespPropos2=dataDic['prelexRespPropos2']
-		act.prelexRespPropos3=dataDic['prelexRespPropos3']
+		dataDic['prelexAdoptionProposOrigine']=dateToIso(year, month, day)
 		year, month, day=splitFrenchFormatDate(dataDic['prelexTransmissionCouncil'])
-		act.prelexTransmissionCouncil=dateToIso(year, month, day)
-		act.prelexNbPointB=dataDic['prelexNbPointB']
-		act.prelexConsB=dataDic['prelexConsB']
+		dataDic['prelexTransmissionCouncil']=dateToIso(year, month, day)
 		year, month, day=splitFrenchFormatDate(dataDic['prelexAdoptionConseil'])
-		act.prelexAdoptionConseil=dateToIso(year, month, day)
-		act.prelexNbPointA=dataDic['prelexNbPointA']
-		act.prelexCouncilA=dataDic['prelexCouncilA']
-		act.prelexNombreLectures=dataDic['prelexNombreLectures']
+		dataDic['prelexAdoptionConseil']=dateToIso(year, month, day)
+		
+		#store dictionary information variables into the model object
+		act.__dict__.update(dataDic)
 	else:
 		print "No prelex url"
 	
@@ -234,7 +198,7 @@ def actsView(request):
 				urlDic={}
 				urlDic["eurlexUrl"]=eurlexIds.getEurlexUrl(actId.fileNoCelex)
 				urlDic["oeilUrl"]=oeilIds.getOeilUrl(str(actId.fileNoUniqueType), str(actId.fileNoUniqueAnnee), str(actId.fileNoUniqueChrono))
-				urlDic["prelexUrl"]=actId.prelexUrl
+				urlDic["prelexUrl"]=actId.filePrelexUrl
 				responseDic["url"]=urlDic
 				#an act has been selected in the drop down list -> the related information are displayed
 				if state=="display":
