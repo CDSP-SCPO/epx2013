@@ -192,6 +192,7 @@ def getEurlexBaseJuridique(soup):
 #~ ) -> can be repeated
 
 
+
 def getEurlexInformation(soup):
 	"""
 	FUNCTION

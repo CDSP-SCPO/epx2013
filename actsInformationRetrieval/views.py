@@ -36,7 +36,7 @@ def splitFrenchFormatDate(dateString):
 	day=dateString[:2]
 	month=dateString[3:5]
 	year=dateString[6:]
-	
+
 	return year, month, day
 
 
@@ -68,15 +68,15 @@ def getInformationFromEurlex(actId, act, eurlexUrl):
 
 	if actId.fileEurlexUrlExists==True:
 		#if yes, retrieve the information and pass it to an object
-		
+
 		html=eurlexIds.getEurlexUrlContent(eurlexUrl)
 		dataDic=eurlex.getEurlexInformation(html)
-		
+
 		#store dictionary information variables into the model object
 		act.__dict__.update(dataDic)
 	else:
 		print "No eurlex url"
-	
+
 	return act
 
 
@@ -96,20 +96,21 @@ def getInformationFromOeil(actId, act, oeilUrl):
 
 	if actId.fileOeilUrlExists==True:
 		#if yes, retrieve the information and pass it to an object
-		
+
 		html=oeilIds.getOeilUrlContent(oeilUrl)
 		#store all the fields useful for the act information retrieval in a dictionary
 		tempDic=model_to_dict(actId, fields=["oeilNoUniqueType"])
 		dataDic=oeil.getOeilInformation(html, tempDic)
 
-		year, month, day=splitFrenchFormatDate(dataDic['oeilSignPECS'])
-		dataDic['oeilSignPECS']=dateToIso(year, month, day)
-		
+		if dataDic['oeilSignPECS']!=None:
+			year, month, day=splitFrenchFormatDate(dataDic['oeilSignPECS'])
+			dataDic['oeilSignPECS']=dateToIso(year, month, day)
+
 		#store dictionary information variables into the model object
 		act.__dict__.update(dataDic)
 	else:
 		print "No oeil url"
-		
+
 	return act
 
 
@@ -132,19 +133,22 @@ def getInformationFromPrelex(actId, act, prelexUrl):
 		#store all the fields useful for the act information retrieval in a dictionary
 		tempDic=model_to_dict(actId, fields=["prelexProposOrigine", "prelexNoUniqueType", "proposSplittee", "suite2eLecturePE"])
 		dataDic=prelex.getPrelexInformation(html, tempDic)
-		
-		year, month, day=splitFrenchFormatDate(dataDic['prelexAdoptionProposOrigine'])
-		dataDic['prelexAdoptionProposOrigine']=dateToIso(year, month, day)
-		year, month, day=splitFrenchFormatDate(dataDic['prelexTransmissionCouncil'])
-		dataDic['prelexTransmissionCouncil']=dateToIso(year, month, day)
-		year, month, day=splitFrenchFormatDate(dataDic['prelexAdoptionConseil'])
-		dataDic['prelexAdoptionConseil']=dateToIso(year, month, day)
-		
+
+		if dataDic['prelexAdoptionProposOrigine']!=None:
+			year, month, day=splitFrenchFormatDate(dataDic['prelexAdoptionProposOrigine'])
+			dataDic['prelexAdoptionProposOrigine']=dateToIso(year, month, day)
+		if dataDic['prelexTransmissionCouncil']!=None:
+			year, month, day=splitFrenchFormatDate(dataDic['prelexTransmissionCouncil'])
+			dataDic['prelexTransmissionCouncil']=dateToIso(year, month, day)
+		if dataDic['prelexAdoptionConseil']!=None:
+			year, month, day=splitFrenchFormatDate(dataDic['prelexAdoptionConseil'])
+			dataDic['prelexAdoptionConseil']=dateToIso(year, month, day)
+
 		#store dictionary information variables into the model object
 		act.__dict__.update(dataDic)
 	else:
 		print "No prelex url"
-	
+
 	return act
 
 
@@ -159,11 +163,11 @@ def actsView(request):
 	responseDic['displayName']=vnIds.variablesNameDic
 	responseDic['displayName'].update(vnInfo.variablesNameDic)
 	state="display"
-	
+
 	if request.method == 'POST':
 		print "post"
 		actToValidate=request.POST.getlist('actsToValidate')[0]
-		
+
 		#if an act is selected
 		if actToValidate!="":
 			actId=ActsIdsModel.objects.get(id=actToValidate)
@@ -213,17 +217,17 @@ def actsView(request):
 					print "ongoing"
 					form = ActsInformationForm(request.POST, instance=act, initial={'actsToValidate': actToValidate})
 					idForm=ActsIdsForm(request.POST, instance=actId)
-				
+
 				responseDic['actId']=actId
 				responseDic['act']=act
 				responseDic['idForm']=idForm
 				responseDic['form']=form
-		
+
 	#~ #if form has not been created yet -> unbound form
 	if 'form' not in locals():
 		print "ok"
 		responseDic['idForm'] = ActsIdsForm()
 		responseDic['form'] = ActsInformationForm()
 		#~ print "responseDic['form']", responseDic['form']
-	
+
 	return render_to_response('actsInformationRetrieval/index.html', responseDic, context_instance=RequestContext(request))

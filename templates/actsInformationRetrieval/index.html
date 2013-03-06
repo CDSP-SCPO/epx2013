@@ -12,16 +12,16 @@ displays the data of a given act (data for the statistical analysis displays dat
 		You can display, modify and save retrieved information of the validated acts on this page. Acts information can be displayed one at a time. <br />
 		Select a validated act in the drop down list and check the data in the table. Change any value (second column) if you detect a mistake. Eventually, click on the save button to validate and save the act information.
 	</p>
-	
+
 	<br />
 <!--
-	 act information form 
+	 act information form
 -->
 	<form id="actsInformationValidationForm" action="{% url actsInformationRetrieval.views.actsView %}" method="post">{% csrf_token %}
 		{{ form.non_field_errors }}
-		
+
 		{{ form.actsToValidate.field.choices.queryset.all|length }} act(s) to validate!
-		
+
 		<div id="actsToValidateChoice" class="fieldWrapper">
 			{{ form.actsToValidate.errors }}
 			{{ form.actsToValidate }}
@@ -34,9 +34,9 @@ displays the data of a given act (data for the statistical analysis displays dat
 		</div>
 
 		<br /><br />
-		
+
 		<div class="bold">EURLEX:</div>
-		
+
 		<table id="eurlexIdsTable">
 			<tr class="bold">
 				<td>{{ displayName.fileNoCelex }}</td>
@@ -50,9 +50,9 @@ displays the data of a given act (data for the statistical analysis displays dat
 				<td><a href="{{url.eurlexUrl}}" target="_blank">eurlex</a></td>
 			</tr>
 		</table>
-		
+
 		<br />
-		
+
 		<!-- eurlex validation table -->
 		<table id="eurlexTable" class="actsValidationTable">
 			<tr>
@@ -64,7 +64,7 @@ displays the data of a given act (data for the statistical analysis displays dat
 					</div>
 				</td>
 			</tr>
-			
+
 			<tr>
 				<td class="informationTableFirstColumn">{{ displayName.eurlexCodeSectRep01 }}</td>
 				<td>
@@ -74,7 +74,7 @@ displays the data of a given act (data for the statistical analysis displays dat
 					</div>
 				</td>
 			</tr>
-			
+
 			<tr>
 				<td class="informationTableFirstColumn">{{ displayName.eurlexCodeSectRep02 }}</td>
 				<td>
@@ -84,7 +84,7 @@ displays the data of a given act (data for the statistical analysis displays dat
 					</div>
 				</td>
 			</tr>
-			
+
 			<tr>
 				<td class="informationTableFirstColumn">{{ displayName.eurlexCodeSectRep03 }}</td>
 				<td>
@@ -94,7 +94,7 @@ displays the data of a given act (data for the statistical analysis displays dat
 					</div>
 				</td>
 			</tr>
-			
+
 			<tr>
 				<td class="informationTableFirstColumn">{{ displayName.eurlexCodeSectRep04 }}</td>
 				<td>
@@ -104,7 +104,7 @@ displays the data of a given act (data for the statistical analysis displays dat
 					</div>
 				</td>
 			</tr>
-			
+
 			<tr>
 				<td class="informationTableFirstColumn">{{ displayName.eurlexRepEn1 }}</td>
 				<td>
@@ -114,7 +114,7 @@ displays the data of a given act (data for the statistical analysis displays dat
 					</div>
 				</td>
 			</tr>
-			
+
 			<tr>
 				<td class="informationTableFirstColumn">{{ displayName.eurlexRepEn2 }}</td>
 				<td>
@@ -124,7 +124,7 @@ displays the data of a given act (data for the statistical analysis displays dat
 					</div>
 				</td>
 			</tr>
-			
+
 			<tr>
 				<td class="informationTableFirstColumn">{{ displayName.eurlexRepEn3 }}</td>
 				<td>
@@ -134,7 +134,7 @@ displays the data of a given act (data for the statistical analysis displays dat
 					</div>
 				</td>
 			</tr>
-			
+
 			<tr>
 				<td class="informationTableFirstColumn">{{ displayName.eurlexRepEn4 }}</td>
 				<td>
@@ -144,7 +144,7 @@ displays the data of a given act (data for the statistical analysis displays dat
 					</div>
 				</td>
 			</tr>
-			
+
 			<tr>
 				<td class="informationTableFirstColumn">{{ displayName.eurlexTypeActe }}</td>
 				<td>
@@ -154,7 +154,7 @@ displays the data of a given act (data for the statistical analysis displays dat
 					</div>
 				</td>
 			</tr>
-			
+
 			<tr>
 				<td class="informationTableFirstColumn">{{ displayName.eurlexBaseJuridique }}</td>
 				<td>
@@ -164,14 +164,14 @@ displays the data of a given act (data for the statistical analysis displays dat
 					</div>
 				</td>
 			</tr>
-			
+
 		</table>
-		
-		
+
+
 		<br /><br />
-		
+
 		<div class="bold">OEIL:</div>
-		
+
 		<table id="oeilIdsTable">
 			<tr class="bold">
 				<td>{{ displayName.fileNoUniqueType }}</td>
@@ -189,9 +189,9 @@ displays the data of a given act (data for the statistical analysis displays dat
 				<td><a href="{{url.oeilUrl}}" target="_blank">oeil</a></td>
 			</tr>
 		</table>
-		
+
 		<br />
-		
+
 		<!-- oeil validation table -->
 		<table id="oeilTable" class="actsValidationTable">
 			<tr>
@@ -203,7 +203,7 @@ displays the data of a given act (data for the statistical analysis displays dat
 					</div>
 				</td>
 			</tr>
-			
+
 			<tr>
 				<td class="informationTableFirstColumn">{{ displayName.oeilEPComAndtTabled }}</td>
 				<td>
@@ -213,7 +213,7 @@ displays the data of a given act (data for the statistical analysis displays dat
 					</div>
 				</td>
 			</tr>
-			
+
 			<tr>
 				<td class="informationTableFirstColumn">{{ displayName.oeilEPComAndtAdopt }}</td>
 				<td>
@@ -223,7 +223,27 @@ displays the data of a given act (data for the statistical analysis displays dat
 					</div>
 				</td>
 			</tr>
-			
+
+			<tr>
+				<td class="informationTableFirstColumn">{{ displayName.oeilEPAmdtTabled }}</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.oeilEPAmdtTabled.errors }}
+						{{ form.oeilEPAmdtTabled }}
+					</div>
+				</td>
+			</tr>
+
+			<tr>
+				<td class="informationTableFirstColumn">{{ displayName.oeilEPAmdtAdopt }}</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.oeilEPAmdtAdopt.errors }}
+						{{ form.oeilEPAmdtAdopt }}
+					</div>
+				</td>
+			</tr>
+
 			<tr>
 				<td class="informationTableFirstColumn">{{ displayName.oeilEPVotesFor1 }}</td>
 				<td>
@@ -233,7 +253,7 @@ displays the data of a given act (data for the statistical analysis displays dat
 					</div>
 				</td>
 			</tr>
-			
+
 			<tr>
 				<td class="informationTableFirstColumn">{{ displayName.oeilEPVotesAgst1 }}</td>
 				<td>
@@ -243,7 +263,7 @@ displays the data of a given act (data for the statistical analysis displays dat
 					</div>
 				</td>
 			</tr>
-			
+
 			<tr>
 				<td class="informationTableFirstColumn">{{ displayName.oeilEPVotesAbs1 }}</td>
 				<td>
@@ -253,7 +273,7 @@ displays the data of a given act (data for the statistical analysis displays dat
 					</div>
 				</td>
 			</tr>
-			
+
 			<tr>
 				<td class="informationTableFirstColumn">{{ displayName.oeilEPVotesFor2 }}</td>
 				<td>
@@ -263,7 +283,7 @@ displays the data of a given act (data for the statistical analysis displays dat
 					</div>
 				</td>
 			</tr>
-			
+
 			<tr>
 				<td class="informationTableFirstColumn">{{ displayName.oeilEPVotesAgst2 }}</td>
 				<td>
@@ -273,7 +293,7 @@ displays the data of a given act (data for the statistical analysis displays dat
 					</div>
 				</td>
 			</tr>
-			
+
 			<tr>
 				<td class="informationTableFirstColumn">{{ displayName.oeilEPVotesAbs2 }}</td>
 				<td>
@@ -283,7 +303,7 @@ displays the data of a given act (data for the statistical analysis displays dat
 					</div>
 				</td>
 			</tr>
-			
+
 			<tr>
 				<td class="informationTableFirstColumn">{{ displayName.oeilGroupePolitiqueRapporteur1 }}</td>
 				<td>
@@ -293,7 +313,7 @@ displays the data of a given act (data for the statistical analysis displays dat
 					</div>
 				</td>
 			</tr>
-			
+
 			<tr>
 				<td class="informationTableFirstColumn">{{ displayName.oeilRapporteurPE1 }}</td>
 				<td>
@@ -303,7 +323,7 @@ displays the data of a given act (data for the statistical analysis displays dat
 					</div>
 				</td>
 			</tr>
-			
+
 			<tr>
 				<td class="informationTableFirstColumn">{{ displayName.oeilEtatMbRapport1 }}</td>
 				<td>
@@ -313,7 +333,7 @@ displays the data of a given act (data for the statistical analysis displays dat
 					</div>
 				</td>
 			</tr>
-			
+
 			<tr>
 				<td class="informationTableFirstColumn">{{ displayName.oeilGroupePolitiqueRapporteur2 }}</td>
 				<td>
@@ -323,7 +343,7 @@ displays the data of a given act (data for the statistical analysis displays dat
 					</div>
 				</td>
 			</tr>
-			
+
 			<tr>
 				<td class="informationTableFirstColumn">{{ displayName.oeilRapporteurPE2 }}</td>
 				<td>
@@ -333,7 +353,17 @@ displays the data of a given act (data for the statistical analysis displays dat
 					</div>
 				</td>
 			</tr>
-			
+
+			<tr>
+				<td class="informationTableFirstColumn">{{ displayName.oeilEtatMbRapport2 }}</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.oeilEtatMbRapport2.errors }}
+						{{ form.oeilEtatMbRapport2 }}
+					</div>
+				</td>
+			</tr>
+
 			<tr>
 				<td class="informationTableFirstColumn">{{ displayName.oeilGroupePolitiqueRapporteur3 }}</td>
 				<td>
@@ -343,7 +373,7 @@ displays the data of a given act (data for the statistical analysis displays dat
 					</div>
 				</td>
 			</tr>
-			
+
 			<tr>
 				<td class="informationTableFirstColumn">{{ displayName.oeilRapporteurPE3 }}</td>
 				<td>
@@ -353,7 +383,17 @@ displays the data of a given act (data for the statistical analysis displays dat
 					</div>
 				</td>
 			</tr>
-			
+
+			<tr>
+				<td class="informationTableFirstColumn">{{ displayName.oeilEtatMbRapport3 }}</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.oeilEtatMbRapport3.errors }}
+						{{ form.oeilEtatMbRapport3 }}
+					</div>
+				</td>
+			</tr>
+
 			<tr>
 				<td class="informationTableFirstColumn">{{ displayName.oeilGroupePolitiqueRapporteur4 }}</td>
 				<td>
@@ -363,7 +403,7 @@ displays the data of a given act (data for the statistical analysis displays dat
 					</div>
 				</td>
 			</tr>
-			
+
 			<tr>
 				<td class="informationTableFirstColumn">{{ displayName.oeilRapporteurPE4 }}</td>
 				<td>
@@ -373,7 +413,17 @@ displays the data of a given act (data for the statistical analysis displays dat
 					</div>
 				</td>
 			</tr>
-			
+
+			<tr>
+				<td class="informationTableFirstColumn">{{ displayName.oeilEtatMbRapport4 }}</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.oeilEtatMbRapport4.errors }}
+						{{ form.oeilEtatMbRapport4 }}
+					</div>
+				</td>
+			</tr>
+
 			<tr>
 				<td class="informationTableFirstColumn">{{ displayName.oeilGroupePolitiqueRapporteur5 }}</td>
 				<td>
@@ -383,7 +433,7 @@ displays the data of a given act (data for the statistical analysis displays dat
 					</div>
 				</td>
 			</tr>
-			
+
 			<tr>
 				<td class="informationTableFirstColumn">{{ displayName.oeilRapporteurPE5 }}</td>
 				<td>
@@ -393,7 +443,17 @@ displays the data of a given act (data for the statistical analysis displays dat
 					</div>
 				</td>
 			</tr>
-			
+
+			<tr>
+				<td class="informationTableFirstColumn">{{ displayName.oeilEtatMbRapport5 }}</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.oeilEtatMbRapport5.errors }}
+						{{ form.oeilEtatMbRapport5 }}
+					</div>
+				</td>
+			</tr>
+
 			<tr>
 				<td class="informationTableFirstColumn">{{ displayName.oeilModifPropos }}</td>
 				<td>
@@ -403,7 +463,7 @@ displays the data of a given act (data for the statistical analysis displays dat
 					</div>
 				</td>
 			</tr>
-			
+
 			<tr>
 				<td class="informationTableFirstColumn">{{ displayName.oeilNombreLectures }}</td>
 				<td>
@@ -413,7 +473,7 @@ displays the data of a given act (data for the statistical analysis displays dat
 					</div>
 				</td>
 			</tr>
-			
+
 			<tr>
 				<td class="informationTableFirstColumn">{{ displayName.oeilSignPECS }}</td>
 				<td>
@@ -423,15 +483,15 @@ displays the data of a given act (data for the statistical analysis displays dat
 					</div>
 				</td>
 			</tr>
-			
+
 		</table>
-		
-		
+
+
 		<br /><br />
-		
-		
+
+
 		<div class="bold">PRELEX:</div>
-		
+
 		<table id="prelexIdsTable">
 			<tr class="bold">
 				<td>{{ displayName.fileProposOrigine }}</td>
@@ -451,9 +511,9 @@ displays the data of a given act (data for the statistical analysis displays dat
 				<td><a href="{{url.prelexUrl}}" target="_blank">prelex</a></td>
 			</tr>
 		</table>
-		
+
 		<br />
-		
+
 		<!-- prelex validation table -->
 		<table id="prelexTable" class="actsValidationTable">
 			<tr>
@@ -465,7 +525,7 @@ displays the data of a given act (data for the statistical analysis displays dat
 					</div>
 				</td>
 			</tr>
-			
+
 			<tr>
 				<td class="informationTableFirstColumn">{{ displayName.prelexComProc }}</td>
 				<td>
@@ -475,7 +535,7 @@ displays the data of a given act (data for the statistical analysis displays dat
 					</div>
 				</td>
 			</tr>
-			
+
 			<tr>
 				<td class="informationTableFirstColumn">{{ displayName.prelexDGProposition }}</td>
 				<td>
@@ -485,7 +545,7 @@ displays the data of a given act (data for the statistical analysis displays dat
 					</div>
 				</td>
 			</tr>
-			
+
 			<tr>
 				<td class="informationTableFirstColumn">{{ displayName.prelexDGProposition2 }}</td>
 				<td>
@@ -495,7 +555,7 @@ displays the data of a given act (data for the statistical analysis displays dat
 					</div>
 				</td>
 			</tr>
-			
+
 			<tr>
 				<td class="informationTableFirstColumn">{{ displayName.prelexRespPropos1 }}</td>
 				<td>
@@ -505,7 +565,7 @@ displays the data of a given act (data for the statistical analysis displays dat
 					</div>
 				</td>
 			</tr>
-			
+
 			<tr>
 				<td class="informationTableFirstColumn">{{ displayName.prelexRespPropos2 }}</td>
 				<td>
@@ -515,7 +575,7 @@ displays the data of a given act (data for the statistical analysis displays dat
 					</div>
 				</td>
 			</tr>
-			
+
 			<tr>
 				<td class="informationTableFirstColumn">{{ displayName.prelexRespPropos3 }}</td>
 				<td>
@@ -525,7 +585,7 @@ displays the data of a given act (data for the statistical analysis displays dat
 					</div>
 				</td>
 			</tr>
-			
+
 			<tr>
 				<td class="informationTableFirstColumn">{{ displayName.prelexTransmissionCouncil }}</td>
 				<td>
@@ -535,7 +595,7 @@ displays the data of a given act (data for the statistical analysis displays dat
 					</div>
 				</td>
 			</tr>
-			
+
 			<tr>
 				<td class="informationTableFirstColumn">{{ displayName.prelexNbPointB }}</td>
 				<td>
@@ -545,7 +605,7 @@ displays the data of a given act (data for the statistical analysis displays dat
 					</div>
 				</td>
 			</tr>
-			
+
 			<tr>
 				<td class="informationTableFirstColumn">{{ displayName.prelexConsB }}</td>
 				<td>
@@ -555,7 +615,7 @@ displays the data of a given act (data for the statistical analysis displays dat
 					</div>
 				</td>
 			</tr>
-			
+
 			<tr>
 				<td class="informationTableFirstColumn">{{ displayName.prelexAdoptionConseil }}</td>
 				<td>
@@ -565,7 +625,7 @@ displays the data of a given act (data for the statistical analysis displays dat
 					</div>
 				</td>
 			</tr>
-			
+
 			<tr>
 				<td class="informationTableFirstColumn">{{ displayName.prelexNbPointA }}</td>
 				<td>
@@ -575,7 +635,7 @@ displays the data of a given act (data for the statistical analysis displays dat
 					</div>
 				</td>
 			</tr>
-			
+
 			<tr>
 				<td class="informationTableFirstColumn">{{ displayName.prelexCouncilA }}</td>
 				<td>
@@ -585,7 +645,7 @@ displays the data of a given act (data for the statistical analysis displays dat
 					</div>
 				</td>
 			</tr>
-			
+
 			<tr>
 				<td class="informationTableFirstColumn">{{ displayName.prelexNombreLectures }}</td>
 				<td>
@@ -595,11 +655,11 @@ displays the data of a given act (data for the statistical analysis displays dat
 					</div>
 				</td>
 			</tr>
-			
+
 		</table>
 
 		<br /><br />
-		
+
 		<div id="notesDiv" class="fieldWrapper">
 			{{ idForm.notes.errors }}
 			<label for="notes">Notes:</label>
@@ -607,10 +667,10 @@ displays the data of a given act (data for the statistical analysis displays dat
 		</div>
 
 		<input id="actsValidationSaveButton" name="actsValidationSaveButton" type="submit" value="SAVE" />
-				
+
 		<div id="actsValidationSuccessMessage">{{ success }}</div>
 	</form>
-	
+
 	<br /><br />
-	
+
 {% endblock %}

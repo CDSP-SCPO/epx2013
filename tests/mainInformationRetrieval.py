@@ -1,8 +1,6 @@
 idsDataDic={}
 dataDic={}
 print ""
-print "INFORMATION RETRIEVAL"
-print ""
 
 #CHO0SE SOURCE (COMMENT OTHER SOURCES)
 src="eurlex"
@@ -13,20 +11,24 @@ src="oeil"
 if src=="eurlex":
 	#MODIFY AT WILL!!
 	url="eurlexContent.html"
-	
+
 	import getEurlexIdsFunctions as eurlexIds
 	import getEurlexInformationFunctions as eurlexInfo
 	html=eurlexIds.getEurlexUrlContent(url)
+	print "INFORMATION RETRIEVAL"
 	dataDic=eurlexInfo.getEurlexInformation(html)
 
 elif src=="oeil":
 	#MODIFY AT WILL!!
 	url="oeilContent.html"
-	
+
 	import getOeilIdsFunctions as oeilIds
 	import getOeilInformationFunctions as oeilInfo
 	html=oeilIds.getOeilUrlContent(url)
+	print "IDS RETRIEVAL"
 	idsDataDic=oeilIds.getAllOeilIds(html)
+	print ""
+	print "INFORMATION RETRIEVAL"
 	dataDic=oeilInfo.getOeilInformation(html, idsDataDic)
 
 elif src=="prelex":
@@ -38,5 +40,10 @@ elif src=="prelex":
 	import getPrelexIdsFunctions as prelexIds
 	import getPrelexInformationFunctions as prelexInfo
 	html=prelexIds.getPrelexUrlContent(url)
+	print "IDS RETRIEVAL"
 	idsDataDic.update(prelexIds.getAllPrelexIds(html))
+	print ""
+	print "INFORMATION RETRIEVAL"
 	dataDic=prelexInfo.getPrelexInformation(html, idsDataDic)
+
+print ""
