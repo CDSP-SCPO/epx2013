@@ -21,12 +21,13 @@ if src=="eurlex":
 elif src=="oeil":
 	#MODIFY AT WILL!!
 	url="oeilContent.html"
+	idsDataDic['suite2eLecturePE']=1
 
 	import getOeilIdsFunctions as oeilIds
 	import getOeilInformationFunctions as oeilInfo
 	html=oeilIds.getOeilUrlContent(url)
 	print "IDS RETRIEVAL"
-	idsDataDic=oeilIds.getAllOeilIds(html)
+	idsDataDic.update(oeilIds.getAllOeilIds(html))
 	print ""
 	print "INFORMATION RETRIEVAL"
 	dataDic=oeilInfo.getOeilInformation(html, idsDataDic)

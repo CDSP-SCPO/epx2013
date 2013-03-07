@@ -5,7 +5,7 @@ get the information from Prelex (fields for the statistical analysis)
 import re
 from bs4 import BeautifulSoup
 #dg codes
-from actsInformationRetrieval.models import DgCodeModel, DgFullNameModel
+from actsInformationRetrieval.models import DGCodeModel, DGFullNameModel
 
 
 def getPrelexAdoptionByCommissionTable(soup):
@@ -20,17 +20,18 @@ def getPrelexAdoptionByCommissionTable(soup):
 	try:
 		return soup.find("b", text=re.compile("Adoption by Commission")).findParent('table')
 	except:
+		print "no table called 'Adoption by Commission' (prelex)"
 		return None
 
 
 def getPrelexAdoptionProposOrigine(soup, proposOrigine):
 	"""
 	FUNCTION
-	gets the date of adoption by commission from the prelex url
+	gets the prelexAdoptionProposOrigine variable from the prelex url
 	PARAMETERS
 	soup: prelex url content
 	RETURN
-	adoption by commission date
+	prelexAdoptionProposOrigine
 	"""
 	if proposOrigine=="COM":
 		return soup.find("a", text=re.compile("Adoption by Commission")).findNext('br').next.strip()
@@ -38,7 +39,7 @@ def getPrelexAdoptionProposOrigine(soup, proposOrigine):
 		return getTransmissionCouncilFromPrelex(soup, proposOrigine)
 	if proposOrigine=="CONS":
 		print "TODO: extraction pdf almost done (see tests)"
-		return "00-00-0000"
+		return None
 
 #~ Date in front of "Adoption by Commission"
 #~ not NULL
@@ -53,14 +54,17 @@ def getPrelexAdoptionProposOrigine(soup, proposOrigine):
 def getPrelexComProc(soup, proposOrigine):
 	"""
 	FUNCTION
-	gets the mode of decision from the prelex url
+	gets the prelexComProc variable from the prelex url
 	PARAMETERS
 	soup: prelex url content
 	RETURN
-	decision mode
+	prelexComProc
 	"""
-	if proposOrigine== "COM":
-		return soup.find("td", text="Decision mode:").findNext('td').get_text().strip()
+	try:
+		if proposOrigine== "COM":
+			return soup.find("td", text="Decision mode:").findNext('td').get_text().strip()
+	except:
+		print "no prelexComProc!"
 	return None
 
 #~ in front of "Decision mode"
@@ -89,7 +93,10 @@ def getPrelexJointlyResponsibles(soup):
 		return jointlyResponsibleList
 	except:
 		return jointlyResponsibleList
-	
+
+#in front of "Jointly responsible"
+#can be Null
+
 
 #NOT USED ANYMORE
 #REPLACED BY DATABASE TABLES
@@ -217,9 +224,9 @@ def specialDgSearch(dg):
 	try:
 		#if there is a match in the db -> return short name (acronym)
 		print "dg", dg
-		print "dgCode", DgFullNameModel.objects.get(fullName=dg).dgCode_id
-		dgCode=DgFullNameModel.objects.get(fullName=dg).dgCode_id
-		return DgCodeModel.objects.get(id=dgCode).acronym
+		print "dgCode", DGFullNameModel.objects.get(fullName=dg).dgCode_id
+		dgCode=DGFullNameModel.objects.get(fullName=dg).dgCode_id
+		return DGCodeModel.objects.get(id=dgCode).acronym
 	except:
 		print "Full name not stored in db"
 		return dg
@@ -228,11 +235,11 @@ def specialDgSearch(dg):
 def getPrelexDGProposition(soup):
 	"""
 	FUNCTION
-	gets the primarily responsible from the prelex url
+	gets the prelexDGProposition variable from the prelex url
 	PARAMETERS
 	soup: prelex url content
 	RETURN
-	primarily responsible
+	prelexDGProposition
 	"""
 	try:
 		#dgProposition
@@ -244,7 +251,7 @@ def getPrelexDGProposition(soup):
 		#it can be associated to an acronym or short name
 		#~ http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=en&DosId=111863
 		return specialDg
-		
+
 	except:
 		return None
 
@@ -285,11 +292,11 @@ def getPrelexRespProposList(soup):
 def getPrelexTransmissionCouncil(soup, proposOrigine):
 	"""
 	FUNCTION
-	gets the date of transmission to council from the prelex url
+	gets the prelexTransmissionCouncil variable from the prelex url
 	PARAMETERS
 	soup: prelex url content
 	RETURN
-	transmission to council date
+	prelexTransmissionCouncil
 	"""
 	if proposOrigine=="CONS":
 		return getAdoptionProposOrigineFromPrelex(soup, proposOrigine)
@@ -304,11 +311,11 @@ def getPrelexTransmissionCouncil(soup, proposOrigine):
 def getPrelexNbPointB(soup, proposOrigine):
 	"""
 	FUNCTION
-	gets the number of items "B" from the prelex url
+	gets the prelexNbPointB variable from the prelex url
 	PARAMETERS
 	soup: prelex url content
 	RETURN
-	number of items "B"
+	prelexNbPointB
 	"""
 	if proposOrigine=="CONS" or proposOrigine=="BCE":
 		return None
@@ -323,11 +330,11 @@ def getPrelexNbPointB(soup, proposOrigine):
 def getPrelexConsB(soup, proposOrigine):
 	"""
 	FUNCTION
-	gets all the subjects of items "B" from the prelex url
+	gets the prelexConsB variable from the prelex url
 	PARAMETERS
 	soup: prelex url content
 	RETURN
-	list of subjects of items "B"
+	prelexConsB
 	"""
 	if proposOrigine!="CONS":
 		consB=""
@@ -347,11 +354,11 @@ def getPrelexConsB(soup, proposOrigine):
 def getPrelexAdoptionConseil(soup, suite2LecturePE, proposSplittee, nbLectures):
 	"""
 	FUNCTION
-	gets the date of adoption by council from the prelex url
+	gets the prelexAdoptionConseil variable from the prelex url
 	PARAMETERS
 	soup: prelex url content
 	RETURN
-	adoption date
+	prelexAdoptionConseil
 	"""
 	# if there is no  2d Lecture at PE
 	if suite2LecturePE==0:
@@ -362,7 +369,7 @@ def getPrelexAdoptionConseil(soup, suite2LecturePE, proposSplittee, nbLectures):
 			except:
 				print "pb", act
 	# if Suite2LecturePE=Y and proposSplittee=N
-	date="00-00-0000"
+	date=None
 	if proposSplittee==0:
 		if nbLectures==2:
 			try:
@@ -385,7 +392,7 @@ def getPrelexAdoptionConseil(soup, suite2LecturePE, proposSplittee, nbLectures):
 			#if conditions are met, then get the date
 			date=dateTableSoup.find("b").get_text()
 			#~ return soup.find("a", text=re.compile("Council decision at 3rd rdg")).findNext('br').next.strip()
-		
+
 	return date
 
 #~ date in front of "Formal adoption by Council" or "Adoption common position" or "Council approval 1st rdg"
@@ -404,11 +411,11 @@ def getPrelexAdoptionConseil(soup, suite2LecturePE, proposSplittee, nbLectures):
 def getPrelexNbPointA(soup, proposOrigine):
 	"""
 	FUNCTION
-	gets the number of items "A" from the prelex url
+	gets the prelexNbPointA variable from the prelex url
 	PARAMETERS
 	soup: prelex url content
 	RETURN
-	number of items "A"
+	prelexNbPointA
 	"""
 	if proposOrigine=="CONS" or proposOrigine=="BCE":
 		return None
@@ -423,11 +430,11 @@ def getPrelexNbPointA(soup, proposOrigine):
 def getPrelexCouncilA(soup):
 	"""
 	FUNCTION
-	gets all the subjects of items "A" from the prelex url
+	gets the prelexCouncilA variable from the prelex url
 	PARAMETERS
 	soup: prelex url content
 	RETURN
-	list of subjects of items "A"
+	prelexCouncilA
 	"""
 	councilA=""
 	for tables in soup.findAll(text=re.compile('ITEM "A" ON COUNCIL AGENDA')):
@@ -442,11 +449,11 @@ def getPrelexCouncilA(soup):
 def getPrelexNombreLectures(soup, noUniqueType, proposSplittee):
 	"""
 	FUNCTION
-	gets the number of lectures from the prelex url
+	gets the prelexNombreLectures variable from the prelex url
 	PARAMETERS
 	soup: prelex url content
 	RETURN
-	number of lectures
+	prelexNombreLectures
 	"""
 	if noUniqueType!="COD":
 		return None
@@ -495,80 +502,68 @@ def getPrelexInformation(soup, idsDataDic):
 	dictionary of retrieved data from prelex
 	"""
 	dataDic={}
-	
+
 	#prelexAdoptionProposOrigine
 	dataDic['prelexAdoptionProposOrigine']=getPrelexAdoptionProposOrigine(soup, idsDataDic['prelexProposOrigine'])
 	print "prelexAdoptionProposOrigine:", dataDic['prelexAdoptionProposOrigine']
-	
+
 	#extract Adoption by Commission table (html content)
 	adoptionByCommissionTableSoup=getPrelexAdoptionByCommissionTable(soup)
 	#~ print "adoptionByCommissionTableSoup", adoptionByCommissionTableSoup
-	
-	#if there is a table called "Adoption by Commission"
-	if adoptionByCommissionTableSoup!=None:
-		#prelexComProc
-		dataDic['prelexComProc']=getPrelexComProc(adoptionByCommissionTableSoup, idsDataDic['prelexProposOrigine'])
-		print "prelexComProc:", dataDic['prelexComProc']
-		
-		#jointly responsible persons (prelexDGProposition2 and prelexRespPropos2 or prelexRespPropos3)
-		jointlyResponsibleList=getPrelexJointlyResponsibles(adoptionByCommissionTableSoup)
-		
-		#prelexDGProposition and prelexDGProposition2
-		dataDic['prelexDGProposition']=getPrelexDGProposition(adoptionByCommissionTableSoup)
-		dataDic['prelexDGProposition2']=jointlyResponsibleList[0]
-		print "prelexDGProposition:", dataDic['prelexDGProposition']
-		print "prelexDGProposition2:", dataDic['prelexDGProposition2']
-		
-		#prelexRespPropos1, prelexRespPropos2, prelexRespPropos3
-		respProposList=getPrelexRespProposList(adoptionByCommissionTableSoup)
-		dataDic['prelexRespPropos1']=respProposList[0]
-		dataDic['prelexRespPropos2']=respProposList[1]
-		dataDic['prelexRespPropos3']=respProposList[2]
-		
-		#jointly responsible (prelexRespPropos2 or prelexRespPropos3)
-		if dataDic['prelexRespPropos2']==None:
-			dataDic['prelexRespPropos2']=jointlyResponsibleList[1]
-		elif dataDic['prelexRespPropos3']==None:
-			dataDic['prelexRespPropos3']=jointlyResponsibleList[1]
-		
-		print "prelexRespPropos1:", dataDic['prelexRespPropos1']
-		print "prelexRespPropos2:", dataDic['prelexRespPropos2']
-		print "prelexRespPropos3:", dataDic['prelexRespPropos3']
-		
-	else:
-		#if there is a table called "Adoption by Commission"
-		dataDic['prelexComProc']=None
-		dataDic['prelexDGProposition']=None
-		dataDic['prelexDGProposition2']=None
-		dataDic['prelexRespPropos1']=None
-		dataDic['prelexRespPropos2']=None
-		dataDic['prelexRespPropos3']=None
-		
-	
+
+	#prelexComProc
+	dataDic['prelexComProc']=getPrelexComProc(adoptionByCommissionTableSoup, idsDataDic['prelexProposOrigine'])
+	print "prelexComProc:", dataDic['prelexComProc']
+
+	#jointly responsible persons (prelexDGProposition2 and prelexRespPropos2 or prelexRespPropos3)
+	jointlyResponsibleList=getPrelexJointlyResponsibles(adoptionByCommissionTableSoup)
+
+	#prelexDGProposition and prelexDGProposition2
+	dataDic['prelexDGProposition']=getPrelexDGProposition(adoptionByCommissionTableSoup)
+	dataDic['prelexDGProposition2']=jointlyResponsibleList[0]
+	print "prelexDGProposition:", dataDic['prelexDGProposition']
+	print "prelexDGProposition2:", dataDic['prelexDGProposition2']
+
+	#prelexRespPropos1, prelexRespPropos2, prelexRespPropos3
+	respProposList=getPrelexRespProposList(adoptionByCommissionTableSoup)
+	dataDic['prelexRespPropos1']=respProposList[0]
+	dataDic['prelexRespPropos2']=respProposList[1]
+	dataDic['prelexRespPropos3']=respProposList[2]
+
+	#jointly responsible (prelexRespPropos2 or prelexRespPropos3)
+	if dataDic['prelexRespPropos2']==None:
+		dataDic['prelexRespPropos2']=jointlyResponsibleList[1]
+	elif dataDic['prelexRespPropos3']==None:
+		dataDic['prelexRespPropos3']=jointlyResponsibleList[1]
+
+	print "prelexRespPropos1:", dataDic['prelexRespPropos1']
+	print "prelexRespPropos2:", dataDic['prelexRespPropos2']
+	print "prelexRespPropos3:", dataDic['prelexRespPropos3']
+
 	#prelexTransmissionCouncil
 	dataDic['prelexTransmissionCouncil']=getPrelexTransmissionCouncil(soup, idsDataDic['prelexProposOrigine'])
 	print "prelexTransmissionCouncil:", dataDic['prelexTransmissionCouncil']
-	
+
 	#prelexNbPointB
 	dataDic['prelexNbPointB']=getPrelexNbPointB(soup, idsDataDic['prelexProposOrigine'])
 	print "prelexNbPointB:", dataDic['prelexNbPointB']
-	
+
 	#prelexConsB
 	dataDic['prelexConsB']=getPrelexConsB(soup, idsDataDic['prelexProposOrigine'])
 	print "prelexConsB:", dataDic['prelexConsB']
-	
+
 	#prelexNombreLectures
 	dataDic['prelexNombreLectures']=getPrelexNombreLectures(soup, idsDataDic['prelexNoUniqueType'], idsDataDic['proposSplittee'])
 	print "prelexNombreLectures:", dataDic['prelexNombreLectures']
-	
+
 	#prelexAdoptionConseil
 	dataDic['prelexAdoptionConseil']=getPrelexAdoptionConseil(soup, idsDataDic['suite2eLecturePE'], idsDataDic['proposSplittee'], dataDic['prelexNombreLectures'])
 	print "prelexAdoptionConseil:", dataDic['prelexAdoptionConseil']
-	
+
 	#prelexNbPointA
 	dataDic['prelexNbPointA']=getPrelexNbPointA(soup, idsDataDic['prelexProposOrigine'])
 	print "prelexNbPointA:", dataDic['prelexNbPointA']
-	
+
 	#prelexCouncilA
 	dataDic['prelexCouncilA']=getPrelexCouncilA(soup)
 	print "prelexCouncilA:", dataDic['prelexCouncilA']

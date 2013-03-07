@@ -700,7 +700,7 @@ def getOeilModifPropos(soup):
 	#- otherwise -> Modif Propos=N (http://www.europarl.europa.eu/oeil/popups/ficheprocedure.do?lang=en&reference=2005/0223(COD))
 
 
-def getOeilNombreLectures(soup):
+def getOeilNombreLectures(soup, suite2eLecturePE):
 	"""
 	FUNCTION
 	get the oeilNombreLectures variable from the oeil url
@@ -709,7 +709,34 @@ def getOeilNombreLectures(soup):
 	RETURN
 	oeilNombreLectures
 	"""
+	#search in the key event table only
+	keyEventsSoup=soup.find("a", {"class": "expand_button"}, text="Key events").findNext("table")
+
+	#3d lecture
+	if keyEventsSoup.find(text=re.compile('Decision by Council, 3rd rdg'))>0 or keyEventsSoup.find(text=re.compile('Decision by Council, 3rd reading'))>0:
+		return 3
+
+	#2d lecture
+	#if suite2eLecturePE=Yes
+	if suite2eLecturePE==1:
+		pattern="Decision by Parliament, 2nd reading"
+	#if suite2eLecturePE=No
+	else:
+		pattern="Act approved by Council, 2nd reading"
+	if keyEventsSoup.find(text=re.compile(pattern))>0:
+		return 2
+
+	#1st lecture
+	if keyEventsSoup.find(text=re.compile("Act adopted by Council after Parliament's 1st reading"))>0:
+		return 1
+
 	return None
+
+#possible values: 1, 2, 3 or NULL
+#3: "Decision by Council, 3rd rdg ou reading"
+#2:	- Suite2LecturePE= Y, "Decision by Parliament 2nd reading".
+#	- Suite2LecturePE=N, "Act approved by Council, 2nd reading"
+#1: "Act adopted by Council after Parliament's 1st reading"
 
 
 def getOeilSignPECS(soup, noUniqueType):
@@ -869,7 +896,7 @@ def getOeilInformation(soup, idsDic):
 	print "oeilModifPropos:", dataDic['oeilModifPropos']
 
 	#oeilNombreLectures
-	dataDic['oeilNombreLectures']=getOeilNombreLectures(soup)
+	dataDic['oeilNombreLectures']=getOeilNombreLectures(soup, idsDic["suite2eLecturePE"])
 	print "oeilNombreLectures:", dataDic['oeilNombreLectures']
 
 	#oeilSignPECS

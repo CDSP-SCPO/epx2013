@@ -99,7 +99,7 @@ def getInformationFromOeil(actId, act, oeilUrl):
 
 		html=oeilIds.getOeilUrlContent(oeilUrl)
 		#store all the fields useful for the act information retrieval in a dictionary
-		tempDic=model_to_dict(actId, fields=["oeilNoUniqueType"])
+		tempDic=model_to_dict(actId, fields=["oeilNoUniqueType", "suite2eLecturePE"])
 		dataDic=oeil.getOeilInformation(html, tempDic)
 
 		if dataDic['oeilSignPECS']!=None:
