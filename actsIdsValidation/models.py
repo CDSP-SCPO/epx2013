@@ -37,7 +37,7 @@ class ActsIdsModel(models.Model):
 	eurlexProposChrono = models.CharField(max_length=7, blank=True, null=True, default=None)
 	eurlexProposOrigine = models.CharField(max_length=4,  blank=True, null=True, default=None)
 	eurlexDosId = models.IntegerField(max_length=7, unique=True, blank=True, null=True, default=None)
-	
+
 	#OEIL
 	fileOeilUrlExists=models.BooleanField(default=True)
 	oeilNoCelex = models.CharField(max_length=15, blank=True, null=True, default=None)
@@ -48,7 +48,7 @@ class ActsIdsModel(models.Model):
 	oeilProposChrono = models.CharField(max_length=7, blank=True, null=True, default=None)
 	oeilProposOrigine = models.CharField(max_length=4,  blank=True, null=True, default=None)
 	oeilDosId = models.IntegerField(max_length=7, unique=True, blank=True, null=True, default=None)
-	
+
 	#PRELEX
 	filePrelexUrlExists=models.BooleanField(default=True)
 	filePrelexUrl=models.CharField(max_length=200,  blank=True, null=True, default=None)
@@ -63,14 +63,14 @@ class ActsIdsModel(models.Model):
 
 	#INDEX FILE ("classeur")
 	notes=models.CharField(max_length=2000,  blank=True, null=True)
-	
+
 	#GENERAL (just for the program)
 	validated=models.BooleanField(default=False)
 
-	
+
 	class Meta:
 		unique_together = (("releveAnnee", "releveMois", "noOrdre"), ("fileNoUniqueType", "fileNoUniqueAnnee", "fileNoUniqueChrono"), )
-	
+
 	def __unicode__(self):
 		#display of the drop down list in the act validation form
 		return u"releveAnne=%s, releveMois=%s, noOrdre=%s" % (self.releveAnnee, self.releveMois, self.noOrdre)

@@ -25,10 +25,10 @@ def saveDosIds(csvFile):
 	"""
 	errorList=[]
 	idsList=[]
-	f = open(csvFile, 'r')  
+	f = open(csvFile, 'r')
 	reader=csv.reader(f,delimiter=',')
 	header=reader.next()
-	
+
 	for row in reader:
 		if row[0].strip() !="":
 			dosId = DosIdModel()
@@ -37,7 +37,7 @@ def saveDosIds(csvFile):
 			dosId.proposAnnee=int(row[2])
 			dosId.proposChrono=row[3].strip()
 			dosId.splitNumber=emptyOrVar(row[4], "int")
-			
+
 			try:
 				dosId.save()
 				idsList.append(dosId.dosId)
@@ -48,8 +48,8 @@ def saveDosIds(csvFile):
 		else:
 			#end of file
 			break
-			
-	f.close() 
+
+	f.close()
 	return idsList, errorList
 
 def emptyOrVar(var, varType):
@@ -68,14 +68,14 @@ def emptyOrVar(var, varType):
 			#~ print "not null str"
 			returnValue=var
 	elif varType=="int":
-		try: 
+		try:
 			int(var)
 			#~ print "not null int"
 			returnValue=var
 		except:
 			#~ print "not int"
 			pass
-	
+
 	return returnValue
 
 def saveActsToValidate(csvFile):
@@ -89,11 +89,12 @@ def saveActsToValidate(csvFile):
 	"""
 	errorList=[]
 	idsList=[]
-	f = open(csvFile, 'r')  
-	reader=csv.reader(f,delimiter=',')
+	f = open(csvFile, 'r')
+	#~ reader=csv.reader(f,delimiter=',')
+	reader=csv.reader(f, delimiter=';')
 	header=reader.next()
-	
-	for row in reader:   
+
+	for row in reader:
 		#act is not taken into account when noUniqueType=CS (it's not a definitive act)
 		if (row[12].strip())!="CS" and row[7].strip()!="":
 			actsIds = ActsIdsModel()
@@ -102,7 +103,8 @@ def saveActsToValidate(csvFile):
 			actsIds.noOrdre=int(row[2])
 			actsIds.titreRMC=row[3].strip()
 			actsIds.adopCSRegleVote=row[4].strip()
-			actsIds.adopCSAbs=row[5].strip()
+			adopCSAbs=''.join(row[5].split())
+			actsIds.adopCSAbs=adopCSAbs
 			actsIds.adoptCSContre=row[6].strip()
 			actsIds.fileNoCelex=row[7].strip()
 			actsIds.fileProposAnnee=emptyOrVar(row[8], "int")
@@ -120,7 +122,7 @@ def saveActsToValidate(csvFile):
 				actsIds.councilPath=actsIds.councilPath[:-1]
 			#we don't take the council path column
 			actsIds.notes=row[17].strip()
-			
+
 			#we save fileDosId from the dosIdModel model
 			#if splitted proposition
 			if len(actsIds.fileProposChrono)>2 and actsIds.fileProposChrono[-2]=="-":
@@ -139,7 +141,7 @@ def saveActsToValidate(csvFile):
 				except Exception, e2:
 					actsIds.fileDosId=None
 					print e2
-					
+
 			try:
 				actsIds.save()
 				idsList.append((actsIds.releveAnnee, actsIds.releveMois, actsIds.noOrdre))
@@ -147,12 +149,12 @@ def saveActsToValidate(csvFile):
 				error= "The act releveAnnee="+str(actsIds.releveAnnee)+ " releveMois="+str(actsIds.releveMois)+ " noOrdre="+str(actsIds.noOrdre) + " ALREADY EXISTS!!"
 				errorList.append(error)
 				print e
-				
-				
+
+
 			#save only one act -> TESTS
 			#~ break
 
-	f.close() 
+	f.close()
 	return idsList, errorList
 
 
@@ -171,7 +173,7 @@ def getAndSaveRetrievedIds(idsList):
 		releveMoisVar=ids[1]
 		noOrdreVar=ids[2]
 		act=ActsIdsModel.objects.get(releveAnnee=releveAnneeVar,releveMois=releveMoisVar,noOrdre=noOrdreVar)
-		
+
 		#get ids
 		#eurlex
 		dataDic=info.checkAndGetEurlexIds(str(act.fileNoCelex))
@@ -193,12 +195,12 @@ def getAndSaveRetrievedIds(idsList):
 			idsDic['proposOrigine']=str(act.fileProposOrigine)
 			idsDic['proposAnnee']=str(act.fileProposAnnee)
 			idsDic['proposChrono']=str(act.fileProposChrono)
-		
+
 		dataDic.update(info.checkAndGetPrelexIds(idsDic))
 
 		#store dictionary ids into the model object
 		act.__dict__.update(dataDic)
-		
+
 		try:
 			#save the object
 			act.save()
@@ -230,7 +232,7 @@ def importView(request):
 			newCsvFile.save()
 			idsList=[]
 			errorList=[]
-				
+
 			#importation of prelex unique ids (dosId)
 			#delete FROM europolix.actsIdsValidation_dosidmodel;
 			if fileToImport=="dosId":
@@ -246,7 +248,7 @@ def importView(request):
 				responseDic['success']=str(len(idsList)) + " act(s) imported, "+ str(len(errorList)) +" error(s)!"
 				#save retrieved ids
 				getAndSaveRetrievedIds(idsList)
-				
+
 	else:
 		responseDic['form']=CSVUploadForm()
 
