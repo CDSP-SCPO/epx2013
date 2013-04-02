@@ -59,7 +59,7 @@ class ActsIdsModel(models.Model):
 	prelexProposAnnee = models.IntegerField(max_length=4, blank=True, null=True, default=None)
 	prelexProposChrono = models.CharField(max_length=7, blank=True, null=True, default=None)
 	prelexProposOrigine = models.CharField(max_length=4,  blank=True, null=True, default=None)
-	prelexDosId = models.IntegerField(max_length=7, unique=True, blank=True, null=True, default=None)
+	prelexDosId = models.IntegerField(max_length=7, blank=True, null=True, default=None)
 
 	#INDEX FILE ("classeur")
 	notes=models.CharField(max_length=2000,  blank=True, null=True)

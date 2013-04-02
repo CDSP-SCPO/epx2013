@@ -5,7 +5,7 @@ import getPrelexIdsFunctions as prelex
 #ids
 #eurlex
 noCelex="32006R1921"
-noCelex="32009D0829"
+#~ noCelex="32009D0829"
 
 #oeil
 noUniqueAnnee="2005"
@@ -36,10 +36,10 @@ prelexUrl="prelexContent.html"
 ids="yes"
 #~ ids="no"
 choice="eurlex"
-choice="oeil"
-choice="prelex"
-choice="prelexWithOldIds"
-choice="prelexWithOeilIds"
+#~ choice="oeil"
+#~ choice="prelex"
+#~ choice="prelexWithOldIds"
+#~ choice="prelexWithOeilIds"
 
 print ""
 
@@ -50,7 +50,7 @@ if choice =="eurlex":
 		html=eurlex.getEurlexUrlContent(eurlexUrl)
 
 	eurlex.getAllEurlexIds(html)
-	
+
 elif choice=="oeil":
 	if ids=="yes":
 		html=oeil.getOeilUrlContent(oeil.getOeilUrl(noUniqueType, noUniqueAnnee, noUniqueChrono))
@@ -68,7 +68,7 @@ else:
 			print "prelexUrl", prelexUrl
 		else:
 			prelexUrl=prelex.getPrelexUrl(prelexIdsDic['dosId'])
-	
+
 	html=prelex.getPrelexUrlContent(prelexUrl)
 	prelex.getAllPrelexIds(html)
 

@@ -3,7 +3,7 @@
 # DO NOT MODIFY any variable's NAME or REMOVE any VARIABLE.
 
 #eurlex url form
-eurlexUrl="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CELEX:NOCELEX:EN:NOT"
+eurlexUrl="http://new.eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CELEX:NOCELEX:EN:NOT"
 
 #oeil url form
 oeilUrl="http://www.europarl.europa.eu/oeil/popups/ficheprocedure.do?lang=en&reference=NOUNIQUEANNEE/NOUNIQUECHRONO(NOUNIQUETYPE)"
