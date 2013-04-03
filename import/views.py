@@ -26,7 +26,8 @@ def saveDosIds(csvFile):
 	errorList=[]
 	idsList=[]
 	f = open(csvFile, 'r')
-	reader=csv.reader(f,delimiter=',')
+	reader=csv.reader(f,delimiter=';')
+	#~ reader=csv.reader(f,delimiter=',')
 	header=reader.next()
 
 	for row in reader:
@@ -90,13 +91,14 @@ def saveActsToValidate(csvFile):
 	errorList=[]
 	idsList=[]
 	f = open(csvFile, 'r')
+	reader=csv.reader(f,delimiter=';')
 	#~ reader=csv.reader(f,delimiter=',')
-	reader=csv.reader(f, delimiter=';')
 	header=reader.next()
 
 	for row in reader:
+		#~ print "row[12]", row[12]
 		#act is not taken into account when noUniqueType=CS (it's not a definitive act)
-		if (row[12].strip())!="CS" and row[7].strip()!="":
+		if row[12].strip()!="CS" and row[7].strip()!="":
 			actsIds = ActsIdsModel()
 			actsIds.releveAnnee=int(row[0])
 			actsIds.releveMois=int(row[1])
@@ -146,10 +148,9 @@ def saveActsToValidate(csvFile):
 				actsIds.save()
 				idsList.append((actsIds.releveAnnee, actsIds.releveMois, actsIds.noOrdre))
 			except IntegrityError, e:
+				print "exception", e
 				error= "The act releveAnnee="+str(actsIds.releveAnnee)+ " releveMois="+str(actsIds.releveMois)+ " noOrdre="+str(actsIds.noOrdre) + " ALREADY EXISTS!!"
 				errorList.append(error)
-				print e
-
 
 			#save only one act -> TESTS
 			#~ break

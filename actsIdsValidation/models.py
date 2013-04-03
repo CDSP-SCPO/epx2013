@@ -25,7 +25,7 @@ class ActsIdsModel(models.Model):
 	fileProposAnnee = models.IntegerField(max_length=4, blank=True, null=True, default=None)
 	fileProposChrono = models.CharField(max_length=7, blank=True, null=True, default=None)
 	fileProposOrigine = models.CharField(max_length=4,  blank=True, null=True, default=None)
-	fileDosId = models.IntegerField(max_length=7, unique=True, blank=True, null=True, default=None)
+	fileDosId = models.IntegerField(max_length=7, blank=True, null=True, default=None)
 
 	#EURLEX
 	fileEurlexUrlExists=models.BooleanField(default=True)
@@ -36,7 +36,7 @@ class ActsIdsModel(models.Model):
 	eurlexProposAnnee = models.IntegerField(max_length=4, blank=True, null=True, default=None)
 	eurlexProposChrono = models.CharField(max_length=7, blank=True, null=True, default=None)
 	eurlexProposOrigine = models.CharField(max_length=4,  blank=True, null=True, default=None)
-	eurlexDosId = models.IntegerField(max_length=7, unique=True, blank=True, null=True, default=None)
+	eurlexDosId = models.IntegerField(max_length=7, blank=True, null=True, default=None)
 
 	#OEIL
 	fileOeilUrlExists=models.BooleanField(default=True)
@@ -47,7 +47,7 @@ class ActsIdsModel(models.Model):
 	oeilProposAnnee = models.IntegerField(max_length=4, blank=True, null=True, default=None)
 	oeilProposChrono = models.CharField(max_length=7, blank=True, null=True, default=None)
 	oeilProposOrigine = models.CharField(max_length=4,  blank=True, null=True, default=None)
-	oeilDosId = models.IntegerField(max_length=7, unique=True, blank=True, null=True, default=None)
+	oeilDosId = models.IntegerField(max_length=7, blank=True, null=True, default=None)
 
 	#PRELEX
 	filePrelexUrlExists=models.BooleanField(default=True)
@@ -67,9 +67,9 @@ class ActsIdsModel(models.Model):
 	#GENERAL (just for the program)
 	validated=models.BooleanField(default=False)
 
-
+	#joined primary keys
 	class Meta:
-		unique_together = (("releveAnnee", "releveMois", "noOrdre"), ("fileNoUniqueType", "fileNoUniqueAnnee", "fileNoUniqueChrono"), )
+		unique_together = (("releveAnnee", "releveMois", "noOrdre"), )
 
 	def __unicode__(self):
 		#display of the drop down list in the act validation form

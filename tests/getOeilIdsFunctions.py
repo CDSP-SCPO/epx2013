@@ -25,11 +25,11 @@ def getOeilUrl(noUniqueType, noUniqueAnnee, noUniqueChrono):
 		noUniqueChronoLen=4
 	else:
 		noUniqueChronoLen=5
-	
+
 	while len(noUniqueChrono)!=noUniqueChronoLen:
 		noUniqueChrono="0"+str(noUniqueChrono)
-		
-	#http://www.europarl.europa.eu/oeil/popups/ficheprocedure.do?lang=en&reference=2005/0223(COD) 
+
+	#http://www.europarl.europa.eu/oeil/popups/ficheprocedure.do?lang=en&reference=2005/0223(COD)
 	#~ dummyUrl="http://www.europarl.europa.eu/oeil/popups/ficheprocedure.do?lang=en&reference=NOUNIQUEANNEE/NOUNIQUECHRONO(NOUNIQUETYPE)"
 	dummyUrl=conf.oeilUrl
 	dummyUrl=dummyUrl.replace("NOUNIQUEANNEE", noUniqueAnnee, 1)
@@ -84,25 +84,28 @@ def getOeilIdsFromOeil(soup):
 	RETURN
 	oeil ids (noUniqueType, noUniqueAnnee, noUniqueChrono)
 	"""
-	title=soup.title.string
-	#~ print "title (oeil):", title
-	#Procedure File: 2005/0223(COD)
-	title = title.replace('Procedure File: ','').split("/")
-	#~ print "new title (oeil):", title
-	noUniqueAnnee=title[0]
-	title=title[1].split("(")
-	tempNoUniqueChrono=title[0]
-	#we remove the 0s at the beginning
-	beginIndex=0
-	for character in tempNoUniqueChrono:
-		if character=="0":
-			beginIndex+=1
-		else:
-			break
-	noUniqueChrono=tempNoUniqueChrono[beginIndex:]
-	noUniqueType=title[1][:-1].upper()
-	
-	return noUniqueType, noUniqueAnnee, noUniqueChrono
+	try:
+		title=soup.title.string
+		#~ print "title (oeil):", title
+		#Procedure File: 2005/0223(COD)
+		title = title.replace('Procedure File: ','').split("/")
+		print "new title (oeil):", title
+		noUniqueAnnee=title[0]
+		title=title[1].split("(")
+		tempNoUniqueChrono=title[0]
+		#we remove the 0s at the beginning
+		beginIndex=0
+		for character in tempNoUniqueChrono:
+			if character=="0":
+				beginIndex+=1
+			else:
+				break
+		noUniqueChrono=tempNoUniqueChrono[beginIndex:]
+		noUniqueType=title[1][:-1].upper()
+
+		return noUniqueType, noUniqueAnnee, noUniqueChrono
+	except:
+		return None, None, None
 
 
 def getPrelexIdsFromOeil(soup):
@@ -122,10 +125,10 @@ def getPrelexIdsFromOeil(soup):
 			#~ print "prelex (oeil):", prelex
 			prelexIds=prelex.get_text().strip()
 			#~ print "prelexIds (oeil):", prelexIds
-			
+
 			if prelexIds=="":
 				prelexIds=prelex.previousSibling.strip()
-				
+
 			#~ print "prelexId (oeil):", prelexIds
 			prelexIds=prelexIds.split('(')
 			proposOrigine=prelexIds[0].upper()
@@ -133,7 +136,7 @@ def getPrelexIdsFromOeil(soup):
 			proposAnnee=prelexIds[0]
 			tempProposChrono=prelexIds[1]
 			#~ print "tempProposChrono (oeil):", tempProposChrono
-			
+
 			#remove trailing zeros
 			beginIndex=0
 			for character in tempProposChrono:
@@ -141,11 +144,11 @@ def getPrelexIdsFromOeil(soup):
 					beginIndex+=1
 				else:
 					break
-			
+
 			#if regex catches text after oeil ids, we delete it -> starts with '\r' or `'n'
 			spaces=tempProposChrono.find('\r')
 			endIndex=spaces
-			
+
 			spaces=tempProposChrono.find('\n')
 			if spaces!=-1 and (spaces<endIndex or endIndex==-1):
 				endIndex=spaces
@@ -155,7 +158,7 @@ def getPrelexIdsFromOeil(soup):
 			else:
 				proposChrono=tempProposChrono[beginIndex:endIndex]
 			break
-			
+
 		except:
 			proposOrigine=None
 			proposAnnee=None
@@ -175,21 +178,21 @@ def getAllOeilIds(soup):
 	dictionary of retrieved data from oeil
 	"""
 	dataDic={}
-	
+
 	#eurlex id
 	dataDic['oeilNoCelex']=getEurlexIdFromOeil(soup)
 	print "oeilNoCelex:", dataDic['oeilNoCelex']
-	
+
 	#oeil ids
 	dataDic['oeilNoUniqueType'], dataDic['oeilNoUniqueAnnee'], dataDic['oeilNoUniqueChrono']=getOeilIdsFromOeil(soup)
 	print "oeilNoUniqueType:", dataDic['oeilNoUniqueType']
 	print "oeilNoUniqueAnnee:", dataDic['oeilNoUniqueAnnee']
 	print "oeilNoUniqueChrono:", dataDic['oeilNoUniqueChrono']
-	
+
 	#prelex ids
 	dataDic['oeilProposOrigine'], dataDic['oeilProposAnnee'], dataDic['oeilProposChrono']= getPrelexIdsFromOeil(soup)
 	print "oeilProposOrigine:", dataDic['oeilProposOrigine']
 	print "oeilProposAnnee:", dataDic['oeilProposAnnee']
 	print "oeilProposChrono:", dataDic['oeilProposChrono']
-	
+
 	return dataDic
