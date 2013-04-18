@@ -23,6 +23,9 @@ import getEurlexInformationFunctions as eurlex
 import getOeilInformationFunctions as oeil
 import getPrelexInformationFunctions as prelex
 
+#redirect to login page if not logged
+from django.contrib.auth.decorators import login_required
+
 
 def splitFrenchFormatDate(dateString):
 	"""
@@ -152,6 +155,7 @@ def getInformationFromPrelex(actId, act, prelexUrl):
 	return act
 
 
+@login_required
 def actsView(request):
 	"""
 	VIEW

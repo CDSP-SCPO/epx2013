@@ -24,7 +24,7 @@ class ActsInformationModel(models.Model):
 	eurlexRepEn3=models.CharField(max_length=200, blank=True, null=True, default=None)
 	eurlexRepEn4=models.CharField(max_length=200, blank=True, null=True, default=None)
 	eurlexTypeActe=models.CharField(max_length=100, blank=True, null=True, default=None)
-	eurlexBaseJuridique=models.CharField(max_length=50, blank=True, null=True, default=None)
+	eurlexBaseJuridique=models.CharField(max_length=300, blank=True, null=True, default=None)
 
 	#oeil
 	oeilCommissionPE=models.CharField(max_length=10, blank=True, null=True, default=None)

@@ -15,6 +15,8 @@ import getEurlexIdsFunctions as eurlex
 import getOeilIdsFunctions as oeil
 import getPrelexIdsFunctions as prelex
 
+#redirect to login page if not logged
+from django.contrib.auth.decorators import login_required
 
 def checkFieldError(form, field):
 	"""
@@ -31,24 +33,28 @@ def checkFieldError(form, field):
 	else:
 		return True
 
+@login_required
 def actsView(request):
 	"""
 	VIEW
 	displays and processes the acts validation page
 	template called: actsIdsValidation/index.html
 	"""
+	import os
+	test=os.path.join(os.path.dirname(os.getcwd()), "import/")
+	print test
 	responseDic={}
 	#display "real" name of variables (not the one stored in db)
 	responseDic['displayName']=vn.variablesNameDic
 	state="display"
-	
+
 	if request.method == 'POST':
 		actToValidate=request.POST.getlist('actsToValidate')[0]
 
 		#if an act is selected
 		if actToValidate!="":
 			act=ActsIdsModel.objects.get(id=actToValidate)
-			
+
 			#saves the act
 			if 'actsValidationSaveButton' in request.POST:
 				print "save"
@@ -83,67 +89,67 @@ def actsView(request):
 				elif state=="ongoing":
 					print "ok"
 					form = ActsIdsForm(request.POST, instance=act, initial={'actsToValidate': actToValidate, 'releveAnnee': act.releveAnnee, 'releveMois': act.releveMois, 'noOrdre': act.noOrdre})
-					
+
 				infoDic={}
-				
+
 				#check if the noCelex of the file exists in the list of nosCelex of prelex
 				if act.prelexNosCelex!=None and act.fileNoCelex in act.prelexNosCelex:
 					infoDic["nosCelex"]=True
 				else:
 					infoDic["nosCelex"]=False
-				
+
 				#checks if the corresponding data are equal
 				if act.fileNoCelex==act.eurlexNoCelex and act.fileNoCelex==act.oeilNoCelex:
 					infoDic["noCelex"]=True
 				else:
 					infoDic["noCelex"]=False
-					
+
 				if act.fileProposAnnee==act.eurlexProposAnnee and act.fileProposAnnee==act.oeilProposAnnee and act.fileProposAnnee==act.prelexProposAnnee:
 					infoDic["proposAnnee"]=True
 				else:
 					infoDic["proposAnnee"]=False
-					
+
 				if act.fileProposChrono==act.eurlexProposChrono and act.fileProposChrono==act.oeilProposChrono and act.fileProposChrono==act.prelexProposChrono:
 					infoDic["proposChrono"]=True
 				else:
 					infoDic["proposChrono"]=False
-					
+
 				if act.fileProposOrigine==act.eurlexProposOrigine and act.fileProposOrigine==act.oeilProposOrigine and act.fileProposOrigine==act.prelexProposOrigine:
 					infoDic["proposOrigine"]=True
 				else:
 					infoDic["proposOrigine"]=False
-					
+
 				if act.fileNoUniqueAnnee==act.eurlexNoUniqueAnnee and act.fileNoUniqueAnnee==act.oeilNoUniqueAnnee and act.fileNoUniqueAnnee==act.prelexNoUniqueAnnee:
 					infoDic["noUniqueAnnee"]=True
 				else:
 					infoDic["noUniqueAnnee"]=False
-					
+
 				if act.fileNoUniqueType==act.eurlexNoUniqueType and act.fileNoUniqueType==act.oeilNoUniqueType and act.fileNoUniqueType==act.prelexNoUniqueType:
 					infoDic["noUniqueType"]=True
 				else:
 					infoDic["noUniqueType"]=False
-					
+
 				if act.fileNoUniqueChrono==act.eurlexNoUniqueChrono and act.fileNoUniqueChrono==act.oeilNoUniqueChrono and act.fileNoUniqueChrono==act.prelexNoUniqueChrono:
 					infoDic["noUniqueChrono"]=True
 				else:
 					infoDic["noUniqueChrono"]=False
-				
+
 				if act.prelexDosId==act.fileDosId:
 					infoDic["dosId"]=True
 				else:
 					infoDic["dosId"]=False
-					
+
 				#gets urls
 				infoDic["eurlexUrl"]=eurlex.getEurlexUrl(act.fileNoCelex)
 				infoDic["oeilUrl"]=oeil.getOeilUrl(str(act.fileNoUniqueType), str(act.fileNoUniqueAnnee), str(act.fileNoUniqueChrono))
 				infoDic["prelexUrl"]=act.filePrelexUrl
-				
+
 				responseDic['form']=form
 				responseDic['act']=act
 				responseDic['info']=infoDic
-		
+
 	#~ #if form has not been created yet -> unbound form
 	if 'form' not in locals():
 		responseDic['form'] = ActsIdsForm()
-	
+
 	return render_to_response('actsIdsValidation/index.html', responseDic, context_instance=RequestContext(request))

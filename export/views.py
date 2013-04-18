@@ -1,6 +1,6 @@
 # Create your views here.
 #-*- coding: utf-8 -*-
-import csv 
+import csv
 from django.db.models.loading import get_model
 from django.conf import settings
 from django.http import HttpResponse
@@ -19,6 +19,8 @@ import mimetypes
 #change variable names (first row of the csv file)
 import actsInformationRetrieval.variablesNameForInformation as vn
 
+#redirect to login page if not logged
+from django.contrib.auth.decorators import login_required
 
 
 def fetchValidatedActsFunction(modelName):
@@ -47,7 +49,7 @@ def sortQuerySetFunction(querySet, sortField, sortDirection):
 	direction=""
 	if sortDirection=="descending":
 		direction="-"
-	
+
 	return querySet.order_by(direction + sortField)
 
 
@@ -65,16 +67,16 @@ def querySetToCsvFile(qs, outfile_path):
 	"""
 	model = qs.model
 	writer = csv.writer(open(outfile_path, 'w'))
-	
+
 	headers = []
 	realHeaders=[]
 	for field in model._meta.fields:
 		if field.name!="actId" and field.name!="validated":
 			headers.append(field.name)
-			#display "real" variable names (first row) 
+			#display "real" variable names (first row)
 			realHeaders.append(vn.variablesNameDic[field.name])
 	writer.writerow(realHeaders)
-	
+
 	for obj in qs:
 		row = []
 		for field in headers:
@@ -101,20 +103,21 @@ def send_file(request, serverFileName, clientFileName):
 	wrapper      = FileWrapper(open(serverFileName))
 	content_type = mimetypes.guess_type(serverFileName)[0]
 	response     = HttpResponse(wrapper,content_type=content_type)
-	response['Content-Length']      = os.path.getsize(serverFileName)    
+	response['Content-Length']      = os.path.getsize(serverFileName)
 	response['Content-Disposition'] = "attachment; filename=%s"%clientFileName
 	return response
 
 
+@login_required
 def exportView(request):
 	"""
 	VIEW
 	displays the export page -> export all the acts in the db regarding the sorting variable
 	template called: export/index.html
 	"""
-	if request.method == 'POST': 
+	if request.method == 'POST':
 		form = ActsExportForm(request.POST)
-		if form.is_valid(): 
+		if form.is_valid():
 			#for key, value in request.POST.iteritems():
 			sortingFields = request.POST['sortFields']
 			sortingDirection = request.POST['sortDirection']
@@ -131,7 +134,7 @@ def exportView(request):
 			return send_file(request, serverDirectory+fileName, fileName)
 		else:
 			return render_to_response('export/index.html', {'form': form}, context_instance=RequestContext(request))
-	else: 
+	else:
 		form = ActsExportForm()
-		
+
 	return render_to_response('export/index.html', {'form': form}, context_instance=RequestContext(request))

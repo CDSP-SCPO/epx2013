@@ -21,6 +21,8 @@ def getOeilUrl(noUniqueType, noUniqueAnnee, noUniqueChrono):
 	"""
 	#noUniqueChrono coded on 4 digits if numbers only and 5 if final character is a letter
 	#if only digits
+	if noUniqueChrono=="":
+		return None
 	if noUniqueChrono[-1].isdigit():
 		noUniqueChronoLen=4
 	else:

@@ -25,6 +25,7 @@ urlpatterns = patterns('',
 	url(r'^import/', include('import.urls')),
 	#export page
 	url(r'^export/', include('export.urls')),
+	url(r'^accounts/login/$', 'auth.views.loginView'),
 	#export library
 	#url(r'^exports/', include('data_exports.urls', namespace='data_exports')),
 

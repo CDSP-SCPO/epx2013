@@ -13,6 +13,10 @@ import os
 #cross validation functions and get information from eurlex, oeil, prelex
 import getIdsFunctions as info
 
+#redirect to login page if not logged
+from django.contrib.auth.decorators import login_required
+
+
 
 def saveDosIds(csvFile):
 	"""
@@ -26,6 +30,9 @@ def saveDosIds(csvFile):
 	errorList=[]
 	idsList=[]
 	f = open(csvFile, 'r')
+	#COMMENT / UNCOMMENT NEXT TWO LINES
+	#1ST LINE: MS OFFICE
+	#2ND LINE: LIBROFFICE
 	reader=csv.reader(f,delimiter=';')
 	#~ reader=csv.reader(f,delimiter=',')
 	header=reader.next()
@@ -91,14 +98,16 @@ def saveActsToValidate(csvFile):
 	errorList=[]
 	idsList=[]
 	f = open(csvFile, 'r')
+	#COMMENT / UNCOMMENT NEXT TWO LINES
+	#1ST LINE: MS OFFICE
+	#2ND LINE: LIBROFFICE
 	reader=csv.reader(f,delimiter=';')
 	#~ reader=csv.reader(f,delimiter=',')
 	header=reader.next()
 
 	for row in reader:
 		#~ print "row[12]", row[12]
-		#act is not taken into account when noUniqueType=CS (it's not a definitive act)
-		if row[12].strip()!="CS" and row[7].strip()!="":
+		if row[7].strip()!="":
 			actsIds = ActsIdsModel()
 			actsIds.releveAnnee=int(row[0])
 			actsIds.releveMois=int(row[1])
@@ -107,6 +116,7 @@ def saveActsToValidate(csvFile):
 			actsIds.adopCSRegleVote=row[4].strip()
 			adopCSAbs=''.join(row[5].split())
 			actsIds.adopCSAbs=adopCSAbs
+			print "adoptCSContre", len(row[6].strip())
 			actsIds.adoptCSContre=row[6].strip()
 			actsIds.fileNoCelex=row[7].strip()
 			actsIds.fileProposAnnee=emptyOrVar(row[8], "int")
@@ -210,12 +220,15 @@ def getAndSaveRetrievedIds(idsList):
 			print e
 
 
+#~ @login_required(login_url=settings.projectRoot+'/login/')
+@login_required
 def importView(request):
 	"""
 	VIEW
 	displays and processes the import page
 	template called: import/index.html
 	"""
+	print "projectRoot", os.getcwd()
 	responseDic={}
 	if request.method == 'POST':
 		form = CSVUploadForm(request.POST, request.FILES)
