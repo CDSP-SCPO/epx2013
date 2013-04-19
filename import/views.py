@@ -30,9 +30,9 @@ def saveDosIds(csvFile):
 	errorList=[]
 	idsList=[]
 	f = open(csvFile, 'r')
-	#COMMENT / UNCOMMENT NEXT TWO LINES
-	#1ST LINE: MS OFFICE
-	#2ND LINE: LIBROFFICE
+	#ERROR WHILE IMPORTING (index out of range) -> COMMENT / UNCOMMENT NEXT TWO LINES
+	#1ST LINE (";"): import csv file created with MS OFFICE
+	#2ND LINE (","):  import csv file created with LIBROFFICE
 	reader=csv.reader(f,delimiter=';')
 	#~ reader=csv.reader(f,delimiter=',')
 	header=reader.next()
@@ -99,8 +99,8 @@ def saveActsToValidate(csvFile):
 	idsList=[]
 	f = open(csvFile, 'r')
 	#ERROR WHILE IMPORTING (index out of range) -> COMMENT / UNCOMMENT NEXT TWO LINES
-	#1ST LINE: import csv file created with MS OFFICE
-	#2ND LINE:  import csv file created with LIBROFFICE
+	#1ST LINE (";"): import csv file created with MS OFFICE
+	#2ND LINE (","):  import csv file created with LIBROFFICE
 	reader=csv.reader(f,delimiter=';')
 	#~ reader=csv.reader(f,delimiter=',')
 	header=reader.next()
@@ -116,7 +116,6 @@ def saveActsToValidate(csvFile):
 			actsIds.adopCSRegleVote=row[4].strip()
 			adopCSAbs=''.join(row[5].split())
 			actsIds.adopCSAbs=adopCSAbs
-			print "adoptCSContre", len(row[6].strip())
 			actsIds.adoptCSContre=row[6].strip()
 			actsIds.fileNoCelex=row[7].strip()
 			actsIds.fileProposAnnee=emptyOrVar(row[8], "int")
@@ -136,23 +135,19 @@ def saveActsToValidate(csvFile):
 			actsIds.notes=row[17].strip()
 
 			#we save fileDosId from the dosIdModel model
-			#if splitted proposition
-			if len(actsIds.fileProposChrono)>2 and actsIds.fileProposChrono[-2]=="-":
-				newFileProposChrono=actsIds.fileProposChrono[:-2]
-				newSplitNumber=actsIds.fileProposChrono[-1]
-				try:
+			try:
+				#if split proposition
+				if len(actsIds.fileProposChrono)>2 and actsIds.fileProposChrono[-2]=="-":
+					newFileProposChrono=actsIds.fileProposChrono[:-2]
+					newSplitNumber=actsIds.fileProposChrono[-1]
 					fileDosId=DosIdModel.objects.get(proposOrigine=actsIds.fileProposOrigine, proposAnnee=actsIds.fileProposAnnee, proposChrono=newFileProposChrono, splitNumber=newSplitNumber)
 					actsIds.fileDosId=fileDosId.dosId
-				except Exception, e1:
-					actsIds.fileDosId=None
-					print e1
-			else:
-				try:
+				else:
 					fileDosId=DosIdModel.objects.get(proposOrigine=actsIds.fileProposOrigine, proposAnnee=actsIds.fileProposAnnee, proposChrono=actsIds.fileProposChrono)
 					actsIds.fileDosId=fileDosId.dosId
-				except Exception, e2:
-					actsIds.fileDosId=None
-					print e2
+			except Exception, e:
+				actsIds.fileDosId=None
+				print e
 
 			try:
 				actsIds.save()
@@ -195,8 +190,8 @@ def getAndSaveRetrievedIds(idsList):
 		#try with dosId
 		if act.fileDosId!=None:
 			idsDic['dosId']=str(act.fileDosId)
-		#splitted proposition?
-		elif len(act.fileProposChrono)>2 and act.fileProposChrono[-2]=="-":
+		#no fileProposChrono? is it a split proposition?
+		elif act.fileProposChrono==None or len(act.fileProposChrono)>2 and act.fileProposChrono[-2]=="-":
 			#try with the oeil ids
 			idsDic['noUniqueType']=str(act.fileNoUniqueType)
 			idsDic['noUniqueAnnee']=str(act.fileNoUniqueAnnee)
