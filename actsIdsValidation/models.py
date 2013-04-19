@@ -13,13 +13,8 @@ class ActsIdsModel(models.Model):
 	noOrdre=models.IntegerField(max_length=2, blank=False, null=False)
 	titreRMC=models.CharField(max_length=2000, blank=False, null=False)
 	adopCSRegleVote=models.CharField(max_length=2, blank=True, null=True)
-<<<<<<< HEAD
-	adopCSAbs=models.CharField(max_length=40, blank=True, null=True)
-	adoptCSContre=models.CharField(max_length=40, blank=True, null=True)
-=======
 	adopCSAbs=models.CharField(max_length=90, blank=True, null=True)
 	adoptCSContre=models.CharField(max_length=90, blank=True, null=True)
->>>>>>> dce2abc71b9c2c3d7f47e4afa1d8c0097ba6a665
 	proposSplittee=models.BooleanField(default=False)
 	suite2eLecturePE=models.BooleanField(default=False)
 	councilPath=models.CharField(max_length=200, blank=True, null=True, default=None)

@@ -70,7 +70,7 @@ class ActsInformationModel(models.Model):
 	prelexConsB=models.CharField(max_length=500, blank=True, null=True, default=None)
 	prelexAdoptionConseil=models.DateField(max_length=10, blank=True, null=True, default=None)
 	prelexNbPointA=models.IntegerField(max_length=1, blank=True, null=True, default=None)
-	prelexCouncilA=models.CharField(max_length=100, blank=True, null=True, default=None)
+	prelexCouncilA=models.CharField(max_length=200, blank=True, null=True, default=None)
 	prelexNombreLectures=models.IntegerField(max_length=1, blank=True, null=True, default=None)
 
 	#GENERAL (just for the program)

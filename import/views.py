@@ -98,9 +98,9 @@ def saveActsToValidate(csvFile):
 	errorList=[]
 	idsList=[]
 	f = open(csvFile, 'r')
-	#COMMENT / UNCOMMENT NEXT TWO LINES
-	#1ST LINE: MS OFFICE
-	#2ND LINE: LIBROFFICE
+	#ERROR WHILE IMPORTING (index out of range) -> COMMENT / UNCOMMENT NEXT TWO LINES
+	#1ST LINE: import csv file created with MS OFFICE
+	#2ND LINE:  import csv file created with LIBROFFICE
 	reader=csv.reader(f,delimiter=';')
 	#~ reader=csv.reader(f,delimiter=',')
 	header=reader.next()
