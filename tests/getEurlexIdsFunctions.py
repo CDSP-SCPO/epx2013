@@ -161,7 +161,7 @@ def getAllEurlexIds(soup):
 	dictionary of retrieved data from eurlex
 	"""
 	dataDic={}
-
+	
 	#noCelex
 	dataDic['eurlexNoCelex']=getEurlexIdFromEurlex(soup)
 	print "eurlexNoCelex:", dataDic['eurlexNoCelex']

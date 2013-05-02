@@ -118,230 +118,65 @@ def getOeilEPAmdtAdopt(soup):
 		return None
 
 
-def getOeilEPVotesFor1(soup):
+def getOeilEPVoteTables(soup):
 	"""
 	FUNCTION
-	get the getOeilEPVotesFor1 variable from the oeil url
+	get the two tables Final vote and final vote part two from the vote page
 	PARAMETERS
-	soup: oeil url content
+	soup: vote page url content
 	RETURN
-	getOeilEPVotesFor1
+	list with two elements: the first and second table (empty if does not exist)
 	"""
+	#<td class="rowtitle">Final vote&nbsp;20/10/2010</td>
+	#<td class="rowtitle">Final vote Part two</td>
+	tableVotesList=[None]*2
 	try:
-		return soup.find("p", text="For").findNext("p").get_text()
+		tableVotesTemp=soup.findAll("td", {"class": "rowtitle"})
+		tableVotesList[0]=tableVotesTemp[0].findNext("table").find("table")
+		tableVotesList[1]=tableVotesTemp[1].findNext("table").find("table")
+		#~ print "tableVotesList[0]", tableVotesList[0]
+		#~ print "tableVotesList[1]", tableVotesList[1]
+		return tableVotesList
 	except:
-		#~ print "no epVotesFor1! (oeil)"
-		return None
-
-#on vote page:
-#First table "Final vote [Date]": For (column)
+		#~ print "no table of vote! (oeil)"
+		return tableVotesList
 
 
-def getOeilEPVotesAgst1(soup):
+def getOeilEPVote(tableVote, vote):
 	"""
 	FUNCTION
-	get the oeilEPVotesAgst1 variable from the oeil url
+	get the vote variable For, Against or Abstentions from one of the two vote tables
 	PARAMETERS
-	soup: oeil url content
+	tableVote: html content of the first or second vote table
+	vote="For", "Against" or "Abstentions"
 	RETURN
-	oeilEPVotesAgst1
+	one of the following vote variables: getOeilEPVotesFor1, oeilEPVotesAgst1, oeilEPVotesAbs1, getOeilEPVotesFor2, oeilEPVotesAgst2, oeilEPVotesAbs2
 	"""
-	try:
-		return soup.find("p", text="Against").findNext("p").get_text()
-	except:
-		#~ print "no epVotesAgst1! (oeil)"
+	if tableVote!=None:
+		return tableVote.find("p", text=vote).findNext("p").get_text()
+	else:
+		#~ print "no vote variable! (oeil)"
 		return None
 
-#on vote page:
-#First table "Final vote [Date]": Against (column)
 
-
-def getOeilEPVotesAbs1(soup):
-	"""
-	FUNCTION
-	get the oeilEPVotesAbs1 variable from the oeil url
-	PARAMETERS
-	soup: oeil url content
-	RETURN
-	oeilEPVotesAbs1
-	"""
-	try:
-		return soup.find("p", text="Abstentions").findNext("p").get_text()
-	except:
-		#~ print "no epVotesAbs1! (oeil)"
-		return None
-
-#on vote page:
-#First table "Final vote [Date]": Abstentions (column)
-
-
-def getOeilEPVotesFor2(soup):
-	"""
-	FUNCTION
-	get the oeilEPVotesFor2 variable from the oeil url
-	PARAMETERS
-	soup: oeil url content
-	RETURN
-	oeilEPVotesFor2
-	"""
-	try:
-		return soup.find(text="Final vote Part two").findNext("p", text="For").findNext("p").get_text()
-	except:
-		#~ print "no epVotesFor2! (oeil)"
-		return None
-
-#on vote page:
-#Second table "Final vote Part two": For (column)
-
-
-def getOeilEPVotesAgst2(soup):
-	"""
-	FUNCTION
-	get the oeilEPVotesAgst2 variable from the oeil url
-	PARAMETERS
-	soup: oeil url content
-	RETURN
-	oeilEPVotesAgst2
-	"""
-	try:
-		return soup.find(text="Final vote Part two").findNext("p", text="Against").findNext("p").get_text()
-	except:
-		#~ print "no epVotesAgst2! (oeil)"
-		return None
-
-#on vote page:
-#Second table "Final vote Part two": Against (column)
-
-
-def getOeilEPVotesAbs2(soup):
-	"""
-	FUNCTION
-	get the oeilEPVotesAbs2 variable from the oeil url
-	PARAMETERS
-	soup: oeil url content
-	RETURN
-	oeilEPVotesAbs2
-	"""
-	try:
-		return soup.find(text="Final vote Part two").findNext("p", text="Abstentions").findNext("p").get_text()
-	except:
-		#~ print "no epVotesAbs2! (oeil)"
-		return None
-
-#on vote page:
-#Second table "Final vote Part two": Abstentions (column)
-
-
-def getOeilRapporteursSection(soup):
+def getOeilRapporteursList(soup):
 	"""
 	FUNCTION
 	get the html content about rapporteurs from the oeil url
 	PARAMETERS
 	soup: oeil url content
 	RETURN
-	html content about rapporteurs
+	list of rapporteurs infos
 	"""
-	#~ return soup.find("span", {"class": "tiptip"}).findParent("td", {"class": "players_rapporter_com"})
-	return soup.find(text="Committee responsible").findParent("table")
-
-
-def getAllOeilGroupePolitiqueRapporteur(soup):
-	"""
-	FUNCTION
-	get all the oeilGroupePolitiqueRapporteur variables from the oeil url
-	PARAMETERS
-	soup: oeil url content
-	RETURN
-	oeilGroupePolitiqueRapporteur1-5
-	"""
+	rapporteursList=[None]*5
 	try:
-		return soup.findAll("span", {"class": "tiptip"})
+		#exclude shadow rapporteurs (parent: <div class="result_moreinfo shadow">)
+		rapporteursListTemp=[rapporteur for rapporteur in soup.find(text="Committee responsible").findNext("td", {"class": "players_rapporter_com "}).findAll("p", {"class": "players_content"}) if rapporteur.parent.name!="div"]
+		for index in range(len(rapporteursListTemp)):
+			rapporteursList[index]=rapporteursListTemp[index]
 	except:
-		#~ print "no groupePolitiqueRapporteur! (oeil)"
-		return None
-
-#below "Rapporteur", before the name of the Rapporteur
-#can be NULL
-
-
-def getAllOeilRapporteurPE(soup):
-	"""
-	FUNCTION
-	get all the oeilRapporteurPE variables from the oeil url
-	PARAMETERS
-	soup: oeil url content
-	RETURN
-	oeilRapporteurPE1-5
-	"""
-	try:
-		return soup.findAll("span", {"class": "players_rapporter_text"})
-	except:
-		#~ print "no rapporteurPE! (oeil)"
-		return None
-
-#below "Rapporteur", name of the Rapporteur
-#can be NULL
-
-
-def getAllOeilEtatMbRapport(soup):
-	"""
-	FUNCTION
-	get all the oeilEtatMbRapport variables from the oeil url
-	PARAMETERS
-	soup: oeil url content
-	RETURN
-	oeilEtatMbRapport1-5
-	"""
-	try:
-		links=soup.findAll("span", {"class": "players_rapporter_text"})
-		oeilEtatMbRapportList=[]
-		for link in links:
-			deputyLink=link.find("a")['href']
-			deputyLinkSoup=BeautifulSoup(urllib.urlopen(deputyLink))
-			#return acronym of the country
-			oeilEtatMbRapportList.append(getCountryAcronym(deputyLinkSoup.find("span", {"class": "ep_country"}).get_text()))
-		return oeilEtatMbRapportList
-	except:
-		#~ print "no etatMbRapport! (oeil)"
-		return None
-
-
-def getOeilGroupePolitiqueRapporteur1(allPoliticalGroups):
-	"""
-	FUNCTION
-	get the oeilGroupePolitiqueRapporteur1 variable from the oeil url
-	PARAMETERS
-	allPoliticalGroups: allPoliticalGroups variable
-	RETURN
-	oeilGroupePolitiqueRapporteur1
-	"""
-	try:
-		return allPoliticalGroups[0].get_text()
-	except:
-		#~ print "no groupePolitiqueRapporteur1! (oeil)"
-		return None
-
-#below "Rapporteur", before the name of the Rapporteur
-#can be NULL
-
-
-def getOeilRapporteurPE1(allRapporteursNames):
-	"""
-	FUNCTION
-	get the oeilRapporteurPE1 variable from the oeil url
-	PARAMETERS
-	allRapporteursNames: allRapporteursNames variable
-	RETURN
-	oeilRapporteurPE1
-	"""
-	try:
-		return allRapporteursNames[0].get_text()
-	except:
-		#~ print "no rapporteurPE1! (oeil)"
-		return None
-
-#below "Rapporteur", name of the Rapporteur
-#can be NULL
+		return rapporteursList
+	return rapporteursList
 
 
 def getCountryAcronym(country):
@@ -419,251 +254,60 @@ def getCountryAcronym(country):
 	return country
 
 
-def getOeilEtatMbRapport1(oeilEtatMbRapportList):
+def getOeilGroupePolitiqueRapporteur(rapporteurInfos):
 	"""
 	FUNCTION
-	get the oeilEtatMbRapport1 variable from the oeil url
+	get the oeilGroupePolitiqueRapporteur1-5 variable from infos of the rapporteur
 	PARAMETERS
-	oeilEtatMbRapportList: oeilEtatMbRapportList variable
+	rapporteurInfos: rapporteur information
 	RETURN
-	oeilEtatMbRapport1
+	oeilGroupePolitiqueRapporteur1-5
 	"""
 	try:
-		return oeilEtatMbRapportList[0]
+		return rapporteurInfos.find("span", {"class": "tiptip"})["title"]
 	except:
-		#~ print "no etatMbRapport1! (oeil)"
+		#~ print "no groupePolitiqueRapporteur! (oeil)"
 		return None
 
-#on the deputy's personal page: country (next to the flag, next to the picture)
-#can be NULL
-#27 possible values (EU countries)
-
-
-def getOeilGroupePolitiqueRapporteur2(allPoliticalGroups):
-	"""
-	FUNCTION
-	get the oeilGroupePolitiqueRapporteur2 variable from the oeil url
-	PARAMETERS
-	allPoliticalGroups: allPoliticalGroups variable
-	RETURN
-	oeilGroupePolitiqueRapporteur2
-	"""
-	try:
-		return allPoliticalGroups[1].get_text()
-	except:
-		#~ print "no groupePolitiqueRapporteur2! (oeil)"
-		return None
-
-#below "Rapporteur", before the name of the second Rapporteur
+#below "Rapporteur", before the name of the Rapporteur
 #can be NULL
 
 
-def getOeilRapporteurPE2(allRapporteursNames):
+def getOeilRapporteurPE(rapporteurInfos):
 	"""
 	FUNCTION
-	get the oeilRapporteurPE2 variable from the oeil url
+	get the oeilRapporteurPE1-5 variable from the infos of the rapporteur
 	PARAMETERS
-	allRapporteursNames: allRapporteursNames variable
+	rapporteurInfos: rapporteur information
 	RETURN
-	oeilRapporteurPE2
+	oeilRapporteurPE1-5
 	"""
 	try:
-		return allRapporteursNames[1].get_text()
+		return rapporteurInfos.find("span", {"class": "players_rapporter_text"}).get_text()
 	except:
-		#~ print "no rapporteurPE2! (oeil)"
+		#~ print "no rapporteurPE! (oeil)"
 		return None
 
-#below "Rapporteur", name of the second Rapporteur
+#below "Rapporteur", name of the Rapporteur
 #can be NULL
 
 
-def getOeilEtatMbRapport2(oeilEtatMbRapportList):
+def getOeilEtatMbRapport(rapporteurInfos):
 	"""
 	FUNCTION
-	get the oeilEtatMbRapport2 variable from the oeil url
+	get the oeilEtatMbRapport1-5 variable from the infos of the rapporteur
 	PARAMETERS
-	allEtatMbRapport: allEtatMbRapport variable
+	rapporteurInfos: rapporteur information
 	RETURN
-	oeilEtatMbRapport2
+	oeilEtatMbRapport1-5
 	"""
 	try:
-		return oeilEtatMbRapportList[1]
+		link=rapporteurInfos.find("span", {"class": "players_rapporter_text"}).find("a")['href']
+		deputyLinkSoup=BeautifulSoup(urllib.urlopen(link))
+		#return acronym of the country
+		return(getCountryAcronym(deputyLinkSoup.find("li", {"class": "nationality"}).contents[0].strip()))
 	except:
-		#~ print "no etatMbRapport2! (oeil)"
-		return None
-
-#on the deputy's personal page: country (next to the flag, next to the picture)
-#can be NULL
-#27 possible values (EU countries)
-
-
-def getOeilGroupePolitiqueRapporteur3(allPoliticalGroups):
-	"""
-	FUNCTION
-	get the oeilGroupePolitiqueRapporteur3 variable from the oeil url
-	PARAMETERS
-	allPoliticalGroups: allPoliticalGroups variable
-	RETURN
-	oeilGroupePolitiqueRapporteur3
-	"""
-	try:
-		return allPoliticalGroups[2].get_text()
-	except:
-		#~ print "no groupePolitiqueRapporteur3! (oeil)"
-		return None
-
-#below "Rapporteur", before the name of the third Rapporteur
-#can be NULL
-
-
-def getOeilRapporteurPE3(allRapporteursNames):
-	"""
-	FUNCTION
-	get the oeilRapporteurPE3 variable from the oeil url
-	PARAMETERS
-	allRapporteursNames: allRapporteursNames variable
-	RETURN
-	oeilRapporteurPE3
-	"""
-	try:
-		return allRapporteursNames[2].get_text()
-	except:
-		#~ print "no rapporteurPE3! (oeil)"
-		return None
-
-#below "Rapporteur", name of the third Rapporteur
-#can be NULL
-
-
-def getOeilEtatMbRapport3(oeilEtatMbRapportList):
-	"""
-	FUNCTION
-	get the oeilEtatMbRapport3 variable from the oeil url
-	PARAMETERS
-	allEtatMbRapport: allEtatMbRapport variable
-	RETURN
-	oeilEtatMbRapport3
-	"""
-	try:
-		return oeilEtatMbRapportList[2]
-	except:
-		#~ print "no oeilEtatMbRapport3!"
-		return None
-
-#on the deputy's personal page: country (next to the flag, next to the picture)
-#can be NULL
-#27 possible values (EU countries)
-
-
-def getOeilGroupePolitiqueRapporteur4(allPoliticalGroups):
-	"""
-	FUNCTION
-	get the oeilGroupePolitiqueRapporteur4 variable from the oeil url
-	PARAMETERS
-	allPoliticalGroups: allPoliticalGroups variable
-	RETURN
-	oeilGroupePolitiqueRapporteur4
-	"""
-	try:
-		return allPoliticalGroups[3].get_text()
-	except:
-		#~ print "no groupePolitiqueRapporteur4! (oeil)"
-		return None
-
-#below "Rapporteur", before the name of the fourth Rapporteur
-#can be NULL
-
-
-def getOeilRapporteurPE4(allRapporteursNames):
-	"""
-	FUNCTION
-	get the oeilRapporteurPE4 variable from the oeil url
-	PARAMETERS
-	allRapporteursNames: allRapporteursNames variable
-	RETURN
-	oeilRapporteurPE4
-	"""
-	try:
-		return allRapporteursNames[3].get_text()
-	except:
-		#~ print "no rapporteurPE4! (oeil)"
-		return None
-
-#below "Rapporteur", name of the fourth Rapporteur
-#can be NULL
-
-
-def getOeilEtatMbRapport4(oeilEtatMbRapportList):
-	"""
-	FUNCTION
-	get the oeilEtatMbRapport4 variable from the oeil url
-	PARAMETERS
-	allEtatMbRapport: allEtatMbRapport variable
-	RETURN
-	oeilEtatMbRapport4
-	"""
-	try:
-		return oeilEtatMbRapportList[3]
-	except:
-		#~ print "no oeilEtatMbRapport4!"
-		return None
-
-#on the deputy's personal page: country (next to the flag, next to the picture)
-#can be NULL
-#27 possible values (EU countries)
-
-
-def getOeilGroupePolitiqueRapporteur5(allPoliticalGroups):
-	"""
-	FUNCTION
-	get the oeilGroupePolitiqueRapporteur5 variable from the oeil url
-	PARAMETERS
-	allPoliticalGroups: allPoliticalGroups variable
-	RETURN
-	oeilGroupePolitiqueRapporteur5
-	"""
-	try:
-		return allPoliticalGroups[4].get_text()
-	except:
-		#~ print "no groupePolitiqueRapporteur5! (oeil)"
-		return None
-
-#below "Rapporteur", before the name of the fifth Rapporteur
-#can be NULL
-
-
-def getOeilRapporteurPE5(allRapporteursNames):
-	"""
-	FUNCTION
-	get the oeilRapporteurPE5 variable from the oeil url
-	PARAMETERS
-	allRapporteursNames: allRapporteursNames variable
-	RETURN
-	oeilRapporteurPE5
-	"""
-	try:
-		return allRapporteursNames[4].get_text()
-	except:
-		#~ print "no rapporteurPE5! (oeil)"
-		return None
-
-#below "Rapporteur", name of the fifth Rapporteur
-#can be NULL
-
-
-def getOeilEtatMbRapport5(oeilEtatMbRapportList):
-	"""
-	FUNCTION
-	get the oeilEtatMbRapport5 variable from the oeil url
-	PARAMETERS
-	allEtatMbRapport: allEtatMbRapport variable
-	RETURN
-	oeilEtatMbRapport5
-	"""
-	try:
-		return oeilEtatMbRapportList[4]
-	except:
-		#~ print "no oeilEtatMbRapport5!"
+		#~ print "no etatMbRapport! (oeil)"
 		return None
 
 #on the deputy's personal page: country (next to the flag, next to the picture)
@@ -794,101 +438,96 @@ def getOeilInformation(soup, idsDic):
 	dataDic['oeilEPAmdtAdopt']=getOeilEPAmdtAdopt(votesPageSoup)
 	print "oeilEPAmdtAdopt:", dataDic['oeilEPAmdtAdopt']
 
+	#html content of the 2 tables of vote (Final vote and Final vote part two):
+	voteTables=getOeilEPVoteTables(votesPageSoup)
+	voteTable1=voteTables[0]
+	voteTable2=voteTables[1]
+
 	#oeilEPVotesFor1
-	dataDic['oeilEPVotesFor1']=getOeilEPVotesFor1(votesPageSoup)
+	dataDic['oeilEPVotesFor1']=getOeilEPVote(voteTable1, "For")
 	print "oeilEPVotesFor1:", dataDic['oeilEPVotesFor1']
 
 	#oeilEPVotesAgst1
-	dataDic['oeilEPVotesAgst1']=getOeilEPVotesAgst1(votesPageSoup)
+	dataDic['oeilEPVotesAgst1']=getOeilEPVote(voteTable1, "Against")
 	print "oeilEPVotesAgst1:", dataDic['oeilEPVotesAgst1']
 
 	#oeilEPVotesAbs1
-	dataDic['oeilEPVotesAbs1']=getOeilEPVotesAbs1(votesPageSoup)
+	dataDic['oeilEPVotesAbs1']=getOeilEPVote(voteTable1, "Abstentions")
 	print "oeilEPVotesAbs1:", dataDic['oeilEPVotesAbs1']
 
 	#oeilEPVotesFor2
-	dataDic['oeilEPVotesFor2']=getOeilEPVotesFor2(votesPageSoup)
+	dataDic['oeilEPVotesFor2']=getOeilEPVote(voteTable2, "For")
 	print "oeilEPVotesFor2:", dataDic['oeilEPVotesFor2']
 
 	#oeilEPVotesAgst2
-	dataDic['oeilEPVotesAgst2']=getOeilEPVotesAgst2(votesPageSoup)
+	dataDic['oeilEPVotesAgst2']=getOeilEPVote(voteTable2, "Against")
 	print "oeilEPVotesAgst2:", dataDic['oeilEPVotesAgst2']
 
 	#oeilEPVotesAbs2
-	dataDic['oeilEPVotesAbs2']=getOeilEPVotesAbs2(votesPageSoup)
+	dataDic['oeilEPVotesAbs2']=getOeilEPVote(voteTable2, "Abstentions")
 	print "oeilEPVotesAbs2:", dataDic['oeilEPVotesAbs2']
 
-	#rapporteurs section
-	rapporteursSectionSoup=getOeilRapporteursSection(soup)
-	#~ print rapporteurSectionSoup
-
-	#all rapporteurs's political groups
-	allPoliticalGroups=getAllOeilGroupePolitiqueRapporteur(rapporteursSectionSoup)
-
-	#all rapporteurs's names
-	allRapporteursNames=getAllOeilRapporteurPE(rapporteursSectionSoup)
-
-	#all rapporteurs's personal pages
-	allOeilEtatMbRapports=getAllOeilEtatMbRapport(rapporteursSectionSoup)
+	#rapporteurs list
+	rapporteursList=getOeilRapporteursList(soup)
 
 	#oeilGroupePolitiqueRapporteur1
-	dataDic['oeilGroupePolitiqueRapporteur1']=getOeilGroupePolitiqueRapporteur1(allPoliticalGroups)
+	dataDic['oeilGroupePolitiqueRapporteur1']=getOeilGroupePolitiqueRapporteur(rapporteursList[0])
 	print "oeilGroupePolitiqueRapporteur1:", dataDic['oeilGroupePolitiqueRapporteur1']
-
+#~ #~
 	#oeilRapporteurPE1
-	dataDic['oeilRapporteurPE1']=getOeilRapporteurPE1(allRapporteursNames)
+	dataDic['oeilRapporteurPE1']=getOeilRapporteurPE(rapporteursList[0])
 	print "oeilRapporteurPE1:", dataDic['oeilRapporteurPE1']
-
+#~ #~
 	#oeilEtatMbRapport1
-	dataDic['oeilEtatMbRapport1']=getOeilEtatMbRapport1(allOeilEtatMbRapports)
+	dataDic['oeilEtatMbRapport1']=getOeilEtatMbRapport(rapporteursList[0])
 	print "oeilEtatMbRapport1:", dataDic['oeilEtatMbRapport1']
-
+#~ #~
 	#oeilGroupePolitiqueRapporteur2
-	dataDic['oeilGroupePolitiqueRapporteur2']=getOeilGroupePolitiqueRapporteur2(allPoliticalGroups)
+	dataDic['oeilGroupePolitiqueRapporteur2']=getOeilGroupePolitiqueRapporteur(rapporteursList[1])
 	print "oeilGroupePolitiqueRapporteur2:", dataDic['oeilGroupePolitiqueRapporteur2']
-
+#~ #~
 	#oeilRapporteurPE2
-	dataDic['oeilRapporteurPE2']=getOeilRapporteurPE2(allRapporteursNames)
+	dataDic['oeilRapporteurPE2']=getOeilRapporteurPE(rapporteursList[1])
 	print "oeilRapporteurPE2:", dataDic['oeilRapporteurPE2']
-
+#~ #~
 	#oeilEtatMbRapport2
-	dataDic['oeilEtatMbRapport2']=getOeilEtatMbRapport2(allOeilEtatMbRapports)
+	dataDic['oeilEtatMbRapport2']=getOeilEtatMbRapport(rapporteursList[1])
 	print "oeilEtatMbRapport2:", dataDic['oeilEtatMbRapport2']
-
+#~ #~
 	#oeilGroupePolitiqueRapporteur3
-	dataDic['oeilGroupePolitiqueRapporteur3']=getOeilGroupePolitiqueRapporteur3(allPoliticalGroups)
+	dataDic['oeilGroupePolitiqueRapporteur3']=getOeilGroupePolitiqueRapporteur(rapporteursList[2])
 	print "oeilGroupePolitiqueRapporteur3:", dataDic['oeilGroupePolitiqueRapporteur3']
-
+#~ #~
 	#oeilRapporteurPE3
-	dataDic['oeilRapporteurPE3']=getOeilRapporteurPE3(allRapporteursNames)
+	dataDic['oeilRapporteurPE3']=getOeilRapporteurPE(rapporteursList[2])
 	print "oeilRapporteurPE3:", dataDic['oeilRapporteurPE3']
-
+#~ #~
 	#oeilEtatMbRapport3
-	dataDic['oeilEtatMbRapport3']=getOeilEtatMbRapport3(allOeilEtatMbRapports)
+	dataDic['oeilEtatMbRapport3']=getOeilEtatMbRapport(rapporteursList[2])
 	print "oeilEtatMbRapport3:", dataDic['oeilEtatMbRapport3']
-
+#~ #~
 	#oeilGroupePolitiqueRapporteur4
-	dataDic['oeilGroupePolitiqueRapporteur4']=getOeilGroupePolitiqueRapporteur4(allPoliticalGroups)
+	dataDic['oeilGroupePolitiqueRapporteur4']=getOeilGroupePolitiqueRapporteur(rapporteursList[3])
 	print "oeilGroupePolitiqueRapporteur4:", dataDic['oeilGroupePolitiqueRapporteur4']
-
+#~ #~
 	#oeilRapporteurPE4
-	dataDic['oeilRapporteurPE4']=getOeilRapporteurPE4(allRapporteursNames)
+	dataDic['oeilRapporteurPE4']=getOeilRapporteurPE(rapporteursList[3])
 	print "oeilRapporteurPE4:", dataDic['oeilRapporteurPE4']
-
+#~ #~
 	#oeilEtatMbRapport4
-	dataDic['oeilEtatMbRapport4']=getOeilEtatMbRapport4(allOeilEtatMbRapports)
+	dataDic['oeilEtatMbRapport4']=getOeilEtatMbRapport(rapporteursList[3])
 	print "oeilEtatMbRapport4:", dataDic['oeilEtatMbRapport4']
-
+#~ #~
 	#oeilGroupePolitiqueRapporteur5
-	dataDic['oeilGroupePolitiqueRapporteur5']=getOeilGroupePolitiqueRapporteur5(allPoliticalGroups)
+	dataDic['oeilGroupePolitiqueRapporteur5']=getOeilGroupePolitiqueRapporteur(rapporteursList[4])
 	print "oeilGroupePolitiqueRapporteur5:", dataDic['oeilGroupePolitiqueRapporteur5']
-
+#~ #~
 	#oeilRapporteurPE5
-	dataDic['oeilRapporteurPE5']=getOeilRapporteurPE5(allRapporteursNames)
+	dataDic['oeilRapporteurPE5']=getOeilRapporteurPE(rapporteursList[4])
 	print "oeilRapporteurPE5:", dataDic['oeilRapporteurPE5']
-
+#~ #~
 	#oeilEtatMbRapport5
-	dataDic['oeilEtatMbRapport5']=getOeilEtatMbRapport5(allOeilEtatMbRapports)
+	dataDic['oeilEtatMbRapport5']=getOeilEtatMbRapport(rapporteursList[4])
 	print "oeilEtatMbRapport5:", dataDic['oeilEtatMbRapport5']
 
 	#oeilModifPropos

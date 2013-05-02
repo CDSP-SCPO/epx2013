@@ -17,6 +17,26 @@ import getIdsFunctions as info
 from django.contrib.auth.decorators import login_required
 
 
+def detectDelimiter(csvFile):
+	"""
+	FUNCTION
+	detect the delimiter of a csv file and returns it
+	PARAMETERS
+	csvFile: csv file to check
+	RETURN
+	delimiter character
+	"""
+	with open(csvFile, 'r') as myCsvfile:
+		header=myCsvfile.readline()
+		if header.find(";")!=-1:
+			#~ print "delimiter=';'"
+			return ";"
+		if header.find(",")!=-1:
+			#~ print "delimiter=','"
+			return ","
+	#default delimiter (MS Office export)
+	return ";"
+
 
 def saveDosIds(csvFile):
 	"""
@@ -29,35 +49,30 @@ def saveDosIds(csvFile):
 	"""
 	errorList=[]
 	idsList=[]
-	f = open(csvFile, 'r')
-	#ERROR WHILE IMPORTING (index out of range) -> COMMENT / UNCOMMENT NEXT TWO LINES
-	#1ST LINE (";"): import csv file created with MS OFFICE
-	#2ND LINE (","):  import csv file created with LIBROFFICE
-	reader=csv.reader(f,delimiter=';')
-	#~ reader=csv.reader(f,delimiter=',')
-	header=reader.next()
+	with open(csvFile, 'r') as myCsvfile:
+		reader=csv.reader(myCsvfile,delimiter=detectDelimiter(csvFile))
+		header=reader.next()
 
-	for row in reader:
-		if row[0].strip() !="":
-			dosId = DosIdModel()
-			dosId.dosId=int(row[0])
-			dosId.proposOrigine=row[1].strip()
-			dosId.proposAnnee=int(row[2])
-			dosId.proposChrono=row[3].strip()
-			dosId.splitNumber=emptyOrVar(row[4], "int")
+		for row in reader:
+			if row[0].strip() !="":
+				dosId = DosIdModel()
+				dosId.dosId=int(row[0])
+				dosId.proposOrigine=row[1].strip()
+				dosId.proposAnnee=int(row[2])
+				dosId.proposChrono=row[3].strip()
+				dosId.splitNumber=emptyOrVar(row[4], "int")
 
-			try:
-				dosId.save()
-				idsList.append(dosId.dosId)
-			except IntegrityError, e:
-				error= "The dosId " + str(dosId.dosId) + " ALREADY EXISTS!!"
-				errorList.append(error)
-				print "error", error
-		else:
-			#end of file
-			break
+				try:
+					dosId.save()
+					idsList.append(dosId.dosId)
+				except IntegrityError, e:
+					error= "The dosId " + str(dosId.dosId) + " ALREADY EXISTS!!"
+					errorList.append(error)
+					print "error", error
+			else:
+				#end of file
+				break
 
-	f.close()
 	return idsList, errorList
 
 def emptyOrVar(var, varType):
@@ -97,70 +112,65 @@ def saveActsToValidate(csvFile):
 	"""
 	errorList=[]
 	idsList=[]
-	f = open(csvFile, 'r')
-	#ERROR WHILE IMPORTING (index out of range) -> COMMENT / UNCOMMENT NEXT TWO LINES
-	#1ST LINE (";"): import csv file created with MS OFFICE
-	#2ND LINE (","):  import csv file created with LIBROFFICE
-	reader=csv.reader(f,delimiter=';')
-	#~ reader=csv.reader(f,delimiter=',')
-	header=reader.next()
+	with open(csvFile, 'r') as myCsvfile:
+		reader=csv.reader(myCsvfile,delimiter=detectDelimiter(csvFile))
+		header=reader.next()
 
-	for row in reader:
-		#~ print "row[12]", row[12]
-		if row[7].strip()!="":
-			actsIds = ActsIdsModel()
-			actsIds.releveAnnee=int(row[0])
-			actsIds.releveMois=int(row[1])
-			actsIds.noOrdre=int(row[2])
-			actsIds.titreRMC=row[3].strip()
-			actsIds.adopCSRegleVote=row[4].strip()
-			adopCSAbs=''.join(row[5].split())
-			actsIds.adopCSAbs=adopCSAbs
-			actsIds.adoptCSContre=row[6].strip()
-			actsIds.fileNoCelex=row[7].strip()
-			actsIds.fileProposAnnee=emptyOrVar(row[8], "int")
-			actsIds.fileProposChrono=emptyOrVar(row[9].replace(" ", ""), "str")
-			actsIds.fileProposOrigine=emptyOrVar(row[10], "str")
-			actsIds.fileNoUniqueAnnee=emptyOrVar(row[11], "int")
-			actsIds.fileNoUniqueType=emptyOrVar(row[12], "str")
-			actsIds.fileNoUniqueChrono=emptyOrVar(row[13], "str")
-			if row[14].strip()=="Y":
-				actsIds.proposSplittee=True
-			if row[15].strip()=="Y":
-				actsIds.suite2eLecturePE=True
-			actsIds.councilPath=row[16].strip()
-			if actsIds.councilPath!="" and actsIds.councilPath[-1]==".":
-				actsIds.councilPath=actsIds.councilPath[:-1]
-			#we don't take the council path column
-			actsIds.notes=row[17].strip()
+		for row in reader:
+			#~ print "row[12]", row[12]
+			if row[7].strip()!="":
+				actsIds = ActsIdsModel()
+				actsIds.releveAnnee=int(row[0])
+				actsIds.releveMois=int(row[1])
+				actsIds.noOrdre=int(row[2])
+				actsIds.titreRMC=row[3].strip()
+				actsIds.adopCSRegleVote=row[4].strip()
+				adopCSAbs=''.join(row[5].split())
+				actsIds.adopCSAbs=adopCSAbs
+				actsIds.adoptCSContre=row[6].strip()
+				actsIds.fileNoCelex=row[7].strip()
+				actsIds.fileProposAnnee=emptyOrVar(row[8], "int")
+				actsIds.fileProposChrono=emptyOrVar(row[9].replace(" ", ""), "str")
+				actsIds.fileProposOrigine=emptyOrVar(row[10], "str")
+				actsIds.fileNoUniqueAnnee=emptyOrVar(row[11], "int")
+				actsIds.fileNoUniqueType=emptyOrVar(row[12], "str")
+				actsIds.fileNoUniqueChrono=emptyOrVar(row[13], "str")
+				if row[14].strip()=="Y":
+					actsIds.proposSplittee=True
+				if row[15].strip()=="Y":
+					actsIds.suite2eLecturePE=True
+				actsIds.councilPath=row[16].strip()
+				if actsIds.councilPath!="" and actsIds.councilPath[-1]==".":
+					actsIds.councilPath=actsIds.councilPath[:-1]
+				#we don't take the council path column
+				actsIds.notes=row[17].strip()
 
-			#we save fileDosId from the dosIdModel model
-			try:
-				#if split proposition
-				if len(actsIds.fileProposChrono)>2 and actsIds.fileProposChrono[-2]=="-":
-					newFileProposChrono=actsIds.fileProposChrono[:-2]
-					newSplitNumber=actsIds.fileProposChrono[-1]
-					fileDosId=DosIdModel.objects.get(proposOrigine=actsIds.fileProposOrigine, proposAnnee=actsIds.fileProposAnnee, proposChrono=newFileProposChrono, splitNumber=newSplitNumber)
-					actsIds.fileDosId=fileDosId.dosId
-				else:
-					fileDosId=DosIdModel.objects.get(proposOrigine=actsIds.fileProposOrigine, proposAnnee=actsIds.fileProposAnnee, proposChrono=actsIds.fileProposChrono)
-					actsIds.fileDosId=fileDosId.dosId
-			except Exception, e:
-				actsIds.fileDosId=None
-				print e
+				#we save fileDosId from the dosIdModel model
+				try:
+					#if split proposition
+					if len(actsIds.fileProposChrono)>2 and actsIds.fileProposChrono[-2]=="-":
+						newFileProposChrono=actsIds.fileProposChrono[:-2]
+						newSplitNumber=actsIds.fileProposChrono[-1]
+						fileDosId=DosIdModel.objects.get(proposOrigine=actsIds.fileProposOrigine, proposAnnee=actsIds.fileProposAnnee, proposChrono=newFileProposChrono, splitNumber=newSplitNumber)
+						actsIds.fileDosId=fileDosId.dosId
+					else:
+						fileDosId=DosIdModel.objects.get(proposOrigine=actsIds.fileProposOrigine, proposAnnee=actsIds.fileProposAnnee, proposChrono=actsIds.fileProposChrono)
+						actsIds.fileDosId=fileDosId.dosId
+				except Exception, e:
+					actsIds.fileDosId=None
+					print e
 
-			try:
-				actsIds.save()
-				idsList.append((actsIds.releveAnnee, actsIds.releveMois, actsIds.noOrdre))
-			except IntegrityError, e:
-				print "exception", e
-				error= "The act releveAnnee="+str(actsIds.releveAnnee)+ " releveMois="+str(actsIds.releveMois)+ " noOrdre="+str(actsIds.noOrdre) + " ALREADY EXISTS!!"
-				errorList.append(error)
+				try:
+					actsIds.save()
+					idsList.append((actsIds.releveAnnee, actsIds.releveMois, actsIds.noOrdre))
+				except IntegrityError, e:
+					print "exception", e
+					error= "The act releveAnnee="+str(actsIds.releveAnnee)+ " releveMois="+str(actsIds.releveMois)+ " noOrdre="+str(actsIds.noOrdre) + " ALREADY EXISTS!!"
+					errorList.append(error)
 
-			#save only one act -> TESTS
-			#~ break
+				#save only one act -> TESTS
+				#~ break
 
-	f.close()
 	return idsList, errorList
 
 
@@ -223,7 +233,7 @@ def importView(request):
 	displays and processes the import page
 	template called: import/index.html
 	"""
-	print "projectRoot", os.getcwd()
+	#~ print "projectRoot", os.getcwd()
 	responseDic={}
 	if request.method == 'POST':
 		form = CSVUploadForm(request.POST, request.FILES)

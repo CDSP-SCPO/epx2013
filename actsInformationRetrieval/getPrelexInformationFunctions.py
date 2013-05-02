@@ -36,7 +36,7 @@ def getPrelexAdoptionProposOrigine(soup, proposOrigine):
 	if proposOrigine=="COM":
 		return soup.find("a", text=re.compile("Adoption by Commission")).findNext('br').next.strip()
 	if proposOrigine=="JAI":
-		return getTransmissionCouncilFromPrelex(soup, proposOrigine)
+		return getPrelexTransmissionCouncil(soup, proposOrigine)
 	if proposOrigine=="CONS":
 		print "TODO: extraction pdf almost done (see tests)"
 		return None
@@ -298,12 +298,15 @@ def getPrelexTransmissionCouncil(soup, proposOrigine):
 	RETURN
 	prelexTransmissionCouncil
 	"""
-	if proposOrigine=="CONS":
-		return getAdoptionProposOrigineFromPrelex(soup, proposOrigine)
-	return soup.find("a", text=re.compile("Transmission to Council")).findNext('br').next.strip()
+	try:
+		if proposOrigine=="CONS":
+			return getPrelexAdoptionProposOrigine(soup, proposOrigine)
+		return soup.find("a", text=re.compile("Transmission to Council")).findNext('br').next.strip()
+	except:
+		return None
 
 #date in front of "Transmission to Council"
-#not Null
+#not Null (except blank page -> error on page)
 #~ AAAA-MM-JJ format
 #~ ProposOrigine = CONS -> AdoptionProposOrigine
 
@@ -552,9 +555,9 @@ def getPrelexInformation(soup, idsDataDic):
 	dataDic['prelexConsB']=getPrelexConsB(soup, idsDataDic['prelexProposOrigine'])
 	print "prelexConsB:", dataDic['prelexConsB']
 
-	#prelexNombreLectures
+	#prelexNombreLectures -> ALREADY IN OEIL -> used only for prelexAdoptionConseil!
 	dataDic['prelexNombreLectures']=getPrelexNombreLectures(soup, idsDataDic['prelexNoUniqueType'], idsDataDic['proposSplittee'])
-	print "prelexNombreLectures:", dataDic['prelexNombreLectures']
+	#~ print "prelexNombreLectures:", dataDic['prelexNombreLectures']
 
 	#prelexAdoptionConseil
 	dataDic['prelexAdoptionConseil']=getPrelexAdoptionConseil(soup, idsDataDic['suite2eLecturePE'], idsDataDic['proposSplittee'], dataDic['prelexNombreLectures'])

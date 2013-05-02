@@ -21,6 +21,8 @@ def getOeilUrl(noUniqueType, noUniqueAnnee, noUniqueChrono):
 	"""
 	#noUniqueChrono coded on 4 digits if numbers only and 5 if final character is a letter
 	#if only digits
+	if noUniqueChrono=="":
+		return None
 	if noUniqueChrono[-1].isdigit():
 		noUniqueChronoLen=4
 	else:
@@ -89,7 +91,7 @@ def getOeilIdsFromOeil(soup):
 		#~ print "title (oeil):", title
 		#Procedure File: 2005/0223(COD)
 		title = title.replace('Procedure File: ','').split("/")
-		print "new title (oeil):", title
+		#~ print "new title (oeil):", title
 		noUniqueAnnee=title[0]
 		title=title[1].split("(")
 		tempNoUniqueChrono=title[0]
@@ -104,6 +106,7 @@ def getOeilIdsFromOeil(soup):
 		noUniqueType=title[1][:-1].upper()
 
 		return noUniqueType, noUniqueAnnee, noUniqueChrono
+
 	except:
 		return None, None, None
 
