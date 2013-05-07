@@ -1,0 +1,234 @@
+<!--
+TEMPLATE
+displays the acts validation page (displays data from eurlex, oeil and prelex and allow to validate an act and modify its data if needed)
+ -->
+{% extends "base.html" %}
+
+{% block contentTitle %}Acts validation{% endblock %}
+
+{% block content %}
+
+	<p>
+		You can validate the imported acts on this page. Acts can be validated one at a time. <br />
+		Select the act to validate in the drop down list and check the data in the table. In red are highlighted contentious data. The last row "VALIDATION" contains the final data of the act after validation. Change any value of this row if you detect a mistake. Under the table, you can add a note concerning the act. Eventually, click on the save button to validate and save the act.
+	</p>
+	
+	<br />
+	<!-- act validation form -->
+	<form id="actsIdsValidationForm" action="{% url actsIdsValidation.views.actsView %}" method="post">{% csrf_token %}
+		{{ form.non_field_errors }}
+		
+		{{ form.actsToValidate.field.choices.queryset.all|length }} act(s) to validate!
+		
+		<div id="actsToValidateChoice" class="fieldWrapper">
+			{{ form.actsToValidate.errors }}
+			{{ form.actsToValidate }}
+		</div>
+		
+		<br />
+		
+		<!-- hidden "primary keys" fields set to save the modification of the act -->
+		{{ form.releveAnnee.as_hidden }}
+		{{ form.releveMois.as_hidden }}
+		{{ form.noOrdre.as_hidden }}
+		
+<!--
+		<div class="bold">
+			releveAnnee={{act.releveAnnee}}, releveMois={{act.releveMois}}, noOrdre={{act.noOrdre}}
+		</div>
+-->
+		{% if act.councilPath %}
+			<a href="{{act.councilPath}}" target="_blank">{{ displayName.councilPath }}</a>
+		{% endif %}
+		{% if act.proposSplittee %}
+						This is a split proposition (proposSplittee={{act.proposSplittee}})
+		{% endif %}
+		
+		<br /><br />
+		
+		<!-- validation table -->
+		<table class="actsValidationTable">
+			<tr class="bold">
+				<td>-</td>
+				<td>{{ displayName.fileNoCelex }}</td>
+				<td>{{ displayName.fileNoUniqueType }}</td>
+				<td>{{ displayName.fileNoUniqueAnnee }}</td>
+				<td>{{ displayName.fileNoUniqueChrono }}</td>
+				<td>{{ displayName.fileProposOrigine }}</td>
+				<td>{{ displayName.fileProposAnnee }}</td>
+				<td>{{ displayName.fileProposChrono }}</td>
+				<td>{{ displayName.fileDosId }}</td>
+				<td>url exists?</td>
+				<td>url link</td>
+			</tr>
+			<tr>
+				<td class="bold">csv file</td>
+				{% if info.noCelex %}<td>{% else %}<td class="error">{% endif %}
+				{{act.fileNoCelex}}</td>
+				{% if info.noUniqueType %}<td>{% else %}<td class="error">{% endif %}
+				{{act.fileNoUniqueType}}</td>
+				{% if info.noUniqueAnnee %}<td>{% else %}<td class="error">{% endif %}
+				{{act.fileNoUniqueAnnee}}</td>
+				{% if info.noUniqueChrono %}<td>{% else %}<td class="error">{% endif %}
+				{{act.fileNoUniqueChrono}}</td>
+				{% if info.proposOrigine %}<td>{% else %}<td class="error">{% endif %}
+				{{act.fileProposOrigine}}</td>
+				{% if info.proposAnnee %}<td>{% else %}<td class="error">{% endif %}
+				{{act.fileProposAnnee}}</td>
+				{% if info.proposChrono %}<td>{% else %}<td class="error">{% endif %}
+				{{act.fileProposChrono}}</td>
+				{% if info.dosId %}<td>{% else %}<td class="error">{% endif %}
+				{{act.fileDosId}}</td>
+				<td>-</td>
+				<td>-</td>
+			</tr>
+			<tr>
+				<td class="bold">eurlex</td>
+				{% if info.noCelex %}<td>{% else %}<td class="error">{% endif %}
+				{{act.eurlexNoCelex}}</td>
+				{% if info.noUniqueType %}<td>{% else %}<td class="error">{% endif %}
+				{{act.eurlexNoUniqueType}}</td>
+				{% if info.noUniqueAnnee %}<td>{% else %}<td class="error">{% endif %}
+				{{act.eurlexNoUniqueAnnee}}</td>
+				{% if info.noUniqueChrono %}<td>{% else %}<td class="error">{% endif %}
+				{{act.eurlexNoUniqueChrono}}</td>
+				{% if info.proposOrigine %}<td>{% else %}<td class="error">{% endif %}
+				{{act.eurlexProposOrigine}}</td>
+				{% if info.proposAnnee %}<td>{% else %}<td class="error">{% endif %}
+				{{act.eurlexProposAnnee}}</td>
+				{% if info.proposChrono %}<td>{% else %}<td class="error">{% endif %}
+				{{act.eurlexProposChrono}}</td>
+				<td>-</td>
+				{% if act.fileEurlexUrlExists %}<td>{% else %}<td class="error">{% endif %}
+				{{act.fileEurlexUrlExists}}</td>
+				<td><a href="{{info.eurlexUrl}}" target="_blank">eurlex</a></td>
+			</tr>
+			<tr>
+				<td class="bold">oeil</td>
+				{% if info.noCelex %}<td>{% else %}<td class="error">{% endif %}
+				{{act.oeilNoCelex}}</td>
+				{% if info.noUniqueType %}<td>{% else %}<td class="error">{% endif %}
+				{{act.oeilNoUniqueType}}</td>
+				{% if info.noUniqueAnnee %}<td>{% else %}<td class="error">{% endif %}
+				{{act.oeilNoUniqueAnnee}}</td>
+				{% if info.noUniqueChrono %}<td>{% else %}<td class="error">{% endif %}
+				{{act.oeilNoUniqueChrono}}</td>
+				{% if info.proposOrigine %}<td>{% else %}<td class="error">{% endif %}
+				{{act.oeilProposOrigine}}</td>
+				{% if info.proposAnnee %}<td>{% else %}<td class="error">{% endif %}
+				{{act.oeilProposAnnee}}</td>
+				{% if info.proposChrono %}<td>{% else %}<td class="error">{% endif %}
+				{{act.oeilProposChrono}}</td>
+				<td>-</td>
+				{% if act.fileOeilUrlExists %}<td>{% else %}<td class="error">{% endif %}
+				{{act.fileOeilUrlExists}}</td>
+				<td><a href="{{info.oeilUrl}}" target="_blank">oeil</a></td>
+			</tr>
+			<tr>
+				<td class="bold">prelex</td>
+				{% if form.actsToValidate.value == None %}
+					<td></td>
+				{% else %}
+					{% if info.nosCelex %}<td>celex found</td>
+					{% else %}<td class="error">celex not found!</td>
+					{% endif %}
+				{% endif %}
+				{% if info.noUniqueType %}<td>{% else %}<td class="error">{% endif %}
+				{{act.prelexNoUniqueType}}</td>
+				{% if info.noUniqueAnnee %}<td>{% else %}<td class="error">{% endif %}
+				{{act.prelexNoUniqueAnnee}}</td>
+				{% if info.noUniqueChrono %}<td>{% else %}<td class="error">{% endif %}
+				{{act.prelexNoUniqueChrono}}</td>
+				{% if info.proposOrigine %}<td>{% else %}<td class="error">{% endif %}
+				{{act.prelexProposOrigine}}</td>
+				{% if info.proposAnnee %}<td>{% else %}<td class="error">{% endif %}
+				{{act.prelexProposAnnee}}</td>
+				{% if info.proposChrono %}<td>{% else %}<td class="error">{% endif %}
+				{{act.prelexProposChrono}}</td>
+				{% if info.dosId %}<td>{% else %}<td class="error">{% endif %}
+				{{act.prelexDosId}}</td>
+				{% if act.filePrelexUrlExists %}<td>{% else %}<td class="error">{% endif %}
+				{{act.filePrelexUrlExists}}</td>
+				<td><a href="{{info.prelexUrl}}" target="_blank">prelex</a></td>
+			</tr>
+			
+			<tr>
+				<td class="bold">VALIDATION</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.fileNoCelex.errors }}
+						{{ form.fileNoCelex }}
+					</div>
+				</td>
+				
+				<td>
+					<div class="fieldWrapper">
+						{{ form.fileNoUniqueType.errors }}
+						{{ form.fileNoUniqueType }}
+					</div>
+				</td>
+				
+				<td>
+					<div class="fieldWrapper">
+						{{ form.fileNoUniqueAnnee.errors }}
+						{{ form.fileNoUniqueAnnee }}
+					</div>
+				</td>
+				
+				<td>
+					<div class="fieldWrapper">
+						{{ form.fileNoUniqueChrono.errors }}
+						{{ form.fileNoUniqueChrono }}
+					</div>
+				</td>
+				
+				<td>
+					<div class="fieldWrapper">
+						{{ form.fileProposOrigine.errors }}
+						{{ form.fileProposOrigine }}
+					</div>
+				</td>
+				
+				<td>
+					<div class="fieldWrapper">
+						{{ form.fileProposAnnee.errors }}
+						{{ form.fileProposAnnee }}
+					</div>
+				</td>
+				
+				<td>
+					<div class="fieldWrapper">
+						{{ form.fileProposChrono.errors }}
+						{{ form.fileProposChrono }}
+					</div>
+				</td>
+				
+				<td>
+					<div class="fieldWrapper">
+						{{ form.fileDosId.errors }}
+						{{ form.fileDosId }}
+					</div>
+				</td>
+				
+				<td>-</td>
+				<td>-</td>
+			</tr>
+			
+		</table>
+		
+		<br /><br />
+		
+		<div id="notesDiv" class="fieldWrapper">
+			{{ form.notes.errors }}
+			<label for="notes">Notes:</label>
+			{{ form.notes }}
+		</div>
+
+		<input id="actsValidationSaveButton" name="actsValidationSaveButton" type="submit" value="SAVE" />
+				
+		<div id="actsValidationSuccessMessage">{{ success }}</div>
+	</form>
+	
+	<br /><br />
+	
+{% endblock %}

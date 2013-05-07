@@ -1,0 +1,678 @@
+<!--
+TEMPLATE
+displays the data of a given act (data for the statistical analysis displays data from eurlex, oeil and prelex and allow to validate the act and modify its data if needed)
+-->
+{% extends "base.html" %}
+
+{% block contentTitle %}Acts information retrieval{% endblock %}
+
+{% block content %}
+
+	<p>
+		You can display, modify and save retrieved information of the validated acts on this page. Acts information can be displayed one at a time. <br />
+		Select a validated act in the drop down list and check the data in the table. Change any value (second column) if you detect a mistake. Eventually, click on the save button to validate and save the act information.
+	</p>
+
+	<br />
+<!--
+	 act information form
+-->
+	<form id="actsInformationValidationForm" action="{% url actsInformationRetrieval.views.actsView %}" method="post">{% csrf_token %}
+		{{ form.non_field_errors }}
+
+		{{ form.actsToValidate.field.choices.queryset.all|length }} act(s) to validate!
+
+		<div id="actsToValidateChoice" class="fieldWrapper">
+			{{ form.actsToValidate.errors }}
+			{{ form.actsToValidate }}
+		</div>
+
+		<div class="bold">
+<!--
+			act id: {{act.actId}}
+-->
+		</div>
+
+		<br /><br />
+
+		<div class="bold">EURLEX:</div>
+
+		<table id="eurlexIdsTable">
+			<tr class="bold">
+				<td>{{ displayName.fileNoCelex }}</td>
+				<td>url exists?</td>
+				<td>url link</td>
+			</tr>
+			<tr>
+				<td>{{actId.fileNoCelex}}</td>
+				{% if actId.fileEurlexUrlExists %}<td>{% else %}<td class="error">{% endif %}
+				{{actId.fileEurlexUrlExists}}</td>
+				<td><a href="{{url.eurlexUrl}}" target="_blank">eurlex</a></td>
+			</tr>
+		</table>
+
+		<br />
+
+		<!-- eurlex validation table -->
+		<table id="eurlexTable" class="actsValidationTable">
+			<tr>
+				<td class="informationTableFirstColumn">{{ displayName.eurlexTitreEn }}</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.eurlexTitreEn.errors }}
+						{{ form.eurlexTitreEn }}
+					</div>
+				</td>
+			</tr>
+
+			<tr>
+				<td class="informationTableFirstColumn">{{ displayName.eurlexCodeSectRep01 }}</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.eurlexCodeSectRep01.errors }}
+						{{ form.eurlexCodeSectRep01 }}
+					</div>
+				</td>
+			</tr>
+
+			<tr>
+				<td class="informationTableFirstColumn">{{ displayName.eurlexCodeSectRep02 }}</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.eurlexCodeSectRep02.errors }}
+						{{ form.eurlexCodeSectRep02 }}
+					</div>
+				</td>
+			</tr>
+
+			<tr>
+				<td class="informationTableFirstColumn">{{ displayName.eurlexCodeSectRep03 }}</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.eurlexCodeSectRep03.errors }}
+						{{ form.eurlexCodeSectRep03 }}
+					</div>
+				</td>
+			</tr>
+
+			<tr>
+				<td class="informationTableFirstColumn">{{ displayName.eurlexCodeSectRep04 }}</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.eurlexCodeSectRep04.errors }}
+						{{ form.eurlexCodeSectRep04 }}
+					</div>
+				</td>
+			</tr>
+
+			<tr>
+				<td class="informationTableFirstColumn">{{ displayName.eurlexRepEn1 }}</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.eurlexRepEn1.errors }}
+						{{ form.eurlexRepEn1 }}
+					</div>
+				</td>
+			</tr>
+
+			<tr>
+				<td class="informationTableFirstColumn">{{ displayName.eurlexRepEn2 }}</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.eurlexRepEn2.errors }}
+						{{ form.eurlexRepEn2 }}
+					</div>
+				</td>
+			</tr>
+
+			<tr>
+				<td class="informationTableFirstColumn">{{ displayName.eurlexRepEn3 }}</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.eurlexRepEn3.errors }}
+						{{ form.eurlexRepEn3 }}
+					</div>
+				</td>
+			</tr>
+
+			<tr>
+				<td class="informationTableFirstColumn">{{ displayName.eurlexRepEn4 }}</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.eurlexRepEn4.errors }}
+						{{ form.eurlexRepEn4 }}
+					</div>
+				</td>
+			</tr>
+
+			<tr>
+				<td class="informationTableFirstColumn">{{ displayName.eurlexTypeActe }}</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.eurlexTypeActe.errors }}
+						{{ form.eurlexTypeActe }}
+					</div>
+				</td>
+			</tr>
+
+			<tr>
+				<td class="informationTableFirstColumn">{{ displayName.eurlexBaseJuridique }}</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.eurlexBaseJuridique.errors }}
+						{{ form.eurlexBaseJuridique }}
+					</div>
+				</td>
+			</tr>
+
+		</table>
+
+
+		<br /><br />
+
+		<div class="bold">OEIL:</div>
+
+		<table id="oeilIdsTable">
+			<tr class="bold">
+				<td>{{ displayName.fileNoUniqueType }}</td>
+				<td>{{ displayName.fileNoUniqueAnnee }}</td>
+				<td>{{ displayName.fileNoUniqueChrono }}</td>
+				<td>url exists?</td>
+				<td>url link</td>
+			</tr>
+			<tr>
+				<td>{{actId.fileNoUniqueType}}</td>
+				<td>{{actId.fileNoUniqueAnnee}}</td>
+				<td>{{actId.fileNoUniqueChrono}}</td>
+				{% if actId.fileOeilUrlExists %}<td>{% else %}<td class="error">{% endif %}
+				{{actId.fileOeilUrlExists}}</td>
+				<td><a href="{{url.oeilUrl}}" target="_blank">oeil</a></td>
+			</tr>
+		</table>
+
+		<br />
+
+		<!-- oeil validation table -->
+		<table id="oeilTable" class="actsValidationTable">
+			<tr>
+				<td class="informationTableFirstColumn">{{ displayName.oeilCommissionPE }}</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.oeilCommissionPE.errors }}
+						{{ form.oeilCommissionPE }}
+					</div>
+				</td>
+			</tr>
+
+			<tr>
+				<td class="informationTableFirstColumn">{{ displayName.oeilEPComAndtTabled }}</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.oeilEPComAndtTabled.errors }}
+						{{ form.oeilEPComAndtTabled }}
+					</div>
+				</td>
+			</tr>
+
+			<tr>
+				<td class="informationTableFirstColumn">{{ displayName.oeilEPComAndtAdopt }}</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.oeilEPComAndtAdopt.errors }}
+						{{ form.oeilEPComAndtAdopt }}
+					</div>
+				</td>
+			</tr>
+
+			<tr>
+				<td class="informationTableFirstColumn">{{ displayName.oeilEPAmdtTabled }}</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.oeilEPAmdtTabled.errors }}
+						{{ form.oeilEPAmdtTabled }}
+					</div>
+				</td>
+			</tr>
+
+			<tr>
+				<td class="informationTableFirstColumn">{{ displayName.oeilEPAmdtAdopt }}</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.oeilEPAmdtAdopt.errors }}
+						{{ form.oeilEPAmdtAdopt }}
+					</div>
+				</td>
+			</tr>
+
+			<tr>
+				<td class="informationTableFirstColumn">{{ displayName.oeilEPVotesFor1 }}</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.oeilEPVotesFor1.errors }}
+						{{ form.oeilEPVotesFor1 }}
+					</div>
+				</td>
+			</tr>
+
+			<tr>
+				<td class="informationTableFirstColumn">{{ displayName.oeilEPVotesAgst1 }}</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.oeilEPVotesAgst1.errors }}
+						{{ form.oeilEPVotesAgst1 }}
+					</div>
+				</td>
+			</tr>
+
+			<tr>
+				<td class="informationTableFirstColumn">{{ displayName.oeilEPVotesAbs1 }}</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.oeilEPVotesAbs1.errors }}
+						{{ form.oeilEPVotesAbs1 }}
+					</div>
+				</td>
+			</tr>
+
+			<tr>
+				<td class="informationTableFirstColumn">{{ displayName.oeilEPVotesFor2 }}</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.oeilEPVotesFor2.errors }}
+						{{ form.oeilEPVotesFor2 }}
+					</div>
+				</td>
+			</tr>
+
+			<tr>
+				<td class="informationTableFirstColumn">{{ displayName.oeilEPVotesAgst2 }}</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.oeilEPVotesAgst2.errors }}
+						{{ form.oeilEPVotesAgst2 }}
+					</div>
+				</td>
+			</tr>
+
+			<tr>
+				<td class="informationTableFirstColumn">{{ displayName.oeilEPVotesAbs2 }}</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.oeilEPVotesAbs2.errors }}
+						{{ form.oeilEPVotesAbs2 }}
+					</div>
+				</td>
+			</tr>
+
+			<tr>
+				<td class="informationTableFirstColumn">{{ displayName.oeilGroupePolitiqueRapporteur1 }}</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.oeilGroupePolitiqueRapporteur1.errors }}
+						{{ form.oeilGroupePolitiqueRapporteur1 }}
+					</div>
+				</td>
+			</tr>
+
+			<tr>
+				<td class="informationTableFirstColumn">{{ displayName.oeilRapporteurPE1 }}</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.oeilRapporteurPE1.errors }}
+						{{ form.oeilRapporteurPE1 }}
+					</div>
+				</td>
+			</tr>
+
+			<tr>
+				<td class="informationTableFirstColumn">{{ displayName.oeilEtatMbRapport1 }}</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.oeilEtatMbRapport1.errors }}
+						{{ form.oeilEtatMbRapport1 }}
+					</div>
+				</td>
+			</tr>
+
+			<tr>
+				<td class="informationTableFirstColumn">{{ displayName.oeilGroupePolitiqueRapporteur2 }}</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.oeilGroupePolitiqueRapporteur2.errors }}
+						{{ form.oeilGroupePolitiqueRapporteur2 }}
+					</div>
+				</td>
+			</tr>
+
+			<tr>
+				<td class="informationTableFirstColumn">{{ displayName.oeilRapporteurPE2 }}</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.oeilRapporteurPE2.errors }}
+						{{ form.oeilRapporteurPE2 }}
+					</div>
+				</td>
+			</tr>
+
+			<tr>
+				<td class="informationTableFirstColumn">{{ displayName.oeilEtatMbRapport2 }}</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.oeilEtatMbRapport2.errors }}
+						{{ form.oeilEtatMbRapport2 }}
+					</div>
+				</td>
+			</tr>
+
+			<tr>
+				<td class="informationTableFirstColumn">{{ displayName.oeilGroupePolitiqueRapporteur3 }}</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.oeilGroupePolitiqueRapporteur3.errors }}
+						{{ form.oeilGroupePolitiqueRapporteur3 }}
+					</div>
+				</td>
+			</tr>
+
+			<tr>
+				<td class="informationTableFirstColumn">{{ displayName.oeilRapporteurPE3 }}</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.oeilRapporteurPE3.errors }}
+						{{ form.oeilRapporteurPE3 }}
+					</div>
+				</td>
+			</tr>
+
+			<tr>
+				<td class="informationTableFirstColumn">{{ displayName.oeilEtatMbRapport3 }}</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.oeilEtatMbRapport3.errors }}
+						{{ form.oeilEtatMbRapport3 }}
+					</div>
+				</td>
+			</tr>
+
+			<tr>
+				<td class="informationTableFirstColumn">{{ displayName.oeilGroupePolitiqueRapporteur4 }}</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.oeilGroupePolitiqueRapporteur4.errors }}
+						{{ form.oeilGroupePolitiqueRapporteur4 }}
+					</div>
+				</td>
+			</tr>
+
+			<tr>
+				<td class="informationTableFirstColumn">{{ displayName.oeilRapporteurPE4 }}</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.oeilRapporteurPE4.errors }}
+						{{ form.oeilRapporteurPE4 }}
+					</div>
+				</td>
+			</tr>
+
+			<tr>
+				<td class="informationTableFirstColumn">{{ displayName.oeilEtatMbRapport4 }}</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.oeilEtatMbRapport4.errors }}
+						{{ form.oeilEtatMbRapport4 }}
+					</div>
+				</td>
+			</tr>
+
+			<tr>
+				<td class="informationTableFirstColumn">{{ displayName.oeilGroupePolitiqueRapporteur5 }}</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.oeilGroupePolitiqueRapporteur5.errors }}
+						{{ form.oeilGroupePolitiqueRapporteur5 }}
+					</div>
+				</td>
+			</tr>
+
+			<tr>
+				<td class="informationTableFirstColumn">{{ displayName.oeilRapporteurPE5 }}</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.oeilRapporteurPE5.errors }}
+						{{ form.oeilRapporteurPE5 }}
+					</div>
+				</td>
+			</tr>
+
+			<tr>
+				<td class="informationTableFirstColumn">{{ displayName.oeilEtatMbRapport5 }}</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.oeilEtatMbRapport5.errors }}
+						{{ form.oeilEtatMbRapport5 }}
+					</div>
+				</td>
+			</tr>
+
+			<tr>
+				<td class="informationTableFirstColumn">{{ displayName.oeilModifPropos }}</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.oeilModifPropos.errors }}
+						{{ form.oeilModifPropos }}
+					</div>
+				</td>
+			</tr>
+
+			<tr>
+				<td class="informationTableFirstColumn">{{ displayName.oeilNombreLectures }}</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.oeilNombreLectures.errors }}
+						{{ form.oeilNombreLectures }}
+					</div>
+				</td>
+			</tr>
+
+			<tr>
+				<td class="informationTableFirstColumn">{{ displayName.oeilSignPECS }}</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.oeilSignPECS.errors }}
+						{{ form.oeilSignPECS }}
+					</div>
+				</td>
+			</tr>
+
+		</table>
+
+
+		<br /><br />
+
+
+		<div class="bold">PRELEX:</div>
+
+		<table id="prelexIdsTable">
+			<tr class="bold">
+				<td>{{ displayName.fileProposOrigine }}</td>
+				<td>{{ displayName.fileProposAnnee }}</td>
+				<td>{{ displayName.fileProposChrono }}</td>
+				<td>{{ displayName.fileDosId }}</td>
+				<td>url exists?</td>
+				<td>url link</td>
+			</tr>
+			<tr>
+				<td>{{actId.fileProposOrigine}}</td>
+				<td>{{actId.fileProposAnnee}}</td>
+				<td>{{actId.fileProposChrono}}</td>
+				<td>{{actId.fileDosId}}</td>
+				{% if actId.filePrelexUrlExists %}<td>{% else %}<td class="error">{% endif %}
+				{{actId.filePrelexUrlExists}}</td>
+				<td><a href="{{url.prelexUrl}}" target="_blank">prelex</a></td>
+			</tr>
+		</table>
+
+		<br />
+
+		<!-- prelex validation table -->
+		<table id="prelexTable" class="actsValidationTable">
+			<tr>
+				<td class="informationTableFirstColumn">{{ displayName.prelexAdoptionProposOrigine }}</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.prelexAdoptionProposOrigine.errors }}
+						{{ form.prelexAdoptionProposOrigine }}
+					</div>
+				</td>
+			</tr>
+
+			<tr>
+				<td class="informationTableFirstColumn">{{ displayName.prelexComProc }}</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.prelexComProc.errors }}
+						{{ form.prelexComProc }}
+					</div>
+				</td>
+			</tr>
+
+			<tr>
+				<td class="informationTableFirstColumn">{{ displayName.prelexDGProposition }}</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.prelexDGProposition.errors }}
+						{{ form.prelexDGProposition }}
+					</div>
+				</td>
+			</tr>
+
+			<tr>
+				<td class="informationTableFirstColumn">{{ displayName.prelexDGProposition2 }}</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.prelexDGProposition2.errors }}
+						{{ form.prelexDGProposition2 }}
+					</div>
+				</td>
+			</tr>
+
+			<tr>
+				<td class="informationTableFirstColumn">{{ displayName.prelexRespPropos1 }}</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.prelexRespPropos1.errors }}
+						{{ form.prelexRespPropos1 }}
+					</div>
+				</td>
+			</tr>
+
+			<tr>
+				<td class="informationTableFirstColumn">{{ displayName.prelexRespPropos2 }}</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.prelexRespPropos2.errors }}
+						{{ form.prelexRespPropos2 }}
+					</div>
+				</td>
+			</tr>
+
+			<tr>
+				<td class="informationTableFirstColumn">{{ displayName.prelexRespPropos3 }}</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.prelexRespPropos3.errors }}
+						{{ form.prelexRespPropos3 }}
+					</div>
+				</td>
+			</tr>
+
+			<tr>
+				<td class="informationTableFirstColumn">{{ displayName.prelexTransmissionCouncil }}</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.prelexTransmissionCouncil.errors }}
+						{{ form.prelexTransmissionCouncil }}
+					</div>
+				</td>
+			</tr>
+
+			<tr>
+				<td class="informationTableFirstColumn">{{ displayName.prelexNbPointB }}</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.prelexNbPointB.errors }}
+						{{ form.prelexNbPointB }}
+					</div>
+				</td>
+			</tr>
+
+			<tr>
+				<td class="informationTableFirstColumn">{{ displayName.prelexConsB }}</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.prelexConsB.errors }}
+						{{ form.prelexConsB }}
+					</div>
+				</td>
+			</tr>
+
+			<tr>
+				<td class="informationTableFirstColumn">{{ displayName.prelexAdoptionConseil }}</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.prelexAdoptionConseil.errors }}
+						{{ form.prelexAdoptionConseil }}
+					</div>
+				</td>
+			</tr>
+
+			<tr>
+				<td class="informationTableFirstColumn">{{ displayName.prelexNbPointA }}</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.prelexNbPointA.errors }}
+						{{ form.prelexNbPointA }}
+					</div>
+				</td>
+			</tr>
+
+			<tr>
+				<td class="informationTableFirstColumn">{{ displayName.prelexCouncilA }}</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.prelexCouncilA.errors }}
+						{{ form.prelexCouncilA }}
+					</div>
+				</td>
+			</tr>
+
+<!--ALREADY IN OEIL
+			<tr>
+				<td class="informationTableFirstColumn">{{ displayName.prelexNombreLectures }}</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ form.prelexNombreLectures.errors }}
+						{{ form.prelexNombreLectures }}
+					</div>
+				</td>
+			</tr>
+-->
+
+		</table>
+
+		<br /><br />
+
+		<div id="notesDiv" class="fieldWrapper">
+			{{ idForm.notes.errors }}
+			<label for="notes">Notes:</label>
+			{{ idForm.notes }}
+		</div>
+
+		<input id="actsValidationSaveButton" name="actsValidationSaveButton" type="submit" value="SAVE" />
+
+		<div id="actsValidationSuccessMessage">{{ success }}</div>
+	</form>
+
+	<br /><br />
+
+{% endblock %}
