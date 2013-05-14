@@ -184,6 +184,14 @@ displays the data of a given act (data for the statistical analysis displays dat
 		<!-- prelex validation table -->
 		<table id="prelexTable" class="actsValidationTable">
 			{% for field in form %}
+				<!-- prelex data split in two tables -> 2d table starts with the field prelexRejetConseil  -->
+				{% if field.name == "prelexRejetConseil" %}
+					</table>
+					<br /><br />
+					<table class="actsValidationTable">
+				{% endif %}
+
+				<!-- display all the fields -->
 				{% if "prelex" in field.name %}
 					<tr>
 						<td class="informationTableFirstColumn">{{ displayName|ofKey:field.name }}</td>

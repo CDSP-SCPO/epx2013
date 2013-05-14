@@ -73,7 +73,7 @@ class ActsInformationModel(models.Model):
 	#prelex
 	prelexAdoptionProposOrigine=models.DateField(max_length=10, blank=True, null=True, default=None)
 	prelexComProc=models.CharField(max_length=100, blank=True, null=True, default=None)
-	prelexDGProposition=models.CharField(max_length=100, blank=True, null=True, default=None)
+	prelexDGProposition1=models.CharField(max_length=100, blank=True, null=True, default=None)
 	prelexSiglesDG1=models.CharField(max_length=7, blank=True, null=True, default=None)
 	prelexDGProposition2=models.CharField(max_length=100, blank=True, null=True, default=None)
 	prelexSiglesDG2=models.CharField(max_length=7, blank=True, null=True, default=None)
@@ -95,6 +95,7 @@ class ActsInformationModel(models.Model):
 	prelexAdoptionConseil=models.DateField(max_length=10, blank=True, null=True, default=None)
 	prelexNbPointA=models.IntegerField(max_length=1, blank=True, null=True, default=None)
 	prelexCouncilA=models.CharField(max_length=200, blank=True, null=True, default=None)
+
 	prelexRejetConseil=models.BooleanField(default=False)
 	prelexConfigCons=models.CharField(max_length=10, blank=True, null=True, default=None)
 	prelexChgtBaseJ=models.BooleanField(default=False)
