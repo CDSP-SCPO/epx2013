@@ -14,7 +14,7 @@ urlpatterns = patterns('',
 	url(r'^/?$', homepageView),
 	url(r'^index.html$', homepageView),
 	#tests page
-	url(r'^tests/$', 'tests.views.testView'),
+	#~ url(r'^tests/$', 'tests.views.testView'),
 	#login page
 	url(r'^login/$', 'auth.views.loginView', name='login'),
 	#acts ids validation page
