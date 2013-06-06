@@ -232,14 +232,14 @@ def specialDgSearch(dg):
 		return dg
 
 
-def getPrelexDGProposition(soup):
+def getPrelexDGProposition1(soup):
 	"""
 	FUNCTION
-	gets the prelexDGProposition variable from the prelex url
+	gets the prelexDGProposition1 variable from the prelex url
 	PARAMETERS
 	soup: prelex url content
 	RETURN
-	prelexDGProposition
+	prelexDGProposition1
 	"""
 	try:
 		#dgProposition
@@ -521,10 +521,10 @@ def getPrelexInformation(soup, idsDataDic):
 	#jointly responsible persons (prelexDGProposition2 and prelexRespPropos2 or prelexRespPropos3)
 	jointlyResponsibleList=getPrelexJointlyResponsibles(adoptionByCommissionTableSoup)
 
-	#prelexDGProposition and prelexDGProposition2
-	dataDic['prelexDGProposition']=getPrelexDGProposition(adoptionByCommissionTableSoup)
+	#prelexDGProposition1 and prelexDGProposition2
+	dataDic['prelexDGProposition1']=getPrelexDGProposition1(adoptionByCommissionTableSoup)
 	dataDic['prelexDGProposition2']=jointlyResponsibleList[0]
-	print "prelexDGProposition:", dataDic['prelexDGProposition']
+	print "prelexDGProposition1:", dataDic['prelexDGProposition1']
 	print "prelexDGProposition2:", dataDic['prelexDGProposition2']
 
 	#prelexRespPropos1, prelexRespPropos2, prelexRespPropos3
