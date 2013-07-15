@@ -207,7 +207,13 @@ def actsView(request):
 				urlDic={}
 				urlDic["eurlexUrl"]=eurlexIds.getEurlexUrl(actId.fileNoCelex)
 				urlDic["oeilUrl"]=oeilIds.getOeilUrl(str(actId.fileNoUniqueType), str(actId.fileNoUniqueAnnee), str(actId.fileNoUniqueChrono))
-				urlDic["prelexUrl"]=actId.filePrelexUrl
+				#in ActsIdsValidation, if split proposition (ProposChrono has a dash)-> oeil ids to construct url
+				#in ActsInformationRetrieval, if split proposition (ProposChrono has a dash)-> dosId to construct url
+				if actId.fileDosId!=None and actId.fileProposChrono!=None and "-" in actId.fileProposChrono:
+					urlDic["prelexUrl"]=prelexIds.getPrelexUrl(actId.fileDosId)
+				else:
+					#url saved in the database using the oeil ids in case of a split proposition
+					urlDic["prelexUrl"]=actId.filePrelexUrl
 				responseDic["url"]=urlDic
 				#an act has been selected in the drop down list -> the related information are displayed
 				if state=="display":

@@ -201,7 +201,7 @@ def getAndSaveRetrievedIds(idsList):
 		if act.fileDosId!=None:
 			idsDic['dosId']=str(act.fileDosId)
 		#no fileProposChrono? is it a split proposition?
-		elif act.fileProposChrono==None or len(act.fileProposChrono)>2 and act.fileProposChrono[-2]=="-":
+		elif act.fileProposChrono==None or "-" in act.fileProposChrono:
 			#try with the oeil ids
 			idsDic['noUniqueType']=str(act.fileNoUniqueType)
 			idsDic['noUniqueAnnee']=str(act.fileNoUniqueAnnee)

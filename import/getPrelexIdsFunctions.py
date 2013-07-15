@@ -26,7 +26,7 @@ def getOldPrelexUrl(proposOrigine, proposAnnee, proposChrono):
 	dummyUrl=dummyUrl.replace("PROPOSANNEE", proposAnnee, 1)
 	dummyUrl=dummyUrl.replace("PROPOSCHRONO", proposChrono, 1)
 	return dummyUrl
-	
+
 def getOldPrelexUrlWithOeilIds(noUniqueType, noUniqueAnnee, noUniqueChrono):
 	"""
 	FUNCTION
@@ -44,10 +44,10 @@ def getOldPrelexUrlWithOeilIds(noUniqueType, noUniqueAnnee, noUniqueChrono):
 		noUniqueChronoLen=4
 	else:
 		noUniqueChronoLen=5
-	
+
 	while len(noUniqueChrono)!=noUniqueChronoLen:
 		noUniqueChrono="0"+str(noUniqueChrono)
-		
+
 	#http://ec.europa.eu/prelex/liste_resultats.cfm?CL=en&ReqId=0&DocType=COD&DocYear=2005&DocNum=0223
 	#~ dummyUrl="http://ec.europa.eu/prelex/liste_resultats.cfm?CL=en&ReqId=0&DocType=NOUNIQUETYPE&DocYear=NOUNIQUEANNEE&DocNum=0NOUNIQUECHRONO"
 	dummyUrl=conf.oldPrelexUrlWithOeilIds
@@ -68,7 +68,7 @@ def getPrelexUrl(dossierId):
 	#http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=en&DosId=193517
 	#~ dummyUrl="http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=en&DosId=DOSSIERID"
 	dummyUrl=conf.newPrelexUrl
-	dummyUrl=dummyUrl.replace("DOSSIERID", dossierId, 1)
+	dummyUrl=dummyUrl.replace("DOSSIERID", str(dossierId), 1)
 	return dummyUrl
 
 
@@ -188,7 +188,7 @@ def getPrelexIdsFromPrelex(soup):
 				break
 		proposChrono=tempProposChrono[beginIndex:]
 		return proposOrigine, proposAnnee, proposChrono
-		
+
 	except:
 		return None, None, None
 
@@ -203,7 +203,7 @@ def getAllPrelexIds(soup):
 	dictionary of retrieved data from prelex
 	"""
 	dataDic={}
-	
+
 	#eurlex id
 	dataDic['prelexNosCelex']=getEurlexIdFromPrelex(soup)
 	print "dataDic['prelexNosCelex']:", dataDic['prelexNosCelex']
@@ -217,11 +217,11 @@ def getAllPrelexIds(soup):
 		print "prelexNoUniqueType:", dataDic['prelexNoUniqueType']
 		print "prelexNoUniqueAnnee:", dataDic['prelexNoUniqueAnnee']
 		print "prelexNoUniqueChrono:", dataDic['prelexNoUniqueChrono']
-	
+
 		#prelex dosId
 		dataDic['prelexDosId']=getPrelexDosIdFromPrelex(soup)
 		print "prelexDosId:", dataDic['prelexDosId']
-		
+
 		#prelex ids
 		dataDic['prelexProposOrigine'], dataDic['prelexProposAnnee'], dataDic['prelexProposChrono']= getPrelexIdsFromPrelex(prelexAndOeilIds[0])
 		print "prelexProposOrigine:", dataDic['prelexProposOrigine']
