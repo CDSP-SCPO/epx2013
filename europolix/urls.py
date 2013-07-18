@@ -22,7 +22,7 @@ urlpatterns = patterns('',
 	#acts information retrieval page
 	url(r'^actsInformationRetrieval/', include('actsInformationRetrieval.urls')),
 	#import page
-	url(r'^import/', include('import.urls')),
+	url(r'^import/', include('importApp.urls')),
 	#export page
 	url(r'^export/', include('export.urls')),
 	url(r'^accounts/login/$', 'auth.views.loginView', name='login'),

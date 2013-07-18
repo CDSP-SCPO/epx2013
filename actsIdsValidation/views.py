@@ -11,10 +11,12 @@ import variablesNameForIds as vn
 #used to recreate and display the urls
 import sys
 from django.conf import settings
-sys.path.append(settings.SITE_ROOT+'import')
-import getEurlexIdsFunctions as eurlex
-import getOeilIdsFunctions as oeil
-import getPrelexIdsFunctions as prelex
+#~ sys.path.append(settings.SITE_ROOT+'import')
+import importApp.getEurlexIdsFunctions as eurlex
+import importApp.getOeilIdsFunctions as oeil
+import importApp.getPrelexIdsFunctions as prelex
+import importApp.views as importView
+
 
 #redirect to login page if not logged
 from django.contrib.auth.decorators import login_required
@@ -42,12 +44,13 @@ def actsView(request):
 	template called: actsIdsValidation/index.html
 	"""
 	import os
-	test=os.path.join(os.path.dirname(os.getcwd()), "import/")
+	test=os.path.join(os.path.dirname(os.getcwd()), "importApp/")
 	print test
 	responseDic={}
 	#display "real" name of variables (not the one stored in db)
 	responseDic['displayName']=vn.variablesNameDic
 	state="display"
+
 
 	if request.method == 'POST':
 		actToValidate=request.POST.getlist('actsToValidate')[0]
@@ -79,6 +82,22 @@ def actsView(request):
 				else:
 					print "form not valid", form.errors
 					state="ongoing"
+
+			#if click on the actualisation button
+			if 'actsValidationActualisationButton' in request.POST:
+				print "actualisation"
+				#news ids must be saved in the database
+				form = ActsIdsForm(request.POST, instance=act)
+				if form.is_valid():
+					print "actualisation: form valid"
+					form.save()
+				#we retrieve and save the new ids (from the new urls)
+				idsList=[]
+				idsList.append((act.releveAnnee, act.releveMois, act.noOrdre))
+				#actualisation button -> use acts ids retrieval from the import module
+				importView.getAndSaveRetrievedIds(idsList)
+				act=ActsIdsModel.objects.get(id=actToValidate)
+
 
 			#displays the retrieved information of the act to validate (selection of a act in the drop down list)
 			if state!="saved":

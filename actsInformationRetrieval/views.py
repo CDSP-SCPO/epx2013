@@ -15,10 +15,10 @@ import variablesNameForInformation as vnInfo
 #retrieve url contents
 import sys
 from django.conf import settings
-sys.path.append(settings.SITE_ROOT+'import')
-import getEurlexIdsFunctions as eurlexIds
-import getOeilIdsFunctions as oeilIds
-import getPrelexIdsFunctions as prelexIds
+#~ sys.path.append(settings.SITE_ROOT+'import')
+import importApp.getEurlexIdsFunctions as eurlexIds
+import importApp.getOeilIdsFunctions as oeilIds
+import importApp.getPrelexIdsFunctions as prelexIds
 #retrieve information
 import getEurlexInformationFunctions as eurlex
 import getOeilInformationFunctions as oeil

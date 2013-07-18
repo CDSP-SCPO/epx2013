@@ -29,13 +29,9 @@ class ActsInformationModel(models.Model):
 	eurlexCodeSectRep04=models.CharField(max_length=11, blank=True, null=True, default=None)
 	eurlexCodeAgenda04=models.IntegerField(max_length=8, blank=True, null=True, default=None)
 	eurlexRepEn1=models.CharField(max_length=200, blank=True, null=True, default=None)
-	eurlexRepAgenda01=models.TextField(max_length=10000, blank=True, null=True, default=None)
 	eurlexRepEn2=models.CharField(max_length=200, blank=True, null=True, default=None)
-	eurlexRepAgenda02=models.TextField(max_length=10000, blank=True, null=True, default=None)
 	eurlexRepEn3=models.CharField(max_length=200, blank=True, null=True, default=None)
-	eurlexRepAgenda03=models.TextField(max_length=10000, blank=True, null=True, default=None)
 	eurlexRepEn4=models.CharField(max_length=200, blank=True, null=True, default=None)
-	eurlexRepAgenda04=models.TextField(max_length=10000, blank=True, null=True, default=None)
 	eurlexTypeActe=models.CharField(max_length=100, blank=True, null=True, default=None)
 	eurlexBaseJuridique=models.CharField(max_length=300, blank=True, null=True, default=None)
 

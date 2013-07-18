@@ -91,6 +91,12 @@ ul
 
 /* ACTSIDSVALIDATION FORM AND ACTSINFORMATIONFORM*/
 
+/* actualisation button */
+#actsValidationActualisationButton
+{
+	color: red;
+}
+
 /* save button */
 #actsValidationSaveButton
 {
