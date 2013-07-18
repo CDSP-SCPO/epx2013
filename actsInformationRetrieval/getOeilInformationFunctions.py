@@ -5,6 +5,7 @@ get the information from Oeil (fields for the statistical analysis)
 import re
 from bs4 import BeautifulSoup
 import urllib
+import dateFunctions as dateFct
 
 
 def getOeilCommissionPE(soup):
@@ -392,10 +393,14 @@ def getOeilSignPECS(soup, noUniqueType):
 	RETURN
 	oeilSignPECS
 	"""
+	signPECS=None
 	if noUniqueType=="COD" or noUniqueType=="ACI":
-		return soup.find("td", text="Final act signed").findPrevious("td").get_text()
-	#null value
-	return None
+		signPECS=soup.find("td", text="Final act signed").findPrevious("td").get_text()
+		if signPECS!=None:
+			year, month, day=dateFct.splitFrenchFormatDate(signPECS)
+			signPECS=dateFct.dateToIso(year, month, day)
+
+	return signPECS
 
 #date in front of "Final act signed"
 #can be NULL

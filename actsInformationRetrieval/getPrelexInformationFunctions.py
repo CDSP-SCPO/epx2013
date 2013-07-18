@@ -6,6 +6,8 @@ import re
 from bs4 import BeautifulSoup
 #dg codes
 from actsInformationRetrieval.models import DGCodeModel, DGFullNameModel
+import dateFunctions as dateFct
+from datetime import datetime
 
 
 def getPrelexAdoptionByCommissionTable(soup):
@@ -33,13 +35,20 @@ def getPrelexAdoptionProposOrigine(soup, proposOrigine):
 	RETURN
 	prelexAdoptionProposOrigine
 	"""
+	adoptionProposOrigine=None
 	if proposOrigine=="COM":
-		return soup.find("a", text=re.compile("Adoption by Commission")).findNext('br').next.strip()
+		adoptionProposOrigine=soup.find("a", text=re.compile("Adoption by Commission")).findNext('br').next.strip()
 	if proposOrigine=="JAI":
-		return getPrelexTransmissionCouncil(soup, proposOrigine)
+		adoptionProposOrigine=getPrelexTransmissionCouncil(soup, proposOrigine)
 	if proposOrigine=="CONS":
 		print "TODO: extraction pdf almost done (see tests)"
-		return None
+
+	#transform dates to the iso format (YYYY-MM-DD)
+	if adoptionProposOrigine!=None:
+		year, month, day=dateFct.splitFrenchFormatDate(adoptionProposOrigine)
+		adoptionProposOrigine=dateFct.dateToIso(year, month, day)
+
+	return adoptionProposOrigine
 
 #~ Date in front of "Adoption by Commission"
 #~ not NULL
@@ -298,17 +307,25 @@ def getPrelexTransmissionCouncil(soup, proposOrigine):
 	RETURN
 	prelexTransmissionCouncil
 	"""
+	transmissionCouncil=None
 	try:
 		if proposOrigine=="CONS":
-			return getPrelexAdoptionProposOrigine(soup, proposOrigine)
-		return soup.find("a", text=re.compile("Transmission to Council")).findNext('br').next.strip()
+			transmissionCouncil=getPrelexAdoptionProposOrigine(soup, proposOrigine)
+		else:
+			transmissionCouncil=soup.find("a", text=re.compile("Transmission to Council")).findNext('br').next.strip()
 	except:
-		return None
+		print "pb transmissionCouncil"
+
+	#transform dates to the iso format (YYYY-MM-DD)
+	if transmissionCouncil!=None:
+		year, month, day=dateFct.splitFrenchFormatDate(transmissionCouncil)
+		transmissionCouncil=dateFct.dateToIso(year, month, day)
+	return transmissionCouncil
 
 #date in front of "Transmission to Council"
 #not Null (except blank page -> error on page)
-#~ AAAA-MM-JJ format
-#~ ProposOrigine = CONS -> AdoptionProposOrigine
+#AAAA-MM-JJ format
+#ProposOrigine = CONS -> AdoptionProposOrigine
 
 
 def getPrelexNbPointB(soup, proposOrigine):
@@ -363,17 +380,18 @@ def getPrelexAdoptionConseil(soup, suite2LecturePE, proposSplittee, nbLectures):
 	RETURN
 	prelexAdoptionConseil
 	"""
+	adoptionCouncil=None
 	# if there is no  2d Lecture at PE
 	if suite2LecturePE==0:
 		actsList=["Formal adoption by Council", "Adoption common position", "Council approval 1st rdg"]
 		for act in actsList:
 			try:
-				return soup.find("a", text=re.compile(act)).findNext('br').next.strip()
+				adoptionCouncil=soup.find("a", text=re.compile(act)).findNext('br').next.strip()
+				break
 			except:
 				print "pb", act
 	# if Suite2LecturePE=Y and proposSplittee=N
-	date=None
-	if proposSplittee==0:
+	elif proposSplittee==0:
 		if nbLectures==2:
 			try:
 				#~ http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=en&DosId=156619
@@ -383,20 +401,23 @@ def getPrelexAdoptionConseil(soup, suite2LecturePE, proposSplittee, nbLectures):
 				#check next table title is "Signature by EP and Council"
 				nextTableTitle=dateTableSoup.findNext("table").find(text="Signature by EP and Council")
 				#if conditions are met, then get the date
-				date=dateTableSoup.find("b").get_text()
+				adoptionCouncil=dateTableSoup.find("b").get_text()
 			except:
 				print "pb AdoptionConseil (case proposSplittee==0)"
-				return date
 		elif nbLectures==3:
 			#~ http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=en&DosId=137644
 			dateTableSoup=soup.find("b", text="Council decision at 3rd rdg").findParent("table")
 			#check next table title is "Signature by EP and Council"
 			nextTableTitle=dateTableSoup.findNext("table").find(text="Signature by EP and Council")
 			#if conditions are met, then get the date
-			date=dateTableSoup.find("b").get_text()
+			adoptionCouncil=dateTableSoup.find("b").get_text()
 			#~ return soup.find("a", text=re.compile("Council decision at 3rd rdg")).findNext('br').next.strip()
 
-	return date
+		#transform dates to the iso format (YYYY-MM-DD)
+	if adoptionCouncil!=None:
+		year, month, day=dateFct.splitFrenchFormatDate(adoptionCouncil)
+		adoptionCouncil=dateFct.dateToIso(year, month, day)
+	return adoptionCouncil
 
 #~ date in front of "Formal adoption by Council" or "Adoption common position" or "Council approval 1st rdg"
 #not Null
@@ -495,6 +516,31 @@ def getPrelexNombreLectures(soup, noUniqueType, proposSplittee):
 	#~ otherwise error
 
 
+def getPrelexDateDiff(date1, date2):
+	"""
+	FUNCTION
+	compute the difference between two dates
+	PARAMETERS
+	date1: first date
+	date2: second date
+	RETURN
+	difference between the two dates in parameters
+	"""
+	if date1!=None and date2!=None:
+		#transform dates to the iso format (YYYY-MM-DD)
+		date1 = datetime.strptime(date1, "%Y-%m-%d")
+		date2 = datetime.strptime(date2, "%Y-%m-%d")
+		return (date1 - date2).days
+	return None
+
+#DureeAdoptionTrans (TransmissionConseil - AdoptionProposOrigine)
+#DureeProcedureDepuisPropCom (AdoptionConseil – AdoptionProposOrigine)
+#DureeProcedureDepuisTransCons (AdoptionConseil – TransmissionConseil)
+#DureeTotaleDepuisPropCom (SignPECS – AdoptionProposOrigine)
+#DureeTotaleDepuisTransCons (SignPECS – TransmissionConseil) 
+
+
+
 def getPrelexInformation(soup, idsDataDic):
 	"""
 	FUNCTION
@@ -570,5 +616,25 @@ def getPrelexInformation(soup, idsDataDic):
 	#prelexCouncilA
 	dataDic['prelexCouncilA']=getPrelexCouncilA(soup)
 	print "prelexCouncilA:", dataDic['prelexCouncilA']
+
+	#prelexDureeAdoptionTrans
+	dataDic['prelexDureeAdoptionTrans']=getPrelexDateDiff(dataDic['prelexTransmissionCouncil'], dataDic['prelexAdoptionProposOrigine'])
+	print "prelexDureeAdoptionTrans:", dataDic['prelexDureeAdoptionTrans']
+
+	#prelexDureeProcedureDepuisPropCom
+	dataDic['prelexDureeProcedureDepuisPropCom']=getPrelexDateDiff(dataDic['prelexAdoptionConseil'], dataDic['prelexAdoptionProposOrigine'])
+	print "prelexDureeProcedureDepuisPropCom:", dataDic['prelexDureeProcedureDepuisPropCom']
+
+	#prelexDureeProcedureDepuisTransCons
+	dataDic['prelexDureeProcedureDepuisTransCons']=getPrelexDateDiff(dataDic['prelexAdoptionConseil'], dataDic['prelexTransmissionCouncil'])
+	print "prelexDureeProcedureDepuisTransCons:", dataDic['prelexDureeProcedureDepuisTransCons']
+
+	#prelexDureeTotaleDepuisPropCom
+	dataDic['prelexDureeTotaleDepuisPropCom']=getPrelexDateDiff(idsDataDic["signPECS"], dataDic['prelexAdoptionProposOrigine'])
+	print "prelexDureeTotaleDepuisPropCom:", dataDic['prelexDureeTotaleDepuisPropCom']
+
+	#prelexDureeTotaleDepuisTransCons
+	dataDic['prelexDureeTotaleDepuisTransCons']=getPrelexDateDiff(idsDataDic["signPECS"], dataDic['prelexTransmissionCouncil'])
+	print "prelexDureeTotaleDepuisTransCons:", dataDic['prelexDureeTotaleDepuisTransCons']
 
 	return dataDic

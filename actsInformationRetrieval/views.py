@@ -3,7 +3,6 @@ from actsIdsValidation.models import ActsIdsModel
 from actsIdsValidation.forms import ActsIdsForm
 from actsInformationRetrieval.forms import ActsInformationForm
 from actsInformationRetrieval.models import ActsInformationModel
-from datetime import date
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, render_to_response
 from django.template import RequestContext
@@ -26,34 +25,6 @@ import getPrelexInformationFunctions as prelex
 
 #redirect to login page if not logged
 from django.contrib.auth.decorators import login_required
-
-
-def splitFrenchFormatDate(dateString):
-	"""
-	FUNCTION
-	split a date ('DD-MM-YYYY') into year, month and day
-	PARAMETERS
-	dateString: date to split
-	RETURN
-	year, month and day of the date
-	"""
-	day=dateString[:2]
-	month=dateString[3:5]
-	year=dateString[6:]
-
-	return year, month, day
-
-
-def dateToIso(year, month, day):
-	"""
-	FUNCTION
-	transform a date to the iso format ('YYYY-MM-DD')
-	PARAMETERS
-	year, month, day: year, month and day of the date to transform
-	RETURN
-	date in the iso format
-	"""
-	return date(int(year), int(month), int(day)).isoformat()
 
 
 def getInformationFromEurlex(actId, act, eurlexUrl):
@@ -106,10 +77,6 @@ def getInformationFromOeil(actId, act, oeilUrl):
 		tempDic=model_to_dict(actId, fields=["oeilNoUniqueType", "suite2eLecturePE"])
 		dataDic=oeil.getOeilInformation(html, tempDic)
 
-		if dataDic['oeilSignPECS']!=None:
-			year, month, day=splitFrenchFormatDate(dataDic['oeilSignPECS'])
-			dataDic['oeilSignPECS']=dateToIso(year, month, day)
-
 		#store dictionary information variables into the model object
 		act.__dict__.update(dataDic)
 	else:
@@ -136,17 +103,8 @@ def getInformationFromPrelex(actId, act, prelexUrl):
 		html=prelexIds.getPrelexUrlContent(prelexUrl)
 		#store all the fields useful for the act information retrieval in a dictionary
 		tempDic=model_to_dict(actId, fields=["prelexProposOrigine", "prelexNoUniqueType", "proposSplittee", "suite2eLecturePE"])
+		tempDic["signPECS"]=act.oeilSignPECS
 		dataDic=prelex.getPrelexInformation(html, tempDic)
-
-		if dataDic['prelexAdoptionProposOrigine']!=None:
-			year, month, day=splitFrenchFormatDate(dataDic['prelexAdoptionProposOrigine'])
-			dataDic['prelexAdoptionProposOrigine']=dateToIso(year, month, day)
-		if dataDic['prelexTransmissionCouncil']!=None:
-			year, month, day=splitFrenchFormatDate(dataDic['prelexTransmissionCouncil'])
-			dataDic['prelexTransmissionCouncil']=dateToIso(year, month, day)
-		if dataDic['prelexAdoptionConseil']!=None:
-			year, month, day=splitFrenchFormatDate(dataDic['prelexAdoptionConseil'])
-			dataDic['prelexAdoptionConseil']=dateToIso(year, month, day)
 
 		#store dictionary information variables into the model object
 		act.__dict__.update(dataDic)
