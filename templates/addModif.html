@@ -1,0 +1,40 @@
+<div id="addModifDiv">
+
+	<div id=addDiv>
+		<h4>Act to validate</h4>
+		<br />
+		{{ addForm.actsToValidate.field.choices.queryset.all|length }} act(s) to validate!
+		{{ addForm.non_field_errors }}
+		<div id="actsToValidateChoice" class="fieldWrapper">
+			{{ addForm.actsToValidate.errors }}
+			{{ addForm.actsToValidate }}
+		</div>
+	</div>
+
+	<div id="modificationDiv">
+		<h4>Search a validated act to modify</h4>
+		<br />
+		{{ modifForm.non_field_errors }}
+		<div id="releveAnneeModif" class="fieldWrapper">
+			{{ modifForm.releveAnneeModif.errors }}
+			<label for="releveAnneeModif">{{ displayName.releveAnneeModif }}</label>
+			{{ modifForm.releveAnneeModif }}
+		</div>
+		<div id="releveMoisModif" class="fieldWrapper">
+			{{ modifForm.releveMoisModif.errors }}
+			<label for="releveMoisModif">{{ displayName.releveMoisModif }}</label>
+			{{ modifForm.releveMoisModif }}
+		</div>
+		<div id="noOrdreModif" class="fieldWrapper">
+			{{ modifForm.noOrdreModif.errors }}
+			<label for="noOrdreModif">{{ displayName.noOrdreModif }}</label>
+			{{ modifForm.noOrdreModif }}
+		</div>
+		<div id="actsModificationFindButtonDiv">
+			<input id="actsModificationFindButton" name="actsModificationFindButton" type="submit" value="MODIF!" />
+		</div>
+	</div>
+
+</div>
+
+<div id="clearFloat"></div>
