@@ -1,4 +1,5 @@
 from django.db import models
+import variablesNameForIds as vn
 
 
 class ActsIdsModel(models.Model):
@@ -73,5 +74,8 @@ class ActsIdsModel(models.Model):
 
 	def __unicode__(self):
 		#display of the drop down list in the act validation form
-		return u"releveAnne=%s, releveMois=%s, noOrdre=%s" % (self.releveAnnee, self.releveMois, self.noOrdre)
-		#~ return "releveAnne="+str(self.releveAnnee)+", releveMois="+str(self.releveMois)+", noOrdre="+str(self.noOrdre)
+		releveAnnee=vn.variablesNameDic['releveAnnee'] + "=" + str(self.releveAnnee)
+		releveMois=vn.variablesNameDic['releveMois'] + "=" + str(self.releveMois)
+		noOrdre=vn.variablesNameDic['noOrdre'] + "=" + str(self.noOrdre)
+		#~ return u"releveAnnee=%s, releveMois=%s, noOrdre=%s" % (self.releveAnnee, self.releveMois, self.noOrdre)
+		return releveAnnee + ", " + releveMois + ", " + noOrdre

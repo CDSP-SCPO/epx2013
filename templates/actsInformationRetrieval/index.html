@@ -21,18 +21,7 @@ displays the data of a given act (data for the statistical analysis displays dat
 	<form id="actsInformationValidationForm" action="{% url actsInformationRetrieval.views.actsView %}" method="post">{% csrf_token %}
 		{{ form.non_field_errors }}
 
-		{{ form.actsToValidate.field.choices.queryset.all|length }} act(s) to validate!
-
-		<div id="actsToValidateChoice" class="fieldWrapper">
-			{{ form.actsToValidate.errors }}
-			{{ form.actsToValidate }}
-		</div>
-
-		<div class="bold">
-<!--
-			act id: {{act.actId}}
--->
-		</div>
+		{% include "addModif.html" %}
 
 		<br /><br />
 
@@ -210,7 +199,7 @@ displays the data of a given act (data for the statistical analysis displays dat
 
 		<div id="notesDiv" class="fieldWrapper">
 			{{ idForm.notes.errors }}
-			<label for="notes">Notes:</label>
+			<label for="notes">{{ displayName.notes }}:</label>
 			{{ idForm.notes }}
 		</div>
 

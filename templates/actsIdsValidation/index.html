@@ -18,14 +18,7 @@ displays the acts validation page (displays data from eurlex, oeil and prelex an
 	<form id="actsIdsValidationForm" action="{% url actsIdsValidation.views.actsView %}" method="post">{% csrf_token %}
 		{{ form.non_field_errors }}
 
-		{{ form.actsToValidate.field.choices.queryset.all|length }} act(s) to validate!
-
-		<div id="actsToValidateChoice" class="fieldWrapper">
-			{{ form.actsToValidate.errors }}
-			{{ form.actsToValidate }}
-		</div>
-
-		<br />
+		{% include "addModif.html" %}
 
 		<!-- hidden "primary keys" fields set to save the modification of the act -->
 		{{ form.releveAnnee.as_hidden }}
@@ -126,7 +119,7 @@ displays the acts validation page (displays data from eurlex, oeil and prelex an
 			</tr>
 			<tr>
 				<td class="bold">prelex</td>
-				{% if form.actsToValidate.value == None %}
+				{% if addOrModif == None %}
 					<td></td>
 				{% else %}
 					{% if info.nosCelex %}<td>celex found</td>
@@ -175,7 +168,7 @@ displays the acts validation page (displays data from eurlex, oeil and prelex an
 
 		<div id="notesDiv" class="fieldWrapper">
 			{{ form.notes.errors }}
-			<label for="notes">Notes:</label>
+			<label for="notes">{{ displayName.notes }}:</label>
 			{{ form.notes }}
 		</div>
 

@@ -7,21 +7,11 @@ class ActsIdsForm(forms.ModelForm):
 	FORM
 	details the ActsIds form (ids of the acts only)
 	"""
-	actsToValidate=forms.ModelChoiceField(queryset=ActsIdsModel.objects.filter(validated=0), empty_label="Select an act to validate", widget=forms.Select(attrs={'onchange': 'this.form.submit();'}))
 
-	#INDEX FILE (classeur)
+	#hidden ids used by application
 	releveAnnee = forms.IntegerField(min_value=1957, max_value=2020)
-	#~ Valeurs possibles :
-	#~ Ne peut etre = NULL
-	#~ 1957 a l'annee courante.
-
 	releveMois=forms.IntegerField(min_value=1, max_value=12)
-	#~ Ne peut etre = NULL
-	#~ De 1 a 12 ou AD
-
 	noOrdre=forms.IntegerField(min_value=1, max_value=99)
-	#~ Ne peut etre = NULL
-	#~ De 1 a 99
 
 	#EURLEX
 	fileNoCelex=forms.RegexField(regex=r'^[0-9](195[789]|19[6-9][0-9]|20[0-1][0-9])([dflryDFLRY]|PC)[0-9]{4}(\(01\)|R\(01\))?$')
@@ -97,9 +87,61 @@ class ActsIdsForm(forms.ModelForm):
 
 	class Meta:
 		model = ActsIdsModel
-		#fields used for the validation
 		#OBLIGATORY FOR ACT VALIDATION (displays the variable values from the database)
-		fields=('actsToValidate', 'fileNoCelex', 'fileNoUniqueType', 'fileNoUniqueAnnee', 'fileNoUniqueChrono', 'fileProposOrigine', 'fileProposAnnee', 'fileProposChrono', 'fileDosId', 'notes')
+		fields=('fileNoCelex', 'fileNoUniqueType', 'fileNoUniqueAnnee', 'fileNoUniqueChrono', 'fileProposOrigine', 'fileProposAnnee', 'fileProposChrono', 'fileDosId', 'notes')
+
+	#~ def clean(self):
+		#~ print "clean"
+		#~ cleaned_data = super(ActsIdsForm, self).clean()
+		#~ actsToValidate = cleaned_data.get("actsToValidate")
+		#~ releveAnneeModif = cleaned_data.get("releveAnneeModif")
+		#~ releveMoisModif = cleaned_data.get("releveMoisModif")
+		#~ noOrdreModif = cleaned_data.get("noOrdreModif")
+#~
+		#~ if actsToValidate and releveAnneeModif and releveMoisModif and noOrdreModif:
+			#~ raise forms.ValidationError("You can't add and modify an act at the same time.")
+#~
+		#~ if not actsToValidate and not releveAnneeModif and not releveMoisModif and not noOrdreModif:
+			#~ raise forms.ValidationError("You must either add or modify an act.")
+		 #~ # Always return the full collection of cleaned data.
+		#~ return cleaned_data
+
+
+class ActsAddForm(forms.Form):
+	"""
+	FORM
+	details the ActsAddForm form (fields for the add mode of Acts validation)
+	"""
+	print "ActsAddForm acts validation"
+	actsToValidate=forms.ModelChoiceField(queryset=ActsIdsModel.objects.filter(validated=0), empty_label="Select an act to validate", widget=forms.Select(attrs={'onchange': 'this.form.submit();'}))
+
+
+class ActsModifForm(forms.Form):
+	"""
+	FORM
+	details the ActsModifForm form (fields for the modification mode of Acts validation)
+	"""
+	print "ActsModifForm acts validation"
+	#ids input boxes used for the modification
+	releveAnneeModif=forms.IntegerField(label='ReleveAnnee', min_value=1957, max_value=2020)
+	releveMoisModif=forms.IntegerField(label='ReleveMois', min_value=1, max_value=12)
+	noOrdreModif=forms.IntegerField(label='NoOrdre', min_value=1, max_value=99)
+
+	#check if the searched act already exists in the db and has been validated
+	def clean(self):
+		cleaned_data = super(ActsModifForm, self).clean()
+		releveAnneeModif = cleaned_data.get("releveAnneeModif")
+		releveMoisModif = cleaned_data.get("releveMoisModif")
+		noOrdreModif = cleaned_data.get("noOrdreModif")
+
+		try:
+			act=ActsIdsModel.objects.get(releveAnnee=releveAnneeModif, releveMois=releveMoisModif, noOrdre=noOrdreModif, validated=1)
+		except:
+			print "pb find act"
+			raise forms.ValidationError("The act you're looking for hasn't been validated yet!")
+
+		 # Always return the full collection of cleaned data.
+		return cleaned_data
 
 
 #~ il arrive que l'acte soit sur 1 fiche (Celex, par 32003D0277) ou 2 fiches (Celex et Prelex, par ex 32003D0065) ou 3 fiches (Celex, Prelex et OEIL, par ex 32003L0015).

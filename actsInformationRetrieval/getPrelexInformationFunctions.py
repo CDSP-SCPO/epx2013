@@ -35,20 +35,24 @@ def getPrelexAdoptionProposOrigine(soup, proposOrigine):
 	RETURN
 	prelexAdoptionProposOrigine
 	"""
-	adoptionProposOrigine=None
-	if proposOrigine=="COM":
-		adoptionProposOrigine=soup.find("a", text=re.compile("Adoption by Commission")).findNext('br').next.strip()
-	if proposOrigine=="JAI":
-		adoptionProposOrigine=getPrelexTransmissionCouncil(soup, proposOrigine)
-	if proposOrigine=="CONS":
-		print "TODO: extraction pdf almost done (see tests)"
+	try:
+		adoptionProposOrigine=None
+		if proposOrigine=="COM":
+			adoptionProposOrigine=soup.find("a", text=re.compile("Adoption by Commission")).findNext('br').next.strip()
+		if proposOrigine=="JAI":
+			adoptionProposOrigine=getPrelexTransmissionCouncil(soup, proposOrigine)
+		if proposOrigine=="CONS":
+			print "TODO: extraction pdf almost done (see tests)"
 
-	#transform dates to the iso format (YYYY-MM-DD)
-	if adoptionProposOrigine!=None:
-		year, month, day=dateFct.splitFrenchFormatDate(adoptionProposOrigine)
-		adoptionProposOrigine=dateFct.dateToIso(year, month, day)
+		#transform dates to the iso format (YYYY-MM-DD)
+		if adoptionProposOrigine!=None:
+			year, month, day=dateFct.splitFrenchFormatDate(adoptionProposOrigine)
+			adoptionProposOrigine=dateFct.dateToIso(year, month, day)
 
-	return adoptionProposOrigine
+		return adoptionProposOrigine
+	except:
+		print "no prelexAdoptionProposOrigine!"
+		return None
 
 #~ Date in front of "Adoption by Commission"
 #~ not NULL
@@ -337,9 +341,13 @@ def getPrelexNbPointB(soup, proposOrigine):
 	RETURN
 	prelexNbPointB
 	"""
-	if proposOrigine=="CONS" or proposOrigine=="BCE":
+	try:
+		if proposOrigine=="CONS" or proposOrigine=="BCE":
+			return None
+		return len(soup.findAll(text=re.compile('ITEM "B"')))
+	except:
+		print "no prelexNbPointB!"
 		return None
-	return len(soup.findAll(text=re.compile('ITEM "B"')))
 
 #~ in front of "COUNCIL AGENDA": counts the number of 'ITEM "B"' on the page
 #~ not NULL
@@ -356,14 +364,18 @@ def getPrelexConsB(soup, proposOrigine):
 	RETURN
 	prelexConsB
 	"""
-	if proposOrigine!="CONS":
-		consB=""
-		for tables in soup.findAll(text=re.compile('ITEM "B" ON COUNCIL AGENDA')):
-			consB+=tables.findParent('table').find(text=re.compile("SUBJECT")).findNext("font", {"size":-2}).get_text().strip()+'; '
-		if consB=="":
-			return None
-		return consB[:-2]
-	return None
+	try:
+		if proposOrigine!="CONS":
+			consB=""
+			for tables in soup.findAll(text=re.compile('ITEM "B" ON COUNCIL AGENDA')):
+				consB+=tables.findParent('table').find(text=re.compile("SUBJECT")).findNext("font", {"size":-2}).get_text().strip()+'; '
+			if consB=="":
+				return None
+			return consB[:-2]
+		return None
+	except:
+		print "no prelexNbPointB!"
+		return None
 
 #can be Null
 #in front of SUBJECT, only if the act is processed at B point (preceded by 'ITEM "B" ON COUNCIL AGENDA')
@@ -441,9 +453,13 @@ def getPrelexNbPointA(soup, proposOrigine):
 	RETURN
 	prelexNbPointA
 	"""
-	if proposOrigine=="CONS" or proposOrigine=="BCE":
+	try:
+		if proposOrigine=="CONS" or proposOrigine=="BCE":
+			return None
+		return len(soup.findAll(text=re.compile('ITEM "A"')))
+	except:
+		print "no prelexNbPointA!"
 		return None
-	return len(soup.findAll(text=re.compile('ITEM "A"')))
 
 #~ in front of "COUNCIL AGENDA": counts the number of 'ITEM "A"' on the page
 #~ not NULL
@@ -460,10 +476,14 @@ def getPrelexCouncilA(soup):
 	RETURN
 	prelexCouncilA
 	"""
-	councilA=""
-	for tables in soup.findAll(text=re.compile('ITEM "A" ON COUNCIL AGENDA')):
-		councilA+=tables.findParent('table').find(text=re.compile("SUBJECT")).findNext("font", {"size":-2}).get_text().strip()+'; '
-	return councilA[:-2]
+	try:
+		councilA=""
+		for tables in soup.findAll(text=re.compile('ITEM "A" ON COUNCIL AGENDA')):
+			councilA+=tables.findParent('table').find(text=re.compile("SUBJECT")).findNext("font", {"size":-2}).get_text().strip()+'; '
+		return councilA[:-2]
+	except:
+		print "no prelexCouncilA!"
+		return None
 
 #not Null
 #in front of SUBJECT, only if the act is processed at A point (preceded by 'ITEM "A" ON COUNCIL AGENDA')

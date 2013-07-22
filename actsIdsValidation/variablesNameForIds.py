@@ -49,3 +49,8 @@ variablesNameDic["prelexProposAnnee"]="ProposAnnee"
 variablesNameDic["prelexProposChrono"]="ProposChrono"
 variablesNameDic["prelexProposOrigine"]="ProposOrigine"
 variablesNameDic["prelexDosId"]="DosId"
+
+#DO NOT MODIFY
+variablesNameDic["releveAnneeModif"]=variablesNameDic["releveAnnee"]
+variablesNameDic["releveMoisModif"]=variablesNameDic["releveMois"]
+variablesNameDic["noOrdreModif"]=variablesNameDic["noOrdre"]

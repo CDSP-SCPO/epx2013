@@ -22,6 +22,7 @@ def checkAndGetEurlexIds(noCelex):
 	eurlexUrl=eurlex.getEurlexUrl(noCelex)
 	print "eurlex url", eurlexUrl
 	eurlexUrlContent=eurlex.getEurlexUrlContent(eurlexUrl)
+	#act doesn't exist, problem on page or problem with the Internet connection
 	if eurlexUrlContent!=False:
 		#~ #gets information from eurlex
 		dataDic['fileEurlexUrlExists']=True
@@ -29,11 +30,11 @@ def checkAndGetEurlexIds(noCelex):
 	else:
 		dataDic['fileEurlexUrlExists']=False
 		print "eurlex url does not exist!!"
-	
+
 	#~ dataDic['eurlexEurlexUrl']=eurlexUrl
-	
+
 	return dataDic
-	
+
 
 def checkAndGetOeilIds(noUniqueType, noUniqueAnnee, noUniqueChrono):
 	"""
@@ -50,6 +51,7 @@ def checkAndGetOeilIds(noUniqueType, noUniqueAnnee, noUniqueChrono):
 	oeilUrl=oeil.getOeilUrl(noUniqueType, noUniqueAnnee, noUniqueChrono)
 	print "oeil url", oeilUrl
 	oeilUrlContent=oeil.getOeilUrlContent(oeilUrl)
+	#act doesn't exist, problem on page or problem with the Internet connection
 	if oeilUrlContent!=False:
 		#~ #gets information from oeil
 		dataDic['fileOeilUrlExists']=True
@@ -64,11 +66,11 @@ def checkAndGetOeilIds(noUniqueType, noUniqueAnnee, noUniqueChrono):
 		dataDic['oeilProposOrigine']=None
 		dataDic['oeilProposAnnee']=None
 		dataDic['oeilProposChrono']=None
-	
+
 	#~ dataDic['oeilOeilUrl']=oeilUrl
-	
+
 	return dataDic
-	
+
 def checkAndGetPrelexIds(idsDic):
 	"""
 	FUNCTION
@@ -85,8 +87,9 @@ def checkAndGetPrelexIds(idsDic):
 		prelexUrl=prelex.getOldPrelexUrlWithOeilIds(idsDic['noUniqueType'], idsDic['noUniqueAnnee'], idsDic['noUniqueChrono'])
 	elif "dosId" in idsDic:
 		prelexUrl=prelex.getPrelexUrl(idsDic['dosId'])
-			
+
 	prelexUrlContent=prelex.getPrelexUrlContent(prelexUrl)
+	#act doesn't exist, problem on page or problem with the Internet connection
 	if prelexUrlContent!=False:
 		#~ #gets information from prelex
 		dataDic['filePrelexUrlExists']=True
@@ -102,7 +105,7 @@ def checkAndGetPrelexIds(idsDic):
 		dataDic['prelexProposOrigine']=None
 		dataDic['prelexProposAnnee']=None
 		dataDic['prelexProposChrono']=None
-		
+
 	dataDic['filePrelexUrl']=prelexUrl
 
 	return dataDic

@@ -1,7 +1,7 @@
 #-*- coding: utf-8 -*-
 from actsIdsValidation.models import ActsIdsModel
 from actsIdsValidation.forms import ActsIdsForm
-from actsInformationRetrieval.forms import ActsInformationForm
+from actsInformationRetrieval.forms import ActsInformationForm, ActsAddForm, ActsModifForm
 from actsInformationRetrieval.models import ActsInformationModel
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, render_to_response
@@ -23,6 +23,9 @@ import getEurlexInformationFunctions as eurlex
 import getOeilInformationFunctions as oeil
 import getPrelexInformationFunctions as prelex
 
+#get the addModif fct from the actsIdsValidation.views view
+from actsIdsValidation.views import addOrModifFct
+
 #redirect to login page if not logged
 from django.contrib.auth.decorators import login_required
 
@@ -39,18 +42,19 @@ def getInformationFromEurlex(actId, act, eurlexUrl):
 	act object which contains retrieved information
 	"""
 	dataDic={}
-	#check if eurlex url exists
-
-	if actId.fileEurlexUrlExists==True:
+	eurlexUrlContent=eurlexIds.getEurlexUrlContent(eurlexUrl)
+	#act doesn't exist, problem on page or problem with the Internet connection
+	if eurlexUrlContent!=False:
+		actId.fileEurlexUrlExists=True
 		#if yes, retrieve the information and pass it to an object
-
-		html=eurlexIds.getEurlexUrlContent(eurlexUrl)
-		dataDic=eurlex.getEurlexInformation(html)
-
+		dataDic=eurlex.getEurlexInformation(eurlexUrlContent)
 		#store dictionary information variables into the model object
 		act.__dict__.update(dataDic)
 	else:
-		print "No eurlex url"
+		actId.fileEurlexUrlExists=False
+		print "error while retrieving eurlex url"
+
+	actId.save()
 
 	return act
 
@@ -67,20 +71,21 @@ def getInformationFromOeil(actId, act, oeilUrl):
 	act object which contains retrieved information
 	"""
 	dataDic={}
-	#check if oeil url exists
-
-	if actId.fileOeilUrlExists==True:
+	oeilUrlContent=oeilIds.getOeilUrlContent(oeilUrl)
+	#act doesn't exist, problem on page or problem with the Internet connection
+	if oeilUrlContent!=False:
+		actId.fileOeilUrlExists=True
 		#if yes, retrieve the information and pass it to an object
-
-		html=oeilIds.getOeilUrlContent(oeilUrl)
 		#store all the fields useful for the act information retrieval in a dictionary
 		tempDic=model_to_dict(actId, fields=["oeilNoUniqueType", "suite2eLecturePE"])
-		dataDic=oeil.getOeilInformation(html, tempDic)
-
+		dataDic=oeil.getOeilInformation(oeilUrlContent, tempDic)
 		#store dictionary information variables into the model object
 		act.__dict__.update(dataDic)
 	else:
-		print "No oeil url"
+		actId.fileOeilUrlExists=False
+		print "error while retrieving oeil url"
+
+	actId.save()
 
 	return act
 
@@ -97,19 +102,22 @@ def getInformationFromPrelex(actId, act, prelexUrl):
 	act object which contains retrieved information
 	"""
 	dataDic={}
-	#check if prelex url exists
-	if actId.filePrelexUrlExists==True:
+	prelexUrlContent=prelexIds.getPrelexUrlContent(prelexUrl)
+	#act doesn't exist, problem on page or problem with the Internet connection
+	if prelexUrlContent!=False:
+		actId.filePrelexUrlExists=True
 		#if yes, retrieve the information and pass it to an object
-		html=prelexIds.getPrelexUrlContent(prelexUrl)
 		#store all the fields useful for the act information retrieval in a dictionary
 		tempDic=model_to_dict(actId, fields=["prelexProposOrigine", "prelexNoUniqueType", "proposSplittee", "suite2eLecturePE"])
 		tempDic["signPECS"]=act.oeilSignPECS
-		dataDic=prelex.getPrelexInformation(html, tempDic)
-
+		dataDic=prelex.getPrelexInformation(prelexUrlContent, tempDic)
 		#store dictionary information variables into the model object
 		act.__dict__.update(dataDic)
 	else:
-		print "No prelex url"
+		actId.filePrelexUrlExists=False
+		print "error while retrieving prelex url"
+
+	actId.save()
 
 	return act
 
@@ -121,6 +129,10 @@ def actsView(request):
 	displays and processes the acts information retrieval page
 	template called: actsInformationRetrieval/index.html
 	"""
+
+	#SELECT * FROM europolix.actsInformationRetrieval_dgfullnamemodel fn, europolix.actsInformationRetrieval_dgcodemodel code where fn.dgCode_id=code.id;
+	#update europolix.actsInformationRetrieval_actsinformationmodel set validated=0;
+
 	responseDic={}
 	#display "real" name of variables (names given by europolix team, not the names stored in db)
 	responseDic['displayName']=vnIds.variablesNameDic
@@ -128,32 +140,32 @@ def actsView(request):
 	state="display"
 
 	if request.method == 'POST':
-		print "post"
-		actToValidate=request.POST.getlist('actsToValidate')[0]
 
-		#if an act is selected
-		if actToValidate!="":
-			actId=ActsIdsModel.objects.get(id=actToValidate)
-			act=ActsInformationModel.objects.get(actId_id=actToValidate)
+		#addOrModif=None, "add" or "modif"
+		#act=act to validate / modify or None if no act is found (modifcation)
+		#responseDic: add addForm or modifForm to the forms being displayed / to be displayed
+		addOrModif, actId, responseDic=addOrModifFct(request.POST, responseDic, ActsAddForm, ActsModifForm)
+
+		#if we are about to add or modif an act (the add or modif form is valid)
+		if addOrModif!=None:
+			print "addOrModif", addOrModif
+			act=ActsInformationModel.objects.get(actId_id=actId.id)
 			#saves the act
 			if 'actsValidationSaveButton' in request.POST:
 				print "save"
-				#update europolix.actsInformationRetrieval_actsinformationmodel set validated=0;
-				#delete from europolix.actsInformationRetrieval_actsinformationmodel;
-				#delete from europolix.actsIdsValidation_actsidsmodel;
-				#INSERT INTO europolix.actsInformationRetrieval_actsinformationmodel (actId_id) SELECT id FROM europolix.actsIdsValidation_actsidsmodel
-				#SELECT * FROM europolix.actsInformationRetrieval_dgfullnamemodel fn, europolix.actsInformationRetrieval_dgcodemodel code where fn.dgCode_id=code.id;
 				act.validated=True
 				form = ActsInformationForm(request.POST, instance=act)
 				if form.is_valid():
 					print "form valid"
 					form.save()
-					del form
 					#save notes
-					actId.notes=request.POST.getlist('notes')[0]
+					actId.notes=request.POST['notes']
 					actId.save()
 					state="saved"
 					responseDic['success']="The act " + str(act.actId) + " has been validated!"
+					del form
+					if addOrModif=="modif":
+						responseDic.pop("modifForm", None)
 				else:
 					print "form not valid", form.errors
 					state="ongoing"
@@ -175,16 +187,23 @@ def actsView(request):
 				responseDic["url"]=urlDic
 				#an act has been selected in the drop down list -> the related information are displayed
 				if state=="display":
-					act=getInformationFromEurlex(actId, act, urlDic["eurlexUrl"])
-					act=getInformationFromOeil(actId, act, urlDic["oeilUrl"])
-					act=getInformationFromPrelex(actId, act, urlDic["prelexUrl"])
-					print "act", act
-					form = ActsInformationForm(instance=act, initial={'actsToValidate': actToValidate})
+					if addOrModif=="add":
+						act=getInformationFromEurlex(actId, act, urlDic["eurlexUrl"])
+						act=getInformationFromOeil(actId, act, urlDic["oeilUrl"])
+						act=getInformationFromPrelex(actId, act, urlDic["prelexUrl"])
+						addForm=ActsAddForm(request.POST)
+					else:
+						modifForm=ActsModifForm(request.POST)
+					form = ActsInformationForm(instance=act)
 					idForm=ActsIdsForm(instance=actId)
 				#an error occured while validating the act -> display of these errors
 				elif state=="ongoing":
 					print "ongoing"
-					form = ActsInformationForm(request.POST, instance=act, initial={'actsToValidate': actToValidate})
+					if addOrModif=="add":
+						addForm=ActsAddForm(request.POST)
+					else:
+						modifForm=ActsModifForm(request.POST)
+					form = ActsInformationForm(request.POST, instance=act)
 					idForm=ActsIdsForm(request.POST, instance=actId)
 
 				responseDic['actId']=actId
@@ -194,9 +213,12 @@ def actsView(request):
 
 	#~ #if form has not been created yet -> unbound form
 	if 'form' not in locals():
-		print "ok"
 		responseDic['idForm'] = ActsIdsForm()
 		responseDic['form'] = ActsInformationForm()
-		#~ print "responseDic['form']", responseDic['form']
+	if 'addForm' not in responseDic:
+		responseDic['addForm'] = ActsAddForm()
+	if 'modifForm' not in responseDic:
+		"modif form reinitialisation"
+		responseDic['modifForm'] = ActsModifForm()
 
 	return render_to_response('actsInformationRetrieval/index.html', responseDic, context_instance=RequestContext(request))

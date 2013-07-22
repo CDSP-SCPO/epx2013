@@ -140,3 +140,20 @@ class DGFullNameModel(models.Model):
 	"""
 	fullName = models.CharField(max_length=100)
 	dgCode=models.ForeignKey('DgCodeModel')
+
+
+class ConfigConsModel(models.Model):
+	"""
+	MODEL
+	list of configCons
+	"""
+	configCons = models.CharField(max_length=20)
+
+
+class CodeSectRepModel(models.Model):
+	"""
+	MODEL
+	list configCons names associated to configCons
+	"""
+	codeSectRep = models.CharField(max_length=8, unique=True)
+	configCons=models.ForeignKey('ConfigConsModel')

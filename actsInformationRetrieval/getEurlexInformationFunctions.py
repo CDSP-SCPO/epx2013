@@ -17,7 +17,11 @@ def getEurlexTitreEn(soup):
 	RETURN
 	eurlexTitreEn
 	"""
-	return soup.find("h2", text="Title and reference").findNext("p").get_text()
+	try:
+		return soup.find("h2", text="Title and reference").findNext("p").get_text()
+	except:
+		print "no title (eurlex)!"
+		return None
 
 #right under "Title and reference"
 #not NULL
@@ -124,33 +128,37 @@ def getEurlexTypeActe(soup):
 	RETURN
 	eurlexTypeActe
 	"""
-	#author part
-	author=soup.find("h2", text="Miscellaneous information").findNext("strong", text="Author:").findNext('br').next.strip().lower()
-	#form part
-	form=soup.find("h2", text="Miscellaneous information").findNext("strong", text="Form:").findNext('br').next.strip().lower()
+	try:
+		#author part
+		author=soup.find("h2", text="Miscellaneous information").findNext("strong", text="Author:").findNext('br').next.strip().lower()
+		#form part
+		form=soup.find("h2", text="Miscellaneous information").findNext("strong", text="Form:").findNext('br').next.strip().lower()
 
-	#return acronyms
-	authorAcronym=""
-	if "european parliament" not in author:
-		authorAcronym="CS "
-	#decision
-	if "decision" in form:
-		#framework decision
-		if "framework" in form:
-			return authorAcronym+"DEC CAD"
-		if "addressee" in form:
-			if "without" in form:
-				return authorAcronym+"DEC W/O ADD"
-			return authorAcronym+"DEC W/ ADD"
-		return authorAcronym+"DEC"
-	#directive
-	if form=="directive":
-		return authorAcronym+"DVE"
-	#regulation
-	if form=="regulation":
-		return authorAcronym+"REG"
+		#return acronyms
+		authorAcronym=""
+		if "european parliament" not in author:
+			authorAcronym="CS "
+		#decision
+		if "decision" in form:
+			#framework decision
+			if "framework" in form:
+				return authorAcronym+"DEC CAD"
+			if "addressee" in form:
+				if "without" in form:
+					return authorAcronym+"DEC W/O ADD"
+				return authorAcronym+"DEC W/ ADD"
+			return authorAcronym+"DEC"
+		#directive
+		if form=="directive":
+			return authorAcronym+"DVE"
+		#regulation
+		if form=="regulation":
+			return authorAcronym+"REG"
 
-	return author+" "+form
+		return author+" "+form
+	except:
+		print "no act type (eurlex)!"
+		return None
 
 #act type under Miscellaneous information->Author and Miscellaneous information->Form
 #not NULL
@@ -166,14 +174,18 @@ def getEurlexBaseJuridique(soup):
 	RETURN
 	eurlexBaseJuridique
 	"""
-	#http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CELEX:32002L0090:EN:NOT
-	li=soup.find("h2", text="Relationship between documents").findNext("strong", text="Legal basis:").findParent('li')
-	legalBases=li.findAll('a')
-	var=""
-	for legalBasis in legalBases:
-		var+=legalBasis.get_text()+legalBasis.nextSibling.strip()+"; "
+	try:
+		#http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CELEX:32002L0090:EN:NOT
+		li=soup.find("h2", text="Relationship between documents").findNext("strong", text="Legal basis:").findParent('li')
+		legalBases=li.findAll('a')
+		var=""
+		for legalBasis in legalBases:
+			var+=legalBasis.get_text()+legalBasis.nextSibling.strip()+"; "
 
-	return var[:-2]
+		return var[:-2]
+	except:
+		print "no base juridique (eurlex)!"
+		return None
 
 #under "Legal basis:"
 #not null

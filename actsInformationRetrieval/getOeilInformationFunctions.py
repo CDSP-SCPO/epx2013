@@ -325,14 +325,18 @@ def getOeilModifPropos(soup):
 	RETURN
 	oeilModifPropos
 	"""
-	modifProposList=["Modified legislative proposal published", "Amended legislative proposal for reconsultation published", "Legislative proposal published"]
-	for modifPropos in modifProposList:
-		if soup.find(text=re.compile(modifPropos))!=None:
-			if modifPropos=="Legislative proposal published":
-				if soup.find(text=re.compile("Initial legislative proposal published"))==None:
-					return None
-			return True
-	return False
+	try:
+		modifProposList=["Modified legislative proposal published", "Amended legislative proposal for reconsultation published", "Legislative proposal published"]
+		for modifPropos in modifProposList:
+			if soup.find(text=re.compile(modifPropos))!=None:
+				if modifPropos=="Legislative proposal published":
+					if soup.find(text=re.compile("Initial legislative proposal published"))==None:
+						return None
+				return True
+		return False
+	except:
+		print "no oeilModifPropos! (oeil)"
+		return None
 
 #In key events:
 	#- if "Modified legislative proposal published" or "Amended legislative proposal for reconsultation published" -> Modif Propos=Y.
@@ -354,28 +358,32 @@ def getOeilNombreLectures(soup, suite2eLecturePE):
 	RETURN
 	oeilNombreLectures
 	"""
-	#search in the key event table only
-	keyEventsSoup=soup.find("a", {"class": "expand_button"}, text="Key events").findNext("table")
+	try:
+		#search in the key event table only
+		keyEventsSoup=soup.find("a", {"class": "expand_button"}, text="Key events").findNext("table")
 
-	#3d lecture
-	if keyEventsSoup.find(text=re.compile('Decision by Council, 3rd rdg'))>0 or keyEventsSoup.find(text=re.compile('Decision by Council, 3rd reading'))>0:
-		return 3
+		#3d lecture
+		if keyEventsSoup.find(text=re.compile('Decision by Council, 3rd rdg'))>0 or keyEventsSoup.find(text=re.compile('Decision by Council, 3rd reading'))>0:
+			return 3
 
-	#2d lecture
-	#if suite2eLecturePE=Yes
-	if suite2eLecturePE==1:
-		pattern="Decision by Parliament, 2nd reading"
-	#if suite2eLecturePE=No
-	else:
-		pattern="Act approved by Council, 2nd reading"
-	if keyEventsSoup.find(text=re.compile(pattern))>0:
-		return 2
+		#2d lecture
+		#if suite2eLecturePE=Yes
+		if suite2eLecturePE==1:
+			pattern="Decision by Parliament, 2nd reading"
+		#if suite2eLecturePE=No
+		else:
+			pattern="Act approved by Council, 2nd reading"
+		if keyEventsSoup.find(text=re.compile(pattern))>0:
+			return 2
 
-	#1st lecture
-	if keyEventsSoup.find(text=re.compile("Act adopted by Council after Parliament's 1st reading"))>0:
-		return 1
+		#1st lecture
+		if keyEventsSoup.find(text=re.compile("Act adopted by Council after Parliament's 1st reading"))>0:
+			return 1
 
-	return None
+		return None
+	except:
+		print  "no oeilNombreLectures! (oeil)"
+		return None
 
 #possible values: 1, 2, 3 or NULL
 #3: "Decision by Council, 3rd rdg ou reading"
