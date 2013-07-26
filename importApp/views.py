@@ -7,14 +7,19 @@ from django.template import RequestContext
 from forms import CSVUploadForm
 from models import CSVUploadModel, DosIdModel
 from actsIdsValidation.models import ActsIdsModel
-from datetime import date
+from actsInformationRetrieval.models import ConfigConsModel, CodeSectRepModel, CodeAgendaModel, AdoptPCModel, GvtCompoModel,RespProposModel, NationRespModel, NationalPartyRespModel, EUGroupRespModel, NPModel
+#call function to save date in the iso format (YYYY-MM-DD)
+import datetime
 import os
-
 #cross validation functions and get information from eurlex, oeil, prelex
 import getIdsFunctions as info
-
 #redirect to login page if not logged
 from django.contrib.auth.decorators import login_required
+#variables name
+import actsIdsValidation.variablesNameForIds as vnIds
+import actsInformationRetrieval.variablesNameForInformation as vnInfo
+#model as parameter
+from django.db.models.loading import get_model
 
 
 def detectDelimiter(csvFile):
@@ -37,43 +42,6 @@ def detectDelimiter(csvFile):
 	#default delimiter (MS Office export)
 	return ";"
 
-
-def saveDosIds(csvFile):
-	"""
-	FUNCTION
-	open a csv file and save prelex unique ids (dosId) in the database
-	PARAMETERS
-	csvFile: file to handle
-	RETURN
-	list of prelex unique ids (dosId) saved and list of dosId not saved
-	"""
-	errorList=[]
-	idsList=[]
-	with open(csvFile, 'r') as myCsvfile:
-		reader=csv.reader(myCsvfile,delimiter=detectDelimiter(csvFile))
-		header=reader.next()
-
-		for row in reader:
-			if row[0].strip() !="":
-				dosId = DosIdModel()
-				dosId.dosId=int(row[0])
-				dosId.proposOrigine=row[1].strip()
-				dosId.proposAnnee=int(row[2])
-				dosId.proposChrono=row[3].strip()
-				dosId.splitNumber=emptyOrVar(row[4], "int")
-
-				try:
-					dosId.save()
-					idsList.append(dosId.dosId)
-				except IntegrityError, e:
-					error= "The dosId " + str(dosId.dosId) + " ALREADY EXISTS!!"
-					errorList.append(error)
-					print "error", error
-			else:
-				#end of file
-				break
-
-	return idsList, errorList
 
 def emptyOrVar(var, varType):
 	"""
@@ -101,77 +69,172 @@ def emptyOrVar(var, varType):
 
 	return returnValue
 
-def saveActsToValidate(csvFile):
+
+def import2Tables(csvFile, table1, table2):
 	"""
 	FUNCTION
-	open a csv file and save its acts in the database
+	open a csv file and save its variables variables in the database (in 2 different tables)
 	PARAMETERS
 	csvFile: file to handle
+	table1: list of model name, field name, position in the csv file for table1
+	table2: list of model name, field name, position in the csv file for table2
 	RETURN
-	list of act ids (releve*) saved and list of act ids not saved
+	list of rows saved / not saved
 	"""
 	errorList=[]
-	idsList=[]
+	attr1List=[]
 	with open(csvFile, 'r') as myCsvfile:
 		reader=csv.reader(myCsvfile,delimiter=detectDelimiter(csvFile))
 		header=reader.next()
-
 		for row in reader:
-			#~ print "row[12]", row[12]
-			if row[7].strip()!="":
-				actsIds = ActsIdsModel()
-				actsIds.releveAnnee=int(row[0])
-				actsIds.releveMois=int(row[1])
-				actsIds.noOrdre=int(row[2])
-				actsIds.titreRMC=row[3].strip()
-				actsIds.adopCSRegleVote=row[4].strip()
-				adopCSAbs=''.join(row[5].split())
-				actsIds.adopCSAbs=adopCSAbs
-				actsIds.adoptCSContre=row[6].strip()
-				actsIds.fileNoCelex=row[7].strip()
-				actsIds.fileProposAnnee=emptyOrVar(row[8], "int")
-				actsIds.fileProposChrono=emptyOrVar(row[9].replace(" ", ""), "str")
-				actsIds.fileProposOrigine=emptyOrVar(row[10], "str")
-				actsIds.fileNoUniqueAnnee=emptyOrVar(row[11], "int")
-				actsIds.fileNoUniqueType=emptyOrVar(row[12], "str")
-				actsIds.fileNoUniqueChrono=emptyOrVar(row[13], "str")
-				if row[14].strip()=="Y":
-					actsIds.proposSplittee=True
-				if row[15].strip()=="Y":
-					actsIds.suite2eLecturePE=True
-				actsIds.councilPath=row[16].strip()
-				if actsIds.councilPath!="" and actsIds.councilPath[-1]==".":
-					actsIds.councilPath=actsIds.councilPath[:-1]
-				#we don't take the council path column
-				actsIds.notes=row[17].strip()
+			model1 = get_model('actsInformationRetrieval', table1[0])
+			model2 = get_model('actsInformationRetrieval', table2[0])
+			attrName1=table1[1]
+			attrIdName1=attrName1+"_id"
+			attrName2=table2[1]
+			attr1=row[table1[2]].strip()
+			attr2=row[table2[2]].strip()
+			attr1Exist=False
+			attr2Exist=False
+			error=False
+			msg="The row "+attrName2+"="+attr2+", "+attrName1+"="+attr1
+			errorMsg=msg+" couldn't be saved!"
+			noErrorMsg=msg+" has been saved!"
 
-				#we save fileDosId from the dosIdModel model
-				try:
-					#if split proposition
-					if len(actsIds.fileProposChrono)>2 and actsIds.fileProposChrono[-2]=="-":
-						newFileProposChrono=actsIds.fileProposChrono[:-2]
-						newSplitNumber=actsIds.fileProposChrono[-1]
-						fileDosId=DosIdModel.objects.get(proposOrigine=actsIds.fileProposOrigine, proposAnnee=actsIds.fileProposAnnee, proposChrono=newFileProposChrono, splitNumber=newSplitNumber)
-						actsIds.fileDosId=fileDosId.dosId
-					else:
-						fileDosId=DosIdModel.objects.get(proposOrigine=actsIds.fileProposOrigine, proposAnnee=actsIds.fileProposAnnee, proposChrono=actsIds.fileProposChrono)
-						actsIds.fileDosId=fileDosId.dosId
-				except Exception, e:
-					actsIds.fileDosId=None
-					print e
 
+			#does attrName1 already exist in the db?
+			try:
+				attr1Instance=model1.objects.get(**{attrName1: attr1})
+				attr1Exist=True
+			except Exception, e:
+				print "exception", e
+
+			try:
+				#does attrName2 already exist in the db?
+				attr2Instance=model2.objects.get(**{attrName2: attr2})
+				#the attrName1 foreign key is not filled
+				if getattr(attr2Instance, attrIdName1)==None:
+					attr2Exist="attr2"
+				else:
+					#the attrName1 foreign key is filled -> nothing to do for this raw!
+					attr2Exist="attr2+foreignKey"
+					error=True
+					errorList.append(errorMsg)
+			except Exception, e:
+				print "exception", e
+
+			#save attrName1
+			if not attr1Exist:
 				try:
-					actsIds.save()
-					idsList.append((actsIds.releveAnnee, actsIds.releveMois, actsIds.noOrdre))
+					model1(**{attrName1: attr1}).save()
+				except:
+					print "ERROR, "+attrName1+" could not be saved"
+					if not error:
+						error=True
+						errorList.append(errorMsg)
+
+			#check attrName1 exists
+			if not attr1Exist or not error:
+				#retrieve attrName1
+				attr1Instance=model1.objects.get(**{attrName1: attr1}).id
+
+				if not attr2Exist:
+					#save attr2
+					attr2Instance=model2(**{attrName2: attr2, attrIdName1: attr1Instance})
+
+				#update attr2 with attrName1
+				elif attr2Exist=="attr2":
+					attr2Instance=model2.objects.get(**{attrName2: attr2})
+					setattr(attr2Instance, attrIdName1, attr1Instance)
+
+				#save attr2
+				try:
+					attr2Instance.save()
+					attr1List.append(noErrorMsg)
 				except IntegrityError, e:
 					print "exception", e
-					error= "The act releveAnnee="+str(actsIds.releveAnnee)+ " releveMois="+str(actsIds.releveMois)+ " noOrdre="+str(actsIds.noOrdre) + " ALREADY EXISTS!!"
-					errorList.append(error)
+					if not error:
+						errorList.append(errorMsg)
 
-				#save only one act -> TESTS
-				#~ break
+	return attr1List, errorList
 
-	return idsList, errorList
+
+def getDosIdData(row):
+	"""
+	FUNCTION
+	get a string (row from csv file) and put its content into an instance of DosIdModel
+	PARAMETERS
+	row: row from the csv file
+	RETURN
+	instance: instance of the model with the extracted data
+	msg: id of the row (instance), used to display an error message
+	"""
+	instance = DosIdModel()
+	if row[0].strip() !="":
+		instance.dosId=int(row[0])
+		instance.proposOrigine=row[1].strip()
+		instance.proposAnnee=int(row[2])
+		instance.proposChrono=row[3].strip()
+		instance.splitNumber=emptyOrVar(row[4], "int")
+
+	msg=(instance.dosId)
+	return instance, msg
+
+
+def getActData(row):
+	"""
+	FUNCTION
+	get a string (row from csv file) and put its content into an instance of ActsIdsModel
+	PARAMETERS
+	row: row from the csv file
+	RETURN
+	instance: instance of the model with the extracted data
+	msg: id of the row (instance), used to display an error message
+	"""
+	instance = ActsIdsModel()
+	if row[7].strip()!="":
+		instance.releveAnnee=int(row[0])
+		instance.releveMois=int(row[1])
+		instance.noOrdre=int(row[2])
+		instance.titreRMC=row[3].strip()
+		instance.adopCSRegleVote=row[4].strip()
+		adopCSAbs=''.join(row[5].split())
+		instance.adopCSAbs=adopCSAbs
+		instance.adoptCSContre=row[6].strip()
+		instance.fileNoCelex=row[7].strip()
+		instance.fileProposAnnee=emptyOrVar(row[8], "int")
+		instance.fileProposChrono=emptyOrVar(row[9].replace(" ", ""), "str")
+		instance.fileProposOrigine=emptyOrVar(row[10], "str")
+		instance.fileNoUniqueAnnee=emptyOrVar(row[11], "int")
+		instance.fileNoUniqueType=emptyOrVar(row[12], "str")
+		instance.fileNoUniqueChrono=emptyOrVar(row[13], "str")
+		if row[14].strip()=="Y":
+			instance.proposSplittee=True
+		if row[15].strip()=="Y":
+			instance.suite2eLecturePE=True
+		instance.councilPath=row[16].strip()
+		if instance.councilPath!="" and instance.councilPath[-1]==".":
+			instance.councilPath=instance.councilPath[:-1]
+		#we don't take the council path column
+		instance.notes=row[17].strip()
+
+		#we save fileDosId from the dosIdModel model
+		try:
+			#if split proposition
+			if len(instance.fileProposChrono)>2 and instance.fileProposChrono[-2]=="-":
+				newFileProposChrono=instance.fileProposChrono[:-2]
+				newSplitNumber=instance.fileProposChrono[-1]
+				fileDosId=DosIdModel.objects.get(proposOrigine=instance.fileProposOrigine, proposAnnee=instance.fileProposAnnee, proposChrono=newFileProposChrono, splitNumber=newSplitNumber)
+				instance.fileDosId=fileDosId.dosId
+			else:
+				fileDosId=DosIdModel.objects.get(proposOrigine=instance.fileProposOrigine, proposAnnee=instance.fileProposAnnee, proposChrono=instance.fileProposChrono)
+				instance.fileDosId=fileDosId.dosId
+		except Exception, e:
+			instance.fileDosId=None
+			print e
+
+	msg=(instance.releveAnnee, instance.releveMois, instance.noOrdre)
+	return instance, msg
 
 
 def getAndSaveRetrievedIds(idsList):
@@ -228,6 +291,96 @@ def getAndSaveRetrievedIds(idsList):
 			print e
 
 
+def getAdoptPCData(row):
+	"""
+	FUNCTION
+	get a string (row from csv file) and put its content into an instance of AdoptPCModel
+	PARAMETERS
+	row: row from the csv file
+	RETURN
+	instance: instance of the model with the extracted data
+	msg: id of the row (instance), used to display an error message
+	"""
+	instance = AdoptPCModel()
+	instance.releveAnnee=int(row[0])
+	instance.releveMois=int(row[1])
+	instance.noOrdre=int(row[2])
+	instance.adoptPCAbs=row[3].strip()
+	instance.adoptPCContre=row[4].strip()
+	msg=(instance.releveAnnee, instance.releveMois, instance.noOrdre)
+	return instance, msg
+
+
+def getGvtCompoData(row):
+	"""
+	FUNCTION
+	get a string (row from csv file) and put its content into an instance of GvtCompoModel
+	PARAMETERS
+	row: row from the csv file
+	RETURN
+	instance: instance of the model with the extracted data
+	msg: id of the row (instance), used to display an error message
+	"""
+	instance = GvtCompoModel()
+	instance.startDate=row[0].strip().replace("/", "-")
+	instance.endDate=row[1].strip().replace("/", "-")
+	instance.nationGvtPoliticalComposition=row[2].strip()
+	msg=(instance.startDate, instance.endDate, instance.nationGvtPoliticalComposition)
+	return instance, msg
+
+
+def getNpData(row):
+	"""
+	FUNCTION
+	get a string (row from csv file) and put its content into an instance of NPModel
+	PARAMETERS
+	row: row from the csv file
+	RETURN
+	instance: instance of the model with the extracted data
+	msg: id of the row (instance), used to display an error message
+	"""
+	instance = NPModel()
+	instance.npCaseNumber=int(row[0])
+	instance.noCelex=row[1].strip()
+	instance.np=row[2].strip()
+	instance.npActivityType=row[3].strip()
+	dateNP=row[4].strip().replace("/", "-")
+	if dateNP=="NULL":
+		dateNP=None
+	instance.npActivityDate=dateNP
+	msg=(instance.npCaseNumber)
+	return instance, msg
+
+
+def import1Table(csvFile, importType):
+	"""
+	FUNCTION
+	open a csv file and save its AdoptPC variables in the database (in one table)
+	PARAMETERS
+	csvFile: file to handle
+	importSrc: type of the file to import
+	RETURN
+	list of variables saved / not saved
+	"""
+	savedList=[]
+	errorList=[]
+	with open(csvFile, 'r') as myCsvfile:
+		reader=csv.reader(myCsvfile,delimiter=detectDelimiter(csvFile))
+		header=reader.next()
+		for row in reader:
+			#according to the type of import, extract the content of the row and put it in an instance model
+			instance, msg=eval("get"+importType[0].upper()+importType[1:]+"Data")(row)
+			try:
+				instance.save()
+				savedList.append(msg)
+			except IntegrityError, e:
+				error= "The row " + str(msg) + " ALREADY EXISTS!!"
+				errorList.append(error)
+				print "error", e
+
+	return savedList, errorList
+
+
 #~ @login_required(login_url=settings.projectRoot+'/login/')
 @login_required
 def importView(request):
@@ -236,40 +389,66 @@ def importView(request):
 	displays and processes the import page
 	template called: import/index.html
 	"""
-	#~ print "projectRoot", os.getcwd()
 	responseDic={}
-	if request.method == 'POST':
-		form = CSVUploadForm(request.POST, request.FILES)
-		responseDic['form']=form
-		#the form is valid and the import can be processed
-		if form.is_valid():
-			print "csv import"
-			fileToImport=form.cleaned_data['fileToImport']
-			newFilename=" ".join(request.FILES['csvFile'].name.split())
-			path = settings.MEDIA_ROOT+"import/"+newFilename
-			#if a file with the same name already exists, we delete it
-			if os.path.exists(path):
-				os.remove(path)
-			newCsvFile = CSVUploadModel(csvFile = request.FILES['csvFile'])
-			newCsvFile.save()
-			idsList=[]
-			errorList=[]
+	responseDic['displayName']=vnIds.variablesNameDic
+	responseDic['displayName'].update(vnInfo.variablesNameDic)
+	#~ print "vnIds", vnIds.variablesNameDic
 
-			#importation of prelex unique ids (dosId)
-			#delete FROM europolix.actsIdsValidation_dosidmodel;
-			if fileToImport=="dosId":
-				#save csv file
-				idsList, errorList= saveDosIds(path)
+	if request.method == 'POST':
+		if "csvFile" in request.POST and request.POST["csvFile"]!="" or "csvFile" in request.FILES and request.FILES["csvFile"]!="":
+			form = CSVUploadForm(request.POST, request.FILES)
+			responseDic['form']=form
+			#the form is valid and the import can be processed
+			if form.is_valid():
+				print "csv import"
+				fileToImport=form.cleaned_data['fileToImport']
+				newFilename=" ".join(request.FILES['csvFile'].name.split())
+				path = settings.MEDIA_ROOT+"import/"+newFilename
+				#if a file with the same name already exists, we delete it
+				if os.path.exists(path):
+					os.remove(path)
+				newCsvFile = CSVUploadModel(csvFile = request.FILES['csvFile'])
+				newCsvFile.save()
+				savedList=[]
+				errorList=[]
+
+				#importation of dosId, act, adoptPC, gvtCompo or np file
+				if fileToImport in ["dosId","act","adoptPC","gvtCompo", "np"]:
+					savedList, errorList= import1Table(path, fileToImport)
+					if fileToImport=="act":
+						#save retrieved ids
+						getAndSaveRetrievedIds(savedList)
+				#importation of configCons
+				elif fileToImport=="configCons":
+					#model name, field name, position in the csv file
+					table1=["ConfigConsModel", "configCons", 1]
+					table2=["CodeSectRepModel", "codeSectRep", 0]
+					savedList, errorList= import2Tables(path, table1, table2)
+				#importation of codeAgenda
+				elif fileToImport=="codeAgenda":
+					table1=["CodeAgendaModel", "codeAgenda", 1]
+					table2=["CodeSectRepModel", "codeSectRep", 0]
+					savedList, errorList= import2Tables(path, table1, table2)
+				#importation of respPropos
+				elif fileToImport=="respPropos":
+					#respPropos
+					table2=["RespProposModel", "respPropos", 0]
+					#nationResp
+					table1=["NationRespModel", "nationResp", 3]
+					savedList, errorList= import2Tables(path, table1, table2)
+					#nationalPartyResp
+					table1=["NationalPartyRespModel", "nationalPartyResp", 1]
+					savedList, errorList= import2Tables(path, table1, table2)
+					#euGroupResp
+					table1=["EUGroupRespModel", "euGroupResp", 2]
+					savedList, errorList= import2Tables(path, table1, table2)
+
 				responseDic['errorList']=errorList
-				responseDic['success']=str(len(idsList)) + " prelex unique ids (dosId) imported, "+ str(len(errorList)) +" error(s)!"
-			#importation of acts to validate
-			elif fileToImport=="act":
-				#save csv file
-				idsList, errorList= saveActsToValidate(path)
-				responseDic['errorList']=errorList
-				responseDic['success']=str(len(idsList)) + " act(s) imported, "+ str(len(errorList)) +" error(s)!"
-				#save retrieved ids
-				getAndSaveRetrievedIds(idsList)
+				responseDic['success']=str(len(savedList)) + " raw(s) imported, "+ str(len(errorList)) +" error(s)!"
+
+		#a selection has been made in the drop down list
+		else:
+			responseDic['form'] = CSVUploadForm(initial={'fileToImport': request.POST["fileToImport"]})
 
 	else:
 		responseDic['form']=CSVUploadForm()

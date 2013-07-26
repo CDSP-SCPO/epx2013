@@ -12,7 +12,12 @@ def splitFrenchFormatDate(dateString):
 	"""
 	day=dateString[:2]
 	month=dateString[3:5]
-	year=dateString[6:]
+	try:
+		#date coded on 4 digits
+		year=dateString[6:]
+	except:
+		#date coded on 2 digits
+		year=dateString[4:]
 
 	return year, month, day
 

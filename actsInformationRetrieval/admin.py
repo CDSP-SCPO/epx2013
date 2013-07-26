@@ -8,9 +8,9 @@ class DGCodeAdminClass(admin.ModelAdmin):
 	"""
 	details the DGCode model administration
 	"""
-	list_display= ('acronym',)
-	ordering= ('acronym',)
-	search_fields = ('acronym',)
+	list_display= ('dgCode',)
+	ordering= ('dgCode',)
+	search_fields = ('dgCode',)
 
 admin.site.register(DGCodeModel, DGCodeAdminClass)
 
@@ -19,10 +19,10 @@ class DGFullNameAdminClass(admin.ModelAdmin):
 	"""
 	details the DGFullName model administration
 	"""
-	list_display= ('dgCode', 'fullName',)
+	list_display= ('dgCode', 'dgFullName',)
 	list_filter= ('dgCode',)
-	ordering= ('dgCode', 'fullName',)
-	search_fields = ('dgCode', 'fullName',)
+	ordering= ('dgCode', 'dgFullName',)
+	search_fields = ('dgCode', 'dgFullName',)
 
 admin.site.register(DGFullNameModel, DGFullNameAdminClass)
 

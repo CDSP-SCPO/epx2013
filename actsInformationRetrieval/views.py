@@ -2,7 +2,7 @@
 from actsIdsValidation.models import ActsIdsModel
 from actsIdsValidation.forms import ActsIdsForm
 from actsInformationRetrieval.forms import ActsInformationForm, ActsAddForm, ActsModifForm
-from actsInformationRetrieval.models import ActsInformationModel
+from actsInformationRetrieval.models import ActsInformationModel, RespProposModel
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, render_to_response
 from django.template import RequestContext
@@ -54,6 +54,7 @@ def getInformationFromEurlex(actId, act, eurlexUrl):
 		actId.fileEurlexUrlExists=False
 		print "error while retrieving eurlex url"
 
+	#actualization url existence
 	actId.save()
 
 	return act
@@ -85,6 +86,7 @@ def getInformationFromOeil(actId, act, oeilUrl):
 		actId.fileOeilUrlExists=False
 		print "error while retrieving oeil url"
 
+	#actualization url existence
 	actId.save()
 
 	return act
@@ -117,6 +119,7 @@ def getInformationFromPrelex(actId, act, prelexUrl):
 		actId.filePrelexUrlExists=False
 		print "error while retrieving prelex url"
 
+	#actualization url existence
 	actId.save()
 
 	return act
@@ -140,7 +143,7 @@ def actsView(request):
 	state="display"
 
 	if request.method == 'POST':
-
+		print "allo"
 		#addOrModif=None, "add" or "modif"
 		#act=act to validate / modify or None if no act is found (modifcation)
 		#responseDic: add addForm or modifForm to the forms being displayed / to be displayed
@@ -194,6 +197,7 @@ def actsView(request):
 						addForm=ActsAddForm(request.POST)
 					else:
 						modifForm=ActsModifForm(request.POST)
+						#~ initial = {'prelexRespProposId1': act.prelexRespProposId1.id }
 					form = ActsInformationForm(instance=act)
 					idForm=ActsIdsForm(instance=actId)
 				#an error occured while validating the act -> display of these errors
@@ -218,7 +222,6 @@ def actsView(request):
 	if 'addForm' not in responseDic:
 		responseDic['addForm'] = ActsAddForm()
 	if 'modifForm' not in responseDic:
-		"modif form reinitialisation"
 		responseDic['modifForm'] = ActsModifForm()
 
 	return render_to_response('actsInformationRetrieval/index.html', responseDic, context_instance=RequestContext(request))

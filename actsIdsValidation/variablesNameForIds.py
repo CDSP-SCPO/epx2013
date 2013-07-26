@@ -21,6 +21,7 @@ variablesNameDic["fileNoUniqueChrono"]="NoUniqueChrono"
 variablesNameDic["fileProposAnnee"]="ProposAnnee"
 variablesNameDic["fileProposChrono"]="ProposChrono"
 variablesNameDic["fileProposOrigine"]="ProposOrigine"
+variablesNameDic["fileSplitProposNumber"]="SplitProposNumber"
 variablesNameDic["fileDosId"]="DosId"
 
 variablesNameDic["eurlexNoCelex"]="NoCelex"

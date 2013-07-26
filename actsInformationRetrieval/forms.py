@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from django import forms
-from models import ActsInformationModel
+from models import ActsInformationModel, RespProposModel
 from actsIdsValidation.models import ActsIdsModel
 
 class ActsInformationForm(forms.ModelForm):
@@ -8,11 +8,19 @@ class ActsInformationForm(forms.ModelForm):
 	FORM
 	details the ActsInformation form (fields to retrieve for the statistical analysis)
 	"""
-	codeSectRep01=forms.RegexField(regex=r'^[0-9][1-9](.[0-9]{2}){3}$', required=False)
-	codeSectRep02=forms.RegexField(regex=r'^[0-9][1-9](.[0-9]{2}){3}$', required=False)
-	codeSectRep03=forms.RegexField(regex=r'^[0-9][1-9](.[0-9]{2}){3}$', required=False)
-	codeSectRep04=forms.RegexField(regex=r'^[0-9][1-9](.[0-9]{2}){3}$', required=False)
-	#~ baseJuridique=forms.RegexField(regex=r'^([0-9](195[789]|19[6-9][0-9]|20[0-1][0-9])[EMRLD][0-9]{3,4}(-((A|P|FR|L)[0-9]+)|-PT([0-9]|[A-Z]){0,3}(\))?)?;\s)*[0-9](195[789]|19[6-9][0-9]|20[0-1][0-9])[EMRLD][0-9]{3,4}(-((A|P|FR|L)[0-9]+)|-PT([0-9]|[A-Z]){0,3}(\))?)?$')
+	#eurlex
+	eurlexFullCodeSectRep01=forms.RegexField(regex=r'^[0-9][1-9](.[0-9]{2}){3}$', required=False)
+	eurlexFullCodeSectRep02=forms.RegexField(regex=r'^[0-9][1-9](.[0-9]{2}){3}$', required=False)
+	eurlexFullCodeSectRep03=forms.RegexField(regex=r'^[0-9][1-9](.[0-9]{2}){3}$', required=False)
+	eurlexFullCodeSectRep04=forms.RegexField(regex=r'^[0-9][1-9](.[0-9]{2}){3}$', required=False)
+
+	#prelex
+	prelexConfigCons=forms.RegexField(regex=r'^CAG|RE|ECOFIN|JAI|EPSCO|COMPET|TTE|AGRIFISH|AGRI-FISH|ENV|EYC$', required=False)
+	#~ prelexRespProposId1=forms.ModelChoiceField(queryset=RespProposModel.objects.all(), widget=forms.TextInput, required=False)
+	#~ prelexRespProposId2=forms.ModelChoiceField(queryset=RespProposModel.objects.all(), widget=forms.TextInput, required=False)
+	#~ prelexRespProposId3=forms.ModelChoiceField(queryset=RespProposModel.objects.all(), widget=forms.TextInput, required=False)
+
+	#~ eurlexBaseJuridique=forms.RegexField(regex=r'^([0-9](195[789]|19[6-9][0-9]|20[0-1][0-9])[EMRLD][0-9]{3,4}(-((A|P|FR|L)[0-9]+)|-PT([0-9]|[A-Z]){0,3}(\))?)?;\s)*[0-9](195[789]|19[6-9][0-9]|20[0-1][0-9])[EMRLD][0-9]{3,4}(-((A|P|FR|L)[0-9]+)|-PT([0-9]|[A-Z]){0,3}(\))?)?$')
 	#TODO: make the regex work
 	#~ 11997E080
 	#~ 21997M0801
@@ -37,7 +45,6 @@ class ActsAddForm(forms.Form):
 	FORM
 	details the ActsAddForm form (fields for the add mode of Acts information retrieval)
 	"""
-	print "ActsModifForm acts info retrieval"
 	actsToValidate=forms.ModelChoiceField(queryset=ActsInformationModel.objects.filter(validated=0), empty_label="Select an act to validate", widget=forms.Select(attrs={'onchange': 'this.form.submit();'}))
 
 
@@ -46,7 +53,6 @@ class ActsModifForm(forms.Form):
 	FORM
 	details the ActsModifForm form (fields for the modification mode of Acts information retrieval)
 	"""
-	print "ActsAddForm acts info retrieval"
 	#ids input boxes used for the modification
 	releveAnneeModif=forms.IntegerField(label='ReleveAnnee', min_value=1957, max_value=2020)
 	releveMoisModif=forms.IntegerField(label='ReleveMois', min_value=1, max_value=12)

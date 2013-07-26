@@ -9,7 +9,7 @@ class ActsExportForm(forms.Form):
 	FORM
 	details the ActsExport form
 	"""
-	
+
 	def sortFieldsQueryset():
 		"""
 		FUNCTION
@@ -22,10 +22,10 @@ class ActsExportForm(forms.Form):
 		querySet=[]
 		querySet.append(('','Select the sort field'))
 		for i in ActsInformationModel._meta.get_all_field_names():
-			if i!="actId" and i!="validated":
+			if i!="actId" and i!="validated" and i!="gvtcompoactsinfoassocmodel":
 				querySet.append((i, vn.variablesNameDic[i]))
 		return querySet
-		
+
 	sortFields = forms.ChoiceField(choices=sortFieldsQueryset())
 	#~ .defer("actId", "validated")
 

@@ -173,6 +173,7 @@ displays the data of a given act (data for the statistical analysis displays dat
 		<!-- prelex validation table -->
 		<table id="prelexTable" class="actsValidationTable">
 			{% for field in form %}
+
 				<!-- prelex data split in two tables -> 2d table starts with the field prelexRejetConseil  -->
 				{% if field.name == "prelexRejetConseil" %}
 					</table>
@@ -196,6 +197,31 @@ displays the data of a given act (data for the statistical analysis displays dat
 		</table>
 
 		<br /><br />
+
+		<div class="bold">OPAL:</div>
+		<br />
+
+		<!-- opal validation table -->
+		<table id="opalTable" class="actsValidationTable">
+			{% for field in form %}
+
+				<!-- display all the fields -->
+				{% if "opal" in field.name %}
+					<tr>
+						<td class="informationTableFirstColumn">{{ displayName|ofKey:field.name }}</td>
+						<td>
+							<div class="fieldWrapper">
+								{{ field.errors }}
+								{{ field }}
+							</div>
+						</td>
+					</tr>
+				{% endif %}
+			{% endfor %}
+		</table>
+
+		<br /><br />
+
 
 		<div id="notesDiv" class="fieldWrapper">
 			{{ idForm.notes.errors }}

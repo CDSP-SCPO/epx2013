@@ -112,7 +112,6 @@ class ActsAddForm(forms.Form):
 	FORM
 	details the ActsAddForm form (fields for the add mode of Acts validation)
 	"""
-	print "ActsAddForm acts validation"
 	actsToValidate=forms.ModelChoiceField(queryset=ActsIdsModel.objects.filter(validated=0), empty_label="Select an act to validate", widget=forms.Select(attrs={'onchange': 'this.form.submit();'}))
 
 
@@ -121,7 +120,6 @@ class ActsModifForm(forms.Form):
 	FORM
 	details the ActsModifForm form (fields for the modification mode of Acts validation)
 	"""
-	print "ActsModifForm acts validation"
 	#ids input boxes used for the modification
 	releveAnneeModif=forms.IntegerField(label='ReleveAnnee', min_value=1957, max_value=2020)
 	releveMoisModif=forms.IntegerField(label='ReleveMois', min_value=1, max_value=12)

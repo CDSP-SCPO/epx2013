@@ -44,31 +44,31 @@ def getEurlexDirectoryCode(soup):
 		return None
 
 
-def getEurlexCodeSectRep(soup):
+def getEurlexFullCodeSectRep(soup):
 	"""
 	FUNCTION
-	get the codeSectRep01-04 variables from the eurlex url
+	get the fullCodeSectRep01-04 variables from the eurlex url
 	PARAMETERS
 	soup: eurlex url content
 	RETURN
-	eurlexCodeSectRep01, eurlexCodeSectRep02, eurlexCodeSectRep03, eurlexCodeSectRep04
+	eurlexFullCodeSectRep01, eurlexFullCodeSectRep02, eurlexFullCodeSectRep03, eurlexFullCodeSectRep04
 	"""
-	codeSectRepVars=[]
-	codeSectRepVars.append(None)
-	codeSectRepVars.append(None)
-	codeSectRepVars.append(None)
-	codeSectRepVars.append(None)
+	FullCodeSectRepVars=[]
+	FullCodeSectRepVars.append(None)
+	FullCodeSectRepVars.append(None)
+	FullCodeSectRepVars.append(None)
+	FullCodeSectRepVars.append(None)
 	try:
-		codeSectRep=soup.findAll('em')
+		FullCodeSectRep=soup.findAll('em')
 		for i in range(4):
-			codeSectRepVars.append(None)
+			FullCodeSectRepVars.append(None)
 
 		for i in range(len(codeSectRep)):
-			codeSectRepVars[i]=codeSectRep[i].get_text().strip()
+			FullCodeSectRepVars[i]=FullCodeSectRep[i].get_text().strip()
 	except:
-		print "no eurlexCodeSectRep!"
+		print "no eurlexFullCodeSectRep!"
 
-	return codeSectRepVars[0], codeSectRepVars[1], codeSectRepVars[2], codeSectRepVars[3]
+	return FullCodeSectRepVars[0], FullCodeSectRepVars[1], FullCodeSectRepVars[2], FullCodeSectRepVars[3]
 
 #first, second, third and fourth code under "Directory code:"
 #8 chiffres sous cette forme : 12.34.56.78
@@ -114,7 +114,7 @@ def getEurlexRepEn(soup):
 
 	return repEn1[:-2], repEn2[:-2], repEn3[:-2], repEn4[:-2]
 
-#texts in front of the eurlexCodeSectRep01, eurlexCodeSectRep02, eurlexCodeSectRep03 and eurlexCodeSectRep04 variables (under "Directory code:")
+#texts in front of the eurlexFullCodeSectRep01, eurlexFullCodeSectRep02, eurlexFullCodeSectRep03 and eurlexFullCodeSectRep04 variables (under "Directory code:")
 #eurlexRepEn1 not NULL
 #eurlexRepEn2, eurlexRepEn3, eurlexRepEn4 can be Null
 
@@ -222,12 +222,12 @@ def getEurlexInformation(soup):
 
 	directoryCodeSoup=getEurlexDirectoryCode(soup)
 
-	#eurlexCodeSectRep01, eurlexCodeSectRep02, eurlexCodeSectRep03, eurlexCodeSectRep04
-	dataDic['eurlexCodeSectRep01'], dataDic['eurlexCodeSectRep02'], dataDic['eurlexCodeSectRep03'], dataDic['eurlexCodeSectRep04']=getEurlexCodeSectRep(directoryCodeSoup)
-	print "eurlexCodeSectRep01:", dataDic['eurlexCodeSectRep01']
-	print "eurlexCodeSectRep02:", dataDic['eurlexCodeSectRep02']
-	print "eurlexCodeSectRep03:", dataDic['eurlexCodeSectRep03']
-	print "eurlexCodeSectRep04:", dataDic['eurlexCodeSectRep04']
+	#eurlexFullCodeSectRep01, eurlexFullCodeSectRep02, eurlexFullCodeSectRep03, eurlexFullCodeSectRep04
+	dataDic['eurlexFullCodeSectRep01'], dataDic['eurlexFullCodeSectRep02'], dataDic['eurlexFullCodeSectRep03'], dataDic['eurlexFullCodeSectRep04']=getEurlexFullCodeSectRep(directoryCodeSoup)
+	print "eurlexFullCodeSectRep01:", dataDic['eurlexFullCodeSectRep01']
+	print "eurlexFullCodeSectRep02:", dataDic['eurlexFullCodeSectRep02']
+	print "eurlexFullCodeSectRep03:", dataDic['eurlexFullCodeSectRep03']
+	print "eurlexFullCodeSectRep04:", dataDic['eurlexFullCodeSectRep04']
 
 	#eurlexRepEn1, eurlexRepEn2, eurlexRepEn3, eurlexRepEn4
 	dataDic['eurlexRepEn1'], dataDic['eurlexRepEn2'], dataDic['eurlexRepEn3'], dataDic['eurlexRepEn4']=getEurlexRepEn(directoryCodeSoup)

@@ -5,7 +5,7 @@ get the information from Prelex (fields for the statistical analysis)
 import re
 from bs4 import BeautifulSoup
 #dg codes
-from actsInformationRetrieval.models import DGCodeModel, DGFullNameModel
+from actsInformationRetrieval.models import DGCodeModel, DGFullNameModel, RespProposModel
 import dateFunctions as dateFct
 from datetime import datetime
 
@@ -86,26 +86,53 @@ def getPrelexComProc(soup, proposOrigine):
 #~ Null if ProposOrigine != COM
 
 
+def saveRespProposAndGetRespProposObject(respPropos):
+	"""
+	FUNCTION
+	save respPropos if doesn't exist in the db yet and get respProposId
+	PARAMETERS
+	respPropos: full name of respPropos
+	RETURN
+	respProposObject: instance of respProposModel
+	"""
+	try:
+		#checks if respPropos already exists in the db
+		respProposObject=RespProposModel.objects.get(respPropos=respPropos)
+		return respProposObject
+	except:
+		#respPropos doesn't exist in the db yet -> we add it in the table
+		respProposObject=RespProposModel(respPropos=respPropos).save()
+		#~ print "respProposDB.id", respProposDB.id
+		#we get respPropos
+		return respProposObject
+
+	return None
+
+
 def getPrelexJointlyResponsibles(soup):
 	"""
 	FUNCTION
-	gets the jointly responsible persons (prelexDGProposition2 and prelexRespPropos2) from the prelex url
+	gets the jointly responsible persons (prelexDGProposition2 and prelexRespProposId2 (object) or prelexRespProposId3 (object) from the prelex url
 	PARAMETERS
 	soup: prelex url content
 	RETURN
-	list of jointly responsible persons (prelexDGProposition2 and prelexRespPropos2)
+	list of jointly responsible persons (prelexDGProposition2 and prelexRespProposId2 (object) or prelexRespProposId3 (object))
 	"""
-	jointlyResponsibleList=[]
-	jointlyResponsibleList.append(None)
-	jointlyResponsibleList.append(None)
+	prelexDGProposition2=prelexRespProposObject2=None
 	try:
 		#~ http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=en&DosId=191926
 		jointlyResponsibles=soup.findAll("td", text="Jointly responsible")
-		jointlyResponsibleList[0]=specialDgSearch(jointlyResponsibles[0].findNext('td').get_text().strip())
-		jointlyResponsibleList[1]=jointlyResponsibles[1].findNext('td').get_text().strip()
-		return jointlyResponsibleList
+		#prelexDGProposition2
+		prelexDGProposition2=specialDgSearch(jointlyResponsibles[0].findNext('td').get_text().strip())
+		#prelexRespPropos2 or 3
+		prelexRespPropos2=jointlyResponsibles[1].findNext('td').get_text().strip()
+		#get the id from RespProposModel
+		prelexRespProposObject2=saveRespProposAndGetRespProposObject(prelexRespPropos2)
+
 	except:
-		return jointlyResponsibleList
+		print "no prelexDGProposition2, or prelexRespProposId2"
+
+	return prelexDGProposition2, prelexRespProposObject2
 
 #in front of "Jointly responsible"
 #can be Null
@@ -232,17 +259,18 @@ def specialDgSearch(dg):
 	PARAMETERS
 	dg: primarily responsible
 	RETURN
-	short name or dg itself if it is not associated to an acronym in the db
+	short name or dg itself if it is not associated to a dgCode in the db
 	"""
+	dgCode=dg
 	try:
-		#if there is a match in the db -> return short name (acronym)
-		print "dg", dg
-		print "dgCode", DGFullNameModel.objects.get(fullName=dg).dgCode_id
-		dgCode=DGFullNameModel.objects.get(fullName=dg).dgCode_id
-		return DGCodeModel.objects.get(id=dgCode).acronym
+		#if there is a match in the db -> return dgCode
+		dgCode=DGFullNameModel.objects.get(dgFullName=dg).dgCode_id
+		dgCode=DGCodeModel.objects.get(id=dgCode).dgCode
 	except:
 		print "Full name not stored in db"
-		return dg
+
+	print "dgCode", dgCode
+	return dgCode
 
 
 def getPrelexDGProposition1(soup):
@@ -261,7 +289,7 @@ def getPrelexDGProposition1(soup):
 		#the variable corresponds to a real person
 		if specialDg==None:
 			return dg
-		#it can be associated to an acronym or short name
+		#it can be associated to a dgCode
 		#~ http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=en&DosId=111863
 		return specialDg
 
@@ -275,28 +303,30 @@ def getPrelexDGProposition1(soup):
 def getPrelexRespProposList(soup):
 	"""
 	FUNCTION
-	gets the responsible(s) from the prelex url (prelexRespPropos1, prelexRespPropos2, prelexRespPropos3)
+	gets the responsible(s) from the prelex url (prelexRespProposId1, prelexRespProposId2, prelexRespProposId3)
 	PARAMETERS
 	soup: prelex url content
 	RETURN
-	list of responsible(s)
+	respProposList: list of responsibles(RespProposModel object)
 	"""
-	respProposList=[]
-	respProposList.append(None)
-	respProposList.append(None)
-	respProposList.append(None)
+	respProposList=[None for i in range(3)]
+
+
 	try:
 		resp=soup.find("td", text="Responsible").findNext('td').get_text().strip()
 		temp=resp.split(";")
 		#only one responsible
-		respProposList[0]=temp[0].strip()
+		respProposList[0]=saveRespProposAndGetRespProposObject(temp[0].strip())
 		#two responsibles
 		#~ http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=en&DosId=191554
-		respProposList[1]=temp[1].strip()
+		respProposList[1]=saveRespProposAndGetRespProposObject(temp[1].strip())
 		#three responsibles
-		respProposList[2]=temp[2].strip()
+		respProposList[2]=saveRespProposAndGetRespProposObject(temp[2].strip())
 	except:
-		return respProposList
+		print "no other responsible"
+
+	#~ print "respProposList", respProposList
+	return respProposList
 
 #~ in front of "Responsible"
 #can be Null
@@ -584,30 +614,34 @@ def getPrelexInformation(soup, idsDataDic):
 	dataDic['prelexComProc']=getPrelexComProc(adoptionByCommissionTableSoup, idsDataDic['prelexProposOrigine'])
 	print "prelexComProc:", dataDic['prelexComProc']
 
-	#jointly responsible persons (prelexDGProposition2 and prelexRespPropos2 or prelexRespPropos3)
-	jointlyResponsibleList=getPrelexJointlyResponsibles(adoptionByCommissionTableSoup)
+	#jointly responsible persons (prelexDGProposition2 and prelexRespProposObject2 or prelexRespProposObject3)
+	prelexDGProposition2, prelexRespProposObject2=getPrelexJointlyResponsibles(adoptionByCommissionTableSoup)
 
 	#prelexDGProposition1 and prelexDGProposition2
 	dataDic['prelexDGProposition1']=getPrelexDGProposition1(adoptionByCommissionTableSoup)
-	dataDic['prelexDGProposition2']=jointlyResponsibleList[0]
+	dataDic['prelexDGProposition2']=prelexDGProposition2
 	print "prelexDGProposition1:", dataDic['prelexDGProposition1']
 	print "prelexDGProposition2:", dataDic['prelexDGProposition2']
 
-	#prelexRespPropos1, prelexRespPropos2, prelexRespPropos3
+	#prelexRespProposObject1, prelexRespProposObject2, prelexRespProposObject3
 	respProposList=getPrelexRespProposList(adoptionByCommissionTableSoup)
-	dataDic['prelexRespPropos1']=respProposList[0]
-	dataDic['prelexRespPropos2']=respProposList[1]
-	dataDic['prelexRespPropos3']=respProposList[2]
+	dataDic['prelexRespProposId1_id']=respProposList[0]
+	dataDic['prelexRespProposId2_id']=respProposList[1]
+	dataDic['prelexRespProposId3_id']=respProposList[2]
 
-	#jointly responsible (prelexRespPropos2 or prelexRespPropos3)
-	if dataDic['prelexRespPropos2']==None:
-		dataDic['prelexRespPropos2']=jointlyResponsibleList[1]
-	elif dataDic['prelexRespPropos3']==None:
-		dataDic['prelexRespPropos3']=jointlyResponsibleList[1]
+	#jointly responsible (prelexRespProposObject2 or prelexRespProposObject3)
+	if prelexRespProposObject2!=None:
+		if dataDic['prelexRespProposId2_id']==None:
+			dataDic['prelexRespProposId2_id']=prelexRespProposObject2
+		elif dataDic['prelexRespProposId3_id']==None:
+			dataDic['prelexRespProposId3_id']=prelexRespProposObject2
 
-	print "prelexRespPropos1:", dataDic['prelexRespPropos1']
-	print "prelexRespPropos2:", dataDic['prelexRespPropos2']
-	print "prelexRespPropos3:", dataDic['prelexRespPropos3']
+	for index in range(1,4):
+		name="prelexRespProposId"+str(index)+"_id"
+		if dataDic[name]!=None:
+			print name+":", dataDic[name].id
+		else:
+			print name+":", None
 
 	#prelexTransmissionCouncil
 	dataDic['prelexTransmissionCouncil']=getPrelexTransmissionCouncil(soup, idsDataDic['prelexProposOrigine'])
