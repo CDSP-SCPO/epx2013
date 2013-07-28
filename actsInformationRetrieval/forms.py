@@ -9,10 +9,10 @@ class ActsInformationForm(forms.ModelForm):
 	details the ActsInformation form (fields to retrieve for the statistical analysis)
 	"""
 	#eurlex
-	eurlexFullCodeSectRep01=forms.RegexField(regex=r'^[0-9][1-9](.[0-9]{2}){3}$', required=False)
-	eurlexFullCodeSectRep02=forms.RegexField(regex=r'^[0-9][1-9](.[0-9]{2}){3}$', required=False)
-	eurlexFullCodeSectRep03=forms.RegexField(regex=r'^[0-9][1-9](.[0-9]{2}){3}$', required=False)
-	eurlexFullCodeSectRep04=forms.RegexField(regex=r'^[0-9][1-9](.[0-9]{2}){3}$', required=False)
+	eurlexFullCodeSectRep01=forms.RegexField(regex=r'^[0-9]{2}(.[0-9]{2}){3}$', required=False)
+	eurlexFullCodeSectRep02=forms.RegexField(regex=r'^[0-9]{2}(.[0-9]{2}){3}$', required=False)
+	eurlexFullCodeSectRep03=forms.RegexField(regex=r'^[0-9]{2}(.[0-9]{2}){3}$', required=False)
+	eurlexFullCodeSectRep04=forms.RegexField(regex=r'^[0-9]{2}(.[0-9]{2}){3}$', required=False)
 
 	#prelex
 	prelexConfigCons=forms.RegexField(regex=r'^CAG|RE|ECOFIN|JAI|EPSCO|COMPET|TTE|AGRIFISH|AGRI-FISH|ENV|EYC$', required=False)

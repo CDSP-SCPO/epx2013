@@ -5,9 +5,11 @@ get the information from Prelex (fields for the statistical analysis)
 import re
 from bs4 import BeautifulSoup
 #dg codes
-from actsInformationRetrieval.models import DGCodeModel, DGFullNameModel, RespProposModel
-import dateFunctions as dateFct
+from actsInformationRetrieval.models import DGCodeModel, DGFullNameModel, RespProposModel, CodeSectRepModel, ConfigConsModel, RespProposModel, NationRespModel, NationalPartyRespModel, EUGroupRespModel, AdoptPCModel
+from common.commonFunctions import stringToIsoDate, listReverseEnum
 from datetime import datetime
+#model as parameter
+from django.db.models.loading import get_model
 
 
 def getPrelexAdoptionByCommissionTable(soup):
@@ -46,8 +48,7 @@ def getPrelexAdoptionProposOrigine(soup, proposOrigine):
 
 		#transform dates to the iso format (YYYY-MM-DD)
 		if adoptionProposOrigine!=None:
-			year, month, day=dateFct.splitFrenchFormatDate(adoptionProposOrigine)
-			adoptionProposOrigine=dateFct.dateToIso(year, month, day)
+			adoptionProposOrigine=stringToIsoDate(adoptionProposOrigine)
 
 		return adoptionProposOrigine
 	except:
@@ -95,15 +96,21 @@ def saveRespProposAndGetRespProposObject(respPropos):
 	RETURN
 	respProposObject: instance of respProposModel
 	"""
+	print 'ok'
 	try:
+		#change name format: "Firstname LASTNAME" -> "LASTNAME Firstname"
+		respPropos=respPropos.split()
+		respPropos=respPropos[1]+" "+respPropos[0]
 		#checks if respPropos already exists in the db
 		respProposObject=RespProposModel.objects.get(respPropos=respPropos)
+		print "respProposObject", respProposObject
 		return respProposObject
 	except:
 		#respPropos doesn't exist in the db yet -> we add it in the table
 		respProposObject=RespProposModel(respPropos=respPropos).save()
 		#~ print "respProposDB.id", respProposDB.id
 		#we get respPropos
+		print "respProposObject except", respProposObject
 		return respProposObject
 
 	return None
@@ -136,120 +143,6 @@ def getPrelexJointlyResponsibles(soup):
 
 #in front of "Jointly responsible"
 #can be Null
-
-
-#NOT USED ANYMORE
-#REPLACED BY DATABASE TABLES
-#~ def specialDgSearch(dg):
-	#~ """
-	#~ FUNCTION
-	#~ gives the "official" name of special values of primarily responsible
-	#~ PARAMETERS
-	#~ dg: primarily responsible
-	#~ RETURN
-	#~ new official name or None if dg is a "normal" name
-	#~ """
-	#list of short names: http://publications.europa.eu/code/en/en-390600.htm
-	#example: http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=en&DosId=187691
-	#~ if dg==u"Secretariat-General":
-		#~ return "SG"
-	#~ if dg=="Legal Service":
-		#~ return "SJ"
-	#~ if dg=="DG Communication":
-		#~ return "COMM"
-	#~ if dg=="Bureau of European Policy Advisers":
-		#~ return "BEPA"
-	#~ if dg==u"DG Economic and Financial Affairs":
-		#~ return "ECFIN"
-	#~ if dg=="DG Enterprises" or dg=="DG Enterprise and Industry" or dg=="DG 23":
-		#~ return "ENTR"
-	#~ if dg=="DG Competition":
-		#~ return "COMP"
-	#~ if dg=="DG Employment, Social Affairs" or dg==u"DG Employment, Social Affairs and Inclusion" or dg=="DG05":
-		#~ return "EMPL"
-	#~ if dg=="DG Agriculture" or dg==u"DG Agriculture and Rural Development" or dg=="DG06":
-		#~ return "AGRI"
-	#~ if dg=="DG Energy" or dg=="DG Energy and Transport":
-		#~ return "ENER"
-	#~ if dg=="DG Mobility and Transports":
-		#~ return "MOVE"
-	#~ if dg=="DG Climate Action":
-		#~ return "CLIMA"
-	#~ if dg=="DG Environment":
-		#~ return "ENV"
-	#~ if dg=="DG Research and Innovation":
-		#~ return "RTD"
-	#~ if dg=="Joint Research Centre":
-		#~ return "JRC"
-	#~ if dg=="DG Communications Networks, Content and Technology" or dg=="Communications Networks, Content and Technology DG" or dg=="INFSO" or dg==u"DG Information Society" or dg==u"Information Society and Media DG" or dg=="DG Information Society and Media" or dg=="Directorate-General for the Information Society and Media" or dg=="Directorate-General for Communications Networks, Content and Technology":
-		#~ return "CNECT"
-	#~ if dg==u"DG Fisheries" or dg==u"DG Maritime Affairs and Fisheries":
-		#~ return "MARE"
-	#~ if dg==u"DG Internal Market" or dg==u"DG Internal Market and Services" or dg=="DG15":
-		#~ return "MARKT"
-	#~ if dg==u"Regional Policy DG" or dg=="DG Regional and Urban Policy" or dg=="Regional and Urban Policy DG":
-		#~ return "REGIO"
-	#~ if dg==u"DG Taxation and Customs Union":
-		#~ return "TAXUD"
-	#~ if dg=="DG Education et culture":
-		#~ return "EAC"
-	#~ if dg==u"DG Health and Consumers" or dg=="DG24":
-		#~ return "SANCO"
-	#~ if dg=="DG Home Affairs":
-		#~ return "HOME"
-	#~ if dg==u"DG Justice":
-		#~ return "JUST"
-	#~ if dg=="Service for Foreign Policy Instruments" or dg=="Foreign Policy Instruments Service" or dg=="FPIS":
-		#~ return "FPI"
-	#~ if dg=="DG Trade":
-		#~ return "TRADE"
-	#~ if dg=="DG Enlargement":
-		#~ return "ELARG"
-	#~ if dg==u"DG Development and Cooperation — EuropeAid" or dg=="EuropeAid Development and Cooperation DG" or dg=="EuropeAid Development and Cooperation Directorate-General" or dg=="Directorate-General for Development and Cooperation — EuropeAid" or dg=="Development and Cooperation DG — EuropeAid":
-		#~ return "DEVCO"
-	#~ if dg=="DG Humanitarian Aid and Civil Protection (ECHO)":
-		#~ return "ECHO"
-	#~ if dg=="Eurostat" or dg=="Office statistique":
-		#~ return "ESTAT"
-	#~ if dg=="DG Human Resources and Security":
-		#~ return "HR"
-	#~ if dg=="DG Informatics":
-		#~ return "DIGIT"
-	#~ if dg=="DG Budget":
-		#~ return "BUDG"
-	#~ if dg=="Internal Audit Service":
-		#~ return "IAS"
-	#~ if dg=="European Anti-Fraud Office":
-		#~ return "OLAF"
-	#~ if dg=="DG Interpretation":
-		#~ return "SCIC"
-	#~ if dg=="DG Translation":
-		#~ return "DGT"
-	#~ if dg=="Publications Office":
-		#~ return "OP"
-	#~ if dg=="Office for Infrastructure and Logistics in Brussels":
-		#~ return "OIB"
-	#~ if dg=="Office for the Administration and Payment of Individual Entitlements":
-		#~ return "PMO"
-	#~ if dg=="Office for Infrastructure and Logistics in Luxembourg":
-		#~ return "OIL"
-	#~ if dg=="European Personnel Selection Office":
-		#~ return "EPSO"
-	#~ if dg=="Executive Agency for Competitiveness and Innovation":
-		#~ return "EACI"
-	#~ if dg=="Education, Audiovisual and Culture Executive Agency":
-		#~ return "EACEA"
-	#~ if dg=="Executive Agency for Health and Consumers":
-		#~ return "EAHC"
-	#~ if dg=="Trans-European Transport Network Executive Agency":
-		#~ return "TENEA"
-	#~ if dg=="European Research Council Executive Agency":
-		#~ return "ERCEA"
-	#~ if dg=="Research Executive Agency":
-		#~ return "REA"
-	#~ if dg==u"DG Relations extérieures":
-		#~ return "RELEX"
-	#~ return None
 
 
 def specialDgSearch(dg):
@@ -311,17 +204,14 @@ def getPrelexRespProposList(soup):
 	"""
 	respProposList=[None for i in range(3)]
 
-
 	try:
 		resp=soup.find("td", text="Responsible").findNext('td').get_text().strip()
 		temp=resp.split(";")
 		#only one responsible
-		respProposList[0]=saveRespProposAndGetRespProposObject(temp[0].strip())
-		#two responsibles
-		#~ http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=en&DosId=191554
-		respProposList[1]=saveRespProposAndGetRespProposObject(temp[1].strip())
-		#three responsibles
-		respProposList[2]=saveRespProposAndGetRespProposObject(temp[2].strip())
+		for index in xrange(len(respProposList)):
+			respProposList[index]=saveRespProposAndGetRespProposObject(temp[index].strip())
+			#two responsibles
+			#http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=en&DosId=191554
 	except:
 		print "no other responsible"
 
@@ -330,6 +220,126 @@ def getPrelexRespProposList(soup):
 
 #~ in front of "Responsible"
 #can be Null
+
+
+def getConfigConsOrCodeAgenda(table1, table2):
+	"""
+	FUNCTION
+	gets the prelex configCons or eurlex codeAgenda variables
+	PARAMETERS
+	table1: list of model name, field name in the csv file for table1
+	table2: list of model name, field name and value in the csv file for table2 [USED FOR THE JOIN]
+	RETURN
+	configCons or codeAgenda
+	"""
+	if table2[2]!=None:
+		model1 = get_model('actsInformationRetrieval', table1[0])
+		model2 = get_model('actsInformationRetrieval', table2[0])
+		attrName1=table1[1]
+		attrName2=table2[1]
+		attrIdName1=attrName1+"_id"
+		attr2=table2[2].strip()
+		for index, item in listReverseEnum(attr2):
+			if item==".":
+				newAttr2=attr2[:index]
+				try:
+					#does this newAttr2 exist in model2?
+					instance2=model2.objects.get(**{attrName2: newAttr2})
+					attrId1=getattr(instance2, attrIdName1)
+					#if it exist, we get attr1 from model1
+					instance1=model1.objects.get(id=attrId1)
+					return getattr(instance1, attrName1)
+				except Exception, e:
+					print "exception", e
+
+	return None
+
+
+def getRespProposVariablesFromDB(table1, table2):
+	"""
+	FUNCTION
+	gets the prelex respPropos variables (nationResp, nationalPartyResp or euGroupResp)
+	PARAMETERS
+	table1: list of model name, field name in the csv file for table1
+	table2: list of model name, field name and value in the csv file for table2 [USED FOR THE JOIN]
+	RETURN
+	nationResp, nationalPartyResp or euGroupResp
+	"""
+	if table2[2]!=None:
+		model1 = get_model('actsInformationRetrieval', table1[0])
+		model2 = get_model('actsInformationRetrieval', table2[0])
+		attrName1=table1[1]
+		attrIdName2=table2[1]
+		attrIdName1=attrName1+"_id"
+		attrId2=table2[2]
+
+		try:
+			#get attrId1 from model2
+			instance2=model2.objects.get(**{attrIdName2: attrId2})
+			attrId1=getattr(instance2, attrIdName1)
+			#if it exist, we get attr1 from model1
+			instance1=model1.objects.get(id=attrId1)
+			return getattr(instance1, attrName1)
+		except Exception, e:
+			print "exception", e
+
+	return None
+
+
+def getRespProposVariables(respProposIdsList, column):
+	"""
+	FUNCTION
+	get the the RespProposModel variable passed in parameter from respProposList, RespProposModel and its own model
+	PARAMETERS
+	respProposIdsList: list of respProposIds variables
+	column: name of the variable to retrieve (nationResp, nationalPartyResp or euGroupResp)
+	RETURN
+	list of the searched variables associated to each respPropos of respProposList
+	"""
+	resList=[None for i in range(3)]
+	table1=[column[0].upper()+column[1:]+"Model", column]
+	table2=["RespProposModel", "id", ""]
+	#for each respPropos
+	for index in xrange(len(respProposIdsList)):
+		table2[2]=respProposIdsList[index]
+		resList[index]=getRespProposVariablesFromDB(table1, table2)
+	return resList
+
+
+def getPrelexNationResp(respProposIdsList):
+	"""
+	FUNCTION
+	get the nationResp variables from respProposList, RespProposModel and NationRespModel
+	PARAMETERS
+	respProposIdsList: list of respProposIds variables
+	RETURN
+	list of nationResp variables associated to each respPropos of respProposList
+	"""
+	return getRespProposVariables(respProposIdsList, "nationResp")
+
+
+def getPrelexNationalPartyResp(respProposIdsList):
+	"""
+	FUNCTION
+	get the nationalPartyResp variables from respProposList, RespProposModel and NationalPartyRespModel
+	PARAMETERS
+	respProposIdsList: list of respProposIds variables
+	RETURN
+	nationalPartyResp: list of nationalPartyResp variables associated to each respPropos of respProposList
+	"""
+	return getRespProposVariables(respProposIdsList, "nationalPartyResp")
+
+
+def getPrelexEUGroupResp(respProposIdsList):
+	"""
+	FUNCTION
+	get the euGroupResp variables from respProposList, RespProposModel and EUGroupRespModel
+	PARAMETERS
+	respProposIdsList: list of respProposIds variables
+	RETURN
+	resList: list of euGroupResp variables associated to each respPropos of respProposList
+	"""
+	return getRespProposVariables(respProposIdsList, "euGroupResp")
 
 
 def getPrelexTransmissionCouncil(soup, proposOrigine):
@@ -352,8 +362,7 @@ def getPrelexTransmissionCouncil(soup, proposOrigine):
 
 	#transform dates to the iso format (YYYY-MM-DD)
 	if transmissionCouncil!=None:
-		year, month, day=dateFct.splitFrenchFormatDate(transmissionCouncil)
-		transmissionCouncil=dateFct.dateToIso(year, month, day)
+		transmissionCouncil=stringToIsoDate(transmissionCouncil)
 	return transmissionCouncil
 
 #date in front of "Transmission to Council"
@@ -457,8 +466,7 @@ def getPrelexAdoptionConseil(soup, suite2LecturePE, proposSplittee, nbLectures):
 
 		#transform dates to the iso format (YYYY-MM-DD)
 	if adoptionCouncil!=None:
-		year, month, day=dateFct.splitFrenchFormatDate(adoptionCouncil)
-		adoptionCouncil=dateFct.dateToIso(year, month, day)
+		adoptionCouncil=stringToIsoDate(adoptionCouncil)
 	return adoptionCouncil
 
 #~ date in front of "Formal adoption by Council" or "Adoption common position" or "Council approval 1st rdg"
@@ -566,6 +574,22 @@ def getPrelexNombreLectures(soup, noUniqueType, proposSplittee):
 	#~ otherwise error
 
 
+def getPrelexConfigCons(fullCodeSectRep01):
+	"""
+	FUNCTION
+	gets the prelexConfigCons variable from fullCodeSectRep01, CodeSectRepModel and ConfigConsModel
+	PARAMETERS
+	fullCodeSectRep01: fullCodeSectRep01 variable
+	RETURN
+	prelexConfigCons variable associated to fullCodeSectRep01
+	"""
+	table1=["ConfigConsModel", "configCons"]
+	table2=["CodeSectRepModel", "codeSectRep", fullCodeSectRep01]
+	#get prelexConfigCons
+	return getConfigConsOrCodeAgenda(table1, table2)
+
+
+
 def getPrelexDateDiff(date1, date2):
 	"""
 	FUNCTION
@@ -583,27 +607,140 @@ def getPrelexDateDiff(date1, date2):
 		return (date1 - date2).days
 	return None
 
+
+def getPrelexDureeAdoptionTrans(date1, date2):
+	"""
+	FUNCTION
+	compute the prelexDureeAdoptionTrans variable
+	PARAMETERS
+	date1: first date
+	date2: second date
+	RETURN
+	difference between the two dates in parameters
+	"""
+	return getPrelexDateDiff(date1, date2)
+
 #DureeAdoptionTrans (TransmissionConseil - AdoptionProposOrigine)
+
+
+def getPrelexDureeProcedureDepuisPropCom(date1, date2):
+	"""
+	FUNCTION
+	compute the prelexDureeProcedureDepuisPropCom variable
+	PARAMETERS
+	date1: first date
+	date2: second date
+	RETURN
+	difference between the two dates in parameters
+	"""
+	return getPrelexDateDiff(date1, date2)
+
 #DureeProcedureDepuisPropCom (AdoptionConseil – AdoptionProposOrigine)
+
+
+def getPrelexDureeProcedureDepuisTransCons(date1, date2):
+	"""
+	FUNCTION
+	compute the prelexDureeProcedureDepuisTransCons variable
+	PARAMETERS
+	date1: first date
+	date2: second date
+	RETURN
+	difference between the two dates in parameters
+	"""
+	return getPrelexDateDiff(date1, date2)
+
 #DureeProcedureDepuisTransCons (AdoptionConseil – TransmissionConseil)
+
+
+def getPrelexDureeTotaleDepuisPropCom(date1, date2):
+	"""
+	FUNCTION
+	compute the prelexDureeTotaleDepuisPropCom variable
+	PARAMETERS
+	date1: first date
+	date2: second date
+	RETURN
+	difference between the two dates in parameters
+	"""
+	return getPrelexDateDiff(date1, date2)
+
 #DureeTotaleDepuisPropCom (SignPECS – AdoptionProposOrigine)
+
+
+def getPrelexDureeTotaleDepuisTransCons(date1, date2):
+	"""
+	FUNCTION
+	compute the prelexDureeTotaleDepuisTransCons variable
+	PARAMETERS
+	date1: first date
+	date2: second date
+	RETURN
+	difference between the two dates in parameters
+	"""
+	return getPrelexDateDiff(date1, date2)
+
 #DureeTotaleDepuisTransCons (SignPECS – TransmissionConseil) 
 
 
+def getPrelexAdoptPCVariables(releveIds, columnName):
+	"""
+	FUNCTION
+	get adoptPCAbs or adoptPCContre
+	PARAMETERS
+	releveIds: list of ids of the model
+	columnName: name of the variable ot retrieve
+	RETURN
+	value of the variable
+	"""
+	try:
+		#get attrId1 from model2
+		instance=AdoptPCModel.objects.get(releveAnnee=releveIds[0], releveMois=releveIds[1], noOrdre=releveIds[2])
+		return getattr(instance, columnName)
+	except Exception, e:
+		print "exception", e
 
-def getPrelexInformation(soup, idsDataDic):
+	return None
+
+
+def getPrelexAdoptPCAbs(releveIds):
+	"""
+	FUNCTION
+	get adoptPCAbs
+	PARAMETERS
+	releveIds: list of ids of the model
+	RETURN
+	value of the variable
+	"""
+	return getPrelexAdoptPCVariables(releveIds, "adoptPCAbs")
+
+
+def getPrelexAdoptPCContre(releveIds):
+	"""
+	FUNCTION
+	get adoptPCContre
+	PARAMETERS
+	releveIds: list of ids of the model
+	RETURN
+	value of the variable
+	"""
+	return getPrelexAdoptPCVariables(releveIds, "adoptPCContre")
+
+
+def getPrelexInformation(soup, otherVariablesDic):
 	"""
 	FUNCTION
 	gets all the information from the prelex url
 	PARAMETERS
 	soup: prelex url content
+	otherVariablesDic: dictionary of variables needed to get some prelex variables
 	RETURN
 	dictionary of retrieved data from prelex
 	"""
 	dataDic={}
 
 	#prelexAdoptionProposOrigine
-	dataDic['prelexAdoptionProposOrigine']=getPrelexAdoptionProposOrigine(soup, idsDataDic['prelexProposOrigine'])
+	dataDic['prelexAdoptionProposOrigine']=getPrelexAdoptionProposOrigine(soup, otherVariablesDic['prelexProposOrigine'])
 	print "prelexAdoptionProposOrigine:", dataDic['prelexAdoptionProposOrigine']
 
 	#extract Adoption by Commission table (html content)
@@ -611,7 +748,7 @@ def getPrelexInformation(soup, idsDataDic):
 	#~ print "adoptionByCommissionTableSoup", adoptionByCommissionTableSoup
 
 	#prelexComProc
-	dataDic['prelexComProc']=getPrelexComProc(adoptionByCommissionTableSoup, idsDataDic['prelexProposOrigine'])
+	dataDic['prelexComProc']=getPrelexComProc(adoptionByCommissionTableSoup, otherVariablesDic['prelexProposOrigine'])
 	print "prelexComProc:", dataDic['prelexComProc']
 
 	#jointly responsible persons (prelexDGProposition2 and prelexRespProposObject2 or prelexRespProposObject3)
@@ -625,9 +762,8 @@ def getPrelexInformation(soup, idsDataDic):
 
 	#prelexRespProposObject1, prelexRespProposObject2, prelexRespProposObject3
 	respProposList=getPrelexRespProposList(adoptionByCommissionTableSoup)
-	dataDic['prelexRespProposId1_id']=respProposList[0]
-	dataDic['prelexRespProposId2_id']=respProposList[1]
-	dataDic['prelexRespProposId3_id']=respProposList[2]
+	for index in xrange(len(respProposList)):
+		dataDic['prelexRespProposId'+str(index+1)+'_id']=respProposList[index]
 
 	#jointly responsible (prelexRespProposObject2 or prelexRespProposObject3)
 	if prelexRespProposObject2!=None:
@@ -636,59 +772,91 @@ def getPrelexInformation(soup, idsDataDic):
 		elif dataDic['prelexRespProposId3_id']==None:
 			dataDic['prelexRespProposId3_id']=prelexRespProposObject2
 
-	for index in range(1,4):
-		name="prelexRespProposId"+str(index)+"_id"
+	for index in xrange(len(respProposList)):
+		name="prelexRespProposId"+str(index+1)+"_id"
 		if dataDic[name]!=None:
 			print name+":", dataDic[name].id
 		else:
 			print name+":", None
 
+	#prelexNationResp, prelexNationalPartyResp and prelexEUGroupResp variables
+	columnName=["prelexNationResp", "prelexNationalPartyResp", "prelexEUGroupResp"]
+	respProposIdsList=[]
+	for index in xrange(len(respProposList)):
+		if dataDic['prelexRespProposId'+str(index+1)+'_id']==None:
+			respProposIdsList.append(None)
+		else:
+			respProposIdsList.append(dataDic['prelexRespProposId'+str(index+1)+'_id'].id)
+	#for all prelexNationResp, prelexNationalPartyResp and prelexEUGroupResp variables
+	for variableIndex in xrange(len(columnName)):
+		functionName="get"+columnName[variableIndex][0].upper()+columnName[variableIndex][1:]
+		varList=eval(functionName)(respProposIdsList)
+		print "varList", varList
+		print "columnName[variableIndex]", columnName[variableIndex]
+		#get each variable
+		for index in xrange(len(varList)):
+			num=str(index+1)
+			dataDic[columnName[variableIndex]+num]=varList[index]
+			print columnName[variableIndex]+num+": ", dataDic[columnName[variableIndex]+num]
+
 	#prelexTransmissionCouncil
-	dataDic['prelexTransmissionCouncil']=getPrelexTransmissionCouncil(soup, idsDataDic['prelexProposOrigine'])
+	dataDic['prelexTransmissionCouncil']=getPrelexTransmissionCouncil(soup, otherVariablesDic['prelexProposOrigine'])
 	print "prelexTransmissionCouncil:", dataDic['prelexTransmissionCouncil']
 
 	#prelexNbPointB
-	dataDic['prelexNbPointB']=getPrelexNbPointB(soup, idsDataDic['prelexProposOrigine'])
+	dataDic['prelexNbPointB']=getPrelexNbPointB(soup, otherVariablesDic['prelexProposOrigine'])
 	print "prelexNbPointB:", dataDic['prelexNbPointB']
 
 	#prelexConsB
-	dataDic['prelexConsB']=getPrelexConsB(soup, idsDataDic['prelexProposOrigine'])
+	dataDic['prelexConsB']=getPrelexConsB(soup, otherVariablesDic['prelexProposOrigine'])
 	print "prelexConsB:", dataDic['prelexConsB']
 
 	#prelexNombreLectures -> ALREADY IN OEIL -> used only for prelexAdoptionConseil!
-	dataDic['prelexNombreLectures']=getPrelexNombreLectures(soup, idsDataDic['prelexNoUniqueType'], idsDataDic['proposSplittee'])
+	dataDic['prelexNombreLectures']=getPrelexNombreLectures(soup, otherVariablesDic['prelexNoUniqueType'], otherVariablesDic['proposSplittee'])
 	#~ print "prelexNombreLectures:", dataDic['prelexNombreLectures']
 
 	#prelexAdoptionConseil
-	dataDic['prelexAdoptionConseil']=getPrelexAdoptionConseil(soup, idsDataDic['suite2eLecturePE'], idsDataDic['proposSplittee'], dataDic['prelexNombreLectures'])
+	dataDic['prelexAdoptionConseil']=getPrelexAdoptionConseil(soup, otherVariablesDic['suite2eLecturePE'], otherVariablesDic['proposSplittee'], dataDic['prelexNombreLectures'])
 	print "prelexAdoptionConseil:", dataDic['prelexAdoptionConseil']
 
 	#prelexNbPointA
-	dataDic['prelexNbPointA']=getPrelexNbPointA(soup, idsDataDic['prelexProposOrigine'])
+	dataDic['prelexNbPointA']=getPrelexNbPointA(soup, otherVariablesDic['prelexProposOrigine'])
 	print "prelexNbPointA:", dataDic['prelexNbPointA']
 
 	#prelexCouncilA
 	dataDic['prelexCouncilA']=getPrelexCouncilA(soup)
 	print "prelexCouncilA:", dataDic['prelexCouncilA']
 
+	#prelexConfigCons
+	dataDic['prelexConfigCons']=getPrelexConfigCons(otherVariablesDic['fullCodeSectRep01'])
+	print "prelexConfigCons:", dataDic['prelexConfigCons']
+
 	#prelexDureeAdoptionTrans
-	dataDic['prelexDureeAdoptionTrans']=getPrelexDateDiff(dataDic['prelexTransmissionCouncil'], dataDic['prelexAdoptionProposOrigine'])
+	dataDic['prelexDureeAdoptionTrans']=getPrelexDureeAdoptionTrans(dataDic['prelexTransmissionCouncil'], dataDic['prelexAdoptionProposOrigine'])
 	print "prelexDureeAdoptionTrans:", dataDic['prelexDureeAdoptionTrans']
 
 	#prelexDureeProcedureDepuisPropCom
-	dataDic['prelexDureeProcedureDepuisPropCom']=getPrelexDateDiff(dataDic['prelexAdoptionConseil'], dataDic['prelexAdoptionProposOrigine'])
+	dataDic['prelexDureeProcedureDepuisPropCom']=getPrelexDureeProcedureDepuisPropCom(dataDic['prelexAdoptionConseil'], dataDic['prelexAdoptionProposOrigine'])
 	print "prelexDureeProcedureDepuisPropCom:", dataDic['prelexDureeProcedureDepuisPropCom']
 
 	#prelexDureeProcedureDepuisTransCons
-	dataDic['prelexDureeProcedureDepuisTransCons']=getPrelexDateDiff(dataDic['prelexAdoptionConseil'], dataDic['prelexTransmissionCouncil'])
+	dataDic['prelexDureeProcedureDepuisTransCons']=getPrelexDureeProcedureDepuisTransCons(dataDic['prelexAdoptionConseil'], dataDic['prelexTransmissionCouncil'])
 	print "prelexDureeProcedureDepuisTransCons:", dataDic['prelexDureeProcedureDepuisTransCons']
 
 	#prelexDureeTotaleDepuisPropCom
-	dataDic['prelexDureeTotaleDepuisPropCom']=getPrelexDateDiff(idsDataDic["signPECS"], dataDic['prelexAdoptionProposOrigine'])
+	dataDic['prelexDureeTotaleDepuisPropCom']=getPrelexDureeTotaleDepuisPropCom(otherVariablesDic["signPECS"], dataDic['prelexAdoptionProposOrigine'])
 	print "prelexDureeTotaleDepuisPropCom:", dataDic['prelexDureeTotaleDepuisPropCom']
 
 	#prelexDureeTotaleDepuisTransCons
-	dataDic['prelexDureeTotaleDepuisTransCons']=getPrelexDateDiff(idsDataDic["signPECS"], dataDic['prelexTransmissionCouncil'])
+	dataDic['prelexDureeTotaleDepuisTransCons']=getPrelexDureeTotaleDepuisTransCons(otherVariablesDic["signPECS"], dataDic['prelexTransmissionCouncil'])
 	print "prelexDureeTotaleDepuisTransCons:", dataDic['prelexDureeTotaleDepuisTransCons']
+
+	#prelexAdoptPCAbs
+	dataDic['prelexAdoptPCAbs']=getPrelexAdoptPCAbs([otherVariablesDic["releveAnnee"], otherVariablesDic["releveMois"], otherVariablesDic["noOrdre"]])
+	print "prelexAdoptPCAbs:", dataDic['prelexAdoptPCAbs']
+
+	#prelexAdoptPCContre
+	dataDic['prelexAdoptPCContre']=getPrelexAdoptPCContre([otherVariablesDic["releveAnnee"], otherVariablesDic["releveMois"], otherVariablesDic["noOrdre"]])
+	print "prelexAdoptPCContre:", dataDic['prelexAdoptPCContre']
 
 	return dataDic

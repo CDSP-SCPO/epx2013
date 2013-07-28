@@ -29,7 +29,7 @@ class CSVUploadForm(forms.Form):
 		('respPropos', 'Import '+vnInfo.variablesNameDic['prelexRespPropos']+' and relative data'),
 		('adoptPC', 'Import '+vnInfo.variablesNameDic['prelexAdoptPCAbs']+' and '+vnInfo.variablesNameDic['prelexAdoptPCContre']),
 		('np', 'Import opal file (NP variables)'),
-		('gvtCompo', 'Import '+vnInfo.variablesNameDic['eurlexNationGvtPoliticalComposition'])
+		('gvtCompo', 'Import '+vnInfo.variablesNameDic['prelexNationGvtPoliticalComposition'])
 	)
 	fileToImport=forms.ChoiceField(choices=fileToImportChoices, widget=forms.Select(attrs={'onchange': 'this.form.submit();'}))
 

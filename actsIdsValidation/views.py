@@ -21,21 +21,6 @@ import importApp.views as importView
 #redirect to login page if not logged
 from django.contrib.auth.decorators import login_required
 
-def checkFieldError(form, field):
-	"""
-	FUNCTION
-	check if a form field contains an error
-	PARAMETERS
-	form: form to ckeck
-	field: name of the field to check
-	RETURN
-	true if no error false otherwise
-	"""
-	if field in form.errors:
-		return False
-	else:
-		return True
-
 
 def checkEqualityFields(fieldsList):
 	"""

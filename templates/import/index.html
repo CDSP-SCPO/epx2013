@@ -45,7 +45,7 @@ displays the export page
 					{% elif form.fileToImport.value == "np" %}
 						<span class="bold">{{ form.fileToImport.field.choices.7.1 }}:</span> {{ displayName.opalNPCaseNumber }}, {{ displayName.fileNoCelex }}, {{ displayName.opalNP }}, {{ displayName.opalNPActivityType }},  {{ displayName.opalNPActivityDate }}. <br />
 					{% elif form.fileToImport.value == "gvtCompo" %}
-						<span class="bold">{{ form.fileToImport.field.choices.8.1 }}:</span> startDate, endDate, {{ displayName.eurlexNationGvtPoliticalComposition }}. <br />
+						<span class="bold">{{ form.fileToImport.field.choices.8.1 }}:</span> startDate, endDate, {{ displayName.prelexNationGvtPoliticalComposition }}. <br />
 					{% endif %}
 				</div>
 			{% endif %}

@@ -73,11 +73,11 @@ def emptyOrVar(var, varType):
 def import2Tables(csvFile, table1, table2):
 	"""
 	FUNCTION
-	open a csv file and save its variables variables in the database (in 2 different tables)
+	open a csv file and save its variables variables in the database (in 2 different tables ->  used for configCons, codeAgenda and respPropos*)
 	PARAMETERS
 	csvFile: file to handle
 	table1: list of model name, field name, position in the csv file for table1
-	table2: list of model name, field name, position in the csv file for table2
+	table2: list of model name, field name, position in the csv file for table2 [USED FOR THE JOIN]
 	RETURN
 	list of rows saved / not saved
 	"""
@@ -90,10 +90,13 @@ def import2Tables(csvFile, table1, table2):
 			model1 = get_model('actsInformationRetrieval', table1[0])
 			model2 = get_model('actsInformationRetrieval', table2[0])
 			attrName1=table1[1]
-			attrIdName1=attrName1+"_id"
 			attrName2=table2[1]
+			attrIdName1=attrName1+"_id"
 			attr1=row[table1[2]].strip()
 			attr2=row[table2[2]].strip()
+			#if respPropos -> change name format of respPropos: "LASTNAME, Firstname" -> "LASTNAME Firstname"
+			if attrName2=="respPropos":
+				attr2=attr2.replace(",","")
 			attr1Exist=False
 			attr2Exist=False
 			error=False
@@ -355,7 +358,7 @@ def getNpData(row):
 def import1Table(csvFile, importType):
 	"""
 	FUNCTION
-	open a csv file and save its AdoptPC variables in the database (in one table)
+	open a csv file and save its AdoptPC variables in the database (in one table -> used for dosId, act, adoptPC, gvtCompo and np)
 	PARAMETERS
 	csvFile: file to handle
 	importSrc: type of the file to import
@@ -418,15 +421,10 @@ def importView(request):
 					if fileToImport=="act":
 						#save retrieved ids
 						getAndSaveRetrievedIds(savedList)
-				#importation of configCons
-				elif fileToImport=="configCons":
+				#importation of configCons or codeAgenda
+				elif fileToImport in["configCons", "codeAgenda"]:
 					#model name, field name, position in the csv file
-					table1=["ConfigConsModel", "configCons", 1]
-					table2=["CodeSectRepModel", "codeSectRep", 0]
-					savedList, errorList= import2Tables(path, table1, table2)
-				#importation of codeAgenda
-				elif fileToImport=="codeAgenda":
-					table1=["CodeAgendaModel", "codeAgenda", 1]
+					table1=[fileToImport[0].upper()+fileToImport[1:]+"Model", fileToImport, 1]
 					table2=["CodeSectRepModel", "codeSectRep", 0]
 					savedList, errorList= import2Tables(path, table1, table2)
 				#importation of respPropos

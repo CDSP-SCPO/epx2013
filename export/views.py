@@ -32,7 +32,11 @@ def fetchValidatedActsFunction(modelName):
 	RETURNS
 	query set
 	"""
-	return modelName.objects.filter(validated=1)
+	#return the records of the main model ActsInformationModel and related models (we want to export all the db)
+	dumpDB=modelName.objects.prefetch_related("actId", "prelexRespProposId1", "prelexRespProposId2", "prelexRespProposId3", "prelexNationGvtPoliticalComposition")
+	for field in dumpDB.model._meta.fields:
+		print "dumpDB fields", field
+	return dumpDB
 
 
 def sortQuerySetFunction(querySet, sortField, sortDirection):
@@ -71,13 +75,13 @@ def querySetToCsvFile(qs, outfile_path):
 	headers = []
 	realHeaders=[]
 	for field in model._meta.fields:
-		if field.name!="actId" and field.name!="validated":
+		if field.name!="validated":
 			headers.append(field.name)
 			#display "real" variable names (first row)
 			realHeaders.append(vn.variablesNameDic[field.name])
 	writer.writerow(realHeaders)
 
-	for obj in qs:
+	for obj in qs.iterator():
 		row = []
 		for field in headers:
 			val = getattr(obj, field)

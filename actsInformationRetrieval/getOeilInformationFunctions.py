@@ -5,7 +5,7 @@ get the information from Oeil (fields for the statistical analysis)
 import re
 from bs4 import BeautifulSoup
 import urllib
-import dateFunctions as dateFct
+from common.commonFunctions import stringToIsoDate
 
 
 def getOeilCommissionPE(soup):
@@ -405,8 +405,7 @@ def getOeilSignPECS(soup, noUniqueType):
 	if noUniqueType=="COD" or noUniqueType=="ACI":
 		signPECS=soup.find("td", text="Final act signed").findPrevious("td").get_text()
 		if signPECS!=None:
-			year, month, day=dateFct.splitFrenchFormatDate(signPECS)
-			signPECS=dateFct.dateToIso(year, month, day)
+			signPECS=stringToIsoDate(signPECS)
 
 	return signPECS
 
@@ -483,65 +482,15 @@ def getOeilInformation(soup, idsDic):
 	#rapporteurs list
 	rapporteursList=getOeilRapporteursList(soup)
 
-	#oeilGroupePolitiqueRapporteur1
-	dataDic['oeilGroupePolitiqueRapporteur1']=getOeilGroupePolitiqueRapporteur(rapporteursList[0])
-	print "oeilGroupePolitiqueRapporteur1:", dataDic['oeilGroupePolitiqueRapporteur1']
-#~ #~
-	#oeilRapporteurPE1
-	dataDic['oeilRapporteurPE1']=getOeilRapporteurPE(rapporteursList[0])
-	print "oeilRapporteurPE1:", dataDic['oeilRapporteurPE1']
-#~ #~
-	#oeilEtatMbRapport1
-	dataDic['oeilEtatMbRapport1']=getOeilEtatMbRapport(rapporteursList[0])
-	print "oeilEtatMbRapport1:", dataDic['oeilEtatMbRapport1']
-#~ #~
-	#oeilGroupePolitiqueRapporteur2
-	dataDic['oeilGroupePolitiqueRapporteur2']=getOeilGroupePolitiqueRapporteur(rapporteursList[1])
-	print "oeilGroupePolitiqueRapporteur2:", dataDic['oeilGroupePolitiqueRapporteur2']
-#~ #~
-	#oeilRapporteurPE2
-	dataDic['oeilRapporteurPE2']=getOeilRapporteurPE(rapporteursList[1])
-	print "oeilRapporteurPE2:", dataDic['oeilRapporteurPE2']
-#~ #~
-	#oeilEtatMbRapport2
-	dataDic['oeilEtatMbRapport2']=getOeilEtatMbRapport(rapporteursList[1])
-	print "oeilEtatMbRapport2:", dataDic['oeilEtatMbRapport2']
-#~ #~
-	#oeilGroupePolitiqueRapporteur3
-	dataDic['oeilGroupePolitiqueRapporteur3']=getOeilGroupePolitiqueRapporteur(rapporteursList[2])
-	print "oeilGroupePolitiqueRapporteur3:", dataDic['oeilGroupePolitiqueRapporteur3']
-#~ #~
-	#oeilRapporteurPE3
-	dataDic['oeilRapporteurPE3']=getOeilRapporteurPE(rapporteursList[2])
-	print "oeilRapporteurPE3:", dataDic['oeilRapporteurPE3']
-#~ #~
-	#oeilEtatMbRapport3
-	dataDic['oeilEtatMbRapport3']=getOeilEtatMbRapport(rapporteursList[2])
-	print "oeilEtatMbRapport3:", dataDic['oeilEtatMbRapport3']
-#~ #~
-	#oeilGroupePolitiqueRapporteur4
-	dataDic['oeilGroupePolitiqueRapporteur4']=getOeilGroupePolitiqueRapporteur(rapporteursList[3])
-	print "oeilGroupePolitiqueRapporteur4:", dataDic['oeilGroupePolitiqueRapporteur4']
-#~ #~
-	#oeilRapporteurPE4
-	dataDic['oeilRapporteurPE4']=getOeilRapporteurPE(rapporteursList[3])
-	print "oeilRapporteurPE4:", dataDic['oeilRapporteurPE4']
-#~ #~
-	#oeilEtatMbRapport4
-	dataDic['oeilEtatMbRapport4']=getOeilEtatMbRapport(rapporteursList[3])
-	print "oeilEtatMbRapport4:", dataDic['oeilEtatMbRapport4']
-#~ #~
-	#oeilGroupePolitiqueRapporteur5
-	dataDic['oeilGroupePolitiqueRapporteur5']=getOeilGroupePolitiqueRapporteur(rapporteursList[4])
-	print "oeilGroupePolitiqueRapporteur5:", dataDic['oeilGroupePolitiqueRapporteur5']
-#~ #~
-	#oeilRapporteurPE5
-	dataDic['oeilRapporteurPE5']=getOeilRapporteurPE(rapporteursList[4])
-	print "oeilRapporteurPE5:", dataDic['oeilRapporteurPE5']
-#~ #~
-	#oeilEtatMbRapport5
-	dataDic['oeilEtatMbRapport5']=getOeilEtatMbRapport(rapporteursList[4])
-	print "oeilEtatMbRapport5:", dataDic['oeilEtatMbRapport5']
+	#oeilGroupePolitiqueRapporteur, oeilRapporteurPE, oeilEtatMbRapport variables
+	for index in xrange(len(rapporteursList)):
+		num=str(index+1)
+		dataDic['oeilGroupePolitiqueRapporteur'+num]=getOeilGroupePolitiqueRapporteur(rapporteursList[index])
+		print 'oeilGroupePolitiqueRapporteur'+num+": ", dataDic['oeilGroupePolitiqueRapporteur'+num]
+		dataDic['oeilRapporteurPE'+num]=getOeilRapporteurPE(rapporteursList[index])
+		print 'oeilRapporteurPE'+num+": ", dataDic['oeilRapporteurPE'+num]
+		dataDic['oeilEtatMbRapport'+num]=getOeilEtatMbRapport(rapporteursList[index])
+		print 'oeilEtatMbRapport'+num+": ", dataDic['oeilEtatMbRapport'+num]
 
 	#oeilModifPropos
 	dataDic['oeilModifPropos']=getOeilModifPropos(soup)

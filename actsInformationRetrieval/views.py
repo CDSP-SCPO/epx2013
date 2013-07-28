@@ -2,7 +2,7 @@
 from actsIdsValidation.models import ActsIdsModel
 from actsIdsValidation.forms import ActsIdsForm
 from actsInformationRetrieval.forms import ActsInformationForm, ActsAddForm, ActsModifForm
-from actsInformationRetrieval.models import ActsInformationModel, RespProposModel
+from actsInformationRetrieval.models import ActsInformationModel, RespProposModel, NPModel
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, render_to_response
 from django.template import RequestContext
@@ -15,19 +15,54 @@ import variablesNameForInformation as vnInfo
 import sys
 from django.conf import settings
 #~ sys.path.append(settings.SITE_ROOT+'import')
-import importApp.getEurlexIdsFunctions as eurlexIds
-import importApp.getOeilIdsFunctions as oeilIds
-import importApp.getPrelexIdsFunctions as prelexIds
+from importApp.getEurlexIdsFunctions import getEurlexUrl, getEurlexUrlContent
+from importApp.getOeilIdsFunctions import getOeilUrl, getOeilUrlContent
+from importApp.getPrelexIdsFunctions import getPrelexUrl, getPrelexUrlContent
 #retrieve information
-import getEurlexInformationFunctions as eurlex
-import getOeilInformationFunctions as oeil
-import getPrelexInformationFunctions as prelex
+from getEurlexInformationFunctions import getEurlexInformation
+from getOeilInformationFunctions import getOeilInformation
+from getPrelexInformationFunctions import getPrelexInformation
+from getOpalInfo import getOpalInfo
+from getGvtCompo import getGvtCompoInfo
 
 #get the addModif fct from the actsIdsValidation.views view
 from actsIdsValidation.views import addOrModifFct
 
 #redirect to login page if not logged
 from django.contrib.auth.decorators import login_required
+
+
+def getInformation(src, actId, act, url, extraFieldsDic=None):
+	"""
+	FUNCTION
+	get all the information of an act from a source in parameter
+	PARAMETERS
+	src: source (eurlex, oeil or prelex)
+	actId: ids of the act
+	act: information of the act
+	url: link to the act page
+	extraFieldsDic: dictionary of variables needed for the retrieving of data
+	RETURN
+	act object which contains retrieved information
+	"""
+	dataDic={}
+	srcCap=src[0].upper()+src[1:]
+	urlContent=eval("get"+srcCap+"UrlContent")(url)
+	#act doesn't exist, problem on page or problem with the Internet connection
+	if urlContent!=False:
+		setattr(actId, "file"+srcCap+"UrlExists", True)
+		#if yes, retrieve the information and pass it to an object
+		dataDic=eval("get"+srcCap+"Information")(urlContent, extraFieldsDic)
+		#store dictionary information variables into the model object
+		act.__dict__.update(dataDic)
+	else:
+		setattr(actId, "file"+srcCap+"UrlExists", False)
+		print "error while retrieving "+src+" url"
+
+	#actualization url existence
+	actId.save()
+
+	return act
 
 
 def getInformationFromEurlex(actId, act, eurlexUrl):
@@ -41,23 +76,7 @@ def getInformationFromEurlex(actId, act, eurlexUrl):
 	RETURN
 	act object which contains retrieved information
 	"""
-	dataDic={}
-	eurlexUrlContent=eurlexIds.getEurlexUrlContent(eurlexUrl)
-	#act doesn't exist, problem on page or problem with the Internet connection
-	if eurlexUrlContent!=False:
-		actId.fileEurlexUrlExists=True
-		#if yes, retrieve the information and pass it to an object
-		dataDic=eurlex.getEurlexInformation(eurlexUrlContent)
-		#store dictionary information variables into the model object
-		act.__dict__.update(dataDic)
-	else:
-		actId.fileEurlexUrlExists=False
-		print "error while retrieving eurlex url"
-
-	#actualization url existence
-	actId.save()
-
-	return act
+	return getInformation("eurlex", actId, act, eurlexUrl)
 
 
 def getInformationFromOeil(actId, act, oeilUrl):
@@ -71,25 +90,8 @@ def getInformationFromOeil(actId, act, oeilUrl):
 	RETURN
 	act object which contains retrieved information
 	"""
-	dataDic={}
-	oeilUrlContent=oeilIds.getOeilUrlContent(oeilUrl)
-	#act doesn't exist, problem on page or problem with the Internet connection
-	if oeilUrlContent!=False:
-		actId.fileOeilUrlExists=True
-		#if yes, retrieve the information and pass it to an object
-		#store all the fields useful for the act information retrieval in a dictionary
-		tempDic=model_to_dict(actId, fields=["oeilNoUniqueType", "suite2eLecturePE"])
-		dataDic=oeil.getOeilInformation(oeilUrlContent, tempDic)
-		#store dictionary information variables into the model object
-		act.__dict__.update(dataDic)
-	else:
-		actId.fileOeilUrlExists=False
-		print "error while retrieving oeil url"
-
-	#actualization url existence
-	actId.save()
-
-	return act
+	extraFieldsDic=model_to_dict(actId, fields=["oeilNoUniqueType", "suite2eLecturePE"])
+	return getInformation("oeil", actId, act, oeilUrl, extraFieldsDic)
 
 
 def getInformationFromPrelex(actId, act, prelexUrl):
@@ -103,26 +105,45 @@ def getInformationFromPrelex(actId, act, prelexUrl):
 	RETURN
 	act object which contains retrieved information
 	"""
+	extraFieldsDic=model_to_dict(actId, fields=["releveAnnee", "releveMois", "noOrdre", "prelexProposOrigine", "prelexNoUniqueType", "proposSplittee", "suite2eLecturePE"])
+	extraFieldsDic["signPECS"]=act.oeilSignPECS
+	extraFieldsDic["fullCodeSectRep01"]=act.eurlexFullCodeSectRep01
+	return getInformation("prelex", actId, act, prelexUrl, extraFieldsDic)
+
+
+def getInformationFromOpal(actId, act):
+	"""
+	FUNCTION
+	get all the information of a given act from opal
+	PARAMETERS
+	actId: ids of the act
+	act: information of the act
+	RETURN
+	act object which contains retrieved information
+	"""
 	dataDic={}
-	prelexUrlContent=prelexIds.getPrelexUrlContent(prelexUrl)
-	#act doesn't exist, problem on page or problem with the Internet connection
-	if prelexUrlContent!=False:
-		actId.filePrelexUrlExists=True
-		#if yes, retrieve the information and pass it to an object
-		#store all the fields useful for the act information retrieval in a dictionary
-		tempDic=model_to_dict(actId, fields=["prelexProposOrigine", "prelexNoUniqueType", "proposSplittee", "suite2eLecturePE"])
-		tempDic["signPECS"]=act.oeilSignPECS
-		dataDic=prelex.getPrelexInformation(prelexUrlContent, tempDic)
-		#store dictionary information variables into the model object
-		act.__dict__.update(dataDic)
-	else:
-		actId.filePrelexUrlExists=False
-		print "error while retrieving prelex url"
-
-	#actualization url existence
-	actId.save()
-
+	dataDic=getOpalInfo(actId.fileNoCelex)
+	act.__dict__.update(dataDic)
 	return act
+
+
+def getGvtCompo(act):
+	"""
+	FUNCTION
+	get all the information of a given act from GvtCompoModel
+	PARAMETERS
+	act: information of the act
+	RETURN
+	act object which contains retrieved information
+	"""
+	dataDic={}
+	dataDic=getGvtCompoInfo(act)
+	act.__dict__.update(dataDic)
+	return act
+
+	#~ {% for gvtCompo in field.prelexNationGvtPoliticalComposition.all %}
+		#~ {{ gvtCompo.nationGvtPoliticalComposition }}
+	#~ {% endfor %}
 
 
 @login_required
@@ -143,7 +164,6 @@ def actsView(request):
 	state="display"
 
 	if request.method == 'POST':
-		print "allo"
 		#addOrModif=None, "add" or "modif"
 		#act=act to validate / modify or None if no act is found (modifcation)
 		#responseDic: add addForm or modifForm to the forms being displayed / to be displayed
@@ -151,12 +171,12 @@ def actsView(request):
 
 		#if we are about to add or modif an act (the add or modif form is valid)
 		if addOrModif!=None:
-			print "addOrModif", addOrModif
 			act=ActsInformationModel.objects.get(actId_id=actId.id)
 			#saves the act
 			if 'actsValidationSaveButton' in request.POST:
 				print "save"
 				act.validated=True
+				#~ act.prelexNationGvtPoliticalComposition=request.POST["prelexNationGvtPoliticalComposition"]
 				form = ActsInformationForm(request.POST, instance=act)
 				if form.is_valid():
 					print "form valid"
@@ -178,12 +198,12 @@ def actsView(request):
 				print 'actsToValidate display'
 				#"compute" the url of the eurlex, oeil and prelex page
 				urlDic={}
-				urlDic["eurlexUrl"]=eurlexIds.getEurlexUrl(actId.fileNoCelex)
-				urlDic["oeilUrl"]=oeilIds.getOeilUrl(str(actId.fileNoUniqueType), str(actId.fileNoUniqueAnnee), str(actId.fileNoUniqueChrono))
+				urlDic["eurlexUrl"]=getEurlexUrl(actId.fileNoCelex)
+				urlDic["oeilUrl"]=getOeilUrl(str(actId.fileNoUniqueType), str(actId.fileNoUniqueAnnee), str(actId.fileNoUniqueChrono))
 				#in ActsIdsValidation, if split proposition (ProposChrono has a dash)-> oeil ids to construct url
 				#in ActsInformationRetrieval, if split proposition (ProposChrono has a dash)-> dosId to construct url
 				if actId.fileDosId!=None and actId.fileProposChrono!=None and "-" in actId.fileProposChrono:
-					urlDic["prelexUrl"]=prelexIds.getPrelexUrl(actId.fileDosId)
+					urlDic["prelexUrl"]=getPrelexUrl(actId.fileDosId)
 				else:
 					#url saved in the database using the oeil ids in case of a split proposition
 					urlDic["prelexUrl"]=actId.filePrelexUrl
@@ -194,10 +214,11 @@ def actsView(request):
 						act=getInformationFromEurlex(actId, act, urlDic["eurlexUrl"])
 						act=getInformationFromOeil(actId, act, urlDic["oeilUrl"])
 						act=getInformationFromPrelex(actId, act, urlDic["prelexUrl"])
+						act=getInformationFromOpal(actId, act)
+						act=getGvtCompo(act)
 						addForm=ActsAddForm(request.POST)
 					else:
 						modifForm=ActsModifForm(request.POST)
-						#~ initial = {'prelexRespProposId1': act.prelexRespProposId1.id }
 					form = ActsInformationForm(instance=act)
 					idForm=ActsIdsForm(instance=actId)
 				#an error occured while validating the act -> display of these errors
@@ -214,6 +235,8 @@ def actsView(request):
 				responseDic['act']=act
 				responseDic['idForm']=idForm
 				responseDic['form']=form
+				#~ for gvtCompo in responseDic['act'].prelexNationGvtPoliticalComposition.all():
+					#~ print "prelexNationGvtPoliticalComposition:", gvtCompo.id
 
 	#~ #if form has not been created yet -> unbound form
 	if 'form' not in locals():
@@ -223,5 +246,6 @@ def actsView(request):
 		responseDic['addForm'] = ActsAddForm()
 	if 'modifForm' not in responseDic:
 		responseDic['modifForm'] = ActsModifForm()
+
 
 	return render_to_response('actsInformationRetrieval/index.html', responseDic, context_instance=RequestContext(request))

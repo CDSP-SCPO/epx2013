@@ -4,6 +4,17 @@ from actsIdsValidation.models import ActsIdsModel
 from django.core.validators import MinValueValidator, MaxValueValidator
 
 
+
+class GvtCompoModel(models.Model):
+	"""
+	MODEL
+	list of start and end dates with the nationGvtPoliticalComposition variable
+	"""
+	startDate=models.DateField(max_length=10, blank=False, null=False)
+	endDate=models.DateField(max_length=10, blank=False, null=False)
+	nationGvtPoliticalComposition= models.CharField(max_length=1000, blank=False, null=False)
+
+
 class ActsInformationModel(models.Model):
 	"""
 	MODEL
@@ -36,7 +47,6 @@ class ActsInformationModel(models.Model):
 	eurlexRepEn4=models.CharField(max_length=200, blank=True, null=True, default=None)
 	eurlexTypeActe=models.CharField(max_length=100, blank=True, null=True, default=None)
 	eurlexBaseJuridique=models.CharField(max_length=300, blank=True, null=True, default=None)
-	eurlexNationGvtPoliticalComposition= models.CharField(max_length=1000, blank=True, null=True, default=None)
 
 	#oeil
 	oeilCommissionPE=models.CharField(max_length=10, blank=True, null=True, default=None)
@@ -115,13 +125,14 @@ class ActsInformationModel(models.Model):
 	prelexProposSplittee_Adoption_Partielle=models.BooleanField(default=False)
 	prelexProcedureEcrite=models.BooleanField(default=False)
 	prelexSuite2LecturePE=models.BooleanField(default=False)
+	prelexNationGvtPoliticalComposition= models.ManyToManyField(GvtCompoModel)
 
 	#OPAL file
 	#there can be many values for each field for one act (for one noCelex)-> concatenation with ";"
-	opalNPCaseNumber=models.IntegerField(unique=True, max_length=100, blank=True, null=True, default=None)
-	opalNP=models.CharField(max_length=550, blank=True, null=True, default=None)
-	opalNPActivityType= models.CharField(max_length=1000, blank=True, null=True, default=None)
-	opalNPActivityDate=models.DateField(max_length=100, blank=True, null=True, default=None)
+	opalNPCaseNumber=models.CharField(max_length=600, blank=True, null=True, default=None)
+	opalNP=models.CharField(max_length=120, blank=True, null=True, default=None)
+	opalNPActivityType= models.CharField(max_length=200, blank=True, null=True, default=None)
+	opalNPActivityDate=models.CharField(max_length=500, blank=True, null=True, default=None)
 
 	#GENERAL (just for the program)
 	validated=models.BooleanField(default=False)
@@ -242,26 +253,3 @@ class NPModel(models.Model):
 	np=models.CharField(max_length=55, blank=False, null=False)
 	npActivityType= models.CharField(max_length=106, blank=False, null=False)
 	npActivityDate=models.DateField(max_length=10, blank=True, null=True, default=None)
-
-
-class GvtCompoModel(models.Model):
-	"""
-	MODEL
-	list of start and end dates with the nationGvtPoliticalComposition variable
-	"""
-	startDate=models.DateField(max_length=10, blank=False, null=False)
-	endDate=models.DateField(max_length=10, blank=False, null=False)
-	nationGvtPoliticalComposition= models.CharField(max_length=1000, blank=False, null=False)
-
-	#joined primary keys
-	class Meta:
-		unique_together = (("startDate", "endDate", "nationGvtPoliticalComposition"), )
-
-
-class GvtCompoActsInfoAssocModel(models.Model):
-	"""
-	MODEL
-	link the acts (ActsInformationModel) with the compostion of the government (GvtCompoModel)
-	"""
-	actsId = models.ForeignKey('ActsInformationModel')
-	gvtCompoId = models.ForeignKey('GvtCompoModel')

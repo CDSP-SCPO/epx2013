@@ -6,6 +6,9 @@ import re
 from bs4 import BeautifulSoup
 from bs4 import NavigableString
 from bs4 import Tag
+from actsInformationRetrieval.models import CodeSectRepModel, CodeAgendaModel
+from actsInformationRetrieval.getPrelexInformationFunctions import getConfigConsOrCodeAgenda
+from common.commonFunctions import listReverseEnum, show
 
 
 def getEurlexTitreEn(soup):
@@ -51,29 +54,43 @@ def getEurlexFullCodeSectRep(soup):
 	PARAMETERS
 	soup: eurlex url content
 	RETURN
-	eurlexFullCodeSectRep01, eurlexFullCodeSectRep02, eurlexFullCodeSectRep03, eurlexFullCodeSectRep04
+	fullCodeSectRepList: list of eurlexFullCodeSectRep variables
 	"""
-	FullCodeSectRepVars=[]
-	FullCodeSectRepVars.append(None)
-	FullCodeSectRepVars.append(None)
-	FullCodeSectRepVars.append(None)
-	FullCodeSectRepVars.append(None)
-	try:
-		FullCodeSectRep=soup.findAll('em')
-		for i in range(4):
-			FullCodeSectRepVars.append(None)
+	fullCodeSectRepList=[None for i in range(4)]
 
-		for i in range(len(codeSectRep)):
-			FullCodeSectRepVars[i]=FullCodeSectRep[i].get_text().strip()
+	try:
+		fullCodeSectReps=soup.findAll('em')
+
+		for i in range(len(fullCodeSectReps)):
+			fullCodeSectRepList[i]=fullCodeSectReps[i].get_text().strip()
 	except:
 		print "no eurlexFullCodeSectRep!"
 
-	return FullCodeSectRepVars[0], FullCodeSectRepVars[1], FullCodeSectRepVars[2], FullCodeSectRepVars[3]
+	return fullCodeSectRepList
 
 #first, second, third and fourth code under "Directory code:"
 #8 chiffres sous cette forme : 12.34.56.78
 #first not NULL
 #second, third and fourth: can be null
+
+
+def getEurlexCodeAgendas(eurlexCodeSectRepList):
+	"""
+	FUNCTION
+	gets the eurlexCodeAgenda variable from eurlexCodeSectRepList, CodeSectRepModel and CodeAgendaModel
+	PARAMETERS
+	eurlexCodeSectRepList: list of eurlexCodeAgenda variables
+	RETURN
+	codeAgendaList: list of eurlexCodeAgenda variables associated to each eurlexCodeSectRep of eurlexCodeSectRepList
+	"""
+	codeAgendaList=[None for i in range(4)]
+	table1=["CodeAgendaModel", "codeAgenda"]
+	table2=["CodeSectRepModel", "codeSectRep", ""]
+	#for each eurlexCodeSectRep
+	for codeSectRepNum in range(len(eurlexCodeSectRepList)):
+		table2[2]=eurlexCodeSectRepList[codeSectRepNum]
+		codeAgendaList[codeSectRepNum]=getConfigConsOrCodeAgenda(table1, table2)
+	return codeAgendaList
 
 
 def getEurlexRepEn(soup):
@@ -83,9 +100,9 @@ def getEurlexRepEn(soup):
 	PARAMETERS
 	soup: eurlex url content
 	RETURN
-	eurlexRepEn1, eurlexRepEn2, eurlexRepEn3 and eurlexRepEn4
+	repEnList: list of eurlexRepEn variab1es
 	"""
-	repEn1=repEn2=repEn3=repEn4=""
+	repEnList=["" for i in range(4)]
 	try:
 		linksList=soup.findAll('a')
 		delimitorsList=[]
@@ -96,23 +113,23 @@ def getEurlexRepEn(soup):
 
 		#repEn1
 		for i in range(delimitorsList[0]):
-			repEn1+=linksList[i].get_text()+"; "
+			repEnList[0]+=linksList[i].get_text()+"; "
 
 		#repEn2
 		for i in range(delimitorsList[0], delimitorsList[1]):
-			repEn2+=linksList[i].get_text()+"; "
+			repEnList[1]+=linksList[i].get_text()+"; "
 
 		#repEn3
 		for i in range(delimitorsList[1], delimitorsList[2]):
-			repEn3+=linksList[i].get_text()+"; "
+			repEnList[2]+=linksList[i].get_text()+"; "
 
 		#repEn4
 		for i in range(delimitorsList[2], len(linksList)):
-			repEn4+=linksList[i].get_text()+"; "
+			repEnList[3]+=linksList[i].get_text()+"; "
 	except:
 		print "less than four repEn"
 
-	return repEn1[:-2], repEn2[:-2], repEn3[:-2], repEn4[:-2]
+	return repEnList
 
 #texts in front of the eurlexFullCodeSectRep01, eurlexFullCodeSectRep02, eurlexFullCodeSectRep03 and eurlexFullCodeSectRep04 variables (under "Directory code:")
 #eurlexRepEn1 not NULL
@@ -205,7 +222,7 @@ def getEurlexBaseJuridique(soup):
 
 
 
-def getEurlexInformation(soup):
+def getEurlexInformation(soup, extraFieldsDic={}):
 	"""
 	FUNCTION
 	get all the information from the eurlex url
@@ -223,18 +240,26 @@ def getEurlexInformation(soup):
 	directoryCodeSoup=getEurlexDirectoryCode(soup)
 
 	#eurlexFullCodeSectRep01, eurlexFullCodeSectRep02, eurlexFullCodeSectRep03, eurlexFullCodeSectRep04
-	dataDic['eurlexFullCodeSectRep01'], dataDic['eurlexFullCodeSectRep02'], dataDic['eurlexFullCodeSectRep03'], dataDic['eurlexFullCodeSectRep04']=getEurlexFullCodeSectRep(directoryCodeSoup)
-	print "eurlexFullCodeSectRep01:", dataDic['eurlexFullCodeSectRep01']
-	print "eurlexFullCodeSectRep02:", dataDic['eurlexFullCodeSectRep02']
-	print "eurlexFullCodeSectRep03:", dataDic['eurlexFullCodeSectRep03']
-	print "eurlexFullCodeSectRep04:", dataDic['eurlexFullCodeSectRep04']
+	eurlexFullCodeSectRepList=getEurlexFullCodeSectRep(directoryCodeSoup)
+	for index in xrange(len(eurlexFullCodeSectRepList)):
+		num=str(index+1)
+		dataDic['eurlexFullCodeSectRep0'+num]=eurlexFullCodeSectRepList[index]
+		print 'eurlexFullCodeSectRep0'+num+": ", dataDic['eurlexFullCodeSectRep0'+num]
+
+	#eurlexCodeAgenda01-4
+	eurlexCodeAgendaList=getEurlexCodeAgendas(eurlexFullCodeSectRepList)
+	for index in xrange(len(eurlexCodeAgendaList)):
+		num=str(index+1)
+		dataDic['eurlexCodeAgenda0'+num]=eurlexCodeAgendaList[index]
+		print 'eurlexCodeAgenda0'+num+": ", dataDic['eurlexCodeAgenda0'+num]
+
 
 	#eurlexRepEn1, eurlexRepEn2, eurlexRepEn3, eurlexRepEn4
-	dataDic['eurlexRepEn1'], dataDic['eurlexRepEn2'], dataDic['eurlexRepEn3'], dataDic['eurlexRepEn4']=getEurlexRepEn(directoryCodeSoup)
-	print "eurlexRepEn1:", dataDic['eurlexRepEn1']
-	print "eurlexRepEn2:", dataDic['eurlexRepEn2']
-	print "eurlexRepEn3:", dataDic['eurlexRepEn3']
-	print "eurlexRepEn4:", dataDic['eurlexRepEn4']
+	eurlexRepEnList=getEurlexRepEn(directoryCodeSoup)
+	for index in xrange(len(eurlexRepEnList)):
+		num=str(index+1)
+		dataDic['eurlexRepEn'+num]=eurlexRepEnList[index]
+		print 'eurlexRepEn'+num+": ", dataDic['eurlexRepEn'+num]
 
 	#eurlexTypeActe
 	dataDic['eurlexTypeActe']=getEurlexTypeActe(soup)

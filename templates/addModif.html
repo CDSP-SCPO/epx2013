@@ -3,7 +3,7 @@
 	<div id=addDiv>
 		<h4>Act to validate</h4>
 		<br />
-		{{ addForm.actsToValidate.field.choices.all|length }} act(s) to validate!
+		{{ addForm.actsToValidate.field.choices.queryset.all|length }} act(s) to validate!
 		{{ addForm.non_field_errors }}
 		<div id="actsToValidateChoice" class="fieldWrapper">
 			{{ addForm.actsToValidate.errors }}

@@ -4,6 +4,7 @@ variablesNameDic={}
 #name used by the program -> name displayed (to be translated in English)
 
 #ids
+variablesNameDic["actId"]="id"
 variablesNameDic["releveAnnee"]="ReleveAnnee"
 variablesNameDic["releveMois"]="ReleveMois"
 variablesNameDic["releveMoisInitial"]="ReleveMoisInitial"
@@ -27,7 +28,6 @@ variablesNameDic["eurlexRepEn3"]="RepEn3"
 variablesNameDic["eurlexRepEn4"]="RepEn4"
 variablesNameDic["eurlexTypeActe"]="TypeActe"
 variablesNameDic["eurlexBaseJuridique"]="BaseJuridique"
-variablesNameDic["eurlexNationGvtPoliticalComposition"]="NationGvtPoliticalComposition"
 
 #oeil
 variablesNameDic["oeilCommissionPE"]="CommissionPE"
@@ -110,6 +110,7 @@ variablesNameDic["prelexDdeEM"]="DdeEM"
 variablesNameDic["prelexProposSplittee_Adoption_Partielle"]="ProposSplittee_Adoption_Partielle"
 variablesNameDic["prelexProcedureEcrite"]="ProcedureEcrite"
 variablesNameDic["prelexSuite2LecturePE"]="Suite2LecturePE"
+variablesNameDic["prelexNationGvtPoliticalComposition"]="NationGvtPoliticalComposition"
 
 #OPAL
 variablesNameDic["opalNPCaseNumber"]="NPCaseNumber"

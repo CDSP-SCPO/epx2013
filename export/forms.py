@@ -22,7 +22,7 @@ class ActsExportForm(forms.Form):
 		querySet=[]
 		querySet.append(('','Select the sort field'))
 		for i in ActsInformationModel._meta.get_all_field_names():
-			if i!="actId" and i!="validated" and i!="gvtcompoactsinfoassocmodel":
+			if i!="actId" and i!="validated":
 				querySet.append((i, vn.variablesNameDic[i]))
 		return querySet
 
