@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 from django import forms
-from models import ActsInformationModel, RespProposModel
+from models import ActsInformationModel, RespProposModel, GvtCompoModel
 from actsIdsValidation.models import ActsIdsModel
 
 class ActsInformationForm(forms.ModelForm):
 	"""
 	FORM
-	details the ActsInformation form (fields to retrieve for the statistical analysis)
+	fields to retrieve for the statistical analysis (Acts Information retrieval)
 	"""
 	#eurlex
 	eurlexFullCodeSectRep01=forms.RegexField(regex=r'^[0-9]{2}(.[0-9]{2}){3}$', required=False)
@@ -16,6 +16,7 @@ class ActsInformationForm(forms.ModelForm):
 
 	#prelex
 	prelexConfigCons=forms.RegexField(regex=r'^CAG|RE|ECOFIN|JAI|EPSCO|COMPET|TTE|AGRIFISH|AGRI-FISH|ENV|EYC$', required=False)
+	prelexNationGvtPoliticalComposition=forms.ModelMultipleChoiceField(queryset=GvtCompoModel.objects.all(), required=False)
 	#~ prelexRespProposId1=forms.ModelChoiceField(queryset=RespProposModel.objects.all(), widget=forms.TextInput, required=False)
 	#~ prelexRespProposId2=forms.ModelChoiceField(queryset=RespProposModel.objects.all(), widget=forms.TextInput, required=False)
 	#~ prelexRespProposId3=forms.ModelChoiceField(queryset=RespProposModel.objects.all(), widget=forms.TextInput, required=False)

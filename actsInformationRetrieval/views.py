@@ -2,7 +2,7 @@
 from actsIdsValidation.models import ActsIdsModel
 from actsIdsValidation.forms import ActsIdsForm
 from actsInformationRetrieval.forms import ActsInformationForm, ActsAddForm, ActsModifForm
-from actsInformationRetrieval.models import ActsInformationModel, RespProposModel, NPModel
+from actsInformationRetrieval.models import ActsInformationModel
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, render_to_response
 from django.template import RequestContext
@@ -23,13 +23,17 @@ from getEurlexInformationFunctions import getEurlexInformation
 from getOeilInformationFunctions import getOeilInformation
 from getPrelexInformationFunctions import getPrelexInformation
 from getOpalInfo import getOpalInfo
-from getGvtCompo import getGvtCompoInfo
+from getGvtCompoInfo import getGvtCompoInfo
+from getRespProposInfo import getRespProposInfo
 
 #get the addModif fct from the actsIdsValidation.views view
 from actsIdsValidation.views import addOrModifFct
 
 #redirect to login page if not logged
 from django.contrib.auth.decorators import login_required
+
+#check var is class
+import inspect
 
 
 def getInformation(src, actId, act, url, extraFieldsDic=None):
@@ -141,9 +145,18 @@ def getGvtCompo(act):
 	act.__dict__.update(dataDic)
 	return act
 
-	#~ {% for gvtCompo in field.prelexNationGvtPoliticalComposition.all %}
-		#~ {{ gvtCompo.nationGvtPoliticalComposition }}
-	#~ {% endfor %}
+
+def getRespProposRelatedData(resProposId):
+	"""
+	FUNCTION
+	get the related data of RespPropos (from NationRespModel, NationalPartyRespModel, EUGroupRespModel)
+	PARAMETERS
+	resProposId: id of respPropos
+	RETURN
+	nationResp, nationalPartyResp and euGroupResp objects whith retrieved information
+	"""
+	nationResp, nationalPartyResp, euGroupResp=getRespProposInfo(resProposId)
+	return nationResp, nationalPartyResp, euGroupResp
 
 
 @login_required
@@ -211,14 +224,15 @@ def actsView(request):
 				#an act has been selected in the drop down list -> the related information are displayed
 				if state=="display":
 					if addOrModif=="add":
+						#retrieve all the information from all the sources
 						act=getInformationFromEurlex(actId, act, urlDic["eurlexUrl"])
 						act=getInformationFromOeil(actId, act, urlDic["oeilUrl"])
 						act=getInformationFromPrelex(actId, act, urlDic["prelexUrl"])
 						act=getInformationFromOpal(actId, act)
-						act=getGvtCompo(act)
 						addForm=ActsAddForm(request.POST)
 					else:
 						modifForm=ActsModifForm(request.POST)
+					act=getGvtCompo(act)
 					form = ActsInformationForm(instance=act)
 					idForm=ActsIdsForm(instance=actId)
 				#an error occured while validating the act -> display of these errors
@@ -228,11 +242,33 @@ def actsView(request):
 						addForm=ActsAddForm(request.POST)
 					else:
 						modifForm=ActsModifForm(request.POST)
+					act=getGvtCompo(act)
 					form = ActsInformationForm(request.POST, instance=act)
 					idForm=ActsIdsForm(request.POST, instance=actId)
 
+				#TEST ONLY -> to remove
+				#~ from actsInformationRetrieval.models import RespProposModel
+				#~ respPropos=RespProposModel.objects.get(id=2)
+				#~ act.prelexRespProposId1_id=respPropos
+
+				respProposId1=respProposId2=respProposId3=None
+				respProposDic={}
+				for index in xrange(1,4):
+					index=str(index)
+					respPropos=getattr(act, "prelexRespProposId"+index+"_id")
+					respProposId=eval("respProposId"+index)
+					#long
+					if type(respPropos) is long:
+						respProposId=respPropos
+					#object
+					elif respPropos!=None:
+						respProposId=respPropos.id
+					respProposDic["prelexNationResp"+index], respProposDic["prelexNationalPartyResp"+index], respProposDic["prelexEUGroupResp"+index]=getRespProposRelatedData(respProposId)
+
+
 				responseDic['actId']=actId
 				responseDic['act']=act
+				responseDic['respPropos']=respProposDic
 				responseDic['idForm']=idForm
 				responseDic['form']=form
 				#~ for gvtCompo in responseDic['act'].prelexNationGvtPoliticalComposition.all():
@@ -242,6 +278,7 @@ def actsView(request):
 	if 'form' not in locals():
 		responseDic['idForm'] = ActsIdsForm()
 		responseDic['form'] = ActsInformationForm()
+		responseDic['respPropos']={}
 	if 'addForm' not in responseDic:
 		responseDic['addForm'] = ActsAddForm()
 	if 'modifForm' not in responseDic:

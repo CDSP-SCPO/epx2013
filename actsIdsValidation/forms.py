@@ -7,7 +7,6 @@ class ActsIdsForm(forms.ModelForm):
 	FORM
 	details the ActsIds form (ids of the acts only)
 	"""
-
 	#hidden ids used by application
 	releveAnnee = forms.IntegerField(min_value=1957, max_value=2020)
 	releveMois=forms.IntegerField(min_value=1, max_value=12)

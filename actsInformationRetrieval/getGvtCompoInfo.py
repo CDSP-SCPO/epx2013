@@ -16,8 +16,6 @@ def getAssocVariables(act):
 	"""
 	mydic={}
 	myDic=act.prelexNationGvtPoliticalComposition.all().values_list("nationGvtPoliticalComposition", flat=True)
-	#~ for myBikeUser in myBike.users.all():
-   #~ print myBikeUser.comment
 	return myDic
 
 

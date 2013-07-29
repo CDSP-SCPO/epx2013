@@ -33,9 +33,11 @@ def fetchValidatedActsFunction(modelName):
 	query set
 	"""
 	#return the records of the main model ActsInformationModel and related models (we want to export all the db)
-	dumpDB=modelName.objects.prefetch_related("actId", "prelexRespProposId1", "prelexRespProposId2", "prelexRespProposId3", "prelexNationGvtPoliticalComposition")
-	for field in dumpDB.model._meta.fields:
-		print "dumpDB fields", field
+	dumpDB=modelName.objects.all().prefetch_related("actId", "prelexRespProposId1", "prelexRespProposId2", "prelexRespProposId3", "prelexNationGvtPoliticalComposition")
+	for act in dumpDB.values():
+		for field in act:
+			print "dumpDB field", field
+		break
 	return dumpDB
 
 

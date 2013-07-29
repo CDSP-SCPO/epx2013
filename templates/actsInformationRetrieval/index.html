@@ -189,7 +189,33 @@ displays the data of a given act (data for the statistical analysis displays dat
 							<div class="fieldWrapper">
 								<!-- many to many relationship -> select multiple -->
 								{{ field.errors }}
-								{{ field }}
+								{% if field.name == "prelexNationGvtPoliticalComposition" %}
+									{% for gvtCompo in act.prelexNationGvtPoliticalComposition.all %}
+										{{ gvtCompo.nationGvtPoliticalComposition }}
+										{% if not forloop.last %}, {% endif %}
+									{% endfor %}
+								{% else %}
+									{{ field }}
+									{% if field.name == "prelexRespProposId1" %}
+										<div id="prelexRespProposId1">
+											{{ displayName|ofKey:"prelexNationResp1" }}={{respPropos.prelexNationResp1}}<br />
+											 {{ displayName|ofKey:"prelexNationalPartyResp1" }}={{respPropos.prelexNationalPartyResp1}}<br />
+											 {{ displayName|ofKey:"prelexEUGroupResp1" }}={{respPropos.prelexEUGroupResp1}}
+										 </div>
+									{% elif field.name == "prelexRespProposId2" %}
+										<div id="prelexRespProposId2">
+											{{ displayName|ofKey:"prelexNationResp2" }}={{respPropos.prelexNationResp2}}<br />
+											{{ displayName|ofKey:"prelexNationalPartyResp2" }}={{respPropos.prelexNationalPartyResp2}}<br />
+											{{ displayName|ofKey:"prelexEUGroupResp2" }}={{respPropos.prelexEUGroupResp2}}
+										</div>
+									{% elif field.name == "prelexRespProposId3" %}
+										<div id="prelexRespProposId3">
+											{{ displayName|ofKey:"prelexNationResp3" }}={{respPropos.prelexNationResp3}}<br />
+											{{ displayName|ofKey:"prelexNationalPartyResp3" }}={{respPropos.prelexNationalPartyResp3}}<br />
+											{{ displayName|ofKey:"prelexEUGroupResp3" }}={{respPropos.prelexEUGroupResp3}}
+										</div>
+									{% endif %}
+								{% endif %}
 							</div>
 						</td>
 					</tr>

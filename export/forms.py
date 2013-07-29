@@ -9,7 +9,6 @@ class ActsExportForm(forms.Form):
 	FORM
 	details the ActsExport form
 	"""
-
 	def sortFieldsQueryset():
 		"""
 		FUNCTION
@@ -27,8 +26,6 @@ class ActsExportForm(forms.Form):
 		return querySet
 
 	sortFields = forms.ChoiceField(choices=sortFieldsQueryset())
-	#~ .defer("actId", "validated")
-
 
 	sortDirection = forms.ChoiceField(choices = (
 	('', 'Select the sort direction'),

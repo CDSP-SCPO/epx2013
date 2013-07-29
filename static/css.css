@@ -251,6 +251,17 @@ td
 	width: 45%;
 }
 
+/*display respPropos related fields*/
+#id_prelexRespProposId1, #id_prelexRespProposId2, #id_prelexRespProposId3, #prelexRespProposId1, #prelexRespProposId2, #prelexRespProposId3
+{
+	float: left;
+	width: 49.5%;
+	text-align: left;
+	padding-left: 5px;
+/*
+	border-left: 1px dotted black;
+*/
+}
 
 /*IMPORT FORM*/
 #fileSection > *

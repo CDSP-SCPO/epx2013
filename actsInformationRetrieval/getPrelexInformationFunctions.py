@@ -90,7 +90,7 @@ def getPrelexComProc(soup, proposOrigine):
 def saveRespProposAndGetRespProposObject(respPropos):
 	"""
 	FUNCTION
-	save respPropos if doesn't exist in the db yet and get respProposId
+	save respPropos if doesn't exist in the db yet and get respProposId (needed for the foreign key)
 	PARAMETERS
 	respPropos: full name of respPropos
 	RETURN
@@ -253,93 +253,6 @@ def getConfigConsOrCodeAgenda(table1, table2):
 					print "exception", e
 
 	return None
-
-
-def getRespProposVariablesFromDB(table1, table2):
-	"""
-	FUNCTION
-	gets the prelex respPropos variables (nationResp, nationalPartyResp or euGroupResp)
-	PARAMETERS
-	table1: list of model name, field name in the csv file for table1
-	table2: list of model name, field name and value in the csv file for table2 [USED FOR THE JOIN]
-	RETURN
-	nationResp, nationalPartyResp or euGroupResp
-	"""
-	if table2[2]!=None:
-		model1 = get_model('actsInformationRetrieval', table1[0])
-		model2 = get_model('actsInformationRetrieval', table2[0])
-		attrName1=table1[1]
-		attrIdName2=table2[1]
-		attrIdName1=attrName1+"_id"
-		attrId2=table2[2]
-
-		try:
-			#get attrId1 from model2
-			instance2=model2.objects.get(**{attrIdName2: attrId2})
-			attrId1=getattr(instance2, attrIdName1)
-			#if it exist, we get attr1 from model1
-			instance1=model1.objects.get(id=attrId1)
-			return getattr(instance1, attrName1)
-		except Exception, e:
-			print "exception", e
-
-	return None
-
-
-def getRespProposVariables(respProposIdsList, column):
-	"""
-	FUNCTION
-	get the the RespProposModel variable passed in parameter from respProposList, RespProposModel and its own model
-	PARAMETERS
-	respProposIdsList: list of respProposIds variables
-	column: name of the variable to retrieve (nationResp, nationalPartyResp or euGroupResp)
-	RETURN
-	list of the searched variables associated to each respPropos of respProposList
-	"""
-	resList=[None for i in range(3)]
-	table1=[column[0].upper()+column[1:]+"Model", column]
-	table2=["RespProposModel", "id", ""]
-	#for each respPropos
-	for index in xrange(len(respProposIdsList)):
-		table2[2]=respProposIdsList[index]
-		resList[index]=getRespProposVariablesFromDB(table1, table2)
-	return resList
-
-
-def getPrelexNationResp(respProposIdsList):
-	"""
-	FUNCTION
-	get the nationResp variables from respProposList, RespProposModel and NationRespModel
-	PARAMETERS
-	respProposIdsList: list of respProposIds variables
-	RETURN
-	list of nationResp variables associated to each respPropos of respProposList
-	"""
-	return getRespProposVariables(respProposIdsList, "nationResp")
-
-
-def getPrelexNationalPartyResp(respProposIdsList):
-	"""
-	FUNCTION
-	get the nationalPartyResp variables from respProposList, RespProposModel and NationalPartyRespModel
-	PARAMETERS
-	respProposIdsList: list of respProposIds variables
-	RETURN
-	nationalPartyResp: list of nationalPartyResp variables associated to each respPropos of respProposList
-	"""
-	return getRespProposVariables(respProposIdsList, "nationalPartyResp")
-
-
-def getPrelexEUGroupResp(respProposIdsList):
-	"""
-	FUNCTION
-	get the euGroupResp variables from respProposList, RespProposModel and EUGroupRespModel
-	PARAMETERS
-	respProposIdsList: list of respProposIds variables
-	RETURN
-	resList: list of euGroupResp variables associated to each respPropos of respProposList
-	"""
-	return getRespProposVariables(respProposIdsList, "euGroupResp")
 
 
 def getPrelexTransmissionCouncil(soup, proposOrigine):
@@ -778,26 +691,6 @@ def getPrelexInformation(soup, otherVariablesDic):
 			print name+":", dataDic[name].id
 		else:
 			print name+":", None
-
-	#prelexNationResp, prelexNationalPartyResp and prelexEUGroupResp variables
-	columnName=["prelexNationResp", "prelexNationalPartyResp", "prelexEUGroupResp"]
-	respProposIdsList=[]
-	for index in xrange(len(respProposList)):
-		if dataDic['prelexRespProposId'+str(index+1)+'_id']==None:
-			respProposIdsList.append(None)
-		else:
-			respProposIdsList.append(dataDic['prelexRespProposId'+str(index+1)+'_id'].id)
-	#for all prelexNationResp, prelexNationalPartyResp and prelexEUGroupResp variables
-	for variableIndex in xrange(len(columnName)):
-		functionName="get"+columnName[variableIndex][0].upper()+columnName[variableIndex][1:]
-		varList=eval(functionName)(respProposIdsList)
-		print "varList", varList
-		print "columnName[variableIndex]", columnName[variableIndex]
-		#get each variable
-		for index in xrange(len(varList)):
-			num=str(index+1)
-			dataDic[columnName[variableIndex]+num]=varList[index]
-			print columnName[variableIndex]+num+": ", dataDic[columnName[variableIndex]+num]
 
 	#prelexTransmissionCouncil
 	dataDic['prelexTransmissionCouncil']=getPrelexTransmissionCouncil(soup, otherVariablesDic['prelexProposOrigine'])
