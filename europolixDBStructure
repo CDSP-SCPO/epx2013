@@ -1,0 +1,891 @@
+-- MySQL dump 10.13  Distrib 5.5.32, for debian-linux-gnu (i686)
+--
+-- Host: localhost    Database: europolix
+-- ------------------------------------------------------
+-- Server version	5.5.32-0ubuntu0.13.04.1
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Table structure for table `actsIdsValidation_actsidsmodel`
+--
+
+DROP TABLE IF EXISTS `actsIdsValidation_actsidsmodel`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `actsIdsValidation_actsidsmodel` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `releveAnnee` int(11) NOT NULL,
+  `releveMois` int(11) NOT NULL,
+  `noOrdre` int(11) NOT NULL,
+  `titreRMC` varchar(2000) COLLATE utf8_unicode_ci NOT NULL,
+  `adopCSRegleVote` varchar(2) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `adopCSAbs` varchar(90) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `adoptCSContre` varchar(90) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `proposSplittee` tinyint(1) NOT NULL,
+  `suite2eLecturePE` tinyint(1) NOT NULL,
+  `councilPath` varchar(200) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `fileNoCelex` varchar(15) COLLATE utf8_unicode_ci NOT NULL,
+  `fileNoUniqueAnnee` int(11) DEFAULT NULL,
+  `fileNoUniqueType` varchar(4) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `fileNoUniqueChrono` varchar(5) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `fileProposAnnee` int(11) DEFAULT NULL,
+  `fileProposChrono` varchar(7) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `fileProposOrigine` varchar(4) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `fileDosId` int(11) DEFAULT NULL,
+  `fileEurlexUrlExists` tinyint(1) NOT NULL,
+  `eurlexNoCelex` varchar(15) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `eurlexNoUniqueAnnee` int(11) DEFAULT NULL,
+  `eurlexNoUniqueType` varchar(4) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `eurlexNoUniqueChrono` varchar(5) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `eurlexProposAnnee` int(11) DEFAULT NULL,
+  `eurlexProposChrono` varchar(7) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `eurlexProposOrigine` varchar(4) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `eurlexDosId` int(11) DEFAULT NULL,
+  `fileOeilUrlExists` tinyint(1) NOT NULL,
+  `oeilNoCelex` varchar(15) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `oeilNoUniqueAnnee` int(11) DEFAULT NULL,
+  `oeilNoUniqueType` varchar(4) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `oeilNoUniqueChrono` varchar(5) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `oeilProposAnnee` int(11) DEFAULT NULL,
+  `oeilProposChrono` varchar(7) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `oeilProposOrigine` varchar(4) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `oeilDosId` int(11) DEFAULT NULL,
+  `filePrelexUrlExists` tinyint(1) NOT NULL,
+  `filePrelexUrl` varchar(200) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `prelexNosCelex` varchar(200) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `prelexNoUniqueAnnee` int(11) DEFAULT NULL,
+  `prelexNoUniqueType` varchar(4) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `prelexNoUniqueChrono` varchar(5) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `prelexProposAnnee` int(11) DEFAULT NULL,
+  `prelexProposChrono` varchar(7) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `prelexProposOrigine` varchar(4) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `prelexDosId` int(11) DEFAULT NULL,
+  `notes` varchar(2000) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `validated` tinyint(1) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `fileNoCelex` (`fileNoCelex`),
+  UNIQUE KEY `releveAnnee` (`releveAnnee`,`releveMois`,`noOrdre`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `actsIdsValidation_actsidsmodel`
+--
+
+LOCK TABLES `actsIdsValidation_actsidsmodel` WRITE;
+/*!40000 ALTER TABLE `actsIdsValidation_actsidsmodel` DISABLE KEYS */;
+/*!40000 ALTER TABLE `actsIdsValidation_actsidsmodel` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `actsInformationRetrieval_actsinformationmodel`
+--
+
+DROP TABLE IF EXISTS `actsInformationRetrieval_actsinformationmodel`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `actsInformationRetrieval_actsinformationmodel` (
+  `actId_id` int(11) NOT NULL,
+  `releveAnnee` int(11) DEFAULT NULL,
+  `releveMois` int(11) DEFAULT NULL,
+  `releveMoisInitial` varchar(2) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `noOrdre` int(11) DEFAULT NULL,
+  `eurlexTitreEn` varchar(500) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `eurlexFullCodeSectRep01` varchar(11) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `eurlexCodeAgenda01` int(11) DEFAULT NULL,
+  `eurlexFullCodeSectRep02` varchar(11) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `eurlexCodeAgenda02` int(11) DEFAULT NULL,
+  `eurlexFullCodeSectRep03` varchar(11) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `eurlexCodeAgenda03` int(11) DEFAULT NULL,
+  `eurlexFullCodeSectRep04` varchar(11) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `eurlexCodeAgenda04` int(11) DEFAULT NULL,
+  `eurlexRepEn1` varchar(200) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `eurlexRepEn2` varchar(200) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `eurlexRepEn3` varchar(200) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `eurlexRepEn4` varchar(200) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `eurlexTypeActe` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `eurlexBaseJuridique` varchar(300) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `oeilCommissionPE` varchar(10) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `oeilEPComAndtTabled` int(11) DEFAULT NULL,
+  `oeilEPComAndtAdopt` int(11) DEFAULT NULL,
+  `oeilEPAmdtTabled` int(11) DEFAULT NULL,
+  `oeilEPAmdtAdopt` int(11) DEFAULT NULL,
+  `oeilEPVotesFor1` int(11) DEFAULT NULL,
+  `oeilEPVotesAgst1` int(11) DEFAULT NULL,
+  `oeilEPVotesAbs1` int(11) DEFAULT NULL,
+  `oeilEPVotesFor2` int(11) DEFAULT NULL,
+  `oeilEPVotesAgst2` int(11) DEFAULT NULL,
+  `oeilEPVotesAbs2` int(11) DEFAULT NULL,
+  `oeilGroupePolitiqueRapporteur1` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `oeilRapporteurPE1` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `oeilEtatMbRapport1` varchar(5) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `oeilGroupePolitiqueRapporteur2` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `oeilRapporteurPE2` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `oeilEtatMbRapport2` varchar(5) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `oeilGroupePolitiqueRapporteur3` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `oeilRapporteurPE3` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `oeilEtatMbRapport3` varchar(5) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `oeilGroupePolitiqueRapporteur4` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `oeilRapporteurPE4` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `oeilEtatMbRapport4` varchar(5) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `oeilGroupePolitiqueRapporteur5` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `oeilRapporteurPE5` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `oeilEtatMbRapport5` varchar(5) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `oeilModifPropos` tinyint(1) NOT NULL,
+  `oeilNombreLectures` int(11) DEFAULT NULL,
+  `oeilSignPECS` date DEFAULT NULL,
+  `prelexAdoptionProposOrigine` date DEFAULT NULL,
+  `prelexComProc` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `prelexDGProposition1` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `prelexSiglesDG1` varchar(7) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `prelexDGProposition2` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `prelexSiglesDG2` varchar(7) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `prelexRespProposId1_id` int(11) DEFAULT NULL,
+  `prelexRespProposId2_id` int(11) DEFAULT NULL,
+  `prelexRespProposId3_id` int(11) DEFAULT NULL,
+  `prelexTransmissionCouncil` date DEFAULT NULL,
+  `prelexConsB` varchar(500) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `prelexNbPointB` int(11) DEFAULT NULL,
+  `prelexAdoptionConseil` date DEFAULT NULL,
+  `prelexNbPointA` int(11) DEFAULT NULL,
+  `prelexCouncilA` varchar(200) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `prelexRejetConseil` tinyint(1) NOT NULL,
+  `prelexConfigCons` varchar(20) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `prelexChgtBaseJ` tinyint(1) NOT NULL,
+  `prelexDureeAdoptionTrans` int(11) DEFAULT NULL,
+  `prelexDureeProcedureDepuisPropCom` int(11) DEFAULT NULL,
+  `prelexDureeProcedureDepuisTransCons` int(11) DEFAULT NULL,
+  `prelexDureeTotaleDepuisPropCom` int(11) DEFAULT NULL,
+  `prelexDureeTotaleDepuisTransCons` int(11) DEFAULT NULL,
+  `prelexAdoptCSRegleVote` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `prelexVotePublic` tinyint(1) NOT NULL,
+  `prelexAdoptCSContre` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `prelexAdoptCSAbs` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `prelexAdoptPCContre` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `prelexAdoptPCAbs` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `prelexAdoptAPContre` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `prelexAdoptAPAbs` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `prelexDdeEM` tinyint(1) NOT NULL,
+  `prelexProposSplittee_Adoption_Partielle` tinyint(1) NOT NULL,
+  `prelexProcedureEcrite` tinyint(1) NOT NULL,
+  `prelexSuite2LecturePE` tinyint(1) NOT NULL,
+  `opalNPCaseNumber` varchar(600) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `opalNP` varchar(120) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `opalNPActivityType` varchar(200) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `opalNPActivityDate` varchar(500) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `validated` tinyint(1) NOT NULL,
+  PRIMARY KEY (`actId_id`),
+  KEY `actsInformationRetrieval_actsinformationmodel_52af0ccc` (`prelexRespProposId1_id`),
+  KEY `actsInformationRetrieval_actsinformationmodel_115a9a2b` (`prelexRespProposId2_id`),
+  KEY `actsInformationRetrieval_actsinformationmodel_263a0eca` (`prelexRespProposId3_id`),
+  CONSTRAINT `prelexRespProposId3_id_refs_id_6e0de646` FOREIGN KEY (`prelexRespProposId3_id`) REFERENCES `actsInformationRetrieval_respproposmodel` (`id`),
+  CONSTRAINT `actId_id_refs_id_6920ea7` FOREIGN KEY (`actId_id`) REFERENCES `actsIdsValidation_actsidsmodel` (`id`),
+  CONSTRAINT `prelexRespProposId1_id_refs_id_6e0de646` FOREIGN KEY (`prelexRespProposId1_id`) REFERENCES `actsInformationRetrieval_respproposmodel` (`id`),
+  CONSTRAINT `prelexRespProposId2_id_refs_id_6e0de646` FOREIGN KEY (`prelexRespProposId2_id`) REFERENCES `actsInformationRetrieval_respproposmodel` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `actsInformationRetrieval_actsinformationmodel`
+--
+
+LOCK TABLES `actsInformationRetrieval_actsinformationmodel` WRITE;
+/*!40000 ALTER TABLE `actsInformationRetrieval_actsinformationmodel` DISABLE KEYS */;
+/*!40000 ALTER TABLE `actsInformationRetrieval_actsinformationmodel` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `actsInformationRetrieval_actsinformationmodel_prelexNationGva170`
+--
+
+DROP TABLE IF EXISTS `actsInformationRetrieval_actsinformationmodel_prelexNationGva170`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `actsInformationRetrieval_actsinformationmodel_prelexNationGva170` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `actsinformationmodel_id` int(11) NOT NULL,
+  `gvtcompomodel_id` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `actsinformationmodel_id` (`actsinformationmodel_id`,`gvtcompomodel_id`),
+  KEY `actsInformationRetrieval_actsinformationmodel_prelexNationGvfa3c` (`actsinformationmodel_id`),
+  KEY `actsInformationRetrieval_actsinformationmodel_prelexNationGva777` (`gvtcompomodel_id`),
+  CONSTRAINT `actsinformationmodel_id_refs_actId_id_3f1317fc` FOREIGN KEY (`actsinformationmodel_id`) REFERENCES `actsInformationRetrieval_actsinformationmodel` (`actId_id`),
+  CONSTRAINT `gvtcompomodel_id_refs_id_6e86eb5b` FOREIGN KEY (`gvtcompomodel_id`) REFERENCES `actsInformationRetrieval_gvtcompomodel` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `actsInformationRetrieval_actsinformationmodel_prelexNationGva170`
+--
+
+LOCK TABLES `actsInformationRetrieval_actsinformationmodel_prelexNationGva170` WRITE;
+/*!40000 ALTER TABLE `actsInformationRetrieval_actsinformationmodel_prelexNationGva170` DISABLE KEYS */;
+/*!40000 ALTER TABLE `actsInformationRetrieval_actsinformationmodel_prelexNationGva170` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `actsInformationRetrieval_adoptpcmodel`
+--
+
+DROP TABLE IF EXISTS `actsInformationRetrieval_adoptpcmodel`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `actsInformationRetrieval_adoptpcmodel` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `releveAnnee` int(11) NOT NULL,
+  `releveMois` int(11) NOT NULL,
+  `noOrdre` int(11) NOT NULL,
+  `adoptPCAbs` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `adoptPCContre` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `releveAnnee` (`releveAnnee`,`releveMois`,`noOrdre`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `actsInformationRetrieval_adoptpcmodel`
+--
+
+LOCK TABLES `actsInformationRetrieval_adoptpcmodel` WRITE;
+/*!40000 ALTER TABLE `actsInformationRetrieval_adoptpcmodel` DISABLE KEYS */;
+/*!40000 ALTER TABLE `actsInformationRetrieval_adoptpcmodel` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `actsInformationRetrieval_codeagendamodel`
+--
+
+DROP TABLE IF EXISTS `actsInformationRetrieval_codeagendamodel`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `actsInformationRetrieval_codeagendamodel` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `codeAgenda` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `codeAgenda` (`codeAgenda`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `actsInformationRetrieval_codeagendamodel`
+--
+
+LOCK TABLES `actsInformationRetrieval_codeagendamodel` WRITE;
+/*!40000 ALTER TABLE `actsInformationRetrieval_codeagendamodel` DISABLE KEYS */;
+/*!40000 ALTER TABLE `actsInformationRetrieval_codeagendamodel` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `actsInformationRetrieval_codesectrepmodel`
+--
+
+DROP TABLE IF EXISTS `actsInformationRetrieval_codesectrepmodel`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `actsInformationRetrieval_codesectrepmodel` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `codeSectRep` varchar(11) COLLATE utf8_unicode_ci NOT NULL,
+  `configCons_id` int(11) DEFAULT NULL,
+  `codeAgenda_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `codeSectRep` (`codeSectRep`),
+  KEY `actsInformationRetrieval_codesectrepmodel_7c8b7b5d` (`configCons_id`),
+  KEY `actsInformationRetrieval_codesectrepmodel_1f61e339` (`codeAgenda_id`),
+  CONSTRAINT `configCons_id_refs_id_c443fac` FOREIGN KEY (`configCons_id`) REFERENCES `actsInformationRetrieval_configconsmodel` (`id`),
+  CONSTRAINT `codeAgenda_id_refs_id_4efa1176` FOREIGN KEY (`codeAgenda_id`) REFERENCES `actsInformationRetrieval_codeagendamodel` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `actsInformationRetrieval_codesectrepmodel`
+--
+
+LOCK TABLES `actsInformationRetrieval_codesectrepmodel` WRITE;
+/*!40000 ALTER TABLE `actsInformationRetrieval_codesectrepmodel` DISABLE KEYS */;
+/*!40000 ALTER TABLE `actsInformationRetrieval_codesectrepmodel` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `actsInformationRetrieval_configconsmodel`
+--
+
+DROP TABLE IF EXISTS `actsInformationRetrieval_configconsmodel`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `actsInformationRetrieval_configconsmodel` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `configCons` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `configCons` (`configCons`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `actsInformationRetrieval_configconsmodel`
+--
+
+LOCK TABLES `actsInformationRetrieval_configconsmodel` WRITE;
+/*!40000 ALTER TABLE `actsInformationRetrieval_configconsmodel` DISABLE KEYS */;
+/*!40000 ALTER TABLE `actsInformationRetrieval_configconsmodel` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `actsInformationRetrieval_dgcodemodel`
+--
+
+DROP TABLE IF EXISTS `actsInformationRetrieval_dgcodemodel`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `actsInformationRetrieval_dgcodemodel` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `dgCode` varchar(10) COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `dgCode` (`dgCode`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `actsInformationRetrieval_dgcodemodel`
+--
+
+LOCK TABLES `actsInformationRetrieval_dgcodemodel` WRITE;
+/*!40000 ALTER TABLE `actsInformationRetrieval_dgcodemodel` DISABLE KEYS */;
+/*!40000 ALTER TABLE `actsInformationRetrieval_dgcodemodel` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `actsInformationRetrieval_dgfullnamemodel`
+--
+
+DROP TABLE IF EXISTS `actsInformationRetrieval_dgfullnamemodel`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `actsInformationRetrieval_dgfullnamemodel` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `dgFullName` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `dgCode_id` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `dgFullName` (`dgFullName`),
+  KEY `actsInformationRetrieval_dgfullnamemodel_17c396e` (`dgCode_id`),
+  CONSTRAINT `dgCode_id_refs_id_78ba02fa` FOREIGN KEY (`dgCode_id`) REFERENCES `actsInformationRetrieval_dgcodemodel` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `actsInformationRetrieval_dgfullnamemodel`
+--
+
+LOCK TABLES `actsInformationRetrieval_dgfullnamemodel` WRITE;
+/*!40000 ALTER TABLE `actsInformationRetrieval_dgfullnamemodel` DISABLE KEYS */;
+/*!40000 ALTER TABLE `actsInformationRetrieval_dgfullnamemodel` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `actsInformationRetrieval_eugrouprespmodel`
+--
+
+DROP TABLE IF EXISTS `actsInformationRetrieval_eugrouprespmodel`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `actsInformationRetrieval_eugrouprespmodel` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `euGroupResp` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `euGroupResp` (`euGroupResp`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `actsInformationRetrieval_eugrouprespmodel`
+--
+
+LOCK TABLES `actsInformationRetrieval_eugrouprespmodel` WRITE;
+/*!40000 ALTER TABLE `actsInformationRetrieval_eugrouprespmodel` DISABLE KEYS */;
+/*!40000 ALTER TABLE `actsInformationRetrieval_eugrouprespmodel` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `actsInformationRetrieval_gvtcompomodel`
+--
+
+DROP TABLE IF EXISTS `actsInformationRetrieval_gvtcompomodel`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `actsInformationRetrieval_gvtcompomodel` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `startDate` date NOT NULL,
+  `endDate` date NOT NULL,
+  `nationGvtPoliticalComposition` varchar(1000) COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `actsInformationRetrieval_gvtcompomodel`
+--
+
+LOCK TABLES `actsInformationRetrieval_gvtcompomodel` WRITE;
+/*!40000 ALTER TABLE `actsInformationRetrieval_gvtcompomodel` DISABLE KEYS */;
+/*!40000 ALTER TABLE `actsInformationRetrieval_gvtcompomodel` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `actsInformationRetrieval_nationalpartyrespmodel`
+--
+
+DROP TABLE IF EXISTS `actsInformationRetrieval_nationalpartyrespmodel`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `actsInformationRetrieval_nationalpartyrespmodel` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `nationalPartyResp` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `nationalPartyResp` (`nationalPartyResp`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `actsInformationRetrieval_nationalpartyrespmodel`
+--
+
+LOCK TABLES `actsInformationRetrieval_nationalpartyrespmodel` WRITE;
+/*!40000 ALTER TABLE `actsInformationRetrieval_nationalpartyrespmodel` DISABLE KEYS */;
+/*!40000 ALTER TABLE `actsInformationRetrieval_nationalpartyrespmodel` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `actsInformationRetrieval_nationrespmodel`
+--
+
+DROP TABLE IF EXISTS `actsInformationRetrieval_nationrespmodel`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `actsInformationRetrieval_nationrespmodel` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `nationResp` varchar(2) COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `nationResp` (`nationResp`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `actsInformationRetrieval_nationrespmodel`
+--
+
+LOCK TABLES `actsInformationRetrieval_nationrespmodel` WRITE;
+/*!40000 ALTER TABLE `actsInformationRetrieval_nationrespmodel` DISABLE KEYS */;
+/*!40000 ALTER TABLE `actsInformationRetrieval_nationrespmodel` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `actsInformationRetrieval_npmodel`
+--
+
+DROP TABLE IF EXISTS `actsInformationRetrieval_npmodel`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `actsInformationRetrieval_npmodel` (
+  `npCaseNumber` int(11) NOT NULL,
+  `noCelex` varchar(15) COLLATE utf8_unicode_ci NOT NULL,
+  `np` varchar(55) COLLATE utf8_unicode_ci NOT NULL,
+  `npActivityType` varchar(106) COLLATE utf8_unicode_ci NOT NULL,
+  `npActivityDate` date DEFAULT NULL,
+  PRIMARY KEY (`npCaseNumber`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `actsInformationRetrieval_npmodel`
+--
+
+LOCK TABLES `actsInformationRetrieval_npmodel` WRITE;
+/*!40000 ALTER TABLE `actsInformationRetrieval_npmodel` DISABLE KEYS */;
+/*!40000 ALTER TABLE `actsInformationRetrieval_npmodel` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `actsInformationRetrieval_respproposmodel`
+--
+
+DROP TABLE IF EXISTS `actsInformationRetrieval_respproposmodel`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `actsInformationRetrieval_respproposmodel` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `respPropos` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  `nationResp_id` int(11) DEFAULT NULL,
+  `nationalPartyResp_id` int(11) DEFAULT NULL,
+  `euGroupResp_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `respPropos` (`respPropos`),
+  KEY `actsInformationRetrieval_respproposmodel_65d14b2d` (`nationResp_id`),
+  KEY `actsInformationRetrieval_respproposmodel_6b80fc6d` (`nationalPartyResp_id`),
+  KEY `actsInformationRetrieval_respproposmodel_4be64fa` (`euGroupResp_id`),
+  CONSTRAINT `euGroupResp_id_refs_id_67169a36` FOREIGN KEY (`euGroupResp_id`) REFERENCES `actsInformationRetrieval_eugrouprespmodel` (`id`),
+  CONSTRAINT `nationalPartyResp_id_refs_id_78a8d4a9` FOREIGN KEY (`nationalPartyResp_id`) REFERENCES `actsInformationRetrieval_nationalpartyrespmodel` (`id`),
+  CONSTRAINT `nationResp_id_refs_id_20f2c403` FOREIGN KEY (`nationResp_id`) REFERENCES `actsInformationRetrieval_nationrespmodel` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `actsInformationRetrieval_respproposmodel`
+--
+
+LOCK TABLES `actsInformationRetrieval_respproposmodel` WRITE;
+/*!40000 ALTER TABLE `actsInformationRetrieval_respproposmodel` DISABLE KEYS */;
+/*!40000 ALTER TABLE `actsInformationRetrieval_respproposmodel` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `auth_group`
+--
+
+DROP TABLE IF EXISTS `auth_group`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `auth_group` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(80) COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name` (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `auth_group`
+--
+
+LOCK TABLES `auth_group` WRITE;
+/*!40000 ALTER TABLE `auth_group` DISABLE KEYS */;
+/*!40000 ALTER TABLE `auth_group` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `auth_group_permissions`
+--
+
+DROP TABLE IF EXISTS `auth_group_permissions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `auth_group_permissions` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `group_id` int(11) NOT NULL,
+  `permission_id` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `group_id` (`group_id`,`permission_id`),
+  KEY `auth_group_permissions_425ae3c4` (`group_id`),
+  KEY `auth_group_permissions_1e014c8f` (`permission_id`),
+  CONSTRAINT `group_id_refs_id_3cea63fe` FOREIGN KEY (`group_id`) REFERENCES `auth_group` (`id`),
+  CONSTRAINT `permission_id_refs_id_5886d21f` FOREIGN KEY (`permission_id`) REFERENCES `auth_permission` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `auth_group_permissions`
+--
+
+LOCK TABLES `auth_group_permissions` WRITE;
+/*!40000 ALTER TABLE `auth_group_permissions` DISABLE KEYS */;
+/*!40000 ALTER TABLE `auth_group_permissions` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `auth_permission`
+--
+
+DROP TABLE IF EXISTS `auth_permission`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `auth_permission` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  `content_type_id` int(11) NOT NULL,
+  `codename` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `content_type_id` (`content_type_id`,`codename`),
+  KEY `auth_permission_1bb8f392` (`content_type_id`),
+  CONSTRAINT `content_type_id_refs_id_728de91f` FOREIGN KEY (`content_type_id`) REFERENCES `django_content_type` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=70 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `auth_permission`
+--
+
+LOCK TABLES `auth_permission` WRITE;
+/*!40000 ALTER TABLE `auth_permission` DISABLE KEYS */;
+INSERT INTO `auth_permission` VALUES (1,'Can add permission',1,'add_permission'),(2,'Can change permission',1,'change_permission'),(3,'Can delete permission',1,'delete_permission'),(4,'Can add group',2,'add_group'),(5,'Can change group',2,'change_group'),(6,'Can delete group',2,'delete_group'),(7,'Can add user',3,'add_user'),(8,'Can change user',3,'change_user'),(9,'Can delete user',3,'delete_user'),(10,'Can add content type',4,'add_contenttype'),(11,'Can change content type',4,'change_contenttype'),(12,'Can delete content type',4,'delete_contenttype'),(13,'Can add session',5,'add_session'),(14,'Can change session',5,'change_session'),(15,'Can delete session',5,'delete_session'),(16,'Can add site',6,'add_site'),(17,'Can change site',6,'change_site'),(18,'Can delete site',6,'delete_site'),(19,'Can add acts ids model',7,'add_actsidsmodel'),(20,'Can change acts ids model',7,'change_actsidsmodel'),(21,'Can delete acts ids model',7,'delete_actsidsmodel'),(22,'Can add gvt compo model',8,'add_gvtcompomodel'),(23,'Can change gvt compo model',8,'change_gvtcompomodel'),(24,'Can delete gvt compo model',8,'delete_gvtcompomodel'),(25,'Can add acts information model',9,'add_actsinformationmodel'),(26,'Can change acts information model',9,'change_actsinformationmodel'),(27,'Can delete acts information model',9,'delete_actsinformationmodel'),(28,'Can add dg code model',10,'add_dgcodemodel'),(29,'Can change dg code model',10,'change_dgcodemodel'),(30,'Can delete dg code model',10,'delete_dgcodemodel'),(31,'Can add dg full name model',11,'add_dgfullnamemodel'),(32,'Can change dg full name model',11,'change_dgfullnamemodel'),(33,'Can delete dg full name model',11,'delete_dgfullnamemodel'),(34,'Can add config cons model',12,'add_configconsmodel'),(35,'Can change config cons model',12,'change_configconsmodel'),(36,'Can delete config cons model',12,'delete_configconsmodel'),(37,'Can add code agenda model',13,'add_codeagendamodel'),(38,'Can change code agenda model',13,'change_codeagendamodel'),(39,'Can delete code agenda model',13,'delete_codeagendamodel'),(40,'Can add code sect rep model',14,'add_codesectrepmodel'),(41,'Can change code sect rep model',14,'change_codesectrepmodel'),(42,'Can delete code sect rep model',14,'delete_codesectrepmodel'),(43,'Can add nation resp model',15,'add_nationrespmodel'),(44,'Can change nation resp model',15,'change_nationrespmodel'),(45,'Can delete nation resp model',15,'delete_nationrespmodel'),(46,'Can add national party resp model',16,'add_nationalpartyrespmodel'),(47,'Can change national party resp model',16,'change_nationalpartyrespmodel'),(48,'Can delete national party resp model',16,'delete_nationalpartyrespmodel'),(49,'Can add eu group resp model',17,'add_eugrouprespmodel'),(50,'Can change eu group resp model',17,'change_eugrouprespmodel'),(51,'Can delete eu group resp model',17,'delete_eugrouprespmodel'),(52,'Can add resp propos model',18,'add_respproposmodel'),(53,'Can change resp propos model',18,'change_respproposmodel'),(54,'Can delete resp propos model',18,'delete_respproposmodel'),(55,'Can add adopt pc model',19,'add_adoptpcmodel'),(56,'Can change adopt pc model',19,'change_adoptpcmodel'),(57,'Can delete adopt pc model',19,'delete_adoptpcmodel'),(58,'Can add np model',20,'add_npmodel'),(59,'Can change np model',20,'change_npmodel'),(60,'Can delete np model',20,'delete_npmodel'),(61,'Can add csv upload model',21,'add_csvuploadmodel'),(62,'Can change csv upload model',21,'change_csvuploadmodel'),(63,'Can delete csv upload model',21,'delete_csvuploadmodel'),(64,'Can add dos id model',22,'add_dosidmodel'),(65,'Can change dos id model',22,'change_dosidmodel'),(66,'Can delete dos id model',22,'delete_dosidmodel'),(67,'Can add log entry',23,'add_logentry'),(68,'Can change log entry',23,'change_logentry'),(69,'Can delete log entry',23,'delete_logentry');
+/*!40000 ALTER TABLE `auth_permission` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `auth_user`
+--
+
+DROP TABLE IF EXISTS `auth_user`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `auth_user` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `username` varchar(30) COLLATE utf8_unicode_ci NOT NULL,
+  `first_name` varchar(30) COLLATE utf8_unicode_ci NOT NULL,
+  `last_name` varchar(30) COLLATE utf8_unicode_ci NOT NULL,
+  `email` varchar(75) COLLATE utf8_unicode_ci NOT NULL,
+  `password` varchar(128) COLLATE utf8_unicode_ci NOT NULL,
+  `is_staff` tinyint(1) NOT NULL,
+  `is_active` tinyint(1) NOT NULL,
+  `is_superuser` tinyint(1) NOT NULL,
+  `last_login` datetime NOT NULL,
+  `date_joined` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `username` (`username`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `auth_user`
+--
+
+LOCK TABLES `auth_user` WRITE;
+/*!40000 ALTER TABLE `auth_user` DISABLE KEYS */;
+INSERT INTO `auth_user` VALUES (1,'root','','','romain.lalande@gmail.com','pbkdf2_sha256$10000$fiZIDrribVs9$aOzhemeC24PxZdWJr3o3DaHHofUZwMdKhMSEvZW3R+s=',1,1,1,'2013-07-29 08:13:29','2013-07-29 08:13:29');
+/*!40000 ALTER TABLE `auth_user` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `auth_user_groups`
+--
+
+DROP TABLE IF EXISTS `auth_user_groups`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `auth_user_groups` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `group_id` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `user_id` (`user_id`,`group_id`),
+  KEY `auth_user_groups_403f60f` (`user_id`),
+  KEY `auth_user_groups_425ae3c4` (`group_id`),
+  CONSTRAINT `user_id_refs_id_7ceef80f` FOREIGN KEY (`user_id`) REFERENCES `auth_user` (`id`),
+  CONSTRAINT `group_id_refs_id_f116770` FOREIGN KEY (`group_id`) REFERENCES `auth_group` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `auth_user_groups`
+--
+
+LOCK TABLES `auth_user_groups` WRITE;
+/*!40000 ALTER TABLE `auth_user_groups` DISABLE KEYS */;
+/*!40000 ALTER TABLE `auth_user_groups` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `auth_user_user_permissions`
+--
+
+DROP TABLE IF EXISTS `auth_user_user_permissions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `auth_user_user_permissions` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `permission_id` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `user_id` (`user_id`,`permission_id`),
+  KEY `auth_user_user_permissions_403f60f` (`user_id`),
+  KEY `auth_user_user_permissions_1e014c8f` (`permission_id`),
+  CONSTRAINT `user_id_refs_id_dfbab7d` FOREIGN KEY (`user_id`) REFERENCES `auth_user` (`id`),
+  CONSTRAINT `permission_id_refs_id_67e79cb` FOREIGN KEY (`permission_id`) REFERENCES `auth_permission` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `auth_user_user_permissions`
+--
+
+LOCK TABLES `auth_user_user_permissions` WRITE;
+/*!40000 ALTER TABLE `auth_user_user_permissions` DISABLE KEYS */;
+/*!40000 ALTER TABLE `auth_user_user_permissions` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `django_admin_log`
+--
+
+DROP TABLE IF EXISTS `django_admin_log`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `django_admin_log` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `action_time` datetime NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `content_type_id` int(11) DEFAULT NULL,
+  `object_id` longtext COLLATE utf8_unicode_ci,
+  `object_repr` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
+  `action_flag` smallint(5) unsigned NOT NULL,
+  `change_message` longtext COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `django_admin_log_403f60f` (`user_id`),
+  KEY `django_admin_log_1bb8f392` (`content_type_id`),
+  CONSTRAINT `user_id_refs_id_c8665aa` FOREIGN KEY (`user_id`) REFERENCES `auth_user` (`id`),
+  CONSTRAINT `content_type_id_refs_id_288599e6` FOREIGN KEY (`content_type_id`) REFERENCES `django_content_type` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `django_admin_log`
+--
+
+LOCK TABLES `django_admin_log` WRITE;
+/*!40000 ALTER TABLE `django_admin_log` DISABLE KEYS */;
+/*!40000 ALTER TABLE `django_admin_log` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `django_content_type`
+--
+
+DROP TABLE IF EXISTS `django_content_type`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `django_content_type` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `app_label` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `model` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `app_label` (`app_label`,`model`)
+) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `django_content_type`
+--
+
+LOCK TABLES `django_content_type` WRITE;
+/*!40000 ALTER TABLE `django_content_type` DISABLE KEYS */;
+INSERT INTO `django_content_type` VALUES (1,'permission','auth','permission'),(2,'group','auth','group'),(3,'user','auth','user'),(4,'content type','contenttypes','contenttype'),(5,'session','sessions','session'),(6,'site','sites','site'),(7,'acts ids model','actsIdsValidation','actsidsmodel'),(8,'gvt compo model','actsInformationRetrieval','gvtcompomodel'),(9,'acts information model','actsInformationRetrieval','actsinformationmodel'),(10,'dg code model','actsInformationRetrieval','dgcodemodel'),(11,'dg full name model','actsInformationRetrieval','dgfullnamemodel'),(12,'config cons model','actsInformationRetrieval','configconsmodel'),(13,'code agenda model','actsInformationRetrieval','codeagendamodel'),(14,'code sect rep model','actsInformationRetrieval','codesectrepmodel'),(15,'nation resp model','actsInformationRetrieval','nationrespmodel'),(16,'national party resp model','actsInformationRetrieval','nationalpartyrespmodel'),(17,'eu group resp model','actsInformationRetrieval','eugrouprespmodel'),(18,'resp propos model','actsInformationRetrieval','respproposmodel'),(19,'adopt pc model','actsInformationRetrieval','adoptpcmodel'),(20,'np model','actsInformationRetrieval','npmodel'),(21,'csv upload model','importApp','csvuploadmodel'),(22,'dos id model','importApp','dosidmodel'),(23,'log entry','admin','logentry');
+/*!40000 ALTER TABLE `django_content_type` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `django_session`
+--
+
+DROP TABLE IF EXISTS `django_session`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `django_session` (
+  `session_key` varchar(40) COLLATE utf8_unicode_ci NOT NULL,
+  `session_data` longtext COLLATE utf8_unicode_ci NOT NULL,
+  `expire_date` datetime NOT NULL,
+  PRIMARY KEY (`session_key`),
+  KEY `django_session_3da3d3d8` (`expire_date`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `django_session`
+--
+
+LOCK TABLES `django_session` WRITE;
+/*!40000 ALTER TABLE `django_session` DISABLE KEYS */;
+/*!40000 ALTER TABLE `django_session` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `django_site`
+--
+
+DROP TABLE IF EXISTS `django_site`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `django_site` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `domain` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  `name` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `django_site`
+--
+
+LOCK TABLES `django_site` WRITE;
+/*!40000 ALTER TABLE `django_site` DISABLE KEYS */;
+INSERT INTO `django_site` VALUES (1,'example.com','example.com');
+/*!40000 ALTER TABLE `django_site` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `importApp_csvuploadmodel`
+--
+
+DROP TABLE IF EXISTS `importApp_csvuploadmodel`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `importApp_csvuploadmodel` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `csvFile` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `importApp_csvuploadmodel`
+--
+
+LOCK TABLES `importApp_csvuploadmodel` WRITE;
+/*!40000 ALTER TABLE `importApp_csvuploadmodel` DISABLE KEYS */;
+/*!40000 ALTER TABLE `importApp_csvuploadmodel` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `importApp_dosidmodel`
+--
+
+DROP TABLE IF EXISTS `importApp_dosidmodel`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `importApp_dosidmodel` (
+  `dosId` int(11) NOT NULL,
+  `proposOrigine` varchar(4) COLLATE utf8_unicode_ci NOT NULL,
+  `proposAnnee` int(11) NOT NULL,
+  `proposChrono` varchar(7) COLLATE utf8_unicode_ci NOT NULL,
+  `splitNumber` int(11) DEFAULT NULL,
+  PRIMARY KEY (`dosId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `importApp_dosidmodel`
+--
+
+LOCK TABLES `importApp_dosidmodel` WRITE;
+/*!40000 ALTER TABLE `importApp_dosidmodel` DISABLE KEYS */;
+/*!40000 ALTER TABLE `importApp_dosidmodel` ENABLE KEYS */;
+UNLOCK TABLES;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed on 2013-07-29 15:25:16
