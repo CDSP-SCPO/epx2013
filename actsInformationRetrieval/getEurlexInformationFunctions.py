@@ -8,7 +8,7 @@ from bs4 import NavigableString
 from bs4 import Tag
 from actsInformationRetrieval.models import CodeSectRepModel, CodeAgendaModel
 from actsInformationRetrieval.getPrelexInformationFunctions import getConfigConsOrCodeAgenda
-from common.commonFunctions import listReverseEnum, show
+from common.commonFunctions import listReverseEnum
 
 
 def getEurlexTitreEn(soup):

@@ -14,9 +14,12 @@ def getAssocVariables(act):
 	RETURN
 	prelexNationGvtPoliticalComposition (ActsInformationModel)
 	"""
-	mydic={}
-	myDic=act.prelexNationGvtPoliticalComposition.all().values_list("nationGvtPoliticalComposition", flat=True)
-	return myDic
+	gvt_compo=""
+	for gvtCompo in act.prelexNationGvtPoliticalComposition.all():
+		gvt_compo+=gvtCompo.nationGvtPoliticalComposition+"; "
+	#delete last "; "
+	gvt_compo=gvt_compo[:-2]
+	return gvt_compo
 
 
 def linkActInfoToGvtCompo(act):
@@ -73,14 +76,12 @@ def getGvtCompoInfo(act):
 	PARAMETERS
 	act: instance of the act
 	RETURN
-	dataDic: gvtCompo data
+	gvtCompo data
 	"""
-	dataDic={}
-
 	#TEST ONLY -> TO REMOVE
 	#~ act.prelexAdoptionConseil="2012-02-21"
 
-	dataDic["prelexNationGvtPoliticalComposition"]=getGvtCompo(act)
-	print "prelexNationGvtPoliticalComposition", dataDic["prelexNationGvtPoliticalComposition"]
+	gvt_compo=getGvtCompo(act)
+	print "prelexNationGvtPoliticalComposition", gvt_compo
 
-	return dataDic
+	return gvt_compo

@@ -35,7 +35,7 @@ def getRespProposVariablesFromDB(table1, respPropos):
 		except Exception, e:
 			print "exception", e
 
-	return ""
+	return None
 
 
 def getPrelexNationResp(respProposId):

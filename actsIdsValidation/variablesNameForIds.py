@@ -32,6 +32,8 @@ variablesNameDic["eurlexProposAnnee"]="ProposAnnee"
 variablesNameDic["eurlexProposChrono"]="ProposChrono"
 variablesNameDic["eurlexProposOrigine"]="ProposOrigine"
 variablesNameDic["eurlexDosId"]="DosId"
+variablesNameDic["fileEurlexUrlExists"]="Eurlex url exists?"
+
 
 variablesNameDic["oeilNoCelex"]="NoCelex"
 variablesNameDic["oeilNoUniqueAnnee"]="NoUniqueAnnee"
@@ -41,6 +43,8 @@ variablesNameDic["oeilProposAnnee"]="ProposAnnee"
 variablesNameDic["oeilProposChrono"]="ProposChrono"
 variablesNameDic["oeilProposOrigine"]="ProposOrigine"
 variablesNameDic["oeilDosId"]="DosId"
+variablesNameDic["fileOeilUrlExists"]="Oeil url exists?"
+
 
 variablesNameDic["prelexNosCelex"]="NoCelex"
 variablesNameDic["prelexNoUniqueAnnee"]="NoUniqueAnnee"
@@ -50,6 +54,8 @@ variablesNameDic["prelexProposAnnee"]="ProposAnnee"
 variablesNameDic["prelexProposChrono"]="ProposChrono"
 variablesNameDic["prelexProposOrigine"]="ProposOrigine"
 variablesNameDic["prelexDosId"]="DosId"
+variablesNameDic["filePrelexUrlExists"]="Prelex url exists?"
+
 
 #DO NOT MODIFY
 variablesNameDic["releveAnneeModif"]=variablesNameDic["releveAnnee"]

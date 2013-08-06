@@ -110,7 +110,9 @@ def getInformationFromPrelex(actId, act, prelexUrl):
 	act object which contains retrieved information
 	"""
 	extraFieldsDic=model_to_dict(actId, fields=["releveAnnee", "releveMois", "noOrdre", "prelexProposOrigine", "prelexNoUniqueType", "proposSplittee", "suite2eLecturePE"])
+	print "act.oeilSignPECS", act.oeilSignPECS
 	extraFieldsDic["signPECS"]=act.oeilSignPECS
+	print "extraFieldsDic[signPECS]", extraFieldsDic["signPECS"]
 	extraFieldsDic["fullCodeSectRep01"]=act.eurlexFullCodeSectRep01
 	return getInformation("prelex", actId, act, prelexUrl, extraFieldsDic)
 
@@ -138,12 +140,10 @@ def getGvtCompo(act):
 	PARAMETERS
 	act: information of the act
 	RETURN
-	act object which contains retrieved information
+	string which contains retrieved information
 	"""
-	dataDic={}
-	dataDic=getGvtCompoInfo(act)
-	act.__dict__.update(dataDic)
-	return act
+	gvt_compo=getGvtCompoInfo(act)
+	return gvt_compo
 
 
 def getRespProposRelatedData(resProposId):
@@ -171,6 +171,7 @@ def actsView(request):
 	#update europolix.actsInformationRetrieval_actsinformationmodel set validated=0;
 
 	responseDic={}
+	gvt_compo=""
 	#display "real" name of variables (names given by europolix team, not the names stored in db)
 	responseDic['displayName']=vnIds.variablesNameDic
 	responseDic['displayName'].update(vnInfo.variablesNameDic)
@@ -232,7 +233,6 @@ def actsView(request):
 						addForm=ActsAddForm(request.POST)
 					else:
 						modifForm=ActsModifForm(request.POST)
-					act=getGvtCompo(act)
 					form = ActsInformationForm(instance=act)
 					idForm=ActsIdsForm(instance=actId)
 				#an error occured while validating the act -> display of these errors
@@ -242,15 +242,10 @@ def actsView(request):
 						addForm=ActsAddForm(request.POST)
 					else:
 						modifForm=ActsModifForm(request.POST)
-					act=getGvtCompo(act)
 					form = ActsInformationForm(request.POST, instance=act)
 					idForm=ActsIdsForm(request.POST, instance=actId)
 
-				#TEST ONLY -> to remove
-				#~ from actsInformationRetrieval.models import RespProposModel
-				#~ respPropos=RespProposModel.objects.get(id=2)
-				#~ act.prelexRespProposId1_id=respPropos
-
+				gvt_compo=getGvtCompo(act)
 				respProposId1=respProposId2=respProposId3=None
 				respProposDic={}
 				for index in xrange(1,4):
@@ -265,10 +260,10 @@ def actsView(request):
 						respProposId=respPropos.id
 					respProposDic["prelexNationResp"+index], respProposDic["prelexNationalPartyResp"+index], respProposDic["prelexEUGroupResp"+index]=getRespProposRelatedData(respProposId)
 
-
 				responseDic['actId']=actId
 				responseDic['act']=act
 				responseDic['respPropos']=respProposDic
+				responseDic['gvt_compo']=gvt_compo
 				responseDic['idForm']=idForm
 				responseDic['form']=form
 				#~ for gvtCompo in responseDic['act'].prelexNationGvtPoliticalComposition.all():

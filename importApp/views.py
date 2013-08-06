@@ -7,7 +7,7 @@ from django.template import RequestContext
 from forms import CSVUploadForm
 from models import CSVUploadModel, DosIdModel
 from actsIdsValidation.models import ActsIdsModel
-from actsInformationRetrieval.models import ConfigConsModel, CodeSectRepModel, CodeAgendaModel, AdoptPCModel, GvtCompoModel,RespProposModel, NationRespModel, NationalPartyRespModel, EUGroupRespModel, NPModel
+from actsInformationRetrieval.models import ConfigConsModel, CodeSectRepModel, CodeAgendaModel, AdoptPCModel, GvtCompoModel, RespProposModel, NationRespModel, NationalPartyRespModel, EUGroupRespModel, NPModel
 #call function to save date in the iso format (YYYY-MM-DD)
 import datetime
 import os

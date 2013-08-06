@@ -190,10 +190,7 @@ displays the data of a given act (data for the statistical analysis displays dat
 								<!-- many to many relationship -> select multiple -->
 								{{ field.errors }}
 								{% if field.name == "prelexNationGvtPoliticalComposition" %}
-									{% for gvtCompo in act.prelexNationGvtPoliticalComposition.all %}
-										{{ gvtCompo.nationGvtPoliticalComposition }}
-										{% if not forloop.last %}, {% endif %}
-									{% endfor %}
+										{{ gvt_compo }}
 								{% else %}
 									{{ field }}
 									{% if field.name == "prelexRespProposId1" %}

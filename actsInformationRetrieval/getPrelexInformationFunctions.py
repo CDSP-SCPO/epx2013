@@ -10,6 +10,8 @@ from common.commonFunctions import stringToIsoDate, listReverseEnum
 from datetime import datetime
 #model as parameter
 from django.db.models.loading import get_model
+#remove accents
+from common.commonFunctions import remove_nonspacing_marks
 
 
 def getPrelexAdoptionByCommissionTable(soup):
@@ -96,21 +98,22 @@ def saveRespProposAndGetRespProposObject(respPropos):
 	RETURN
 	respProposObject: instance of respProposModel
 	"""
-	print 'ok'
+	#remove accents and trailing "'"
+	if respPropos[-1]=="'":
+		respPropos=respPropos[:-1]
+	respPropos=remove_nonspacing_marks(respPropos)
+	#change name format: "Firstname LASTNAME" -> "LASTNAME Firstname"
+	respPropos=respPropos.split()
+	respPropos=respPropos[1]+" "+respPropos[0]
+
 	try:
-		#change name format: "Firstname LASTNAME" -> "LASTNAME Firstname"
-		respPropos=respPropos.split()
-		respPropos=respPropos[1]+" "+respPropos[0]
 		#checks if respPropos already exists in the db
 		respProposObject=RespProposModel.objects.get(respPropos=respPropos)
-		print "respProposObject", respProposObject
 		return respProposObject
 	except:
 		#respPropos doesn't exist in the db yet -> we add it in the table
 		respProposObject=RespProposModel(respPropos=respPropos).save()
-		#~ print "respProposDB.id", respProposDB.id
-		#we get respPropos
-		print "respProposObject except", respProposObject
+		#get respPropos
 		return respProposObject
 
 	return None
@@ -212,8 +215,8 @@ def getPrelexRespProposList(soup):
 			respProposList[index]=saveRespProposAndGetRespProposObject(temp[index].strip())
 			#two responsibles
 			#http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=en&DosId=191554
-	except:
-		print "no other responsible"
+	except Exception, e:
+		print "exception", e
 
 	#~ print "respProposList", respProposList
 	return respProposList
@@ -513,86 +516,17 @@ def getPrelexDateDiff(date1, date2):
 	RETURN
 	difference between the two dates in parameters
 	"""
-	if date1!=None and date2!=None:
+	if date1!=None and date1!="None" and date2!=None:
 		#transform dates to the iso format (YYYY-MM-DD)
 		date1 = datetime.strptime(date1, "%Y-%m-%d")
 		date2 = datetime.strptime(date2, "%Y-%m-%d")
 		return (date1 - date2).days
 	return None
 
-
-def getPrelexDureeAdoptionTrans(date1, date2):
-	"""
-	FUNCTION
-	compute the prelexDureeAdoptionTrans variable
-	PARAMETERS
-	date1: first date
-	date2: second date
-	RETURN
-	difference between the two dates in parameters
-	"""
-	return getPrelexDateDiff(date1, date2)
-
 #DureeAdoptionTrans (TransmissionConseil - AdoptionProposOrigine)
-
-
-def getPrelexDureeProcedureDepuisPropCom(date1, date2):
-	"""
-	FUNCTION
-	compute the prelexDureeProcedureDepuisPropCom variable
-	PARAMETERS
-	date1: first date
-	date2: second date
-	RETURN
-	difference between the two dates in parameters
-	"""
-	return getPrelexDateDiff(date1, date2)
-
 #DureeProcedureDepuisPropCom (AdoptionConseil – AdoptionProposOrigine)
-
-
-def getPrelexDureeProcedureDepuisTransCons(date1, date2):
-	"""
-	FUNCTION
-	compute the prelexDureeProcedureDepuisTransCons variable
-	PARAMETERS
-	date1: first date
-	date2: second date
-	RETURN
-	difference between the two dates in parameters
-	"""
-	return getPrelexDateDiff(date1, date2)
-
 #DureeProcedureDepuisTransCons (AdoptionConseil – TransmissionConseil)
-
-
-def getPrelexDureeTotaleDepuisPropCom(date1, date2):
-	"""
-	FUNCTION
-	compute the prelexDureeTotaleDepuisPropCom variable
-	PARAMETERS
-	date1: first date
-	date2: second date
-	RETURN
-	difference between the two dates in parameters
-	"""
-	return getPrelexDateDiff(date1, date2)
-
 #DureeTotaleDepuisPropCom (SignPECS – AdoptionProposOrigine)
-
-
-def getPrelexDureeTotaleDepuisTransCons(date1, date2):
-	"""
-	FUNCTION
-	compute the prelexDureeTotaleDepuisTransCons variable
-	PARAMETERS
-	date1: first date
-	date2: second date
-	RETURN
-	difference between the two dates in parameters
-	"""
-	return getPrelexDateDiff(date1, date2)
-
 #DureeTotaleDepuisTransCons (SignPECS – TransmissionConseil) 
 
 
@@ -638,6 +572,7 @@ def getPrelexAdoptPCContre(releveIds):
 	value of the variable
 	"""
 	return getPrelexAdoptPCVariables(releveIds, "adoptPCContre")
+
 
 
 def getPrelexInformation(soup, otherVariablesDic):
@@ -725,23 +660,23 @@ def getPrelexInformation(soup, otherVariablesDic):
 	print "prelexConfigCons:", dataDic['prelexConfigCons']
 
 	#prelexDureeAdoptionTrans
-	dataDic['prelexDureeAdoptionTrans']=getPrelexDureeAdoptionTrans(dataDic['prelexTransmissionCouncil'], dataDic['prelexAdoptionProposOrigine'])
+	dataDic['prelexDureeAdoptionTrans']=getPrelexDateDiff(dataDic['prelexTransmissionCouncil'], dataDic['prelexAdoptionProposOrigine'])
 	print "prelexDureeAdoptionTrans:", dataDic['prelexDureeAdoptionTrans']
 
 	#prelexDureeProcedureDepuisPropCom
-	dataDic['prelexDureeProcedureDepuisPropCom']=getPrelexDureeProcedureDepuisPropCom(dataDic['prelexAdoptionConseil'], dataDic['prelexAdoptionProposOrigine'])
+	dataDic['prelexDureeProcedureDepuisPropCom']=getPrelexDateDiff(dataDic['prelexAdoptionConseil'], dataDic['prelexAdoptionProposOrigine'])
 	print "prelexDureeProcedureDepuisPropCom:", dataDic['prelexDureeProcedureDepuisPropCom']
 
 	#prelexDureeProcedureDepuisTransCons
-	dataDic['prelexDureeProcedureDepuisTransCons']=getPrelexDureeProcedureDepuisTransCons(dataDic['prelexAdoptionConseil'], dataDic['prelexTransmissionCouncil'])
+	dataDic['prelexDureeProcedureDepuisTransCons']=getPrelexDateDiff(dataDic['prelexAdoptionConseil'], dataDic['prelexTransmissionCouncil'])
 	print "prelexDureeProcedureDepuisTransCons:", dataDic['prelexDureeProcedureDepuisTransCons']
 
 	#prelexDureeTotaleDepuisPropCom
-	dataDic['prelexDureeTotaleDepuisPropCom']=getPrelexDureeTotaleDepuisPropCom(otherVariablesDic["signPECS"], dataDic['prelexAdoptionProposOrigine'])
+	dataDic['prelexDureeTotaleDepuisPropCom']=getPrelexDateDiff(str(otherVariablesDic["signPECS"]), dataDic['prelexAdoptionProposOrigine'])
 	print "prelexDureeTotaleDepuisPropCom:", dataDic['prelexDureeTotaleDepuisPropCom']
 
 	#prelexDureeTotaleDepuisTransCons
-	dataDic['prelexDureeTotaleDepuisTransCons']=getPrelexDureeTotaleDepuisTransCons(otherVariablesDic["signPECS"], dataDic['prelexTransmissionCouncil'])
+	dataDic['prelexDureeTotaleDepuisTransCons']=getPrelexDateDiff(str(otherVariablesDic["signPECS"]), dataDic['prelexTransmissionCouncil'])
 	print "prelexDureeTotaleDepuisTransCons:", dataDic['prelexDureeTotaleDepuisTransCons']
 
 	#prelexAdoptPCAbs

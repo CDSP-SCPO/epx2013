@@ -1,5 +1,7 @@
 #manipulates dates
 from datetime import date
+#remove accents
+import unicodedata
 
 def splitFrenchDate(dateString):
 	"""
@@ -31,7 +33,8 @@ def splitDateToIso(year, month, day):
 	RETURN
 	date in the iso format
 	"""
-	return date(int(year), int(month), int(day)).isoformat()
+	new_date=date(int(year), int(month), int(day)).isoformat()
+	return new_date
 
 
 def stringToIsoDate(string):
@@ -43,14 +46,17 @@ def stringToIsoDate(string):
 	RETURN
 	date in the iso format
 	"""
-	#if year is first
-	if string[2].isdigit():
-		year, month, day=string[:4], string[5:7], string[8:]
-	#if year is last
+	if string!=None:
+		#if year is first
+		if string[2].isdigit():
+			year, month, day=string[:4], string[5:7], string[8:]
+		#if year is last
+		else:
+			#the year must be coded on 4 digits
+			year, month, day=string[6:], string[3:5], string[:2]
+		return splitDateToIso(year, month, day)
 	else:
-		#the year must be coded on 4 digits
-		year, month, day=string[6:], string[3:5], string[:2]
-	return splitDateToIso(year, month, day)
+		return None
 
 
 def listReverseEnum(L):
@@ -66,13 +72,6 @@ def listReverseEnum(L):
 	  yield index, L[index]
 
 
-def show(varName):
-	"""
-	FUNCTION
-	"improves" built-in print function
-	PARAMETERS
-	varName: name of the variable to display
-	RETURN
-	nice display of the variable
-	"""
-	return varName+": "+eval(varName)
+def remove_nonspacing_marks(s):
+	"Decompose the unicode string s and remove non-spacing marks."
+	return ''.join(c for c in unicodedata.normalize('NFKD', s) if unicodedata.category(c) != 'Mn')

@@ -13,7 +13,7 @@ class ActsIdsForm(forms.ModelForm):
 	noOrdre=forms.IntegerField(min_value=1, max_value=99)
 
 	#EURLEX
-	fileNoCelex=forms.RegexField(regex=r'^[0-9](195[789]|19[6-9][0-9]|20[0-1][0-9])([dflryDFLRY]|PC)[0-9]{4}(\(01\)|R\(01\))?$')
+	fileNoCelex=forms.RegexField(regex=r'^[0-9](195[789]|19[6-9][0-9]|20[0-1][0-9])([dflryDFLRY]|PC)[0-9]{4}(\(0[1-9]\)|R\(0[1-9]\))?$')
 	#~ noCelex
 	#^[0-9](19|20)[0-9]{2}[dflrDFLR][0-9]{4}(\(01\)|R\(01\))?$
 	#Ne peut etre = 000L (sauf pour l'acte de NoSaisie 329)
