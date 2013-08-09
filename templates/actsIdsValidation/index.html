@@ -25,23 +25,21 @@ displays the acts validation page (displays data from eurlex, oeil and prelex an
 		{{ form.releveMois.as_hidden }}
 		{{ form.noOrdre.as_hidden }}
 
-<!--
-		<div class="bold">
-			releveAnnee={{act.releveAnnee}}, releveMois={{act.releveMois}}, noOrdre={{act.noOrdre}}
-		</div>
--->
+
 		{% if act.councilPath %}
-			<a href="{{act.councilPath}}" target="_blank">{{ displayName.councilPath }}</a>
+			<br />
+			<a class="info_msg_color" href="{{act.councilPath}}" target="_blank">{{ displayName.councilPath }}</a>
 		{% endif %}
 		{% if act.proposSplittee %}
-			This is a split proposition (proposSplittee={{act.proposSplittee}})
+			<br />
+			<span class="info_msg_color">This is a split proposition ({{displayName.proposSplittee}}={{act.proposSplittee}}).</span>
 		{% endif %}
 
 		<br /><br />
 
 		<!-- validation table -->
 		<table class="actsValidationTable">
-			<tr class="bold">
+			<tr class="table_column_title">
 				<td>-</td>
 				<td>{{ displayName.fileNoCelex }}</td>
 				<td>{{ displayName.fileNoUniqueType }}</td>
@@ -55,98 +53,98 @@ displays the acts validation page (displays data from eurlex, oeil and prelex an
 				<td>url link</td>
 			</tr>
 			<tr>
-				<td class="bold">csv file</td>
-				{% if info.noCelex %}<td>{% else %}<td class="error">{% endif %}
+				<td class="table_column_title">csv file</td>
+				{% if info.noCelex %}<td>{% else %}<td class="error_msg">{% endif %}
 				{{act.fileNoCelex}}</td>
-				{% if info.noUniqueType %}<td>{% else %}<td class="error">{% endif %}
+				{% if info.noUniqueType %}<td>{% else %}<td class="error_msg">{% endif %}
 				{{act.fileNoUniqueType}}</td>
-				{% if info.noUniqueAnnee %}<td>{% else %}<td class="error">{% endif %}
+				{% if info.noUniqueAnnee %}<td>{% else %}<td class="error_msg">{% endif %}
 				{{act.fileNoUniqueAnnee}}</td>
-				{% if info.noUniqueChrono %}<td>{% else %}<td class="error">{% endif %}
+				{% if info.noUniqueChrono %}<td>{% else %}<td class="error_msg">{% endif %}
 				{{act.fileNoUniqueChrono}}</td>
-				{% if info.proposOrigine %}<td>{% else %}<td class="error">{% endif %}
+				{% if info.proposOrigine %}<td>{% else %}<td class="error_msg">{% endif %}
 				{{act.fileProposOrigine}}</td>
-				{% if info.proposAnnee %}<td>{% else %}<td class="error">{% endif %}
+				{% if info.proposAnnee %}<td>{% else %}<td class="error_msg">{% endif %}
 				{{act.fileProposAnnee}}</td>
-				{% if info.proposChrono %}<td>{% else %}<td class="error">{% endif %}
+				{% if info.proposChrono %}<td>{% else %}<td class="error_msg">{% endif %}
 				{{act.fileProposChrono}}</td>
-				{% if info.dosId %}<td>{% else %}<td class="error">{% endif %}
+				{% if info.dosId %}<td>{% else %}<td class="error_msg">{% endif %}
 				{{act.fileDosId}}</td>
 				<td>-</td>
 				<td>-</td>
 			</tr>
 			<tr>
-				<td class="bold">eurlex</td>
-				{% if info.noCelex %}<td>{% else %}<td class="error">{% endif %}
+				<td class="table_column_title">eurlex</td>
+				{% if info.noCelex %}<td>{% else %}<td class="error_msg">{% endif %}
 				{{act.eurlexNoCelex}}</td>
-				{% if info.noUniqueType %}<td>{% else %}<td class="error">{% endif %}
+				{% if info.noUniqueType %}<td>{% else %}<td class="error_msg">{% endif %}
 				{{act.eurlexNoUniqueType}}</td>
-				{% if info.noUniqueAnnee %}<td>{% else %}<td class="error">{% endif %}
+				{% if info.noUniqueAnnee %}<td>{% else %}<td class="error_msg">{% endif %}
 				{{act.eurlexNoUniqueAnnee}}</td>
-				{% if info.noUniqueChrono %}<td>{% else %}<td class="error">{% endif %}
+				{% if info.noUniqueChrono %}<td>{% else %}<td class="error_msg">{% endif %}
 				{{act.eurlexNoUniqueChrono}}</td>
-				{% if info.proposOrigine %}<td>{% else %}<td class="error">{% endif %}
+				{% if info.proposOrigine %}<td>{% else %}<td class="error_msg">{% endif %}
 				{{act.eurlexProposOrigine}}</td>
-				{% if info.proposAnnee %}<td>{% else %}<td class="error">{% endif %}
+				{% if info.proposAnnee %}<td>{% else %}<td class="error_msg">{% endif %}
 				{{act.eurlexProposAnnee}}</td>
-				{% if info.proposChrono %}<td>{% else %}<td class="error">{% endif %}
+				{% if info.proposChrono %}<td>{% else %}<td class="error_msg">{% endif %}
 				{{act.eurlexProposChrono}}</td>
 				<td>-</td>
-				{% if act.fileEurlexUrlExists %}<td>{% else %}<td class="error">{% endif %}
+				{% if act.fileEurlexUrlExists %}<td>{% else %}<td class="error_msg">{% endif %}
 				{{act.fileEurlexUrlExists}}</td>
 				<td><a href="{{info.eurlexUrl}}" target="_blank">eurlex</a></td>
 			</tr>
 			<tr>
-				<td class="bold">oeil</td>
-				{% if info.noCelex %}<td>{% else %}<td class="error">{% endif %}
+				<td class="table_column_title">oeil</td>
+				{% if info.noCelex %}<td>{% else %}<td class="error_msg">{% endif %}
 				{{act.oeilNoCelex}}</td>
-				{% if info.noUniqueType %}<td>{% else %}<td class="error">{% endif %}
+				{% if info.noUniqueType %}<td>{% else %}<td class="error_msg">{% endif %}
 				{{act.oeilNoUniqueType}}</td>
-				{% if info.noUniqueAnnee %}<td>{% else %}<td class="error">{% endif %}
+				{% if info.noUniqueAnnee %}<td>{% else %}<td class="error_msg">{% endif %}
 				{{act.oeilNoUniqueAnnee}}</td>
-				{% if info.noUniqueChrono %}<td>{% else %}<td class="error">{% endif %}
+				{% if info.noUniqueChrono %}<td>{% else %}<td class="error_msg">{% endif %}
 				{{act.oeilNoUniqueChrono}}</td>
-				{% if info.proposOrigine %}<td>{% else %}<td class="error">{% endif %}
+				{% if info.proposOrigine %}<td>{% else %}<td class="error_msg">{% endif %}
 				{{act.oeilProposOrigine}}</td>
-				{% if info.proposAnnee %}<td>{% else %}<td class="error">{% endif %}
+				{% if info.proposAnnee %}<td>{% else %}<td class="error_msg">{% endif %}
 				{{act.oeilProposAnnee}}</td>
-				{% if info.proposChrono %}<td>{% else %}<td class="error">{% endif %}
+				{% if info.proposChrono %}<td>{% else %}<td class="error_msg">{% endif %}
 				{{act.oeilProposChrono}}</td>
 				<td>-</td>
-				{% if act.fileOeilUrlExists %}<td>{% else %}<td class="error">{% endif %}
+				{% if act.fileOeilUrlExists %}<td>{% else %}<td class="error_msg">{% endif %}
 				{{act.fileOeilUrlExists}}</td>
 				<td><a href="{{info.oeilUrl}}" target="_blank">oeil</a></td>
 			</tr>
 			<tr>
-				<td class="bold">prelex</td>
+				<td class="table_column_title">prelex</td>
 				{% if addOrModif == None %}
 					<td></td>
 				{% else %}
 					{% if info.nosCelex %}<td>celex found</td>
-					{% else %}<td class="error">celex not found!</td>
+					{% else %}<td class="error_msg">celex not found!</td>
 					{% endif %}
 				{% endif %}
-				{% if info.noUniqueType %}<td>{% else %}<td class="error">{% endif %}
+				{% if info.noUniqueType %}<td>{% else %}<td class="error_msg">{% endif %}
 				{{act.prelexNoUniqueType}}</td>
-				{% if info.noUniqueAnnee %}<td>{% else %}<td class="error">{% endif %}
+				{% if info.noUniqueAnnee %}<td>{% else %}<td class="error_msg">{% endif %}
 				{{act.prelexNoUniqueAnnee}}</td>
-				{% if info.noUniqueChrono %}<td>{% else %}<td class="error">{% endif %}
+				{% if info.noUniqueChrono %}<td>{% else %}<td class="error_msg">{% endif %}
 				{{act.prelexNoUniqueChrono}}</td>
-				{% if info.proposOrigine %}<td>{% else %}<td class="error">{% endif %}
+				{% if info.proposOrigine %}<td>{% else %}<td class="error_msg">{% endif %}
 				{{act.prelexProposOrigine}}</td>
-				{% if info.proposAnnee %}<td>{% else %}<td class="error">{% endif %}
+				{% if info.proposAnnee %}<td>{% else %}<td class="error_msg">{% endif %}
 				{{act.prelexProposAnnee}}</td>
-				{% if info.proposChrono %}<td>{% else %}<td class="error">{% endif %}
+				{% if info.proposChrono %}<td>{% else %}<td class="error_msg">{% endif %}
 				{{act.prelexProposChrono}}</td>
-				{% if info.dosId %}<td>{% else %}<td class="error">{% endif %}
+				{% if info.dosId %}<td>{% else %}<td class="error_msg">{% endif %}
 				{{act.prelexDosId}}</td>
-				{% if act.filePrelexUrlExists %}<td>{% else %}<td class="error">{% endif %}
+				{% if act.filePrelexUrlExists %}<td>{% else %}<td class="error_msg">{% endif %}
 				{{act.filePrelexUrlExists}}</td>
 				<td><a href="{{info.prelexUrl}}" target="_blank">prelex</a></td>
 			</tr>
 
 			<tr>
-				<td class="bold">VALIDATION</td>
+				<td class="table_column_title">VALIDATION</td>
 				{% for field in form %}
 					{% if "file" in field.name %}
 						<td>
@@ -166,17 +164,22 @@ displays the acts validation page (displays data from eurlex, oeil and prelex an
 
 		<br /><br />
 
-		<div id="notesDiv" class="fieldWrapper">
-			{{ form.notes.errors }}
-			<label for="notes">{{ displayName.notes }}:</label>
-			{{ form.notes }}
+		<div id="notes_save_msg">
+			<div id="notesDiv" class="fieldWrapper cell">
+				{{ form.notes.errors }}
+				<label for="notes">{{ displayName.notes }}:</label>
+				{{ form.notes }}
+			</div>
+
+			<div class="cell">
+				<input id="actsValidationSaveButton" class="submit_button" name="actsValidationSaveButton" type="submit" value="SAVE" />
+			</div>
+
+			<div id="success_msg" class="cell">{{ success }}</div>
 		</div>
 
-		<input id="actsValidationSaveButton" name="actsValidationSaveButton" type="submit" value="SAVE" />
-
-		<div id="actsValidationSuccessMessage">{{ success }}</div>
 	</form>
 
-	<br /><br />
+	<br />
 
 {% endblock %}

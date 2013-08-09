@@ -12,9 +12,9 @@ displays the export page
 		You can download all the acts of the database on this page. <br />
 		Please select the sort variable, the sort direction and click on the submit button. The acts will be downloaded in the csv format (can be open with excel or calc).
 	</p>
-	
+
 	<br />
-	
+
 	<form action="/export/" method="post">{% csrf_token %}
 
 		{% for field in form %}
@@ -23,7 +23,7 @@ displays the export page
             {{ field }}
         </span>
 		{% endfor %}
-		<input type="submit" value="Submit" />
+		<input class="submit_button" type="submit" value="EXPORT" />
 
 	</form>
 

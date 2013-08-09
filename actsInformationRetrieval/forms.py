@@ -16,10 +16,6 @@ class ActsInformationForm(forms.ModelForm):
 
 	#prelex
 	prelexConfigCons=forms.RegexField(regex=r'^CAG|RE|ECOFIN|JAI|EPSCO|COMPET|TTE|AGRIFISH|AGRI-FISH|ENV|EYC$', required=False)
-	prelexNationGvtPoliticalComposition=forms.ModelMultipleChoiceField(queryset=GvtCompoModel.objects.all(), required=False)
-	#~ prelexRespProposId1=forms.ModelChoiceField(queryset=RespProposModel.objects.all(), widget=forms.TextInput, required=False)
-	#~ prelexRespProposId2=forms.ModelChoiceField(queryset=RespProposModel.objects.all(), widget=forms.TextInput, required=False)
-	#~ prelexRespProposId3=forms.ModelChoiceField(queryset=RespProposModel.objects.all(), widget=forms.TextInput, required=False)
 
 	#~ eurlexBaseJuridique=forms.RegexField(regex=r'^([0-9](195[789]|19[6-9][0-9]|20[0-1][0-9])[EMRLD][0-9]{3,4}(-((A|P|FR|L)[0-9]+)|-PT([0-9]|[A-Z]){0,3}(\))?)?;\s)*[0-9](195[789]|19[6-9][0-9]|20[0-1][0-9])[EMRLD][0-9]{3,4}(-((A|P|FR|L)[0-9]+)|-PT([0-9]|[A-Z]){0,3}(\))?)?$')
 	#TODO: make the regex work
@@ -38,7 +34,7 @@ class ActsInformationForm(forms.ModelForm):
 	class Meta:
 		model = ActsInformationModel
 		#fields NOT used for the validation
-		exclude=('actId', 'validated')
+		exclude=('actId', 'validated', "prelexNationGvtPoliticalComposition")
 
 
 class ActsAddForm(forms.Form):
@@ -73,7 +69,6 @@ class ActsModifForm(forms.Form):
 			actId=ActsIdsModel.objects.get(releveAnnee=releveAnneeModif, releveMois=releveMoisModif, noOrdre=noOrdreModif).id
 			act=ActsInformationModel.objects.get(actId_id=actId, validated=1)
 		except:
-			print "pb find act ActsModifForm actsInfoRetr"
 			raise forms.ValidationError("The act you're looking for hasn't been validated yet!")
 
 		 # Always return the full collection of cleaned data.

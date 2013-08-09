@@ -43,7 +43,6 @@ def getHeaders(act_ids_exclude_list, act_info_exclude_list):
 	#ActsInformationModel
 	for field in ActsInformationModel()._meta.fields:
 		if field.name not in act_info_exclude_list:
-			print "field.name", field.name
 			headers_list.append(vnInfo.variablesNameDic[field.name])
 
 	#NPModel (gvtCompo)

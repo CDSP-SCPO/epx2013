@@ -7,7 +7,7 @@ displays the data of a given act (data for the statistical analysis displays dat
 {% block contentTitle %}Acts information retrieval{% endblock %}
 
 {% block content %}
-{% load extra %}
+{% load act_info_extra %}
 
 	<p>
 		You can display, modify and save retrieved information of the validated acts on this page. Acts information can be displayed one at a time. <br />
@@ -25,10 +25,10 @@ displays the data of a given act (data for the statistical analysis displays dat
 
 		<br /><br />
 
-		<div class="bold">ACT IDS:</div>
+		<div class="subtitle">ACT IDS:</div>
 
 		<table id="idsTable">
-			<tr class="bold">
+			<tr class="table_column_title">
 				<td>{{ displayName.releveAnnee}}</td>
 				<td>{{ displayName.releveMois}}</td>
 				<td>{{ displayName.releveMoisInitial}}</td>
@@ -64,17 +64,17 @@ displays the data of a given act (data for the statistical analysis displays dat
 
 		<br /><br />
 
-		<div class="bold">EURLEX:</div>
+		<div class="subtitle">EURLEX:</div>
 
 		<table id="eurlexIdsTable">
-			<tr class="bold">
+			<tr class="table_column_title">
 				<td>{{ displayName.fileNoCelex }}</td>
 				<td>url exists?</td>
 				<td>url link</td>
 			</tr>
 			<tr>
 				<td>{{actId.fileNoCelex}}</td>
-				{% if actId.fileEurlexUrlExists %}<td>{% else %}<td class="error">{% endif %}
+				{% if actId.fileEurlexUrlExists %}<td>{% else %}<td class="error_msg">{% endif %}
 				{{actId.fileEurlexUrlExists}}</td>
 				<td><a href="{{url.eurlexUrl}}" target="_blank">eurlex</a></td>
 			</tr>
@@ -88,7 +88,7 @@ displays the data of a given act (data for the statistical analysis displays dat
 				{% if "eurlex" in field.name %}
 					<tr>
 						<!-- ofKey template tag used to print displayName.field.name or displayName[field[name]] -->
-						<td class="informationTableFirstColumn">{{ displayName|ofKey:field.name }}</td>
+						<td class="informationTableFirstColumn table_column_title">{{ displayName|ofKey:field.name }}</td>
 						<td>
 							<div class="fieldWrapper">
 								{{ field.errors }}
@@ -103,10 +103,10 @@ displays the data of a given act (data for the statistical analysis displays dat
 
 		<br /><br />
 
-		<div class="bold">OEIL:</div>
+		<div class="subtitle">OEIL:</div>
 
 		<table id="oeilIdsTable">
-			<tr class="bold">
+			<tr class="table_column_title">
 				<td>{{ displayName.fileNoUniqueType }}</td>
 				<td>{{ displayName.fileNoUniqueAnnee }}</td>
 				<td>{{ displayName.fileNoUniqueChrono }}</td>
@@ -117,7 +117,7 @@ displays the data of a given act (data for the statistical analysis displays dat
 				<td>{{actId.fileNoUniqueType}}</td>
 				<td>{{actId.fileNoUniqueAnnee}}</td>
 				<td>{{actId.fileNoUniqueChrono}}</td>
-				{% if actId.fileOeilUrlExists %}<td>{% else %}<td class="error">{% endif %}
+				{% if actId.fileOeilUrlExists %}<td>{% else %}<td class="error_msg">{% endif %}
 				{{actId.fileOeilUrlExists}}</td>
 				<td><a href="{{url.oeilUrl}}" target="_blank">oeil</a></td>
 			</tr>
@@ -130,7 +130,7 @@ displays the data of a given act (data for the statistical analysis displays dat
 			{% for field in form %}
 				{% if "oeil" in field.name %}
 					<tr>
-						<td class="informationTableFirstColumn">{{ displayName|ofKey:field.name }}</td>
+						<td class="informationTableFirstColumn table_column_title">{{ displayName|ofKey:field.name }}</td>
 						<td>
 							<div class="fieldWrapper">
 								{{ field.errors }}
@@ -146,10 +146,10 @@ displays the data of a given act (data for the statistical analysis displays dat
 		<br /><br />
 
 
-		<div class="bold">PRELEX:</div>
+		<div class="subtitle">PRELEX:</div>
 
 		<table id="prelexIdsTable">
-			<tr class="bold">
+			<tr class="table_column_title">
 				<td>{{ displayName.fileProposOrigine }}</td>
 				<td>{{ displayName.fileProposAnnee }}</td>
 				<td>{{ displayName.fileProposChrono }}</td>
@@ -162,7 +162,7 @@ displays the data of a given act (data for the statistical analysis displays dat
 				<td>{{actId.fileProposAnnee}}</td>
 				<td>{{actId.fileProposChrono}}</td>
 				<td>{{actId.fileDosId}}</td>
-				{% if actId.filePrelexUrlExists %}<td>{% else %}<td class="error">{% endif %}
+				{% if actId.filePrelexUrlExists %}<td>{% else %}<td class="error_msg">{% endif %}
 				{{actId.filePrelexUrlExists}}</td>
 				<td><a href="{{url.prelexUrl}}" target="_blank">prelex</a></td>
 			</tr>
@@ -184,45 +184,56 @@ displays the data of a given act (data for the statistical analysis displays dat
 				<!-- display all the fields -->
 				{% if "prelex" in field.name %}
 					<tr>
-						<td class="informationTableFirstColumn">{{ displayName|ofKey:field.name }}</td>
+						<td class="informationTableFirstColumn table_column_title">{{ displayName|ofKey:field.name }}</td>
 						<td>
 							<div class="fieldWrapper">
 								<!-- many to many relationship -> select multiple -->
 								{{ field.errors }}
-								{% if field.name == "prelexNationGvtPoliticalComposition" %}
-										{{ gvt_compo }}
-								{% else %}
-									{{ field }}
-									{% if field.name == "prelexRespProposId1" %}
-										<div id="prelexRespProposId1">
-											{{ displayName|ofKey:"prelexNationResp1" }}={{respPropos.prelexNationResp1}}<br />
-											 {{ displayName|ofKey:"prelexNationalPartyResp1" }}={{respPropos.prelexNationalPartyResp1}}<br />
-											 {{ displayName|ofKey:"prelexEUGroupResp1" }}={{respPropos.prelexEUGroupResp1}}
-										 </div>
-									{% elif field.name == "prelexRespProposId2" %}
-										<div id="prelexRespProposId2">
-											{{ displayName|ofKey:"prelexNationResp2" }}={{respPropos.prelexNationResp2}}<br />
-											{{ displayName|ofKey:"prelexNationalPartyResp2" }}={{respPropos.prelexNationalPartyResp2}}<br />
-											{{ displayName|ofKey:"prelexEUGroupResp2" }}={{respPropos.prelexEUGroupResp2}}
-										</div>
-									{% elif field.name == "prelexRespProposId3" %}
-										<div id="prelexRespProposId3">
-											{{ displayName|ofKey:"prelexNationResp3" }}={{respPropos.prelexNationResp3}}<br />
-											{{ displayName|ofKey:"prelexNationalPartyResp3" }}={{respPropos.prelexNationalPartyResp3}}<br />
-											{{ displayName|ofKey:"prelexEUGroupResp3" }}={{respPropos.prelexEUGroupResp3}}
-										</div>
-									{% endif %}
+								{{ field }}
+								{% if field.name == "prelexRespProposId1" %}
+									<div id="prelexRespProposId1">
+										{{ displayName|ofKey:"prelexNationResp1" }}={{respPropos.prelexNationResp1}}<br />
+										 {{ displayName|ofKey:"prelexNationalPartyResp1" }}={{respPropos.prelexNationalPartyResp1}}<br />
+										 {{ displayName|ofKey:"prelexEUGroupResp1" }}={{respPropos.prelexEUGroupResp1}}
+									 </div>
+								{% elif field.name == "prelexRespProposId2" %}
+									<div id="prelexRespProposId2">
+										{{ displayName|ofKey:"prelexNationResp2" }}={{respPropos.prelexNationResp2}}<br />
+										{{ displayName|ofKey:"prelexNationalPartyResp2" }}={{respPropos.prelexNationalPartyResp2}}<br />
+										{{ displayName|ofKey:"prelexEUGroupResp2" }}={{respPropos.prelexEUGroupResp2}}
+									</div>
+								{% elif field.name == "prelexRespProposId3" %}
+									<div id="prelexRespProposId3">
+										{{ displayName|ofKey:"prelexNationResp3" }}={{respPropos.prelexNationResp3}}<br />
+										{{ displayName|ofKey:"prelexNationalPartyResp3" }}={{respPropos.prelexNationalPartyResp3}}<br />
+										{{ displayName|ofKey:"prelexEUGroupResp3" }}={{respPropos.prelexEUGroupResp3}}
+									</div>
 								{% endif %}
 							</div>
 						</td>
 					</tr>
 				{% endif %}
+
+				<!-- prelexNationGvtPoliticalComposition -->
+				{% if forloop.last %}
+					{{ field.name }}
+					LAST
+					<tr>
+						<td class="informationTableFirstColumn table_column_title">{{ displayName|ofKey:"prelexNationGvtPoliticalComposition" }}</td>
+						<td>
+							<div class="fieldWrapper">
+								{{ gvt_compo }}
+							</div>
+						</td>
+					</tr>
+				{% endif %}
+
 			{% endfor %}
 		</table>
 
 		<br /><br />
 
-		<div class="bold">OPAL:</div>
+		<div class="subtitle">OPAL:</div>
 		<br />
 
 		<!-- opal validation table -->
@@ -232,7 +243,7 @@ displays the data of a given act (data for the statistical analysis displays dat
 				<!-- display all the fields -->
 				{% if "opal" in field.name %}
 					<tr>
-						<td class="informationTableFirstColumn">{{ displayName|ofKey:field.name }}</td>
+						<td class="informationTableFirstColumn table_column_title">{{ displayName|ofKey:field.name }}</td>
 						<td>
 							<div class="fieldWrapper">
 								{{ field.errors }}
@@ -246,18 +257,22 @@ displays the data of a given act (data for the statistical analysis displays dat
 
 		<br /><br />
 
+		<div id="notes_save_msg">
+			<div id="notesDiv" class="fieldWrapper cell">
+				{{ idForm.notes.errors }}
+				<label for="notes">{{ displayName.notes }}:</label>
+				{{ idForm.notes }}
+			</div>
 
-		<div id="notesDiv" class="fieldWrapper">
-			{{ idForm.notes.errors }}
-			<label for="notes">{{ displayName.notes }}:</label>
-			{{ idForm.notes }}
+			<div class="cell">
+				<input id="actsValidationSaveButton" class="submit_button" name="actsValidationSaveButton" type="submit" value="SAVE" />
+			</div>
+
+			<div id="success_msg" class="cell">{{ success }}</div>
 		</div>
 
-		<input id="actsValidationSaveButton" name="actsValidationSaveButton" type="submit" value="SAVE" />
-
-		<div id="actsValidationSuccessMessage">{{ success }}</div>
 	</form>
 
-	<br /><br />
+	<br />
 
 {% endblock %}

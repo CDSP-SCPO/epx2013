@@ -33,7 +33,7 @@ class CSVUploadForm(forms.Form):
 	)
 	fileToImport=forms.ChoiceField(choices=fileToImportChoices, widget=forms.Select(attrs={'onchange': 'this.form.submit();'}))
 
-	csvFile = forms.FileField(label='Select a CSV file to upload.', help_text='size: max 1 Mo', validators=[fileExtensionValidation])
+	csvFile = forms.FileField(label='Select a CSV file to upload.', help_text='Max file size: 1 Mo', validators=[fileExtensionValidation])
 
 	class Meta:
 		model = CSVUploadModel

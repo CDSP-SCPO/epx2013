@@ -1,12 +1,13 @@
 <!--
 TEMPLATE
-displays the export page
+displays the import page
  -->
 {% extends "base.html" %}
 
 {% block contentTitle %}Import{% endblock %}
 
 {% block content %}
+{% load import_extra %}
 
 	<p>
 		You can either import a file containing the dosId variable (prelex unique id) or import a file containing acts to process on this page. It must be a csv file (from excel or calc, you can easily change the format by clicking on "Save as" and choosing "csv").<br />
@@ -28,24 +29,26 @@ displays the export page
 			</div>
 
 			{% if form.fileToImport.value != None and form.fileToImport.value != "" %}
-				<div id="filesFormat">
-					<span class="italic">Here is an explanation of the format of the file to import. It must be a csv file. The first line should contain the names of the fields or be empty. It is not used for the import but the order of the fields must be as follow (starting from the very first column, 1 or A):</span><br />
+				<div id="filesFormat" class="info_msg_color">
+					<span id="file_format_descr">Here is an explanation of the format of the file to import. It must be a csv file. The first line should contain the names of the fields or be empty. It is not used for the import but the order of the fields must be as follow (starting from the very first column, 1 or A):</span><br />
+
+					<span id="file_to_import_src">{{ form.fileToImport.value|selected_label:form.fileToImport.field.choices }}: </span>
 					{% if form.fileToImport.value == "act" %}
-						<span class="bold">{{ form.fileToImport.field.choices.1.1 }}:</span> {{ displayName.releveAnnee }}, {{ displayName.releveMois }}, {{ displayName.noOrdre }}, {{ displayName.titreRMC }}, {{ displayName.adopCSRegleVote }}, {{ displayName.adopCSAbs }}, {{ displayName.adoptCSContre }}, {{ displayName.fileNoCelex }}, {{ displayName.fileProposAnnee }}, {{ displayName.fileProposChrono }}, {{ displayName.fileProposOrigine }}, {{ displayName.fileNoUniqueAnnee }}, {{ displayName.fileNoUniqueType }}, {{ displayName.fileNoUniqueChrono }}, {{ displayName.proposSplittee }}, {{ displayName.suite2eLecturePE }}, {{ displayName.councilPath }}, {{ displayName.notes }}. <br />
+						{{ displayName.releveAnnee }}, {{ displayName.releveMois }}, {{ displayName.noOrdre }}, {{ displayName.titreRMC }}, {{ displayName.adopCSRegleVote }}, {{ displayName.adopCSAbs }}, {{ displayName.adoptCSContre }}, {{ displayName.fileNoCelex }}, {{ displayName.fileProposAnnee }}, {{ displayName.fileProposChrono }}, {{ displayName.fileProposOrigine }}, {{ displayName.fileNoUniqueAnnee }}, {{ displayName.fileNoUniqueType }}, {{ displayName.fileNoUniqueChrono }}, {{ displayName.proposSplittee }}, {{ displayName.suite2eLecturePE }}, {{ displayName.councilPath }}, {{ displayName.notes }}. <br />
 					{% elif form.fileToImport.value == "dosId" %}
-						<span class="bold">{{ form.fileToImport.field.choices.2.1 }}:</span> {{ displayName.fileDosId }}, {{ displayName.fileProposAnnee }}, {{ displayName.fileProposChrono }}, {{ displayName.fileProposOrigine }}, {{ displayName.fileSplitProposNumber }}. <br />
+						{{ displayName.fileDosId }}, {{ displayName.fileProposAnnee }}, {{ displayName.fileProposChrono }}, {{ displayName.fileProposOrigine }}, {{ displayName.fileSplitProposNumber }}. <br />
 					{% elif form.fileToImport.value == "configCons" %}
-						<span class="bold">{{ form.fileToImport.field.choices.3.1 }}:</span> {{ displayName.eurlexCodeSectRep }}, {{ displayName.prelexConfigCons }}. <br />
+						{{ displayName.eurlexCodeSectRep }}, {{ displayName.prelexConfigCons }}. <br />
 					{% elif form.fileToImport.value == "codeAgenda" %}
-						<span class="bold">{{ form.fileToImport.field.choices.4.1 }}:</span> {{ displayName.eurlexCodeSectRep }}, {{ displayName.eurlexCodeAgenda }}. <br />
+						{{ displayName.eurlexCodeSectRep }}, {{ displayName.eurlexCodeAgenda }}. <br />
 					{% elif form.fileToImport.value == "respPropos" %}
-						<span class="bold">{{ form.fileToImport.field.choices.5.1 }}:</span> {{ displayName.prelexRespPropos }}, {{ displayName.prelexNationalPartyResp }}, {{ displayName.prelexEUGroupResp }}, {{ displayName.prelexNationResp }}. <br />
+						{{ displayName.prelexRespPropos }}, {{ displayName.prelexNationalPartyResp }}, {{ displayName.prelexEUGroupResp }}, {{ displayName.prelexNationResp }}. <br />
 					{% elif form.fileToImport.value == "adoptPC" %}
-						<span class="bold">{{ form.fileToImport.field.choices.6.1 }}:</span> {{ displayName.releveAnnee }}, {{ displayName.releveMois }}, {{ displayName.noOrdre }}, {{ displayName.prelexAdoptPCAbs }} , {{ displayName.prelexAdoptPCContre }}. <br />
+						{{ displayName.releveAnnee }}, {{ displayName.releveMois }}, {{ displayName.noOrdre }}, {{ displayName.prelexAdoptPCAbs }} , {{ displayName.prelexAdoptPCContre }}. <br />
 					{% elif form.fileToImport.value == "np" %}
-						<span class="bold">{{ form.fileToImport.field.choices.7.1 }}:</span> {{ displayName.opalNPCaseNumber }}, {{ displayName.fileNoCelex }}, {{ displayName.opalNP }}, {{ displayName.opalNPActivityType }},  {{ displayName.opalNPActivityDate }}. <br />
+						{{ displayName.opalNPCaseNumber }}, {{ displayName.fileNoCelex }}, {{ displayName.opalNP }}, {{ displayName.opalNPActivityType }},  {{ displayName.opalNPActivityDate }}. <br />
 					{% elif form.fileToImport.value == "gvtCompo" %}
-						<span class="bold">{{ form.fileToImport.field.choices.8.1 }}:</span> startDate, endDate, {{ displayName.prelexNationGvtPoliticalComposition }}. <br />
+						startDate, endDate, {{ displayName.prelexNationGvtPoliticalComposition }}. <br />
 					{% endif %}
 				</div>
 			{% endif %}
@@ -63,11 +66,15 @@ displays the export page
 			{{ form.csvFile }}
 		</p>
 		<br />
-		<p><input id="importButton" name="importButton" type="submit" value="Upload" /></p>
+		<p><input id="importButton" class="submit_button" name="importButton" type="submit" value="IMPORT" /></p>
 
 		<br />
-
-		<div id="importSuccessMessage">{{ success }}</div>
+		{% if errorList %}
+			<div class="error_msg">
+		{% else %}
+			<div id="success_msg">
+		{% endif %}
+		{{ success }}</div>
 
 	</form>
 

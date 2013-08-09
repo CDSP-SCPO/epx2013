@@ -23,7 +23,7 @@ from getEurlexInformationFunctions import getEurlexInformation
 from getOeilInformationFunctions import getOeilInformation
 from getPrelexInformationFunctions import getPrelexInformation
 from getOpalInfo import getOpalInfo
-from getGvtCompoInfo import getGvtCompoInfo
+from getGvtCompoInfo import getGvtCompoInfo, getAssocVariables
 from getRespProposInfo import getRespProposInfo
 
 #get the addModif fct from the actsIdsValidation.views view

@@ -1,0 +1,28 @@
+#notesDiv *
+{
+	vertical-align: middle;
+}
+
+#notes_save_msg
+{
+	display:table
+}
+
+.cell
+{
+	display:table-cell;
+	vertical-align:middle;
+}
+
+/** Style for demonstration purpose only **/
+
+#notes_save_msg
+{
+	border: 1px solid red;
+}
+
+.cell
+{
+  border: 1px solid green;
+}
+
