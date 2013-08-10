@@ -401,11 +401,14 @@ def getOeilSignPECS(soup, noUniqueType):
 	RETURN
 	oeilSignPECS
 	"""
-	signPECS=None
 	if noUniqueType=="COD" or noUniqueType=="ACI":
-		signPECS=soup.find("td", text="Final act signed").findPrevious("td").get_text()
+		try:
+			signPECS=soup.find("td", text="Final act signed").findPrevious("td").get_text()
+			return stringToIsoDate(signPECS)
+		except:
+			return None
 
-	return stringToIsoDate(signPECS)
+	return None
 
 #date in front of "Final act signed"
 #can be NULL

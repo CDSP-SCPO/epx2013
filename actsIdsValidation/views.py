@@ -50,23 +50,18 @@ def addOrModifFct(post, responseDic, addFormName, modifFormName):
 	responseDic: dictionary containing forms being used or to use
 	"""
 	addOrModif=act=None
-
 	#adding of an act (validation of a new act)
 	if post["actsToValidate"]!="" and "actsModificationFindButton" not in post:
 		print "add mode"
 		addForm=addFormName(post)
 		responseDic['addForm']=addForm
+		responseDic['modifForm']=modifFormName()
 		#if an act has been selected in the drop down list
 		if addForm.is_valid():
 			addOrModif="add"
 			actToValidate=addForm.cleaned_data['actsToValidate']
-			#acts validation
-			try:
-				actToValidateId=actToValidate.id
-			#acts information retrieval
-			except:
-				actToValidateId=actToValidate.actId_id
-
+			#get the primary key
+			actToValidateId=actToValidate.pk
 			act=ActsIdsModel.objects.get(id=actToValidateId)
 		#empty selection for the drop down list
 		else:
@@ -77,6 +72,7 @@ def addOrModifFct(post, responseDic, addFormName, modifFormName):
 		print "modification mode"
 		modifForm = modifFormName(post)
 		responseDic['modifForm']=modifForm
+		responseDic['addForm']=addFormName()
 		if modifForm.is_valid():
 			addOrModif="modif"
 			print "modif form valid"
@@ -105,17 +101,15 @@ def actsView(request):
 	#delete from europolix.actsIdsValidation_actsidsmodel;
 
 	responseDic={}
-	#display "real" name of variables (not the one stored in db)
-	responseDic['displayName']=vn.variablesNameDic
 	#state=display (display the ids of an act), saved (the act is being saved) or ongoing (validation errors while saving)
 	state="display"
-
 	if request.method == 'POST':
 
 		#addOrModif=None, "add" or "modif"
 		#act=act to validate / modify or None if no act is found (modifcation)
 		#responseDic: add addForm or modifForm to the forms being displayed / to be displayed
 		addOrModif, act, responseDic=addOrModifFct(request.POST, responseDic, ActsAddForm, ActsModifForm)
+		form = ActsIdsForm(request.POST, instance=act)
 
 		#if we are about to add or modif an act (the add or modif form is valid)
 		if addOrModif!=None:
@@ -123,33 +117,29 @@ def actsView(request):
 			if 'actsValidationSaveButton' in request.POST:
 				print "save"
 				act.validated=True
-				form = ActsIdsForm(request.POST, instance=act)
-
 				if form.is_valid():
 					print "form valid"
 					form.save()
 					#save the id of the validated act in the model which retrieves information on acts
 					newAct=ActsInformationModel()
 					newAct.actId_id=act.id
-					#~ print "actsToValidate", form.cleaned_data['actsToValidate']
 					newAct.save()
-					#~ print "new act", newAct.actId
 					state="saved"
 					#success message
 					releveAnnee=vn.variablesNameDic['releveAnnee'] + "=" + str(act.releveAnnee)
 					releveMois=vn.variablesNameDic['releveMois'] + "=" + str(act.releveMois)
 					noOrdre=vn.variablesNameDic['noOrdre'] + "=" + str(act.noOrdre)
+					#reinitialisation add and modif forms -> unbound form
+					responseDic={}
 					responseDic['success']="The act " + releveAnnee + ", " + releveMois + ", " + noOrdre + " has been validated!"
-					del form
 				else:
 					print "form not valid", form.errors
 					state="ongoing"
 
 			#if click on the actualisation button
-			if 'actsValidationActualisationButton' in request.POST:
+			elif 'actsValidationActualisationButton' in request.POST:
 				print "actualisation"
 				#news ids must be saved in the database
-				form = ActsIdsForm(request.POST, instance=act)
 				if form.is_valid():
 					print "actualisation: form valid"
 					form.save()
@@ -166,18 +156,7 @@ def actsView(request):
 				print 'actsToValidate display'
 				#an act has been selected in the drop down list -> the related information are displayed
 				if state=="display":
-					if addOrModif=="add":
-						addForm=ActsAddForm(request.POST)
-					else:
-						modifForm=ActsModifForm(request.POST)
-					form = ActsIdsForm(instance=act, initial={'releveAnnee': act.releveAnnee, 'releveMois': act.releveMois, 'noOrdre': act.noOrdre})
-				#an error occured while validating the act -> display of these errors
-				elif state=="ongoing":
-					if addOrModif=="add":
-						addForm=ActsAddForm(request.POST)
-					else:
-						modifForm=ActsModifForm(request.POST)
-					form = ActsIdsForm(request.POST, instance=act, initial={'releveAnnee': act.releveAnnee, 'releveMois': act.releveMois, 'noOrdre': act.noOrdre})
+					form = ActsIdsForm(instance=act)
 
 				infoDic={}
 
@@ -209,12 +188,13 @@ def actsView(request):
 
 
 	#~ #if form has not been created yet -> unbound form
-	if 'form' not in locals():
+	if 'form' not in responseDic:
 		responseDic['form'] = ActsIdsForm()
 	if 'addForm' not in responseDic:
 		responseDic['addForm'] = ActsAddForm()
-	if 'modifForm' not in responseDic:
 		responseDic['modifForm'] = ActsModifForm()
 
+	#display "real" name of variables (not the one stored in db)
+	responseDic['displayName']=vn.variablesNameDic
 
 	return render_to_response('actsIdsValidation/index.html', responseDic, context_instance=RequestContext(request))

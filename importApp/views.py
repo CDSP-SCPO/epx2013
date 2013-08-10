@@ -254,9 +254,6 @@ def getAndSaveRetrievedIds(idsList):
 		releveAnneeVar=ids[0]
 		releveMoisVar=ids[1]
 		noOrdreVar=ids[2]
-		#~ print "releveAnneeVar", releveAnneeVar
-		#~ print "releveMoisVar", releveMoisVar
-		#~ print "noOrdreVar", noOrdreVar
 		act=ActsIdsModel.objects.get(releveAnnee=releveAnneeVar,releveMois=releveMoisVar,noOrdre=noOrdreVar)
 
 		#get ids
@@ -393,62 +390,62 @@ def importView(request):
 	template called: import/index.html
 	"""
 	responseDic={}
-	responseDic['displayName']=vnIds.variablesNameDic
-	responseDic['displayName'].update(vnInfo.variablesNameDic)
-	#~ print "vnIds", vnIds.variablesNameDic
 
 	if request.method == 'POST':
-		if "csvFile" in request.POST and request.POST["csvFile"]!="" or "csvFile" in request.FILES and request.FILES["csvFile"]!="":
-			form = CSVUploadForm(request.POST, request.FILES)
-			responseDic['form']=form
-			#the form is valid and the import can be processed
-			if form.is_valid():
-				print "csv import"
-				fileToImport=form.cleaned_data['fileToImport']
-				newFilename=" ".join(request.FILES['csvFile'].name.split())
-				path = settings.MEDIA_ROOT+"import/"+newFilename
-				#if a file with the same name already exists, we delete it
-				if os.path.exists(path):
-					os.remove(path)
-				newCsvFile = CSVUploadModel(csvFile = request.FILES['csvFile'])
-				newCsvFile.save()
-				savedList=[]
-				errorList=[]
+		form = CSVUploadForm(request.POST, request.FILES)
+		#the form is valid and the import can be processed
+		if form.is_valid():
+			print "csv import"
+			fileToImport=form.cleaned_data['fileToImport']
+			newFilename=" ".join(request.FILES['csvFile'].name.split())
+			path = settings.MEDIA_ROOT+"import/"+newFilename
+			#if a file with the same name already exists, we delete it
+			if os.path.exists(path):
+				os.remove(path)
+			newCsvFile = CSVUploadModel(csvFile = request.FILES['csvFile'])
+			newCsvFile.save()
+			savedList=[]
+			errorList=[]
 
-				#importation of dosId, act, adoptPC, gvtCompo or np file
-				if fileToImport in ["dosId","act","adoptPC","gvtCompo", "np"]:
-					savedList, errorList= import1Table(path, fileToImport)
-					if fileToImport=="act":
-						#save retrieved ids
-						getAndSaveRetrievedIds(savedList)
-				#importation of configCons or codeAgenda
-				elif fileToImport in["configCons", "codeAgenda"]:
-					#model name, field name, position in the csv file
-					table1=[fileToImport[0].upper()+fileToImport[1:]+"Model", fileToImport, 1]
-					table2=["CodeSectRepModel", "codeSectRep", 0]
-					savedList, errorList= import2Tables(path, table1, table2)
-				#importation of respPropos
-				elif fileToImport=="respPropos":
-					#respPropos
-					table2=["RespProposModel", "respPropos", 0]
-					#nationResp
-					table1=["NationRespModel", "nationResp", 3]
-					savedList, errorList= import2Tables(path, table1, table2)
-					#nationalPartyResp
-					table1=["NationalPartyRespModel", "nationalPartyResp", 1]
-					savedList, errorList= import2Tables(path, table1, table2)
-					#euGroupResp
-					table1=["EUGroupRespModel", "euGroupResp", 2]
-					savedList, errorList= import2Tables(path, table1, table2)
+			#importation of dosId, act, adoptPC, gvtCompo or np file
+			if fileToImport in ["dosId","act","adoptPC","gvtCompo", "np"]:
+				savedList, errorList= import1Table(path, fileToImport)
+				if fileToImport=="act":
+					#save retrieved ids
+					getAndSaveRetrievedIds(savedList)
+			#importation of configCons or codeAgenda
+			elif fileToImport in["configCons", "codeAgenda"]:
+				#model name, field name, position in the csv file
+				table1=[fileToImport[0].upper()+fileToImport[1:]+"Model", fileToImport, 1]
+				table2=["CodeSectRepModel", "codeSectRep", 0]
+				savedList, errorList= import2Tables(path, table1, table2)
+			#importation of respPropos
+			elif fileToImport=="respPropos":
+				#respPropos
+				table2=["RespProposModel", "respPropos", 0]
+				#nationResp
+				table1=["NationRespModel", "nationResp", 3]
+				savedList, errorList= import2Tables(path, table1, table2)
+				#nationalPartyResp
+				table1=["NationalPartyRespModel", "nationalPartyResp", 1]
+				savedList, errorList= import2Tables(path, table1, table2)
+				#euGroupResp
+				table1=["EUGroupRespModel", "euGroupResp", 2]
+				savedList, errorList= import2Tables(path, table1, table2)
 
-				responseDic['errorList']=errorList
-				responseDic['success']=str(len(savedList)) + " raw(s) imported, "+ str(len(errorList)) +" error(s)!"
+			responseDic['errorList']=errorList
+			responseDic['success']=str(len(savedList)) + " raw(s) imported, "+ str(len(errorList)) +" error(s)!"
 
-		#a selection has been made in the drop down list
+		#validation errors
 		else:
-			responseDic['form'] = CSVUploadForm(initial={'fileToImport': request.POST["fileToImport"]})
+			responseDic['form']=form
 
-	else:
+	#unbound form, first display of the page or after import
+	if "form" not in responseDic:
 		responseDic['form']=CSVUploadForm()
+	#ongoing import
+	else:
+		responseDic['displayName']=vnIds.variablesNameDic
+		responseDic['displayName'].update(vnInfo.variablesNameDic)
 
 	return render_to_response('import/index.html', responseDic, context_instance=RequestContext(request))

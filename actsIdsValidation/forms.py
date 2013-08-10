@@ -7,11 +7,6 @@ class ActsIdsForm(forms.ModelForm):
 	FORM
 	details the ActsIds form (ids of the acts only)
 	"""
-	#hidden ids used by application
-	releveAnnee = forms.IntegerField(min_value=1957, max_value=2020)
-	releveMois=forms.IntegerField(min_value=1, max_value=12)
-	noOrdre=forms.IntegerField(min_value=1, max_value=99)
-
 	#EURLEX
 	fileNoCelex=forms.RegexField(regex=r'^[0-9](195[789]|19[6-9][0-9]|20[0-1][0-9])([dflryDFLRY]|PC)[0-9]{4}(\(0[1-9]\)|R\(0[1-9]\))?$')
 	#~ noCelex
@@ -89,21 +84,16 @@ class ActsIdsForm(forms.ModelForm):
 		#OBLIGATORY FOR ACT VALIDATION (displays the variable values from the database)
 		fields=('fileNoCelex', 'fileNoUniqueType', 'fileNoUniqueAnnee', 'fileNoUniqueChrono', 'fileProposOrigine', 'fileProposAnnee', 'fileProposChrono', 'fileDosId', 'notes')
 
-	#~ def clean(self):
-		#~ print "clean"
-		#~ cleaned_data = super(ActsIdsForm, self).clean()
-		#~ actsToValidate = cleaned_data.get("actsToValidate")
-		#~ releveAnneeModif = cleaned_data.get("releveAnneeModif")
-		#~ releveMoisModif = cleaned_data.get("releveMoisModif")
-		#~ noOrdreModif = cleaned_data.get("noOrdreModif")
-#~
-		#~ if actsToValidate and releveAnneeModif and releveMoisModif and noOrdreModif:
-			#~ raise forms.ValidationError("You can't add and modify an act at the same time.")
-#~
-		#~ if not actsToValidate and not releveAnneeModif and not releveMoisModif and not noOrdreModif:
-			#~ raise forms.ValidationError("You must either add or modify an act.")
-		 #~ # Always return the full collection of cleaned data.
-		#~ return cleaned_data
+	#trim trailing spaces
+	def clean(self):
+		cleaned_data = self.cleaned_data
+		for k in self.cleaned_data:
+			try:
+				#only strings
+				cleaned_data[k] = self.cleaned_data[k].strip()
+			except:
+				pass
+		return cleaned_data
 
 
 class ActsAddForm(forms.Form):

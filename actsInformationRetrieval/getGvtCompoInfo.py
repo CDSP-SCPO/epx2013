@@ -8,7 +8,7 @@ from actsInformationRetrieval.models import GvtCompoModel
 def getAssocVariables(act):
 	"""
 	FUNCTION
-	get nationGvtPoliticalComposition from GvtCompoModel
+	get all the nationGvtPoliticalComposition from an act object
 	PARAMETERS
 	act: instance of an act (ActsInformationModel)
 	RETURN

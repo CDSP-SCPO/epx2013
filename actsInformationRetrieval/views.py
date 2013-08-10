@@ -173,8 +173,6 @@ def actsView(request):
 	responseDic={}
 	gvt_compo=""
 	#display "real" name of variables (names given by europolix team, not the names stored in db)
-	responseDic['displayName']=vnIds.variablesNameDic
-	responseDic['displayName'].update(vnInfo.variablesNameDic)
 	state="display"
 
 	if request.method == 'POST':
@@ -186,12 +184,11 @@ def actsView(request):
 		#if we are about to add or modif an act (the add or modif form is valid)
 		if addOrModif!=None:
 			act=ActsInformationModel.objects.get(actId_id=actId.id)
+			form = ActsInformationForm(request.POST, instance=act)
 			#saves the act
 			if 'actsValidationSaveButton' in request.POST:
 				print "save"
 				act.validated=True
-				#~ act.prelexNationGvtPoliticalComposition=request.POST["prelexNationGvtPoliticalComposition"]
-				form = ActsInformationForm(request.POST, instance=act)
 				if form.is_valid():
 					print "form valid"
 					form.save()
@@ -199,10 +196,9 @@ def actsView(request):
 					actId.notes=request.POST['notes']
 					actId.save()
 					state="saved"
+					#reinitialisation add and modif forms -> unbound form
+					responseDic={}
 					responseDic['success']="The act " + str(act.actId) + " has been validated!"
-					del form
-					if addOrModif=="modif":
-						responseDic.pop("modifForm", None)
 				else:
 					print "form not valid", form.errors
 					state="ongoing"
@@ -222,7 +218,7 @@ def actsView(request):
 					#url saved in the database using the oeil ids in case of a split proposition
 					urlDic["prelexUrl"]=actId.filePrelexUrl
 				responseDic["url"]=urlDic
-				#an act has been selected in the drop down list -> the related information are displayed
+				#an act has been selected in the drop down list (or modification of an act) -> the related information is displayed
 				if state=="display":
 					if addOrModif=="add":
 						#retrieve all the information from all the sources
@@ -230,20 +226,8 @@ def actsView(request):
 						act=getInformationFromOeil(actId, act, urlDic["oeilUrl"])
 						act=getInformationFromPrelex(actId, act, urlDic["prelexUrl"])
 						act=getInformationFromOpal(actId, act)
-						addForm=ActsAddForm(request.POST)
-					else:
-						modifForm=ActsModifForm(request.POST)
 					form = ActsInformationForm(instance=act)
 					idForm=ActsIdsForm(instance=actId)
-				#an error occured while validating the act -> display of these errors
-				elif state=="ongoing":
-					print "ongoing"
-					if addOrModif=="add":
-						addForm=ActsAddForm(request.POST)
-					else:
-						modifForm=ActsModifForm(request.POST)
-					form = ActsInformationForm(request.POST, instance=act)
-					idForm=ActsIdsForm(request.POST, instance=actId)
 
 				gvt_compo=getGvtCompo(act)
 				respProposId1=respProposId2=respProposId3=None
@@ -266,18 +250,18 @@ def actsView(request):
 				responseDic['gvt_compo']=gvt_compo
 				responseDic['idForm']=idForm
 				responseDic['form']=form
-				#~ for gvtCompo in responseDic['act'].prelexNationGvtPoliticalComposition.all():
-					#~ print "prelexNationGvtPoliticalComposition:", gvtCompo.id
 
 	#~ #if form has not been created yet -> unbound form
-	if 'form' not in locals():
+	if 'form' not in responseDic:
 		responseDic['idForm'] = ActsIdsForm()
 		responseDic['form'] = ActsInformationForm()
 		responseDic['respPropos']={}
 	if 'addForm' not in responseDic:
 		responseDic['addForm'] = ActsAddForm()
-	if 'modifForm' not in responseDic:
 		responseDic['modifForm'] = ActsModifForm()
+
+	responseDic['displayName']=vnIds.variablesNameDic
+	responseDic['displayName'].update(vnInfo.variablesNameDic)
 
 
 	return render_to_response('actsInformationRetrieval/index.html', responseDic, context_instance=RequestContext(request))

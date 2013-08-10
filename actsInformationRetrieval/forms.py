@@ -36,6 +36,17 @@ class ActsInformationForm(forms.ModelForm):
 		#fields NOT used for the validation
 		exclude=('actId', 'validated', "prelexNationGvtPoliticalComposition")
 
+	#trim trailing spaces
+	def clean(self):
+		cleaned_data = self.cleaned_data
+		for k in self.cleaned_data:
+			try:
+				#only strings
+				cleaned_data[k] = self.cleaned_data[k].strip()
+			except:
+				pass
+		return cleaned_data
+
 
 class ActsAddForm(forms.Form):
 	"""
