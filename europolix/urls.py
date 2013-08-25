@@ -17,6 +17,8 @@ urlpatterns = patterns('',
 	#~ url(r'^tests/$', 'tests.views.testView'),
 	#login page
 	url(r'^login/$', 'auth.views.loginView', name='login'),
+	#~ url(r'^accounts/login/$', 'auth.views.loginView', name='login'),
+	#~ url(r'^accounts/auth/$', 'auth.views.loginView', name='login'),
 	#acts ids validation page
 	url(r'^actsIdsValidation/', include('actsIdsValidation.urls')),
 	#acts information retrieval page
@@ -25,7 +27,6 @@ urlpatterns = patterns('',
 	url(r'^import/', include('importApp.urls')),
 	#export page
 	url(r'^export/', include('export.urls')),
-	url(r'^accounts/login/$', 'auth.views.loginView', name='login'),
 	#export library
 	#url(r'^exports/', include('data_exports.urls', namespace='data_exports')),
 

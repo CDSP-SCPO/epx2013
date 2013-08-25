@@ -27,7 +27,7 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "europolix.settings")
 # file. This includes Django's development server, if the WSGI_APPLICATION
 # setting points here.
 import sys
-path = '/var/www/europolix'
+path = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
 if path not in sys.path:
 	sys.path.append(path)
 	sys.path.append( os.path.join( path, 'europolix') )

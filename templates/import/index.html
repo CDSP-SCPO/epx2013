@@ -18,7 +18,7 @@ displays the import page
 	<br />
 
 <!-- Upload csv file -->
-	<form action="{% url import %}" method="post" enctype="multipart/form-data">{% csrf_token %}
+	<form action="{% url importApp.views.importView %}" method="post" enctype="multipart/form-data">{% csrf_token %}
 		<p>{{ form.non_field_errors }}</p>
 
 		<div id="fileSection">
