@@ -180,7 +180,7 @@ def exportView(request):
 			#for key, value in request.POST.iteritems():
 			sort_field = request.POST['sortFields']
 			sort_direction = request.POST['sortDirection']
-			serverDirectory = settings.MEDIA_ROOT+"export/"
+			serverDirectory = settings.MEDIA_ROOT+"/export/"
 			fileName="europeanActs.csv"
 			#if a file with the same name already exists, we delete it
 			if os.path.exists(serverDirectory+fileName):
