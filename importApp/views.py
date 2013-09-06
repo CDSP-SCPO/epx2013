@@ -398,7 +398,7 @@ def importView(request):
 			print "csv import"
 			fileToImport=form.cleaned_data['fileToImport']
 			newFilename=" ".join(request.FILES['csvFile'].name.split())
-			path = settings.MEDIA_ROOT+"import/"+newFilename
+			path = settings.MEDIA_ROOT+"/import/"+newFilename
 			#if a file with the same name already exists, we delete it
 			if os.path.exists(path):
 				os.remove(path)
