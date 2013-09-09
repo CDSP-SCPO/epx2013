@@ -32,14 +32,16 @@ def linkActInfoToGvtCompo(act):
 	True if matching data were saved in the association, False otherwise
 	"""
 	#we retrieve all the rows from GvtCompoModel for which startDate<adoptionConseil<endDate
-	gvtCompos=GvtCompoModel.objects.filter(startDate__lte=act.prelexAdoptionConseil, endDate__gte=act.prelexAdoptionConseil)
-	#fill the association
-	for gvtCompo in gvtCompos:
-		act.prelexNationGvtPoliticalComposition.add(gvtCompo)
+	if act.prelexAdoptionConseil!=None:
+		gvtCompos=GvtCompoModel.objects.filter(startDate__lte=act.prelexAdoptionConseil, endDate__gte=act.prelexAdoptionConseil)
+		#fill the association
+		for gvtCompo in gvtCompos:
+			act.prelexNationGvtPoliticalComposition.add(gvtCompo)
 
-	if gvtCompos:
-		return True
+		if gvtCompos:
+			return True
 	return False
+
 
 
 def getGvtCompo(act):
