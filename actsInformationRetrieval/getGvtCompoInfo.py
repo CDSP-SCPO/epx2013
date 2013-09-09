@@ -33,13 +33,18 @@ def linkActInfoToGvtCompo(act):
 	"""
 	#we retrieve all the rows from GvtCompoModel for which startDate<adoptionConseil<endDate
 	if act.prelexAdoptionConseil!=None:
-		gvtCompos=GvtCompoModel.objects.filter(startDate__lte=act.prelexAdoptionConseil, endDate__gte=act.prelexAdoptionConseil)
-		#fill the association
-		for gvtCompo in gvtCompos:
-			act.prelexNationGvtPoliticalComposition.add(gvtCompo)
+		date=act.prelexAdoptionConseil
+	else:
+		#if no prelexAdoptionConseil, take oeilSignPECS
+		date=act.oeilSignPECS
 
-		if gvtCompos:
-			return True
+	gvtCompos=GvtCompoModel.objects.filter(startDate__lte=date, endDate__gte=date)
+	#fill the association
+	for gvtCompo in gvtCompos:
+		act.prelexNationGvtPoliticalComposition.add(gvtCompo)
+
+	if gvtCompos:
+		return True
 	return False
 
 
