@@ -104,7 +104,17 @@ def saveRespProposAndGetRespProposObject(respPropos):
 	respPropos=remove_nonspacing_marks(respPropos)
 	#change name format: "Firstname LASTNAME" -> "LASTNAME Firstname"
 	respPropos=respPropos.split()
-	respPropos=respPropos[1]+" "+respPropos[0]
+	first_name=last_name=""
+	#get first names
+	for name in respPropos:
+		#get last names
+		if name.isupper():
+			last_name+=name+" "
+		#get first names
+		else:
+			first_name+=name+" "
+			
+	respPropos=last_name[:-1]+" "+first_name[:-1]
 
 	try:
 		#checks if respPropos already exists in the db
