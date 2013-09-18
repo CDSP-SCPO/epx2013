@@ -1,6 +1,5 @@
 /* css for the notes_and_save.html file */
 
-
 #notes_and_save textarea
 {
 	width: 33%;
@@ -21,5 +20,10 @@
 	display: inline-block;
 	width: 45.4%;
 	padding-left: 10px;
+}
 
+/* anchor */
+#bottom_anchor
+{
+	float: right;
 }

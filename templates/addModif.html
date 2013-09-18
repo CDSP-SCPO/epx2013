@@ -1,12 +1,17 @@
 <!-- css related to the addModif.html file -->
 <link rel="stylesheet" href="{{STATIC_URL}}europolix/css/addModif.css?{% now 'U' %}" />
+<!-- anchor bottom page -->
+<div id="bottom_anchor_div" class="row">
+	<a id="top_anchor" href="#bottom_anchor">Go to the bottom</a>
+</div>
+
 <div id="add_modif">
 
 	<div id="add_div" class="span6">
 		<div class="row-fluid"><h4>Act to validate</h4></div>
 		<br />
 		<div id="acts_nb" class="row-fluid">{{ add_form.actsToValidate.field.choices.queryset.all|length }} act(s) to validate!</div>
-		<div id="id_add_act__all__errors" class="row-fluid">{{ add_form.non_field_errors }}</div>
+		<div id="id_add_act__all__errors" class="row-fluid modif_errors">{{ add_form.non_field_errors }}</div>
 		<div class="row-fluid">
 			<div id="actsToValidateChoice" class="fieldWrapper">
 				<div id="id_{{ add_form.actsToValidate.name }}_errors" class="row-fluid">{{ add_form.actsToValidate.errors }}</div>
@@ -20,28 +25,30 @@
 		<div class="row-fluid"><h4>Search a validated act to modify</h4></div>
 		<br />
 		<div id="id_modif_act__all__errors" class="row-fluid">{{ modif_form.non_field_errors }}</div>
-		<div id="modif_form" class="row-fluid">
-			<div id="releveAnneeModif" class="fieldWrapper span3">
-				<div id="id_{{ modif_form.releveAnneeModif.name }}_errors" class="row-fluid">{{ modif_form.releveAnneeModif.errors }}</div>
-				<label for="releveAnneeModif">{{ displayName.releveAnneeModif }}</label>
-				{{ modif_form.releveAnneeModif }}
+			<div id="modif_form" class="row-fluid">
+				<div id="releveAnneeModif" class="fieldWrapper span3">
+					<div id="id_{{ modif_form.releveAnneeModif.name }}_errors" class="row-fluid modif_errors">{{ modif_form.releveAnneeModif.errors }}</div>
+					<label for="releveAnneeModif">{{ displayName.releveAnneeModif }}</label>
+					{{ modif_form.releveAnneeModif }}
+				</div>
+				<div id="releveMoisModif" class="fieldWrapper span3">
+					<div id="id_{{ modif_form.releveMoisModif.name }}_errors" class="row-fluid modif_errors">{{ modif_form.releveMoisModif.errors }}</div>
+					<label for="releveMoisModif">{{ displayName.releveMoisModif }}</label>
+					{{ modif_form.releveMoisModif }}
+				</div>
+				<div id="noOrdreModif" class="fieldWrapper span3">
+					<div id="id_{{ modif_form.noOrdreModif.name }}_errors" class="row-fluid modif_errors">{{ modif_form.noOrdreModif.errors }}</div>
+					<label for="noOrdreModif">{{ displayName.noOrdreModif }}</label>
+					{{ modif_form.noOrdreModif }}
+				</div>
+				<div id="modif_act_button_div" class="span3">
+					<div class="row-fluid modif_errors"></div>
+					<label for=""></label>
+					<button id="modif_act" name="modif_act" type="button" class="btn btn-primary" onclick="$('#modif_button_clicked').val('yes'); display_or_update_act($(this).attr('name'))">MODIF</button>
+					<input id="modif_button_clicked" name="modif_button_clicked" type="hidden" name="next" value="no" />
+					<div id="loading_gif_modif_act"><img src="{{STATIC_URL}}europolix/img/loading_medium.gif" /></div>
+				</div>
 			</div>
-			<div id="releveMoisModif" class="fieldWrapper span3">
-				<div id="id_{{ modif_form.releveMoisModif.name }}_errors" class="row-fluid">{{ modif_form.releveMoisModif.errors }}</div>
-				<label for="releveMoisModif">{{ displayName.releveMoisModif }}</label>
-				{{ modif_form.releveMoisModif }}
-			</div>
-			<div id="noOrdreModif" class="fieldWrapper span3">
-				<div id="id_{{ modif_form.noOrdreModif.name }}_errors" class="row-fluid">{{ modif_form.noOrdreModif.errors }}</div>
-				<label for="noOrdreModif">{{ displayName.noOrdreModif }}</label>
-				{{ modif_form.noOrdreModif }}
-			</div>
-			<div id="modif_act_button_div" class="fieldWrapper span3">
-				<button id="modif_act" name="modif_act" type="button" class="btn btn-primary" onclick="$('#modif_button_clicked').val('yes'); display_or_update_act($(this).attr('name'))">MODIF</button>
-				<input id="modif_button_clicked" name="modif_button_clicked" type="hidden" name="next" value="no" />
-			</div>
-			<div id="loading_gif_modif_act"><img src="{{STATIC_URL}}europolix/img/loading_medium.gif" /></div>
-		</div>
 	</div>
 
 </div>

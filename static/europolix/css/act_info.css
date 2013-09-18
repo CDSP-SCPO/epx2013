@@ -54,12 +54,12 @@
 }
 
 
-#act_info_form .first_column
+#act_form .first_column
 {
 	width: 225px;
 }
 
-#act_info_form .second_column
+#act_form .second_column
 {
 	width: 76.8%;
 }

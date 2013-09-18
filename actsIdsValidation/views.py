@@ -19,7 +19,6 @@ import importApp.views as importView
 #redirect to login page if not logged
 from django.contrib.auth.decorators import login_required
 
-#ajax
 #use json for the ajax request
 from django.http import HttpResponse
 from django.template.loader import render_to_string
@@ -120,7 +119,7 @@ def act_ids(request):
 		mode, addOrModif, act, response_dic=addOrModifFct(request.POST, response_dic, ActsAddForm, ActsModifForm)
 		ids_form = ActsIdsForm(request.POST, instance=act)
 
-		#if any of this key is present in the response dictionary -> no "act validation display and return json object
+		#if any of this key is present in the response dictionary -> no act display and return the errors with a json object
 		#otherwise display act and return the html form of the act to validate or update in a string format
 		keys=["msg", "add_act_errors", "modif_act_errors", "update_act_errors"]
 
@@ -210,11 +209,9 @@ def act_ids(request):
 
 			#save act (with or without errors) or act display, modif and update (with errors)
 			if any(key in response_dic for key in keys):
-				print "1"
 				return HttpResponse(simplejson.dumps(response_dic), mimetype="application/json")
 			else:
-				#act display, modif and update (without errors)
-				print "2"
+				#act display, modif or update (without errors)
 				return HttpResponse(render_to_string(form_template, response_dic, RequestContext(request)))
 
 		#no act has been selected-> do nothing
@@ -222,7 +219,7 @@ def act_ids(request):
 
 
 	#GET
-	#unbound ids_form
+	#unbound forms
 	response_dic['ids_form'] = ActsIdsForm()
 	response_dic['add_form'] = ActsAddForm()
 	response_dic['modif_form'] = ActsModifForm()

@@ -2,6 +2,8 @@
 from django import forms
 from models import ActsInformationModel, RespProposModel, GvtCompoModel
 from actsIdsValidation.models import ActsIdsModel
+#modif form: add non field error
+from django.forms.util import ErrorList
 
 class ActsInformationForm(forms.ModelForm):
 	"""

@@ -37,6 +37,9 @@ function reset_modif_form(what)
 	{
 		$(this).remove();
 	});
+
+	//reset heights of errors
+	$('#add_modif .modif_errors').height("auto");
 }
 
 //reset act form
@@ -56,6 +59,9 @@ function reset_act_form(result, mode)
 			if (mode=="save")
 			{
 				display_save_message(result);
+				//go to the bottom of the page
+				//~ alert("yes");
+				$('#top_anchor').click();
 			}
 		});
 	}
@@ -121,6 +127,17 @@ function display_or_update_result(result, action)
 		//append current errors to the html form
 		errors=eval(result[action+"_errors"]);
 		display_errors(errors, action);
+
+		//ajust height divs for the modif_form
+		if (action=="modif_act")
+		{
+			var maxHeight = Math.max.apply(null, $('#add_modif .modif_errors').map(function ()
+			{
+				return $(this).height();
+			}).get());
+
+			$('#add_modif .modif_errors').height(maxHeight);
+		}
 	}
 	else
 	{
