@@ -98,9 +98,10 @@ def saveRespProposAndGetRespProposObject(respPropos):
 	RETURN
 	respProposObject: instance of respProposModel
 	"""
-	#remove accents and trailing "'"
+	#remove trailing "'"
 	if respPropos[-1]=="'":
 		respPropos=respPropos[:-1]
+	#remove accents
 	respPropos=remove_nonspacing_marks(respPropos)
 	#change name format: "Firstname LASTNAME" -> "LASTNAME Firstname"
 	respPropos=respPropos.split()
@@ -113,7 +114,7 @@ def saveRespProposAndGetRespProposObject(respPropos):
 		#get first names
 		else:
 			first_name+=name+" "
-			
+
 	respPropos=last_name[:-1]+" "+first_name[:-1]
 
 	try:

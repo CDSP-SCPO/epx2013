@@ -1,0 +1,25 @@
+/* css for the notes_and_save.html file */
+
+
+#notes_and_save textarea
+{
+	width: 33%;
+	height: 150px;
+
+}
+
+#notes_and_save button
+{
+	margin-left: 1%;
+	padding: 12px;
+}
+
+#msg
+{
+	position: relative;
+	top: 11px;
+	display: inline-block;
+	width: 45.4%;
+	padding-left: 10px;
+
+}

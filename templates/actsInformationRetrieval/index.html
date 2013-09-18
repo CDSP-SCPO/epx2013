@@ -4,275 +4,282 @@ displays the data of a given act (data for the statistical analysis displays dat
 -->
 {% extends "base.html" %}
 
-{% block contentTitle %}Acts information retrieval{% endblock %}
+{% block contentTitle %}<div id="title">Acts information retrieval</div>{% endblock %}
 
 {% block content %}
-{% load act_info_extra %}
+	<div id="content">
+		<!-- css related to the actsInformationRetrieval application -->
+		<link rel="stylesheet" href="{{STATIC_URL}}europolix/css/act_info.css?{% now 'U' %}" />
+		{% load act_info_extra %}
 
-	<p>
-		You can display, modify and save retrieved information of the validated acts on this page. Acts information can be displayed one at a time. <br />
-		Select a validated act in the drop down list and check the data in the table. Change any value (second column) if you detect a mistake. Eventually, click on the save button to validate and save the act information.
-	</p>
-
-	<br />
-<!--
-	 act information form
--->
-	<form id="actsInformationValidationForm" action="{% url actsInformationRetrieval.views.actsView %}" method="post">{% csrf_token %}
-		{{ form.non_field_errors }}
-
-		{% include "addModif.html" %}
-
-		<br /><br />
-
-		<div class="subtitle">ACT IDS:</div>
-
-		<table id="idsTable">
-			<tr class="table_column_title">
-				<td>{{ displayName.releveAnnee}}</td>
-				<td>{{ displayName.releveMois}}</td>
-				<td>{{ displayName.releveMoisInitial}}</td>
-				<td>{{ displayName.noOrdre}}</td>
-			</tr>
-			<tr>
-				<td>
-					<div class="fieldWrapper">
-						{{ form.releveAnnee.errors }}
-						{{ form.releveAnnee }}
-					</div>
-				</td>
-				<td>
-					<div class="fieldWrapper">
-						{{ form.releveMois.errors }}
-						{{ form.releveMois }}
-					</div>
-				</td>
-				<td>
-					<div class="fieldWrapper">
-						{{ form.releveMoisInitial.errors }}
-						{{ form.releveMoisInitial }}
-					</div>
-				</td>
-				<td>
-					<div class="fieldWrapper">
-						{{ form.noOrdre.errors }}
-						{{ form.noOrdre }}
-					</div>
-				</td>
-			</tr>
-		</table>
-
-		<br /><br />
-
-		<div class="subtitle">EURLEX:</div>
-
-		<table id="eurlexIdsTable">
-			<tr class="table_column_title">
-				<td>{{ displayName.fileNoCelex }}</td>
-				<td>url exists?</td>
-				<td>url link</td>
-			</tr>
-			<tr>
-				<td>{{actId.fileNoCelex}}</td>
-				{% if actId.fileEurlexUrlExists %}<td>{% else %}<td class="error_msg">{% endif %}
-				{{actId.fileEurlexUrlExists}}</td>
-				<td><a href="{{url.eurlexUrl}}" target="_blank">eurlex</a></td>
-			</tr>
-		</table>
-
-		<br />
-
-		<!-- eurlex validation table -->
-		<table id="eurlexTable" class="actsValidationTable">
-			{% for field in form %}
-				{% if "eurlex" in field.name %}
-					<tr>
-						<!-- ofKey template tag used to print displayName.field.name or displayName[field[name]] -->
-						<td class="informationTableFirstColumn table_column_title">{{ displayName|ofKey:field.name }}</td>
-						<td>
-							<div class="fieldWrapper">
-								{{ field.errors }}
-								{{ field }}
-							</div>
-						</td>
-					</tr>
-				{% endif %}
-			{% endfor %}
-		</table>
-
-
-		<br /><br />
-
-		<div class="subtitle">OEIL:</div>
-
-		<table id="oeilIdsTable">
-			<tr class="table_column_title">
-				<td>{{ displayName.fileNoUniqueType }}</td>
-				<td>{{ displayName.fileNoUniqueAnnee }}</td>
-				<td>{{ displayName.fileNoUniqueChrono }}</td>
-				<td>url exists?</td>
-				<td>url link</td>
-			</tr>
-			<tr>
-				<td>{{actId.fileNoUniqueType}}</td>
-				<td>{{actId.fileNoUniqueAnnee}}</td>
-				<td>{{actId.fileNoUniqueChrono}}</td>
-				{% if actId.fileOeilUrlExists %}<td>{% else %}<td class="error_msg">{% endif %}
-				{{actId.fileOeilUrlExists}}</td>
-				<td><a href="{{url.oeilUrl}}" target="_blank">oeil</a></td>
-			</tr>
-		</table>
-
-		<br />
-
-		<!-- oeil validation table -->
-		<table id="oeilTable" class="actsValidationTable">
-			{% for field in form %}
-				{% if "oeil" in field.name %}
-					<tr>
-						<td class="informationTableFirstColumn table_column_title">{{ displayName|ofKey:field.name }}</td>
-						<td>
-							<div class="fieldWrapper">
-								{{ field.errors }}
-								{{ field }}
-							</div>
-						</td>
-					</tr>
-				{% endif %}
-			{% endfor %}
-		</table>
-
-
-		<br /><br />
-
-
-		<div class="subtitle">PRELEX:</div>
-
-		<table id="prelexIdsTable">
-			<tr class="table_column_title">
-				<td>{{ displayName.fileProposOrigine }}</td>
-				<td>{{ displayName.fileProposAnnee }}</td>
-				<td>{{ displayName.fileProposChrono }}</td>
-				<td>{{ displayName.fileDosId }}</td>
-				<td>url exists?</td>
-				<td>url link</td>
-			</tr>
-			<tr>
-				<td>{{actId.fileProposOrigine}}</td>
-				<td>{{actId.fileProposAnnee}}</td>
-				<td>{{actId.fileProposChrono}}</td>
-				<td>{{actId.fileDosId}}</td>
-				{% if actId.filePrelexUrlExists %}<td>{% else %}<td class="error_msg">{% endif %}
-				{{actId.filePrelexUrlExists}}</td>
-				<td><a href="{{url.prelexUrl}}" target="_blank">prelex</a></td>
-			</tr>
-		</table>
-
-		<br />
-
-		<!-- prelex validation table -->
-		<table id="prelexTable" class="actsValidationTable">
-			{% for field in form %}
-
-				<!-- prelex data split in two tables -> 2d table starts with the field prelexRejetConseil  -->
-				{% if field.name == "prelexRejetConseil" %}
-					</table>
-					<br /><br />
-					<table class="actsValidationTable">
-				{% endif %}
-
-				<!-- display all the fields -->
-				{% if "prelex" in field.name %}
-					<tr>
-						<td class="informationTableFirstColumn table_column_title">{{ displayName|ofKey:field.name }}</td>
-						<td>
-							<div class="fieldWrapper">
-								<!-- many to many relationship -> select multiple -->
-								{{ field.errors }}
-								{{ field }}
-								{% if field.name == "prelexRespProposId1" %}
-									<div id="prelexRespProposId1">
-										<strong>{{ displayName|ofKey:"prelexNationResp1" }}</strong>={{respPropos.prelexNationResp1}}<br />
-										<strong>{{ displayName|ofKey:"prelexNationalPartyResp1" }}</strong>={{respPropos.prelexNationalPartyResp1}}<br />
-										<strong>{{ displayName|ofKey:"prelexEUGroupResp1" }}</strong>={{respPropos.prelexEUGroupResp1}}
-									 </div>
-								{% elif field.name == "prelexRespProposId2" %}
-									<div id="prelexRespProposId2">
-										<strong>{{ displayName|ofKey:"prelexNationResp2" }}</strong>={{respPropos.prelexNationResp2}}<br />
-										<strong>{{ displayName|ofKey:"prelexNationalPartyResp2" }}</strong>={{respPropos.prelexNationalPartyResp2}}<br />
-										<strong>{{ displayName|ofKey:"prelexEUGroupResp2" }}</strong>={{respPropos.prelexEUGroupResp2}}
-									</div>
-								{% elif field.name == "prelexRespProposId3" %}
-									<div id="prelexRespProposId3">
-										<strong>{{ displayName|ofKey:"prelexNationResp3" }}</strong>={{respPropos.prelexNationResp3}}<br />
-										<strong>{{ displayName|ofKey:"prelexNationalPartyResp3" }}</strong>={{respPropos.prelexNationalPartyResp3}}<br />
-										<strong>{{ displayName|ofKey:"prelexEUGroupResp3" }}</strong>={{respPropos.prelexEUGroupResp3}}
-									</div>
-								{% endif %}
-							</div>
-						</td>
-					</tr>
-				{% endif %}
-
-				<!-- prelexNationGvtPoliticalComposition -->
-				{% if forloop.last %}
-					{{ field.name }}
-					LAST
-					<tr>
-						<td class="informationTableFirstColumn table_column_title">{{ displayName|ofKey:"prelexNationGvtPoliticalComposition" }}</td>
-						<td>
-							<div class="fieldWrapper">
-								{{ gvt_compo }}
-							</div>
-						</td>
-					</tr>
-				{% endif %}
-
-			{% endfor %}
-		</table>
-
-		<br /><br />
-
-		<div class="subtitle">OPAL:</div>
-		<br />
-
-		<!-- opal validation table -->
-		<table id="opalTable" class="actsValidationTable">
-			{% for field in form %}
-
-				<!-- display all the fields -->
-				{% if "opal" in field.name %}
-					<tr>
-						<td class="informationTableFirstColumn table_column_title">{{ displayName|ofKey:field.name }}</td>
-						<td>
-							<div class="fieldWrapper">
-								{{ field.errors }}
-								{{ field }}
-							</div>
-						</td>
-					</tr>
-				{% endif %}
-			{% endfor %}
-		</table>
-
-		<br /><br />
-
-		<div id="notes_save_msg">
-			<div id="notesDiv" class="fieldWrapper cell">
-				{{ idForm.notes.errors }}
-				<label for="notes">{{ displayName.notes }}:</label>
-				{{ idForm.notes }}
-			</div>
-
-			<div class="cell">
-				<input id="actsValidationSaveButton" class="submit_button" name="actsValidationSaveButton" type="submit" value="SAVE" />
-			</div>
-
-			<div id="success_msg" class="cell">{{ success }}</div>
+		<div class="row-fluid">
+			You can display, modify and save retrieved information of the validated acts on this page. Acts information can be displayed one at a time. <br />
+			Select a validated act in the drop down list and check the data in the table. Change any value (second column) if you detect a mistake. Eventually, click on the save button to validate and save the act information.
 		</div>
 
-	</form>
+		<!-- act information form -->
+		<form id="act_info_form" class="form-inline" action="{% url info %}" method="post">{% csrf_token %}
+			<div class="row-fluid">{{ info_form.non_field_errors }}</div>
 
-	<br />
+			<br />
 
+			<div class="row-fluid">{% include "addModif.html" %}</div>
+
+			<br /><br />
+
+			<div class="row-fluid border">
+				<div class="row-fluid"><h4>Act ids:</h4></div>
+
+				<table id="ids_table" class="ids_table table table-bordered table-hover table-condensed">
+					<thead>
+						<tr>
+							<th>{{ displayName.releveAnnee}}</th>
+							<th>{{ displayName.releveMois}}</th>
+							<th>{{ displayName.releveMoisInitial}}</th>
+							<th>{{ displayName.noOrdre}}</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>
+								<div class="fieldWrapper">
+									{{ info_form.releveAnnee.errors }}
+									{{ info_form.releveAnnee }}
+								</div>
+							</td>
+							<td>
+								<div class="fieldWrapper">
+									{{ info_form.releveMois.errors }}
+									{{ info_form.releveMois }}
+								</div>
+							</td>
+							<td>
+								<div class="fieldWrapper">
+									{{ info_form.releveMoisInitial.errors }}
+									{{ info_form.releveMoisInitial }}
+								</div>
+							</td>
+							<td>
+								<div class="fieldWrapper">
+									{{ info_form.noOrdre.errors }}
+									{{ info_form.noOrdre }}
+								</div>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+
+			<br /><br />
+
+
+			<div class="row-fluid"><h4>Eurlex:</h4></div>
+
+			<table id="eurlex_ids_table" class="ids_table table table-bordered table-hover table-condensed">
+				<thead>
+					<tr>
+						<th>{{ displayName.fileNoCelex }}</th>
+						<th>url exists?</th>
+						<th>url link</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>{{actId.fileNoCelex}}</td>
+						{% if actId.fileEurlexUrlExists %}<td>{% else %}<td class="error_msg">{% endif %}
+						{{actId.fileEurlexUrlExists}}</td>
+						<td><a href="{{url.eurlexUrl}}" target="_blank">eurlex</a></td>
+					</tr>
+				</tbody>
+			</table>
+
+			<!-- eurlex validation table -->
+			<table id="eurlex_table" class="table table-bordered table-hover table-condensed">
+				{% for field in info_form %}
+					{% if "eurlex" in field.name %}
+						<tr>
+							<!-- ofKey template tag used to print displayName.field.name or displayName[field[name]] -->
+							<td class="first_column table_column_title">{{ displayName|ofKey:field.name }}</td>
+							<td class="second_column">
+								<div class="fieldWrapper">
+									{{ field.errors }}
+									{{ field }}
+								</div>
+							</td>
+						</tr>
+					{% endif %}
+				{% endfor %}
+			</table>
+
+			<br />
+
+
+			<div class="row-fluid"><h4>Oeil:</h4></div>
+
+			<table id="oeil_ids_table" class="ids_table table table-bordered table-hover table-condensed">
+				<thead>
+					<tr>
+						<th>{{ displayName.fileNoUniqueType }}</th>
+						<th>{{ displayName.fileNoUniqueAnnee }}</th>
+						<th>{{ displayName.fileNoUniqueChrono }}</th>
+						<th>url exists?</th>
+						<th>url link</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>{{actId.fileNoUniqueType}}</td>
+						<td>{{actId.fileNoUniqueAnnee}}</td>
+						<td>{{actId.fileNoUniqueChrono}}</td>
+						{% if actId.fileOeilUrlExists %}<td>{% else %}<td class="error_msg">{% endif %}
+						{{actId.fileOeilUrlExists}}</td>
+						<td><a href="{{url.oeilUrl}}" target="_blank">oeil</a></td>
+					</tr>
+				</tbody>
+			</table>
+
+			<!-- oeil validation table -->
+			<table id="oeil_table" class="table table-bordered table-hover table-condensed">
+				{% for field in info_form %}
+					{% if "oeil" in field.name %}
+						<tr>
+							<td class="first_column table_column_title">{{ displayName|ofKey:field.name }}</td>
+							<td class="second_column">
+								<div class="fieldWrapper">
+									{{ field.errors }}
+									{{ field }}
+								</div>
+							</td>
+						</tr>
+					{% endif %}
+				{% endfor %}
+			</table>
+
+			<br />
+
+
+			<div class="row-fluid"><h4>Prelex:</h4></div>
+
+			<table id="prelex_ids_table" class="ids_table table table-bordered table-hover table-condensed">
+				<thead>
+					<tr>
+						<th>{{ displayName.fileProposOrigine }}</th>
+						<th>{{ displayName.fileProposAnnee }}</th>
+						<th>{{ displayName.fileProposChrono }}</th>
+						<th>{{ displayName.fileDosId }}</th>
+						<th>url exists?</th>
+						<th>url link</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>{{actId.fileProposOrigine}}</td>
+						<td>{{actId.fileProposAnnee}}</td>
+						<td>{{actId.fileProposChrono}}</td>
+						<td>{{actId.fileDosId}}</td>
+						{% if actId.filePrelexUrlExists %}<td>{% else %}<td class="error_msg">{% endif %}
+						{{actId.filePrelexUrlExists}}</td>
+						<td><a href="{{url.prelexUrl}}" target="_blank">prelex</a></td>
+					</tr>
+				</tbody>
+			</table>
+
+			<!-- prelex validation table -->
+			<table id="prelex_table" class="table table-bordered table-hover table-condensed">
+				{% for field in info_form %}
+
+					<!-- prelex data split in two tables -> 2d table starts with the field prelexRejetConseil  -->
+					{% if field.name == "prelexRejetConseil" %}
+						</table>
+						<br />
+						<table id="prelex_table" class="table table-bordered table-hover table-condensed">
+					{% endif %}
+
+					<!-- display all the fields -->
+					{% if "prelex" in field.name %}
+						<tr>
+							<td class="first_column table_column_title">{{ displayName|ofKey:field.name }}</td>
+							<td class="second_column">
+								<div class="fieldWrapper">
+									<!-- many to many relationship -> select multiple -->
+									{{ field.errors }}
+									{{ field }}
+									{% if field.name == "prelexRespProposId1" %}
+										<div id="prelexRespProposId1">
+											<strong>{{ displayName|ofKey:"prelexNationResp1" }}</strong>={{respPropos.prelexNationResp1}}<br />
+											<strong>{{ displayName|ofKey:"prelexNationalPartyResp1" }}</strong>={{respPropos.prelexNationalPartyResp1}}<br />
+											<strong>{{ displayName|ofKey:"prelexEUGroupResp1" }}</strong>={{respPropos.prelexEUGroupResp1}}
+										 </div>
+									{% elif field.name == "prelexRespProposId2" %}
+										<div id="prelexRespProposId2">
+											<strong>{{ displayName|ofKey:"prelexNationResp2" }}</strong>={{respPropos.prelexNationResp2}}<br />
+											<strong>{{ displayName|ofKey:"prelexNationalPartyResp2" }}</strong>={{respPropos.prelexNationalPartyResp2}}<br />
+											<strong>{{ displayName|ofKey:"prelexEUGroupResp2" }}</strong>={{respPropos.prelexEUGroupResp2}}
+										</div>
+									{% elif field.name == "prelexRespProposId3" %}
+										<div id="prelexRespProposId3">
+											<strong>{{ displayName|ofKey:"prelexNationResp3" }}</strong>={{respPropos.prelexNationResp3}}<br />
+											<strong>{{ displayName|ofKey:"prelexNationalPartyResp3" }}</strong>={{respPropos.prelexNationalPartyResp3}}<br />
+											<strong>{{ displayName|ofKey:"prelexEUGroupResp3" }}</strong>={{respPropos.prelexEUGroupResp3}}
+										</div>
+									{% endif %}
+								</div>
+							</td>
+						</tr>
+					{% endif %}
+
+					<!-- prelexNationGvtPoliticalComposition -->
+					{% if forloop.last %}
+						<tr>
+							<td class="first_column table_column_title">{{ displayName|ofKey:"prelexNationGvtPoliticalComposition" }}</td>
+							<td class="second_column">
+								<div class="fieldWrapper">
+									{% if gvt_compo %}
+										<table id="gvt_compo" class="table table-bordered table-condensed">
+											{% for gvt in gvt_compo %}
+												<tr>
+													{% for el in gvt %}
+														<td>{{ el }}</td>
+													{% endfor %}
+												</tr>
+											{% endfor %}
+										</table>
+									{% endif %}
+								</div>
+							</td>
+						</tr>
+					{% endif %}
+
+				{% endfor %}
+			</table>
+
+			<br />
+
+
+			<div class="row-fluid"><h4>Opal:</h4></div>
+			<br />
+
+			<!-- opal validation table -->
+			<table id="opal_table" class="table table-bordered table-hover table-condensed">
+				{% for field in info_form %}
+
+					<!-- display all the fields -->
+					{% if "opal" in field.name %}
+						<tr>
+							<td class="first_column table_column_title">{{ displayName|ofKey:field.name }}</td>
+							<td class="second_column">
+								<div class="fieldWrapper">
+									{{ field.errors }}
+									{{ field }}
+								</div>
+							</td>
+						</tr>
+					{% endif %}
+				{% endfor %}
+			</table>
+
+			<div id="notes_and_save" class="row-fluid">{% include "notes_and_save.html" %}</div>
+
+		</form>
+	</div>
 {% endblock %}

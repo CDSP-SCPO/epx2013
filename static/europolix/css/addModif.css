@@ -1,0 +1,84 @@
+/* css for the addModif.html file */
+
+
+#add_modif input
+{
+	width: 92%;
+}
+
+#add_modif select
+{
+	width: auto;
+}
+
+#add_div, #modif_div
+{
+	width: 50%;
+	padding: 1%;
+	border-top: 1px groove #ddd;
+	border-bottom: 1px groove #ddd;
+	text-align:center;
+}
+
+#add_div
+{
+	border-right: 1px black dashed;
+}
+
+#modif_div
+{
+	margin-left: 0;
+	border-left: 1px black dashed;
+}
+
+#modif_form .fieldWrapper
+{
+
+	padding-top: 0;
+}
+
+#modif_act_button_div
+{
+	float: right;
+	margin-top: 6.3%;
+	width: 20%;
+}
+
+
+
+
+/* loading gif */
+
+#actsToValidateChoice, #modif_form
+{
+	position: relative;
+}
+
+#modif_form
+{
+	width: 80%;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+#releveAnneeModif, #releveMoisModif, #noOrdreModif
+{
+	width: 23%;
+	margin-right: 1%;
+}
+
+#loading_gif_add_act
+{
+	display: none;
+	position: absolute;
+	top: 14%;
+	right: 4%;
+}
+
+#loading_gif_modif_act
+{
+	display: none;
+	position: absolute;
+	top: 41%;
+	left: 103%;
+}

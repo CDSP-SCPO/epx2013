@@ -1,5 +1,7 @@
 from django import forms
 from models import ActsIdsModel
+#modif form: add non field error
+from django.forms.util import ErrorList
 
 
 class ActsIdsForm(forms.ModelForm):
@@ -10,7 +12,6 @@ class ActsIdsForm(forms.ModelForm):
 	#EURLEX
 	fileNoCelex=forms.RegexField(regex=r'^[0-9](195[789]|19[6-9][0-9]|20[0-1][0-9])([dflryDFLRY]|PC)[0-9]{4}(\(0[1-9]\)|R\(0[1-9]\))?$')
 	#~ noCelex
-	#^[0-9](19|20)[0-9]{2}[dflrDFLR][0-9]{4}(\(01\)|R\(01\))?$
 	#Ne peut etre = 000L (sauf pour l'acte de NoSaisie 329)
 	#Chaque acte a un numero Celex et ce numero est unique (sauf exception : acte de ReleveAnnee='2004', ReleveMois='4' et NoOrdre='52', OrdreSaisie='329')
 
@@ -101,7 +102,7 @@ class ActsAddForm(forms.Form):
 	FORM
 	details the ActsAddForm form (fields for the add mode of Acts validation)
 	"""
-	actsToValidate=forms.ModelChoiceField(queryset=ActsIdsModel.objects.filter(validated=0), empty_label="Select an act to validate", widget=forms.Select(attrs={'onchange': 'this.form.submit();'}))
+	actsToValidate=forms.ModelChoiceField(queryset=ActsIdsModel.objects.only("releveAnnee", "releveMois", "noOrdre").filter(validated=0), empty_label="Select an act to validate", widget=forms.Select(attrs={'onchange': 'display_or_update_act("add_act")'}))
 
 
 class ActsModifForm(forms.Form):
@@ -115,20 +116,28 @@ class ActsModifForm(forms.Form):
 	noOrdreModif=forms.IntegerField(label='NoOrdre', min_value=1, max_value=99)
 
 	#check if the searched act already exists in the db and has been validated
-	def clean(self):
-		cleaned_data = super(ActsModifForm, self).clean()
-		releveAnneeModif = cleaned_data.get("releveAnneeModif")
-		releveMoisModif = cleaned_data.get("releveMoisModif")
-		noOrdreModif = cleaned_data.get("noOrdreModif")
+	def is_valid(self):
+		# run the parent validation first
+		valid = super(ActsModifForm, self).is_valid()
+
+		# we're done now if not valid
+		if not valid:
+			return valid
+
+		#if the form is valid
+		releveAnneeModif = self.cleaned_data.get("releveAnneeModif")
+		releveMoisModif = self.cleaned_data.get("releveMoisModif")
+		noOrdreModif = self.cleaned_data.get("noOrdreModif")
 
 		try:
 			act=ActsIdsModel.objects.get(releveAnnee=releveAnneeModif, releveMois=releveMoisModif, noOrdre=noOrdreModif, validated=1)
 		except:
 			print "pb find act"
-			raise forms.ValidationError("The act you're looking for hasn't been validated yet!")
+			self._errors['__all__']=ErrorList([u"The act you are looking for has not been validated yet!"])
+			return False
 
-		 # Always return the full collection of cleaned data.
-		return cleaned_data
+		# form valid -> return True
+		return True
 
 
 #~ il arrive que l'acte soit sur 1 fiche (Celex, par 32003D0277) ou 2 fiches (Celex et Prelex, par ex 32003D0065) ou 3 fiches (Celex, Prelex et OEIL, par ex 32003L0015).

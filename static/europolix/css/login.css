@@ -1,0 +1,18 @@
+/* css for the login application */
+
+
+/* override bootstrap */
+#login_form .control-group
+{
+	padding-left:1%;
+}
+
+#login_form .control-label
+{
+	width: 7.4%;
+}
+
+#login_form legend
+{
+	width: 172px;
+}

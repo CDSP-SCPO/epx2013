@@ -1,0 +1,18 @@
+/* css for the export application */
+
+
+#export_form fieldset > div.row-fluid
+{
+	padding-left: 1%;
+}
+
+
+#export_form legend
+{
+	width: 272px;
+}
+
+#export_form select
+{
+	width: 100%;
+}

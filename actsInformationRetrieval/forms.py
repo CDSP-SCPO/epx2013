@@ -53,7 +53,7 @@ class ActsAddForm(forms.Form):
 	FORM
 	details the ActsAddForm form (fields for the add mode of Acts information retrieval)
 	"""
-	actsToValidate=forms.ModelChoiceField(queryset=ActsInformationModel.objects.filter(validated=0), empty_label="Select an act to validate", widget=forms.Select(attrs={'onchange': 'this.form.submit();'}))
+	actsToValidate=forms.ModelChoiceField(queryset=ActsInformationModel.objects.only("releveAnnee", 'releveMois', 'noOrdre').filter(validated=0), empty_label="Select an act to validate", widget=forms.Select(attrs={'onchange': 'display_or_update_act("add_act")'}))
 
 
 class ActsModifForm(forms.Form):
@@ -67,20 +67,26 @@ class ActsModifForm(forms.Form):
 	noOrdreModif=forms.IntegerField(label='NoOrdre', min_value=1, max_value=99)
 
 	#check if the searched act already exists in the db and has been validated
-	def clean(self):
-		cleaned_data = super(ActsModifForm, self).clean()
-		releveAnneeModif = cleaned_data.get("releveAnneeModif")
-		releveMoisModif = cleaned_data.get("releveMoisModif")
-		noOrdreModif = cleaned_data.get("noOrdreModif")
-		#~ print "releveAnneeModif",releveAnneeModif
-		#~ print "releveMoisModif",releveMoisModif
-		#~ print "noOrdreModif", noOrdreModif
+	def is_valid(self):
+		# run the parent validation first
+		valid = super(ActsModifForm, self).is_valid()
+
+		# we're done now if not valid
+		if not valid:
+			return valid
+
+		#if the form is valid
+		releveAnneeModif = self.cleaned_data.get("releveAnneeModif")
+		releveMoisModif = self.cleaned_data.get("releveMoisModif")
+		noOrdreModif = self.cleaned_data.get("noOrdreModif")
 
 		try:
 			actId=ActsIdsModel.objects.get(releveAnnee=releveAnneeModif, releveMois=releveMoisModif, noOrdre=noOrdreModif).id
 			act=ActsInformationModel.objects.get(actId_id=actId, validated=1)
 		except:
-			raise forms.ValidationError("The act you're looking for hasn't been validated yet!")
+			print "pb find act"
+			self._errors['__all__']=ErrorList([u"The act you are looking for has not been validated yet!"])
+			return False
 
-		 # Always return the full collection of cleaned data.
-		return cleaned_data
+		# form valid -> return True
+		return True

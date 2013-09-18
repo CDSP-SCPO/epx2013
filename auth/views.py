@@ -2,18 +2,25 @@
 from django.shortcuts import render_to_response
 from django.contrib.auth import authenticate, login, logout
 from django.template import RequestContext
+#use json for the ajax request
+from django.utils import simplejson
+from django.http import HttpResponse
 
 
-def loginView(request):
+def login_view(request):
 	"""
 	VIEW
 	displays the login page / checks the ids of the user
 	template called: auth/index.html
 	"""
 	logout(request)
-	state = "Please log in below..."
-	username = password = ''
+	response_dic={}
+
 	if request.POST:
+		#page posted with ajax
+		msg = ''
+		msg_class="error_msg"
+
 		username = request.POST.get('username')
 		password = request.POST.get('password')
 
@@ -21,10 +28,20 @@ def loginView(request):
 		if user is not None:
 			if user.is_active:
 				login(request, user)
-				state = "You're successfully logged in!"
+				msg = "You're successfully logged in!"
+				msg_class= "success_msg"
+				#for ajax function
+				response_dic["username"]=username
 			else:
-				state = "Your account is not active, please contact the site admin."
+				msg = "Your account is not active, please contact the site admin."
 		else:
-			state = "Your username and/or password were incorrect."
+			msg = "Your username and/or password were incorrect."
 
-	return render_to_response('auth/index.html', {'state':state, 'username': username}, context_instance=RequestContext(request))
+		response_dic["msg"]=msg
+		response_dic["msg_class"]=msg_class
+
+		#transform the data to json so it can be used in jquery
+		return HttpResponse(simplejson.dumps(response_dic), mimetype='application/json')
+
+	#displays the page (no POST)
+	return render_to_response('auth/index.html', response_dic, context_instance=RequestContext(request))

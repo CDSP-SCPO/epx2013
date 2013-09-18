@@ -4,20 +4,70 @@ displays the login page
  -->
 {% extends "base.html" %}
 
-{% block contentTitle %}Login{% endblock %}
+{% block contentTitle %}<div id="title">Login</div>{% endblock %}
 
 {% block content %}
-	{{ state }}
-	<form action="{% url login %}" method="post">{% csrf_token %}
-		{% if next %}
-		<input type="hidden" name="next" value="{{ next }}" />
-		{% endif %}
-		username:
-		<input type="text" name="username" value="{{ username }}" /><br />
-		password:
-		<input type="password" name="password" value="" /><br />
+	<div id="content">
+		<!-- css related to the login application -->
+		<link rel="stylesheet" href="{{STATIC_URL}}europolix/css/login.css?{% now 'U' %}" />
+		<div class="row-fluid">
+			<div class="span12">
+				<form id="login_form" class="form-horizontal">{% csrf_token %}
+					<fieldset>
+						<legend>Please log in below:</legend>
 
-		<input type="submit" value="Log In" />
-	</form>
+						{% if next %}
+							<input type="hidden" name="next" value="{{ next }}" />
+						{% endif %}
+
+						<!-- username -->
+						<div  class="row-fluid">
+							<div class="control-group">
+								<label class="control-label" for="username">username:</label>
+								<div class="span3">
+									<div class="controls">
+										<input type="text" id="username" name="username" value="{{ user.username }}" placeholder="Enter your username" />
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<!-- password -->
+						<div  class="row-fluid">
+							<div class="control-group">
+								<label class="control-label" for="password">password:</label>
+								<div class="span3">
+									<div class="controls">
+										<input type="password" id="password" name="password" value=""  placeholder="Enter your password" onKeyPress="if (event.keyCode == 13) $('#login_button').click();" />
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<!-- submit button -->
+						<div  class="row-fluid">
+							<div class="control-group">
+								<label class="control-label"></label>
+								<div class="span3">
+									<div class="controls center">
+										<button type="button" id="login_button" class="btn btn-primary" onclick="submit_form($('#login_form'), '{% url login %}', 'no', $(this))"  data-loading-text="Loading...">LOG IN</button>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<!-- success or error message -->
+						<div  class="row-fluid">
+							<div id="msg" class="control-group {{ msg_class }}">
+								{{ msg }}
+							</div>
+						</div>
+
+					</fieldset>
+				</form>
+			</div>
+		</div>
+
+	</div>
 {% endblock %}
 

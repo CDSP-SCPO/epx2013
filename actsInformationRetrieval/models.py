@@ -12,7 +12,10 @@ class GvtCompoModel(models.Model):
 	"""
 	startDate=models.DateField(max_length=10, blank=False, null=False)
 	endDate=models.DateField(max_length=10, blank=False, null=False)
-	nationGvtPoliticalComposition= models.CharField(max_length=1000, blank=False, null=False)
+	nationGvtPoliticalComposition= models.CharField(max_length=255, blank=False, null=False)
+
+	class Meta:
+		unique_together = (("startDate", "endDate", "nationGvtPoliticalComposition"), )
 
 
 class ActsInformationModel(models.Model):

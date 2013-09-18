@@ -1,7 +1,8 @@
 from django import forms
 from django.core.exceptions import ValidationError
 from models import CSVUploadModel
-
+from django.conf import settings
+import time
 #variables name
 import actsIdsValidation.variablesNameForIds as vnIds
 import actsInformationRetrieval.variablesNameForInformation as vnInfo
@@ -13,7 +14,7 @@ def fileExtensionValidation(value):
 	validates the extension of a file and raises an error if it is not a csv file
 	"""
 	if not value.name.endswith('.csv'):
-		raise ValidationError(u'Incorrect format. Please choose an other file.')
+		raise ValidationError(u'Incorrect format. Please choose a CSV file.')
 
 class CSVUploadForm(forms.Form):
 	"""
@@ -31,10 +32,9 @@ class CSVUploadForm(forms.Form):
 		('np', 'Import opal file (NP variables)'),
 		('gvtCompo', 'Import '+vnInfo.variablesNameDic['prelexNationGvtPoliticalComposition'])
 	)
-	fileToImport=forms.ChoiceField(choices=fileToImportChoices, widget=forms.Select(attrs={'onchange': 'this.form.submit();'}))
+	fileToImport=forms.ChoiceField(choices=fileToImportChoices, widget=forms.Select(attrs={'onchange': "load_help_text()"}))
 
-	csvFile = forms.FileField(label='Select a CSV file to upload.', help_text='Max file size: 1 Mo', validators=[fileExtensionValidation])
+	csvFile = forms.FileField(validators=[fileExtensionValidation])
 
 	class Meta:
 		model = CSVUploadModel
-

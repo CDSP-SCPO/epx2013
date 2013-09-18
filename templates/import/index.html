@@ -4,89 +4,81 @@ displays the import page
  -->
 {% extends "base.html" %}
 
-{% block contentTitle %}Import{% endblock %}
+{% block contentTitle %}<div id="title">Import</div>{% endblock %}
 
 {% block content %}
-{% load import_extra %}
+	<div id="content">
+		<!-- css related to the import application -->
+		<link rel="stylesheet" href="{{STATIC_URL}}europolix/css/import.css?{% now 'U' %}" />
 
-	<p>
-		You can either import a file containing the dosId variable (prelex unique id) or import a file containing acts to process on this page. It must be a csv file (from excel or calc, you can easily change the format by clicking on "Save as" and choosing "csv").<br />
-		Please select the kind of import you want to do in the drop down list, then the file to download and click on the upload button. If there are errors, they will be displayed.<br />
-		If you are importing acts, it might take a while: the program is going to retrieve information on the acts on eurlex, oeil and prelex. Have a cup of tea and come back later :).
-	</p>
+		<!-- Upload csv file form-->
+		<form id="import_form" class="form-horizontal">{% csrf_token %}
+			<fieldset>
+				<legend>Please choose the import:</legend>
 
-	<br />
-
-<!-- Upload csv file -->
-	<form action="{% url importApp.views.importView %}" method="post" enctype="multipart/form-data">{% csrf_token %}
-		<p>{{ form.non_field_errors }}</p>
-
-		<div id="fileSection">
-
-			<div id="fileToImportChoice" class="fieldWrapper">
-				{{ form.fileToImport.errors }}
-				{{ form.fileToImport }}
-			</div>
-
-			{% if form.fileToImport.value != None and form.fileToImport.value != "" %}
-				<div id="filesFormat" class="info_msg_color">
-					<span id="file_format_descr">Here is an explanation of the format of the file to import. It must be a csv file. The first line should contain the names of the fields or be empty. It is not used for the import but the order of the fields must be as follow (starting from the very first column, 1 or A):</span><br />
-
-					<span id="file_to_import_src">{{ form.fileToImport.value|selected_label:form.fileToImport.field.choices }}: </span>
-					{% if form.fileToImport.value == "act" %}
-						{{ displayName.releveAnnee }}, {{ displayName.releveMois }}, {{ displayName.noOrdre }}, {{ displayName.titreRMC }}, {{ displayName.adopCSRegleVote }}, {{ displayName.adopCSAbs }}, {{ displayName.adoptCSContre }}, {{ displayName.fileNoCelex }}, {{ displayName.fileProposAnnee }}, {{ displayName.fileProposChrono }}, {{ displayName.fileProposOrigine }}, {{ displayName.fileNoUniqueAnnee }}, {{ displayName.fileNoUniqueType }}, {{ displayName.fileNoUniqueChrono }}, {{ displayName.proposSplittee }}, {{ displayName.suite2eLecturePE }}, {{ displayName.councilPath }}, {{ displayName.notes }}. <br />
-					{% elif form.fileToImport.value == "dosId" %}
-						{{ displayName.fileDosId }}, {{ displayName.fileProposAnnee }}, {{ displayName.fileProposChrono }}, {{ displayName.fileProposOrigine }}, {{ displayName.fileSplitProposNumber }}. <br />
-					{% elif form.fileToImport.value == "configCons" %}
-						{{ displayName.eurlexCodeSectRep }}, {{ displayName.prelexConfigCons }}. <br />
-					{% elif form.fileToImport.value == "codeAgenda" %}
-						{{ displayName.eurlexCodeSectRep }}, {{ displayName.eurlexCodeAgenda }}. <br />
-					{% elif form.fileToImport.value == "respPropos" %}
-						{{ displayName.prelexRespPropos }}, {{ displayName.prelexNationalPartyResp }}, {{ displayName.prelexEUGroupResp }}, {{ displayName.prelexNationResp }}. <br />
-					{% elif form.fileToImport.value == "adoptPC" %}
-						{{ displayName.releveAnnee }}, {{ displayName.releveMois }}, {{ displayName.noOrdre }}, {{ displayName.prelexAdoptPCAbs }} , {{ displayName.prelexAdoptPCContre }}. <br />
-					{% elif form.fileToImport.value == "np" %}
-						{{ displayName.opalNPCaseNumber }}, {{ displayName.fileNoCelex }}, {{ displayName.opalNP }}, {{ displayName.opalNPActivityType }},  {{ displayName.opalNPActivityDate }}. <br />
-					{% elif form.fileToImport.value == "gvtCompo" %}
-						startDate, endDate, {{ displayName.prelexNationGvtPoliticalComposition }}. <br />
-					{% endif %}
+				<div class="row-fluid">
+					You can either import a file containing the dosId variable (prelex unique id) or import a file containing acts to process on this page. It must be a csv file (from excel or calc, you can easily change the format by clicking on "Save as" and choosing "csv").<br />
+					Please select the kind of import you want to do in the drop down list, then the file to download and click on the upload button. If there are errors, they will be displayed.<br />
+					If you are importing acts, it might take a while: the program is going to retrieve information on the acts on eurlex, oeil and prelex. Have a cup of tea and come back later :).
 				</div>
-			{% endif %}
-
-		</div>
-
-
-		<div id="clearFloat"></div>
 
 		<br />
 
-		<p>{{ form.csvFile.label_tag }} {{ form.csvFile.help_text }}</p>
-		<p>
-			{{ form.csvFile.errors }}
-			{{ form.csvFile }}
-		</p>
-		<br />
-		<p><input id="importButton" class="submit_button" name="importButton" type="submit" value="IMPORT" /></p>
+				<div class="row-fluid">
+					<div id="id___all___errors" class="row-fluid">{{ form.non_field_errors }}</div>
+				</div>
 
-		<br />
-		{% if errorList %}
-			<div class="error_msg">
-		{% else %}
-			<div id="success_msg">
-		{% endif %}
-		{{ success }}</div>
+				<div class="row-fluid">
+					<div class="span4">
+						<!-- drop down list choose type of import -->
+						<div class="fieldWrapper">
+							<div id="id_{{ form.fileToImport.name }}_errors" class="row-fluid">{{ form.fileToImport.errors }}</div>
+							<div id="help_text_view" style="display: none;">{% url help_text %}</div>
+							<div class="row-fluid">{{ form.fileToImport }}</div>
+						</div>
 
-	</form>
+						<!-- button choose file to import -->
+						<div id="file_to_import" class="fieldWrapper">
+							<div id="id_{{ form.csvFile.name }}_errors" class="row-fluid">{{ form.csvFile.errors }}</div>
+							<div id="file_div" >
+								<!-- mimic django field -->
+								<input id="id_{{ form.csvFile.name }}" name="{{ form.csvFile.name }}" type="file" style="display:none" />
+								<div id="choose_file_div" class="input-append btn" onclick="choose_file(this)">
+									<span id="choose_file">Choose file</span>
+									<input id="file_path" type="text" onKeyPress="this.blur();" >
+								</div>
+							</div>
+						</div>
 
-	<br />
+						<!-- button submit form -->
+						<div class="fieldWrapper row-fluid center">
+							<button type="button" id="import_button" class="btn btn-primary" onclick="submit_form($('#import_form'), '{% url import %}', $('#id_{{ form.csvFile.name }}'), $(this))" data-loading-text="Loading...">IMPORT</button>
+						</div>
+					</div>
 
-	<!-- displays importation errors-->
-	{% if errorList %}
-		{% for error in errorList %}
-			<p>{{ error }}</p>
-		{% empty %}
-			No error during the importation!
-		{% endfor %}
-	{% endif %}
+					<!-- help text for the selected import (on the right) -->
+					<div class="span8">
+						<div id="help_text" class="info_msg">
+						</div>
+					</div>
+				</div>
 
+				<br />
+				<!-- success or error message -->
+				<div  class="row-fluid">
+					<div id="msg" class="{{ msg_class }}">
+						{{ msg }}
+					</div>
+				</div>
+
+				<br />
+
+				<div id="errors_list" class="row-fluid error_msg"></div>
+
+			</fieldset>
+		</form>
+
+		<!-- js related to the import application -->
+		<script type="text/javascript" src="{{ STATIC_URL }}europolix/js/import.js?{% now 'U' %}"></script>
+	</div>
 {% endblock %}

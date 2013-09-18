@@ -4,27 +4,58 @@ displays the export page
  -->
 {% extends "base.html" %}
 
-{% block contentTitle %}Export{% endblock %}
+{% block contentTitle %}<div id="title">Export</div>{% endblock %}
 
 {% block content %}
+	<div id="content">
+		<!-- css related to the export application -->
+		<link rel="stylesheet" href="{{STATIC_URL}}europolix/css/export.css?{% now 'U' %}" />
 
-	<p>
-		You can download all the acts of the database on this page. <br />
-		Please select the sort variable, the sort direction and click on the submit button. The acts will be downloaded in the csv format (can be open with excel or calc).
-	</p>
+		<form id="export_form" class="form-horizontal">{% csrf_token %}
+			<fieldset>
+				<legend>Please choose the sort options:</legend>
 
-	<br />
+				<div class="row-fluid">
+					You can download all the acts of the database on this page. <br />
+					Please select the sort variable, the sort direction and click on the submit button. The acts will be downloaded in the csv format (can be open with excel or calc).
+				</div>
 
-	<form action="{% url export.views.exportView %}" method="post">{% csrf_token %}
+				<br />
 
-		{% for field in form %}
-        <span class="fieldWrapper">
-            {{ field.errors }}
-            {{ field }}
-        </span>
-		{% endfor %}
-		<input class="submit_button" type="submit" value="EXPORT" />
+				<div class="row-fluid">
+					<div id="id___all___errors" class="row-fluid">{{ form.non_field_errors }}</div>
+				</div>
 
-	</form>
+				{% for field in form %}
+					<div class="row-fluid">
+						<div class="span4">
+							<div class="fieldWrapper">
+								<div id="id_{{ field.name }}_errors" class="row-fluid">{{ field.errors }}</div>
+								<div class="row-fluid">{{ field }}</div>
+							</div>
+						</div>
+					</div>
+				{% endfor %}
+
+				<div class="row-fluid">
+					<div class="span4">
+						<div class="fieldWrapper center">
+							<button type="button" id="export_button" class="btn btn-primary" onclick="submit_form($('#export_form'), '{% url export %}', '', $(this))" data-loading-text="Loading...">EXPORT</button>
+						</div>
+					</div>
+				</div>
+
+				<br />
+
+				<!-- success or error message -->
+				<div  class="row-fluid">
+					<div id="msg" class="{{ msg_class }}">
+						{{ msg }}
+					</div>
+				</div>
+			</fieldset>
+		</form>
+
+	</div>
 
 {% endblock %}

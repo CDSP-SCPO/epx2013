@@ -129,6 +129,10 @@ def getEurlexRepEn(soup):
 	except:
 		print "less than four repEn"
 
+	#remove trailing "; "
+	for i in range(len(repEnList)):
+		repEnList[i]=repEnList[i][:-2]
+
 	return repEnList
 
 #texts in front of the eurlexFullCodeSectRep01, eurlexFullCodeSectRep02, eurlexFullCodeSectRep03 and eurlexFullCodeSectRep04 variables (under "Directory code:")

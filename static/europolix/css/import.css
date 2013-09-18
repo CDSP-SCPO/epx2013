@@ -1,0 +1,58 @@
+/* css for the import application */
+
+/* FORM */
+#import_form fieldset > div.row-fluid
+{
+	padding-left: 1%;
+}
+
+
+#import_form legend
+{
+	width: 224px;
+}
+
+
+#choose_file_div
+{
+	padding-left: 10px;
+	width: 92%;
+}
+
+#file_path
+{
+	width: 68%;
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+}
+
+#import_form select
+{
+	width: 100%;
+}
+
+
+
+/* HELP TEXT */
+
+#help_text_border
+{
+	border: 2px groove #ddd;
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	margin-right: 1%;
+	padding: 5px;
+}
+
+#help_text_header
+{
+	font-style:italic;
+}
+
+/*source of the file to import */
+#import_type
+{
+	font-weight:bold;
+}

@@ -1,6 +1,7 @@
 from django.conf.urls import patterns, url
 
 urlpatterns = patterns('actsInformationRetrieval.views',
-	url(r'^/?$', 'actsView', name='informationRetrieval'),
-	url(r'^index.html$', 'actsView', name='informationRetrieval'),
+	url(r'^/?$', 'act_info', name='act_info'),
+	url(r'^form.html$', 'act_info', name='act_info'),
+	url(r'^reset_form.html$', 'reset_form', name='reset_info_form'),
 )

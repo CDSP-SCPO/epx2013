@@ -3,7 +3,6 @@
 import csv
 from django.db.models.loading import get_model
 from django.conf import settings
-from django.http import HttpResponse
 from django.shortcuts import render, render_to_response
 from django.template import RequestContext
 #display drop down lists
@@ -22,6 +21,10 @@ import actsInformationRetrieval.variablesNameForInformation as vnInfo
 
 #redirect to login page if not logged
 from django.contrib.auth.decorators import login_required
+
+#use json for the ajax request
+from django.utils import simplejson
+from django.http import HttpResponse
 
 
 def getHeaders(act_ids_exclude_list, act_info_exclude_list):
@@ -174,6 +177,7 @@ def exportView(request):
 	displays the export page -> export all the acts in the db regarding the sorting variable
 	template called: export/index.html
 	"""
+	response_dic={}
 	if request.method == 'POST':
 		form = ActsExportForm(request.POST)
 		if form.is_valid():
@@ -198,8 +202,9 @@ def exportView(request):
 			querySetToCsvFile(headers_list, acts_list, serverDirectory+fileName)
 			return send_file(request, serverDirectory+fileName, fileName)
 		else:
-			return render_to_response('export/index.html', {'form': form}, context_instance=RequestContext(request))
-	else:
-		form = ActsExportForm()
+			response_dic['form_errors']=  dict([(k, form.error_class.as_text(v)) for k, v in form.errors.items()])
+			return HttpResponse(simplejson.dumps(response_dic), mimetype="application/json")
 
-	return render_to_response('export/index.html', {'form': form}, context_instance=RequestContext(request))
+	#GET
+	response_dic['form']= ActsExportForm()
+	return render_to_response('export/index.html', response_dic, context_instance=RequestContext(request))

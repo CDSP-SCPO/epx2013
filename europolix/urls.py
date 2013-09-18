@@ -2,7 +2,7 @@ from django.conf import settings
 from django.conf.urls import patterns, include, url
 from django.conf.urls.defaults import *
 from django.conf.urls.static import static
-from europolix.views import homepageView
+from django.views.generic.simple import direct_to_template
 
 
 # Uncomment the next two lines to enable the admin:
@@ -10,15 +10,13 @@ from django.contrib import admin
 admin.autodiscover()
 
 urlpatterns = patterns('',
-	#homepage
-	url(r'^/?$', homepageView),
-	url(r'^index.html$', homepageView),
+	#load the homepage template (no view)
+	url(r'^/?$', direct_to_template, {'template': 'index.html'}),
+	url(r'^index.html$', direct_to_template, {'template': 'index.html'}),
 	#tests page
 	#~ url(r'^tests/$', 'tests.views.testView'),
 	#login page
-	url(r'^login/$', 'auth.views.loginView', name='login'),
-	#~ url(r'^accounts/login/$', 'auth.views.loginView', name='login'),
-	#~ url(r'^accounts/auth/$', 'auth.views.loginView', name='login'),
+	url(r'^login/$', 'auth.views.login_view', name='login'),
 	#acts ids validation page
 	url(r'^actsIdsValidation/', include('actsIdsValidation.urls')),
 	#acts information retrieval page
@@ -35,4 +33,11 @@ urlpatterns = patterns('',
 
 	# Uncomment the next line to enable the admin:
 	url(r'^admin/', include(admin.site.urls)),
-)+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+)+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT, show_indexes=True)
+
+if settings.DEBUG:
+	urlpatterns += patterns('',
+		(r'^static/(?P<path>.*)$', 'django.views.static.serve',
+		{'document_root': settings.STATIC_ROOT, 'show_indexes': True})
+)
+

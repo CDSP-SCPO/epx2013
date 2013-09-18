@@ -14,12 +14,11 @@ def getAssocVariables(act):
 	RETURN
 	prelexNationGvtPoliticalComposition (ActsInformationModel)
 	"""
-	gvt_compo=""
+	gvt_compo_list=[]
 	for gvtCompo in act.prelexNationGvtPoliticalComposition.all():
-		gvt_compo+=gvtCompo.nationGvtPoliticalComposition+"; "
-	#delete last "; "
-	gvt_compo=gvt_compo[:-2]
-	return gvt_compo
+		split=gvtCompo.nationGvtPoliticalComposition.split(':', 1)
+		gvt_compo_list.append((split[0], split[1]))
+	return gvt_compo_list
 
 
 def linkActInfoToGvtCompo(act):
@@ -46,7 +45,6 @@ def linkActInfoToGvtCompo(act):
 	if gvtCompos:
 		return True
 	return False
-
 
 
 def getGvtCompo(act):

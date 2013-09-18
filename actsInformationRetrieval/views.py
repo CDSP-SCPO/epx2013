@@ -110,9 +110,7 @@ def getInformationFromPrelex(actId, act, prelexUrl):
 	act object which contains retrieved information
 	"""
 	extraFieldsDic=model_to_dict(actId, fields=["releveAnnee", "releveMois", "noOrdre", "prelexProposOrigine", "prelexNoUniqueType", "proposSplittee", "suite2eLecturePE"])
-	print "act.oeilSignPECS", act.oeilSignPECS
 	extraFieldsDic["signPECS"]=act.oeilSignPECS
-	print "extraFieldsDic[signPECS]", extraFieldsDic["signPECS"]
 	extraFieldsDic["fullCodeSectRep01"]=act.eurlexFullCodeSectRep01
 	return getInformation("prelex", actId, act, prelexUrl, extraFieldsDic)
 
@@ -160,13 +158,12 @@ def getRespProposRelatedData(resProposId):
 
 
 @login_required
-def actsView(request):
+def act_info(request):
 	"""
 	VIEW
 	displays and processes the acts information retrieval page
 	template called: actsInformationRetrieval/index.html
 	"""
-
 	#SELECT * FROM europolix.actsInformationRetrieval_dgfullnamemodel fn, europolix.actsInformationRetrieval_dgcodemodel code where fn.dgCode_id=code.id;
 	#update europolix.actsInformationRetrieval_actsinformationmodel set validated=0;
 
@@ -184,14 +181,14 @@ def actsView(request):
 		#if we are about to add or modif an act (the add or modif form is valid)
 		if addOrModif!=None:
 			act=ActsInformationModel.objects.get(actId_id=actId.id)
-			form = ActsInformationForm(request.POST, instance=act)
+			info_form = ActsInformationForm(request.POST, instance=act)
 			#saves the act
-			if 'actsValidationSaveButton' in request.POST:
+			if 'save_act' in request.POST:
 				print "save"
 				act.validated=True
-				if form.is_valid():
-					print "form valid"
-					form.save()
+				if info_form.is_valid():
+					print "info_form valid"
+					info_form.save()
 					#save notes
 					actId.notes=request.POST['notes']
 					actId.save()
@@ -200,10 +197,10 @@ def actsView(request):
 					responseDic={}
 					responseDic['success']="The act " + str(act.actId) + " has been validated!"
 				else:
-					print "form not valid", form.errors
+					print "info_form not valid", info_form.errors
 					state="ongoing"
 
-			#displays the retrieved information of the act to validate (selection of a act in the drop down list)
+			#displays the retrieved information of the act to validate (selection of an act in the drop down list or click modif button)
 			if state!="saved":
 				print 'actsToValidate display'
 				#"compute" the url of the eurlex, oeil and prelex page
@@ -221,15 +218,16 @@ def actsView(request):
 				#an act has been selected in the drop down list (or modification of an act) -> the related information is displayed
 				if state=="display":
 					if addOrModif=="add":
+						print "info retrieval"
 						#retrieve all the information from all the sources
 						act=getInformationFromEurlex(actId, act, urlDic["eurlexUrl"])
-						act=getInformationFromOeil(actId, act, urlDic["oeilUrl"])
-						act=getInformationFromPrelex(actId, act, urlDic["prelexUrl"])
-						act=getInformationFromOpal(actId, act)
-					form = ActsInformationForm(instance=act)
-					idForm=ActsIdsForm(instance=actId)
+						#~ act=getInformationFromOeil(actId, act, urlDic["oeilUrl"])
+						#~ act=getInformationFromPrelex(actId, act, urlDic["prelexUrl"])
+						#~ act=getInformationFromOpal(actId, act)
+					info_form = ActsInformationForm(instance=act)
+					ids_form=ActsIdsForm(instance=actId)
 
-				gvt_compo=getGvtCompo(act)
+				#~ gvt_compo=getGvtCompo(act)
 				respProposId1=respProposId2=respProposId3=None
 				respProposDic={}
 				for index in xrange(1,4):
@@ -248,13 +246,13 @@ def actsView(request):
 				responseDic['act']=act
 				responseDic['respPropos']=respProposDic
 				responseDic['gvt_compo']=gvt_compo
-				responseDic['idForm']=idForm
-				responseDic['form']=form
+				responseDic['ids_form']=ids_form
+				responseDic['info_form']=info_form
 
 	#~ #if form has not been created yet -> unbound form
-	if 'form' not in responseDic:
-		responseDic['idForm'] = ActsIdsForm()
-		responseDic['form'] = ActsInformationForm()
+	if 'info_form' not in responseDic:
+		responseDic['ids_form'] = ActsIdsForm()
+		responseDic['info_form'] = ActsInformationForm()
 		responseDic['respPropos']={}
 	if 'addForm' not in responseDic:
 		responseDic['addForm'] = ActsAddForm()
@@ -265,3 +263,18 @@ def actsView(request):
 
 
 	return render_to_response('actsInformationRetrieval/index.html', responseDic, context_instance=RequestContext(request))
+
+
+def reset_form(request):
+	"""
+	VIEW
+	reset the act_info form (except add and modif_form)
+	template called: 'actsInformationRetrieval/form.html'
+	"""
+	response_dic={}
+	#display "real" name of variables (not the one stored in db)
+	response_dic['displayName']=vn.variablesNameDic
+	responseDic['displayName'].update(vnInfo.variablesNameDic)
+	responseDic['ids_form'] = ActsIdsForm()
+	response_dic['info_form'] = ActsInformationForm()
+	return render_to_response('actsInformationRetrieval/form.html', response_dic, context_instance=RequestContext(request))
