@@ -231,16 +231,16 @@ def act_info(request):
 						if addOrModif=="add":
 							print "info retrieval"
 							#retrieve all the information from all the sources
-							#~ act=getInformationFromEurlex(actId, act, urlDic["eurlexUrl"])
-							#~ act=getInformationFromOeil(actId, act, urlDic["oeilUrl"])
+							act=getInformationFromEurlex(actId, act, urlDic["eurlexUrl"])
+							act=getInformationFromOeil(actId, act, urlDic["oeilUrl"])
 							#prelex configCons needs eurlex
 							act=getInformationFromPrelex(actId, act, urlDic["prelexUrl"])
 						info_form = ActsInformationForm(instance=act)
 						ids_form=ActsIdsForm(instance=actId)
 
-					#~ opal=getInformationFromOpal(actId.fileNoCelex)
+					opal=getInformationFromOpal(actId.fileNoCelex)
 					#need oeil and prelex
-					#~ gvt_compo=getGvtCompo(act)
+					gvt_compo=getGvtCompo(act)
 					respProposId1=respProposId2=respProposId3=None
 					respProposDic={}
 					for index in xrange(1,4):
