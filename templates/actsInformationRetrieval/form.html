@@ -184,21 +184,21 @@
 						{{ field }}
 						{% if field.name == "prelexRespProposId1" %}
 							<div id="prelexRespProposId1">
-								<strong>{{ displayName|ofKey:"prelexNationResp1" }}</strong>={{respPropos.prelexNationResp1}}<br />
-								<strong>{{ displayName|ofKey:"prelexNationalPartyResp1" }}</strong>={{respPropos.prelexNationalPartyResp1}}<br />
-								<strong>{{ displayName|ofKey:"prelexEUGroupResp1" }}</strong>={{respPropos.prelexEUGroupResp1}}
+								<strong>{{ displayName.prelexNationResp1 }}</strong>={{respPropos.prelexNationResp1}}<br />
+								<strong>{{ displayName.prelexNationalPartyResp1 }}</strong>={{respPropos.prelexNationalPartyResp1}}<br />
+								<strong>{{ displayName.prelexEUGroupResp1 }}</strong>={{respPropos.prelexEUGroupResp1}}
 							 </div>
 						{% elif field.name == "prelexRespProposId2" %}
 							<div id="prelexRespProposId2">
-								<strong>{{ displayName|ofKey:"prelexNationResp2" }}</strong>={{respPropos.prelexNationResp2}}<br />
-								<strong>{{ displayName|ofKey:"prelexNationalPartyResp2" }}</strong>={{respPropos.prelexNationalPartyResp2}}<br />
-								<strong>{{ displayName|ofKey:"prelexEUGroupResp2" }}</strong>={{respPropos.prelexEUGroupResp2}}
+								<strong>{{ displayName.prelexNationResp2 }}</strong>={{respPropos.prelexNationResp2}}<br />
+								<strong>{{ displayName.prelexNationalPartyResp2 }}</strong>={{respPropos.prelexNationalPartyResp2}}<br />
+								<strong>{{ displayName.prelexEUGroupResp2 }}</strong>={{respPropos.prelexEUGroupResp2}}
 							</div>
 						{% elif field.name == "prelexRespProposId3" %}
 							<div id="prelexRespProposId3">
-								<strong>{{ displayName|ofKey:"prelexNationResp3" }}</strong>={{respPropos.prelexNationResp3}}<br />
-								<strong>{{ displayName|ofKey:"prelexNationalPartyResp3" }}</strong>={{respPropos.prelexNationalPartyResp3}}<br />
-								<strong>{{ displayName|ofKey:"prelexEUGroupResp3" }}</strong>={{respPropos.prelexEUGroupResp3}}
+								<strong>{{ displayName.prelexNationResp3 }}</strong>={{respPropos.prelexNationResp3}}<br />
+								<strong>{{ displayName.prelexNationalPartyResp3 }}</strong>={{respPropos.prelexNationalPartyResp3}}<br />
+								<strong>{{ displayName.prelexEUGroupResp3 }}</strong>={{respPropos.prelexEUGroupResp3}}
 							</div>
 						{% endif %}
 					</div>
@@ -209,7 +209,7 @@
 		<!-- prelexNationGvtPoliticalComposition -->
 		{% if forloop.last %}
 			<tr>
-				<td class="first_column table_column_title">{{ displayName|ofKey:"prelexNationGvtPoliticalComposition" }}</td>
+				<td class="first_column table_column_title">{{ displayName.prelexNationGvtPoliticalComposition }}</td>
 				<td class="second_column">
 					<div class="fieldWrapper">
 						{% if gvt_compo %}
@@ -239,21 +239,33 @@
 
 <!-- opal validation table -->
 <table id="opal_table" class="table table-bordered table-hover table-condensed">
-	{% for field in info_form %}
-
-		<!-- display all the fields -->
-		{% if "opal" in field.name %}
+		<!-- display all the fields for each different NP -->
+		{% for key, lists in opal.items %}
 			<tr>
-				<td class="first_column table_column_title">{{ displayName|ofKey:field.name }}</td>
+				<td class="first_column table_column_title">{{ displayName.opalNP }}={{ key }}</td>
+
 				<td class="second_column">
 					<div class="fieldWrapper">
-						<div id="id_{{ field.name }}_errors" class="row-fluid">{{ field.errors }}</div>
-						{{ field }}
+						<table id="opal" class="table table-bordered table-condensed">
+							{% for list in lists %}
+								<tr>
+									{% for field in list %}
+										{% if forloop.first %}
+											<!-- titles -->
+											<td class="table_column_title">{{ field }}</td>
+										{% else %}
+											<!-- values -->
+											<td class="opal_second_column">{{ field }}</td>
+										{% endif %}
+									{% endfor %}
+								</tr>
+							{% endfor %}
+						</table>
 					</div>
 				</td>
-			</tr>
-		{% endif %}
-	{% endfor %}
+		{% empty %}
+			<tr><td class="empty">Sorry, no match.</td></tr>
+		{% endfor %}
 </table>
 
 <div id="notes_and_save" class="row-fluid">{% include "notes_and_save.html" %}</div>

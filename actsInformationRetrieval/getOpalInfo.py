@@ -3,6 +3,7 @@
 get the information from opal
 """
 from actsInformationRetrieval.models import NPModel
+import variablesNameForInformation as vnInfo
 
 
 def getOpalVariables(noCelex):
@@ -14,33 +15,19 @@ def getOpalVariables(noCelex):
 	RETURN
 	dictionary of opal variables
 	"""
+	opal_dic={}
 	try:
 		#does the noCelex exist in NPModel?
 		instances=NPModel.objects.filter(noCelex=noCelex)
-		#there is at least one match -> we retrieve it/them
-		npCaseNumberList=npList=npActivityTypeList=npActivityDateList=[]
-		columnsList=["npCaseNumber", "np", "npActivityType", "npActivityDate"]
-		opalDic={"opalNPCaseNumber":"", "opalNP":"", "opalNPActivityType":"", "opalNPActivityDate":""}
-		#for each row concerning the act being retrieved
 		for instance in instances:
-			#for each column
-			for varNameOpal in columnsList:
-				varNameActsInfo="opal"+varNameOpal[:2].upper()+varNameOpal[2:]
-				varList=eval(varNameOpal+"List")
-				varValue=str(getattr(instance, varNameOpal))
-				#if it's not already present in the variable list of different values
-				if varValue not in varList:
-					varList.append(varValue)
-					#concatene different values in the dictionary to be returned
-					opalDic[varNameActsInfo]+=varValue+"; "
-		#delete last "; "
-		for item in opalDic:
-			opalDic[item]=opalDic[item][:-2]
-		return opalDic
+			npActivityType=(vnInfo.variablesNameDic["opalNPActivityType"] , instance.npActivityType)
+			npActivityDate=(vnInfo.variablesNameDic["opalNPActivityDate"] , instance.npActivityDate)
+			npCaseNumber=(vnInfo.variablesNameDic["opalNPCaseNumber"] , instance.npCaseNumber)
+			opal_dic[instance.np]=(npActivityType, npActivityDate, npCaseNumber)
 	except Exception, e:
-		print "exception", e
+		print "getOpalVariables exception", e
 
-	return None
+	return opal_dic
 
 
 def getOpalInfo(noCelex):
@@ -52,14 +39,9 @@ def getOpalInfo(noCelex):
 	RETURN
 	dictionary of retrieved data from opal
 	"""
-	dataDic={}
+
 
 	#get npCaseNumber, np, npActivityType and npActivityDate
-	try:
-		dataDic.update(getOpalVariables(noCelex))
-	except:
-		print "no opal match"
-	for key, value in dataDic.iteritems():
-		print key, value
-
-	return dataDic
+	opal=getOpalVariables(noCelex)
+	print "opal", opal
+	return opal

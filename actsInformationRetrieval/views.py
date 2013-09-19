@@ -114,20 +114,18 @@ def getInformationFromPrelex(actId, act, prelexUrl):
 	return getInformation("prelex", actId, act, prelexUrl, extraFieldsDic)
 
 
-def getInformationFromOpal(actId, act):
+def getInformationFromOpal(noCelex):
 	"""
 	FUNCTION
 	get all the information of a given act from opal
 	PARAMETERS
-	actId: ids of the act
+	noCelex: no celex of the act
 	act: information of the act
 	RETURN
 	act object which contains retrieved information
 	"""
-	dataDic={}
-	dataDic=getOpalInfo(actId.fileNoCelex)
-	act.__dict__.update(dataDic)
-	return act
+	opal=getOpalInfo(noCelex)
+	return opal
 
 
 def getGvtCompo(act):
@@ -167,7 +165,7 @@ def act_info(request):
 	#update europolix.actsInformationRetrieval_actsinformationmodel set validated=0;
 
 	response_dic={}
-	gvt_compo=""
+	gvt_compo=opal=""
 	#display "real" name of variables (names given by europolix team, not the names stored in db)
 	response_dic['displayName']=vnIds.variablesNameDic
 	response_dic['displayName'].update(vnInfo.variablesNameDic)
@@ -238,13 +236,14 @@ def act_info(request):
 						if addOrModif=="add":
 							print "info retrieval"
 							#retrieve all the information from all the sources
-							act=getInformationFromEurlex(actId, act, urlDic["eurlexUrl"])
+							#~ act=getInformationFromEurlex(actId, act, urlDic["eurlexUrl"])
 							#~ act=getInformationFromOeil(actId, act, urlDic["oeilUrl"])
 							#~ act=getInformationFromPrelex(actId, act, urlDic["prelexUrl"])
-							#~ act=getInformationFromOpal(actId, act)
 						info_form = ActsInformationForm(instance=act)
 						ids_form=ActsIdsForm(instance=actId)
 
+					opal=getInformationFromOpal(actId.fileNoCelex)
+					#need oeil and prelex
 					#~ gvt_compo=getGvtCompo(act)
 					respProposId1=respProposId2=respProposId3=None
 					respProposDic={}
@@ -264,6 +263,7 @@ def act_info(request):
 					response_dic['act']=act
 					response_dic['respPropos']=respProposDic
 					response_dic['gvt_compo']=gvt_compo
+					response_dic['opal']=opal
 					response_dic['ids_form']=ids_form
 					response_dic['info_form']=info_form
 

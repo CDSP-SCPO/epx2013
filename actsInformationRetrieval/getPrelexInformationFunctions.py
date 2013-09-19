@@ -116,14 +116,17 @@ def saveRespProposAndGetRespProposObject(respPropos):
 			first_name+=name+" "
 
 	respPropos=last_name[:-1]+" "+first_name[:-1]
+	print "respPropos", respPropos
 
 	try:
 		#checks if respPropos already exists in the db
 		respProposObject=RespProposModel.objects.get(respPropos=respPropos)
+		print "respProposObject1", respProposObject
 		return respProposObject
 	except:
 		#respPropos doesn't exist in the db yet -> we add it in the table
 		respProposObject=RespProposModel(respPropos=respPropos).save()
+		print "respProposObject2", respProposObject
 		#get respPropos
 		return respProposObject
 

@@ -122,11 +122,12 @@ class ActsInformationModel(models.Model):
 	prelexNationGvtPoliticalComposition= models.ManyToManyField(GvtCompoModel)
 
 	#OPAL file
+	#TO BE DELETED
 	#there can be many values for each field for one act (for one noCelex)-> concatenation with ";"
-	opalNPCaseNumber=models.CharField(max_length=600, blank=True, null=True, default=None)
-	opalNP=models.CharField(max_length=120, blank=True, null=True, default=None)
-	opalNPActivityType= models.CharField(max_length=200, blank=True, null=True, default=None)
-	opalNPActivityDate=models.CharField(max_length=500, blank=True, null=True, default=None)
+	#~ opalNPCaseNumber=models.CharField(max_length=600, blank=True, null=True, default=None)
+	#~ opalNP=models.CharField(max_length=120, blank=True, null=True, default=None)
+	#~ opalNPActivityType= models.CharField(max_length=200, blank=True, null=True, default=None)
+	#~ opalNPActivityDate=models.CharField(max_length=500, blank=True, null=True, default=None)
 
 	#GENERAL (just for the program)
 	validated=models.BooleanField(default=False)
