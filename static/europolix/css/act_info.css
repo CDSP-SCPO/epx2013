@@ -79,11 +79,16 @@
 	margin-top: 2px;
 }
 
-/* nationGvtPoliticalComposition */
+/* nationGvtPoliticalComposition and opal */
 #gvt_compo, #opal
 {
 	margin: 2px;
 	width: auto;
+}
+
+#gvt_compo_table .fieldWrapper, #opal_table .fieldWrapper
+{
+	padding-bottom: 0;
 }
 
 

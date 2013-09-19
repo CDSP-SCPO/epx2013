@@ -108,7 +108,7 @@ def getInformationFromPrelex(actId, act, prelexUrl):
 	RETURN
 	act object which contains retrieved information
 	"""
-	extraFieldsDic=model_to_dict(actId, fields=["releveAnnee", "releveMois", "noOrdre", "prelexProposOrigine", "prelexNoUniqueType", "proposSplittee", "suite2eLecturePE"])
+	extraFieldsDic=model_to_dict(actId, fields=["releveAnnee", "releveMois", "noOrdre", "prelexProposOrigine", "prelexNoUniqueType", "proposSplittee", "suite2eLecturePE", "adopCSRegleVote", "adopCSAbs", "adoptCSContre"])
 	extraFieldsDic["signPECS"]=act.oeilSignPECS
 	extraFieldsDic["fullCodeSectRep01"]=act.eurlexFullCodeSectRep01
 	return getInformation("prelex", actId, act, prelexUrl, extraFieldsDic)
@@ -174,8 +174,6 @@ def act_info(request):
 	#html page of the form
 	form_template='actsInformationRetrieval/form.html'
 
-	print "request.method", request.method
-
 	if request.method == 'POST':
 		#addOrModif=None, "add" or "modif"
 		#act=act to validate / modify or None if no act is found (modifcation)
@@ -185,9 +183,6 @@ def act_info(request):
 		#if any of this key is present in the response dictionary -> no act display and return the errors with a json object
 		#otherwise display act and return the html form of the act to validate or modif in a string format
 		keys=["msg", "add_act_errors", "modif_act_errors"]
-
-		print "mode", mode
-		print "addOrModif", addOrModif
 
 		#if selection of an act in the drop down list or click on the modif_act button
 		if mode!=None:
@@ -238,6 +233,7 @@ def act_info(request):
 							#retrieve all the information from all the sources
 							act=getInformationFromEurlex(actId, act, urlDic["eurlexUrl"])
 							act=getInformationFromOeil(actId, act, urlDic["oeilUrl"])
+							#prelex configCons needs eurlex
 							act=getInformationFromPrelex(actId, act, urlDic["prelexUrl"])
 						info_form = ActsInformationForm(instance=act)
 						ids_form=ActsIdsForm(instance=actId)

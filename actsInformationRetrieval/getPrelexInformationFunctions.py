@@ -147,7 +147,7 @@ def getPrelexJointlyResponsibles(soup):
 		#~ http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=en&DosId=191926
 		jointlyResponsibles=soup.findAll("td", text="Jointly responsible")
 		#prelexDGProposition2
-		prelexDGProposition2=specialDgSearch(jointlyResponsibles[0].findNext('td').get_text().strip())
+		prelexDGProposition2=jointlyResponsibles[0].findNext('td').get_text().strip()
 		#prelexRespPropos2 or 3
 		prelexRespPropos2=jointlyResponsibles[1].findNext('td').get_text().strip()
 		#get the id from RespProposModel
@@ -162,24 +162,25 @@ def getPrelexJointlyResponsibles(soup):
 #can be Null
 
 
-def specialDgSearch(dg):
+def getPrelexSiglesDG(dg):
 	"""
 	FUNCTION
-	gives the standard short name of special values for the primarily responsible
+	gives the standard short name of the primarily responsible (if exists)
 	PARAMETERS
 	dg: primarily responsible
 	RETURN
-	short name or dg itself if it is not associated to a dgCode in the db
+	short name of prelexDGProposition1-2
 	"""
-	dgCode=dg
+	dgCode=None
 	try:
 		#if there is a match in the db -> return dgCode
-		dgCode=DGFullNameModel.objects.get(dgFullName=dg).dgCode_id
-		dgCode=DGCodeModel.objects.get(id=dgCode).dgCode
+		dgCode_id=DGFullNameModel.objects.get(dgFullName=dg).dgCode_id
+		dgCode=DGCodeModel.objects.get(id=dgCode_id).dgCode
+		#it can be associated to a dgCode
+		#~ http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=en&DosId=111863
 	except:
-		print "Full name not stored in db"
+		print "no short name for dg"
 
-	print "dgCode", dgCode
 	return dgCode
 
 
@@ -194,15 +195,7 @@ def getPrelexDGProposition1(soup):
 	"""
 	try:
 		#dgProposition
-		dg=soup.find("td", text="Primarily responsible").findNext('td').get_text().strip()
-		specialDg=specialDgSearch(dg)
-		#the variable corresponds to a real person
-		if specialDg==None:
-			return dg
-		#it can be associated to a dgCode
-		#~ http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=en&DosId=111863
-		return specialDg
-
+		return soup.find("td", text="Primarily responsible").findNext('td').get_text().strip()
 	except:
 		return None
 
@@ -616,11 +609,17 @@ def getPrelexInformation(soup, otherVariablesDic):
 	#jointly responsible persons (prelexDGProposition2 and prelexRespProposObject2 or prelexRespProposObject3)
 	prelexDGProposition2, prelexRespProposObject2=getPrelexJointlyResponsibles(adoptionByCommissionTableSoup)
 
-	#prelexDGProposition1 and prelexDGProposition2
+	#prelexDGProposition1 and prelexSiglesDG1
 	dataDic['prelexDGProposition1']=getPrelexDGProposition1(adoptionByCommissionTableSoup)
-	dataDic['prelexDGProposition2']=prelexDGProposition2
+	dataDic['prelexSiglesDG1']=getPrelexSiglesDG(dataDic['prelexDGProposition1'])
 	print "prelexDGProposition1:", dataDic['prelexDGProposition1']
+	print "prelexSiglesDG1:", dataDic['prelexSiglesDG1']
+
+	#prelexDGProposition2 and prelexSiglesDG2
+	dataDic['prelexDGProposition2']=prelexDGProposition2
+	dataDic['prelexSiglesDG2']=getPrelexSiglesDG(dataDic['prelexDGProposition2'])
 	print "prelexDGProposition2:", dataDic['prelexDGProposition2']
+	print "prelexSiglesDG2:", dataDic['prelexSiglesDG2']
 
 	#prelexRespProposObject1, prelexRespProposObject2, prelexRespProposObject3
 	respProposList=getPrelexRespProposList(adoptionByCommissionTableSoup)
@@ -687,11 +686,27 @@ def getPrelexInformation(soup, otherVariablesDic):
 
 	#prelexDureeTotaleDepuisPropCom
 	dataDic['prelexDureeTotaleDepuisPropCom']=getPrelexDateDiff(str(otherVariablesDic["signPECS"]), dataDic['prelexAdoptionProposOrigine'])
+	if dataDic['prelexDureeTotaleDepuisPropCom']==None:
+		dataDic['prelexDureeTotaleDepuisPropCom']=dataDic['prelexDureeProcedureDepuisPropCom']
 	print "prelexDureeTotaleDepuisPropCom:", dataDic['prelexDureeTotaleDepuisPropCom']
 
 	#prelexDureeTotaleDepuisTransCons
 	dataDic['prelexDureeTotaleDepuisTransCons']=getPrelexDateDiff(str(otherVariablesDic["signPECS"]), dataDic['prelexTransmissionCouncil'])
+	if dataDic['prelexDureeTotaleDepuisTransCons']==None:
+		dataDic['prelexDureeTotaleDepuisTransCons']=dataDic['prelexDureeProcedureDepuisTransCons']
 	print "prelexDureeTotaleDepuisTransCons:", dataDic['prelexDureeTotaleDepuisTransCons']
+
+	#prelexAdoptCSRegleVote
+	dataDic['prelexAdoptCSRegleVote']=otherVariablesDic["adopCSRegleVote"]
+	print "prelexAdoptCSRegleVote:", dataDic['prelexAdoptCSRegleVote']
+
+	#prelexAdoptCSContre
+	dataDic['prelexAdoptCSContre']=otherVariablesDic["adoptCSContre"]
+	print "prelexAdoptCSContre:", dataDic['prelexAdoptCSContre']
+
+	#prelexAdoptCSAbs
+	dataDic['prelexAdoptCSAbs']=otherVariablesDic["adopCSAbs"]
+	print "prelexAdoptCSAbs:", dataDic['prelexAdoptCSAbs']
 
 	#prelexAdoptPCAbs
 	dataDic['prelexAdoptPCAbs']=getPrelexAdoptPCAbs([otherVariablesDic["releveAnnee"], otherVariablesDic["releveMois"], otherVariablesDic["noOrdre"]])
