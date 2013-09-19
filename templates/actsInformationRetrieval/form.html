@@ -182,23 +182,25 @@
 						<!-- many to many relationship -> select multiple -->
 						<div id="id_{{ field.name }}_errors" class="row-fluid">{{ field.errors }}</div>
 						{{ field }}
+						<!-- display respPropos variables -->
+						<div id="respPropos" style="display:none">{% url update_respPropos %}</div>
 						{% if field.name == "prelexRespProposId1" %}
 							<div id="prelexRespProposId1">
-								<strong>{{ displayName.prelexNationResp1 }}</strong>={{respPropos.prelexNationResp1}}<br />
-								<strong>{{ displayName.prelexNationalPartyResp1 }}</strong>={{respPropos.prelexNationalPartyResp1}}<br />
-								<strong>{{ displayName.prelexEUGroupResp1 }}</strong>={{respPropos.prelexEUGroupResp1}}
+								<strong>{{ displayName.prelexNationResp1 }}</strong>=<span id="prelexNationResp1">{{respPropos.prelexNationResp1}}</span><br />
+								<strong>{{ displayName.prelexNationalPartyResp1 }}</strong>=<span id="prelexNationalPartyResp1">{{respPropos.prelexNationalPartyResp1}}</span><br />
+								<strong>{{ displayName.prelexEUGroupResp1 }}</strong>=<span id="prelexEUGroupResp1">{{respPropos.prelexEUGroupResp1}}</span>
 							 </div>
 						{% elif field.name == "prelexRespProposId2" %}
 							<div id="prelexRespProposId2">
-								<strong>{{ displayName.prelexNationResp2 }}</strong>={{respPropos.prelexNationResp2}}<br />
-								<strong>{{ displayName.prelexNationalPartyResp2 }}</strong>={{respPropos.prelexNationalPartyResp2}}<br />
-								<strong>{{ displayName.prelexEUGroupResp2 }}</strong>={{respPropos.prelexEUGroupResp2}}
+								<strong>{{ displayName.prelexNationResp2 }}</strong>=<span id="prelexNationResp2">{{respPropos.prelexNationResp2}}</span><br />
+								<strong>{{ displayName.prelexNationalPartyResp2 }}</strong>=<span id="prelexNationalPartyResp2">{{respPropos.prelexNationalPartyResp2}}</span><br />
+								<strong>{{ displayName.prelexEUGroupResp2 }}</strong>=<span id="prelexEUGroupResp2">{{respPropos.prelexEUGroupResp2}}</span>
 							</div>
 						{% elif field.name == "prelexRespProposId3" %}
 							<div id="prelexRespProposId3">
-								<strong>{{ displayName.prelexNationResp3 }}</strong>={{respPropos.prelexNationResp3}}<br />
-								<strong>{{ displayName.prelexNationalPartyResp3 }}</strong>={{respPropos.prelexNationalPartyResp3}}<br />
-								<strong>{{ displayName.prelexEUGroupResp3 }}</strong>={{respPropos.prelexEUGroupResp3}}
+								<strong>{{ displayName.prelexNationResp3 }}</strong>=<span id="prelexNationResp3">{{respPropos.prelexNationResp3}}</span><br />
+								<strong>{{ displayName.prelexNationalPartyResp3 }}</strong>=<span id="prelexNationalPartyResp3">{{respPropos.prelexNationalPartyResp3}}</span><br />
+								<strong>{{ displayName.prelexEUGroupResp3 }}</strong>=<span id="prelexEUGroupResp3">{{respPropos.prelexEUGroupResp3}}</span>
 							</div>
 						{% endif %}
 					</div>

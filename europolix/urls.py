@@ -11,8 +11,7 @@ admin.autodiscover()
 
 urlpatterns = patterns('',
 	#load the homepage template (no view)
-	url(r'^/?$', direct_to_template, {'template': 'index.html'}),
-	url(r'^index.html$', direct_to_template, {'template': 'index.html'}),
+	url(r'^/?$', direct_to_template, {'template': 'index.html'}, name="homepage"),
 	#tests page
 	#~ url(r'^tests/$', 'tests.views.testView'),
 	#login page

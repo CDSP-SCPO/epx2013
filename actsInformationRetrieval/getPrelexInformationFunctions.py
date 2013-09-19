@@ -537,6 +537,23 @@ def getPrelexDateDiff(date1, date2):
 #DureeTotaleDepuisTransCons (SignPECS – TransmissionConseil) 
 
 
+def getPrelexVotePublic(adoptCSContre, adoptCSAbs):
+	"""
+	FUNCTION
+	returns the prelexVotePublic variable
+	PARAMETERS
+	adoptCSContre: adoptCSContre variable from index
+	adoptCSAbs: adoptCSAbs variable from index
+	RETURN
+	prelexVotePublic
+	"""
+	if adoptCSContre!="" or adoptCSAbs!="":
+		return True
+	return False
+
+#prelexVotePublic is True if adoptCSContre or adoptCSAbs has a value
+
+
 def getPrelexAdoptPCVariables(releveIds, columnName):
 	"""
 	FUNCTION
@@ -686,26 +703,32 @@ def getPrelexInformation(soup, otherVariablesDic):
 
 	#prelexDureeTotaleDepuisPropCom
 	dataDic['prelexDureeTotaleDepuisPropCom']=getPrelexDateDiff(str(otherVariablesDic["signPECS"]), dataDic['prelexAdoptionProposOrigine'])
+	#if no signPECS
 	if dataDic['prelexDureeTotaleDepuisPropCom']==None:
 		dataDic['prelexDureeTotaleDepuisPropCom']=dataDic['prelexDureeProcedureDepuisPropCom']
 	print "prelexDureeTotaleDepuisPropCom:", dataDic['prelexDureeTotaleDepuisPropCom']
 
 	#prelexDureeTotaleDepuisTransCons
 	dataDic['prelexDureeTotaleDepuisTransCons']=getPrelexDateDiff(str(otherVariablesDic["signPECS"]), dataDic['prelexTransmissionCouncil'])
+	#if no signPECS
 	if dataDic['prelexDureeTotaleDepuisTransCons']==None:
 		dataDic['prelexDureeTotaleDepuisTransCons']=dataDic['prelexDureeProcedureDepuisTransCons']
 	print "prelexDureeTotaleDepuisTransCons:", dataDic['prelexDureeTotaleDepuisTransCons']
 
 	#prelexAdoptCSRegleVote
-	dataDic['prelexAdoptCSRegleVote']=otherVariablesDic["adopCSRegleVote"]
+	dataDic['prelexAdoptCSRegleVote']=otherVariablesDic["adoptCSRegleVote"]
 	print "prelexAdoptCSRegleVote:", dataDic['prelexAdoptCSRegleVote']
+
+	#prelexVotePublic
+	dataDic['prelexVotePublic']=getPrelexVotePublic(otherVariablesDic["adoptCSContre"], otherVariablesDic["adoptCSAbs"])
+	print "prelexVotePublic:", dataDic['prelexVotePublic']
 
 	#prelexAdoptCSContre
 	dataDic['prelexAdoptCSContre']=otherVariablesDic["adoptCSContre"]
 	print "prelexAdoptCSContre:", dataDic['prelexAdoptCSContre']
 
 	#prelexAdoptCSAbs
-	dataDic['prelexAdoptCSAbs']=otherVariablesDic["adopCSAbs"]
+	dataDic['prelexAdoptCSAbs']=otherVariablesDic["adoptCSAbs"]
 	print "prelexAdoptCSAbs:", dataDic['prelexAdoptCSAbs']
 
 	#prelexAdoptPCAbs

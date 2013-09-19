@@ -192,7 +192,8 @@ function display_or_update_act(button_name)
 	var form_data = form.serialize();
 	form_data+="&"+button_name+"=''";
 
-	$.ajax({
+	$.ajax
+	({
 		type: "POST",
 		url: form.attr('action'),
 		//~ dataType: 'html',
@@ -226,7 +227,8 @@ function save_act_form(form, button)
 	});
 	var form_data = form.serialize();
 	form_data+="&"+button.attr("id")+"=''";
-	$.ajax({
+	$.ajax
+	({
 		type: 'POST',
 		url: form.attr('action'),
 		dataType: 'json',
@@ -254,3 +256,25 @@ $("#modif_form input:text").change(function()
 {
 	$('#modif_button_clicked').val('no');
 });
+
+
+/* update the respPropos variables when a different respPropos is selected from the drop down list */
+function update_respPropos(element_id, respPropos_id)
+{
+	$.ajax
+	({
+		type: 'POST',
+		url: $("#respPropos").text(),
+		dataType: 'json',
+		data: "respPropos_id="+respPropos_id,
+		success: function(result)
+		{
+			//get the number of respPropos 1, 2 or 3
+			id=element_id.slice(-1);
+			$("#prelexNationResp"+id).text(result.nationResp);
+			$("#prelexNationalPartyResp"+id).text(result.nationalPartyResp);
+			$("#prelexEUGroupResp"+id).text(result.euGroupResp);
+
+		}
+	});
+}

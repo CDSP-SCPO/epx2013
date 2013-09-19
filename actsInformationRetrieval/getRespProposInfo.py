@@ -17,7 +17,7 @@ def getRespProposVariablesFromDB(table1, respPropos):
 	nationResp, nationalPartyResp or euGroupResp
 	"""
 	table2=["RespProposModel", "id", respPropos]
-	if table2[2]!=None:
+	if table2[2]!=None and table2[2]!="":
 		model1 = get_model('actsInformationRetrieval', table1[0])
 		model2 = get_model('actsInformationRetrieval', table2[0])
 		attrName1=table1[1]

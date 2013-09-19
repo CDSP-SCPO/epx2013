@@ -2,7 +2,7 @@
 from actsIdsValidation.models import ActsIdsModel
 from actsIdsValidation.forms import ActsIdsForm
 from actsInformationRetrieval.forms import ActsInformationForm, ActsAddForm, ActsModifForm
-from actsInformationRetrieval.models import ActsInformationModel
+from actsInformationRetrieval.models import ActsInformationModel, RespProposModel
 #get the addModif fct from the actsIdsValidation.views view
 from actsIdsValidation.views import addOrModifFct
 from django.shortcuts import render_to_response
@@ -108,7 +108,7 @@ def getInformationFromPrelex(actId, act, prelexUrl):
 	RETURN
 	act object which contains retrieved information
 	"""
-	extraFieldsDic=model_to_dict(actId, fields=["releveAnnee", "releveMois", "noOrdre", "prelexProposOrigine", "prelexNoUniqueType", "proposSplittee", "suite2eLecturePE", "adopCSRegleVote", "adopCSAbs", "adoptCSContre"])
+	extraFieldsDic=model_to_dict(actId, fields=["releveAnnee", "releveMois", "noOrdre", "prelexProposOrigine", "prelexNoUniqueType", "proposSplittee", "suite2eLecturePE", "adoptCSRegleVote", "adoptCSAbs", "adoptCSContre"])
 	extraFieldsDic["signPECS"]=act.oeilSignPECS
 	extraFieldsDic["fullCodeSectRep01"]=act.eurlexFullCodeSectRep01
 	return getInformation("prelex", actId, act, prelexUrl, extraFieldsDic)
@@ -231,16 +231,16 @@ def act_info(request):
 						if addOrModif=="add":
 							print "info retrieval"
 							#retrieve all the information from all the sources
-							act=getInformationFromEurlex(actId, act, urlDic["eurlexUrl"])
-							act=getInformationFromOeil(actId, act, urlDic["oeilUrl"])
+							#~ act=getInformationFromEurlex(actId, act, urlDic["eurlexUrl"])
+							#~ act=getInformationFromOeil(actId, act, urlDic["oeilUrl"])
 							#prelex configCons needs eurlex
 							act=getInformationFromPrelex(actId, act, urlDic["prelexUrl"])
 						info_form = ActsInformationForm(instance=act)
 						ids_form=ActsIdsForm(instance=actId)
 
-					opal=getInformationFromOpal(actId.fileNoCelex)
+					#~ opal=getInformationFromOpal(actId.fileNoCelex)
 					#need oeil and prelex
-					gvt_compo=getGvtCompo(act)
+					#~ gvt_compo=getGvtCompo(act)
 					respProposId1=respProposId2=respProposId3=None
 					respProposDic={}
 					for index in xrange(1,4):
@@ -301,3 +301,15 @@ def reset_form(request):
 	response_dic['ids_form'] = ActsIdsForm()
 	response_dic['info_form'] = ActsInformationForm()
 	return render_to_response('actsInformationRetrieval/form.html', response_dic, context_instance=RequestContext(request))
+
+
+def update_respPropos(request):
+	"""
+	VIEW
+	update the respPropos variables when a different respPropos is selected from the drop down list
+	"""
+	response_dic={}
+	respPropos_id=request.POST["respPropos_id"]
+	response_dic["nationResp"], response_dic["nationalPartyResp"], response_dic["euGroupResp"]=getRespProposInfo(respPropos_id)
+
+	return HttpResponse(simplejson.dumps(response_dic), mimetype="application/json")

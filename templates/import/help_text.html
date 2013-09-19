@@ -8,7 +8,7 @@
 
 		<span id="import_type">{{ form.fileToImport.value|selected_label:form.fileToImport.field.choices }}: </span>
 		{% if form.fileToImport.value == "act" %}
-			{{ displayName.releveAnnee }}, {{ displayName.releveMois }}, {{ displayName.noOrdre }}, {{ displayName.titreRMC }}, {{ displayName.adopCSRegleVote }}, {{ displayName.adopCSAbs }}, {{ displayName.adoptCSContre }}, {{ displayName.fileNoCelex }}, {{ displayName.fileProposAnnee }}, {{ displayName.fileProposChrono }}, {{ displayName.fileProposOrigine }}, {{ displayName.fileNoUniqueAnnee }}, {{ displayName.fileNoUniqueType }}, {{ displayName.fileNoUniqueChrono }}, {{ displayName.proposSplittee }}, {{ displayName.suite2eLecturePE }}, {{ displayName.councilPath }}, {{ displayName.notes }}. <br />
+			{{ displayName.releveAnnee }}, {{ displayName.releveMois }}, {{ displayName.noOrdre }}, {{ displayName.titreRMC }}, {{ displayName.adoptCSRegleVote }}, {{ displayName.adoptCSAbs }}, {{ displayName.adoptCSContre }}, {{ displayName.fileNoCelex }}, {{ displayName.fileProposAnnee }}, {{ displayName.fileProposChrono }}, {{ displayName.fileProposOrigine }}, {{ displayName.fileNoUniqueAnnee }}, {{ displayName.fileNoUniqueType }}, {{ displayName.fileNoUniqueChrono }}, {{ displayName.proposSplittee }}, {{ displayName.suite2eLecturePE }}, {{ displayName.councilPath }}, {{ displayName.notes }}. <br />
 		{% elif form.fileToImport.value == "dosId" %}
 			{{ displayName.fileDosId }}, {{ displayName.fileProposAnnee }}, {{ displayName.fileProposChrono }}, {{ displayName.fileProposOrigine }}, {{ displayName.fileSplitProposNumber }}. <br />
 		{% elif form.fileToImport.value == "configCons" %}

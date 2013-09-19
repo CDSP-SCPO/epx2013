@@ -203,9 +203,9 @@ def getActData(row):
 		instance.releveMois=int(row[1])
 		instance.noOrdre=int(row[2])
 		instance.titreRMC=row[3].strip()
-		instance.adopCSRegleVote=row[4].strip()
-		adopCSAbs=''.join(row[5].split())
-		instance.adopCSAbs=adopCSAbs
+		instance.adoptCSRegleVote=row[4].strip()
+		adoptCSAbs=''.join(row[5].split())
+		instance.adoptCSAbs=adoptCSAbs
 		instance.adoptCSContre=row[6].strip()
 		instance.fileNoCelex=row[7].strip()
 		instance.fileProposAnnee=emptyOrVar(row[8], "int")

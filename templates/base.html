@@ -27,21 +27,21 @@ contains the template of each webpage: doctype, left menu, right content templat
 		<!-- images -->
 		<header class="page-header">
 			<div class="span4 header_row">
-				<img id="size_sp" class="header_elements" src="{{STATIC_URL}}europolix/img/sciencesPo.png">
+				<a href="http://www.sciencespo.fr/" target="_blank"><img id="size_sp" class="header_elements" src="{{STATIC_URL}}europolix/img/sciencesPo.png"></a>
 				&nbsp;
-				<img id="size_CEE" class="header_elements" src="{{STATIC_URL}}europolix/img/CEE.png">
+				<a href="http://www.cee.sciences-po.fr/" target="_blank"><img id="size_CEE" class="header_elements" src="{{STATIC_URL}}europolix/img/CEE.png"></a>
 			</div>
 
 			<div class="span4 header_row">
-				<h1 class="header_elements">Europolix project</h1>
+				<a href="{% url homepage %}"><h1 class="header_elements">Europolix project</h1></a>
 			</div>
 
 			<div class="span4 header_row">
-				<img id="size_o" class="header_elements" src="{{STATIC_URL}}europolix/img/oeil.png">
+				<a href="http://www.europarl.europa.eu/" target="_blank"><img id="size_o" class="header_elements" src="{{STATIC_URL}}europolix/img/oeil.png"></a>
 				&nbsp;
-				<img id="size_e" class="header_elements" src="{{STATIC_URL}}europolix/img/eurlex.png">
+				<a href="http://new.eur-lex.europa.eu/" target="_blank"><img id="size_e" class="header_elements" src="{{STATIC_URL}}europolix/img/eurlex.png"></a>
 				&nbsp;
-				<img id="size_p" class="header_elements" src="{{STATIC_URL}}europolix/img/prelex.png">
+				<a href="http://ec.europa.eu/" target="_blank"><img id="size_p" class="header_elements" src="{{STATIC_URL}}europolix/img/prelex.png"></a>
 			</div>
 		</header>
 	</div>

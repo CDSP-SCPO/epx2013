@@ -12,13 +12,13 @@ function show_msg(msg, msg_class)
 		.html(msg)
 		.removeClass()
 		.addClass(msg_class)
-		.show();
+	$("#loading_div").show();
 }
 
 //hide loading page info or error message
 function hide_msg()
 {
-	$("#loading").hide();
+	$("#loading_div").hide();
 }
 
 
