@@ -41,7 +41,8 @@ def login_view(request):
 		response_dic["msg_class"]=msg_class
 
 		#transform the data to json so it can be used in jquery
-		return HttpResponse(simplejson.dumps(response_dic), mimetype='application/json')
+		if request.is_ajax():
+			return HttpResponse(simplejson.dumps(response_dic), mimetype='application/json')
 
-	#displays the page (no POST)
+	#displays the page (GET) or POST if javascript disabled
 	return render_to_response('auth/index.html', response_dic, context_instance=RequestContext(request))

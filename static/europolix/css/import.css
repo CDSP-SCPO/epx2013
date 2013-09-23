@@ -12,16 +12,29 @@
 	width: 224px;
 }
 
+/* if javascript disabled, show standard upload file control */
+#import_form input[type="file"]
+{
+	width: 92.8%;
+	padding: 4px 12px 0 9px;
+	/* center "no file chosen" */
+	line-height: 0;
+	height: 26px;
+}
 
 #choose_file_div
 {
+	/* if javascript disabled */
+/*
+	display: none;
+*/
 	padding-left: 10px;
 	width: 92%;
 }
 
 #file_path
 {
-	width: 68%;
+	width: 70%;
 	-webkit-border-radius: 4px;
 	-moz-border-radius: 4px;
 	border-radius: 4px;

@@ -66,7 +66,7 @@ class ActsIdsModel(models.Model):
 	notes=models.CharField(max_length=2000,  blank=True, null=True)
 
 	#GENERAL (just for the program)
-	validated=models.BooleanField(default=False)
+	validated=models.BooleanField(default=False, db_index=True)
 
 	#joined primary keys
 	class Meta:

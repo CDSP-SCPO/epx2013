@@ -70,14 +70,36 @@
 }
 
 /*display respPropos related fields*/
-#id_prelexRespProposId1, #id_prelexRespProposId2, #id_prelexRespProposId3, #prelexRespProposId1, #prelexRespProposId2, #prelexRespProposId3
+#prelex_table select, #prelex_table .prelexRespProposId, #prelex_table .update_respPropos
 {
 	float: left;
-	width: 49.5%;
-	text-align: left;
-	padding-left: 5px;
 	margin-top: 2px;
 }
+
+#prelex_table select
+{
+	width: 40%;
+	padding-left: 5px;
+}
+
+#prelex_table .prelexRespProposId
+{
+	width: auto;
+/*
+	width: 49.5%;
+*/
+	padding-left: 1.5%;
+	text-align: left;
+}
+
+/* button to update respPropos variables if javascript disabled */
+#prelex_table .update_respPropos
+{
+	margin-left: 1%;
+	margin-top: 3px;
+	padding: 3px 6px;
+}
+
 
 /* nationGvtPoliticalComposition and opal */
 #gvt_compo, #opal

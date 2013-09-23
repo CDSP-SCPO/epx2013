@@ -11,7 +11,7 @@ displays the export page
 		<!-- css related to the export application -->
 		<link rel="stylesheet" href="{{STATIC_URL}}europolix/css/export.css?{% now 'U' %}" />
 
-		<form id="export_form" class="form-horizontal">{% csrf_token %}
+		<form id="export_form" class="form-horizontal" method="post" action="{% url export %}">{% csrf_token %}
 			<fieldset>
 				<legend>Please choose the sort options:</legend>
 
@@ -40,7 +40,7 @@ displays the export page
 				<div class="row-fluid">
 					<div class="span4">
 						<div class="fieldWrapper center">
-							<button type="button" id="export_button" class="btn btn-primary" onclick="submit_form($('#export_form'), '{% url export %}', '', $(this))" data-loading-text="Loading...">EXPORT</button>
+							<button type="submit" id="export_button" class="btn btn-primary" data-loading-text="Loading...">EXPORT</button>
 						</div>
 					</div>
 				</div>
@@ -56,6 +56,8 @@ displays the export page
 			</fieldset>
 		</form>
 
+		<!-- js related to the export application -->
+		<script type="text/javascript" src="{{ STATIC_URL }}europolix/js/export.js?{% now 'U' %}"></script>
 	</div>
 
 {% endblock %}

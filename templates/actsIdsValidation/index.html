@@ -10,15 +10,21 @@ displays the acts validation page (displays data from eurlex, oeil and prelex an
 	<div id="content">
 		<!-- css related to the actsIdsValidation application -->
 		<link rel="stylesheet" href="{{STATIC_URL}}europolix/css/act_ids.css?{% now 'U' %}" />
+		<!-- css related to the addModif.html file -->
+		<link rel="stylesheet" href="{{STATIC_URL}}europolix/css/addModif.css?{% now 'U' %}" />
+		<!-- css related to the notes_and_save.html file -->
+		<link rel="stylesheet" href="{{STATIC_URL}}europolix/css/notes_and_save.css?{% now 'U' %}" />
 		<div class="row-fluid">
-			You can validate the imported acts on this page. Acts can be validated one at a time. <br />
-			Select the act to validate in the drop down list and check the data in the table. In red are highlighted contentious data. The last row "VALIDATION" contains the final data of the act after validation. Change any value of this row if you detect a mistake. Under the table, you can add a note concerning the act. Eventually, click on the save button to validate and save the act.
+			This page lets you validate the ids of an imported act or modify / check the ids of a validated act. Acts can be (re)validated one at a time. <br />
+			Select an act to validate in the drop down list to validate a new act. Fill in the {{ displayName.releveAnnee}}, {{ displayName.releveMois}}, {{ displayName.noOrdre}} textboxes and click on the modif button to modify an already validated act.<br />
+			You can then check the data in the table below. Contentious data are highlighted in red. The last row "VALIDATION" contains the final data of the act after validation. Change any value on this row if you detect a mistake. You can also click on the update button should you like to fetch the ids from eurlex, oeil and prelex once again.<br />
+			Under the table, you can add a note concerning the act. Eventually, click on the save button to validate and save the act.
 		</div>
 
 		<br />
 
 		<!-- act validation form -->
-		<form id="act_form"  class="form-inline" action="{% url act_ids %}" method="post">{% csrf_token %}
+		<form id="act_form"  class="form-inline" method="post"  action="{% url act_ids %}">{% csrf_token %}
 			<div id="reset_form_path" style="display: none;">{% url reset_ids_form %}</div>
 			<div class="row-fluid">{% include "addModif.html" %}</div>
 
@@ -28,5 +34,7 @@ displays the acts validation page (displays data from eurlex, oeil and prelex an
 
 		</form>
 
+		<!-- js related to the act ids and info applications -->
+		<script type="text/javascript" src="{{ STATIC_URL }}europolix/js/act.js?{% now 'U' %}"></script>
 	</div>
 {% endblock %}

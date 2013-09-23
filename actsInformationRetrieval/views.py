@@ -53,8 +53,9 @@ def getInformation(src, actId, act, url, extraFieldsDic=None):
 	urlContent=eval("get"+srcCap+"UrlContent")(url)
 	#act doesn't exist, problem on page or problem with the Internet connection
 	if urlContent!=False:
+		#set the "url exist" attribute of the given source to True
 		setattr(actId, "file"+srcCap+"UrlExists", True)
-		#if yes, retrieve the information and pass it to an object
+		#call the corresponding function to retrieve the information and pass it to an object
 		dataDic=eval("get"+srcCap+"Information")(urlContent, extraFieldsDic)
 		#store dictionary information variables into the model object
 		act.__dict__.update(dataDic)
@@ -159,12 +160,11 @@ def act_info(request):
 	"""
 	VIEW
 	displays and processes the acts information retrieval page
-	template called: actsInformationRetrieval/index.html
+	templates called:
+	actsInformationRetrieval/index.html: display the act info page which itself calls the template of the act_info form
+	actsInformationRetrieval/form.html: display the act_info form
 	"""
-	#SELECT * FROM europolix.actsInformationRetrieval_dgfullnamemodel fn, europolix.actsInformationRetrieval_dgcodemodel code where fn.dgCode_id=code.id;
-	#update europolix.actsInformationRetrieval_actsinformationmodel set validated=0;
-
-	response_dic={}
+	response_dic=respProposDic={}
 	gvt_compo=opal=""
 	#display "real" name of variables (names given by europolix team, not the names stored in db)
 	response_dic['displayName']=vnIds.variablesNameDic
@@ -175,14 +175,16 @@ def act_info(request):
 	form_template='actsInformationRetrieval/form.html'
 
 	if request.method == 'POST':
+		print "post"
 		#addOrModif=None, "add" or "modif"
 		#act=act to validate / modify or None if no act is found (modifcation)
 		#response_dic: add add_form or modif_form to the forms being displayed / to be displayed
-		mode, addOrModif, actId, response_dic=addOrModifFct(request.POST, response_dic, ActsAddForm, ActsModifForm)
+		mode, addOrModif, actId, response_dic=addOrModifFct(request, response_dic, ActsAddForm, ActsModifForm)
 
 		#if any of this key is present in the response dictionary -> no act display and return the errors with a json object
 		#otherwise display act and return the html form of the act to validate or modif in a string format
 		keys=["msg", "add_act_errors", "modif_act_errors"]
+		respPropos_keys=["prelexRespProposId1", "prelexRespProposId2", "prelexRespProposId3"]
 
 		#if selection of an act in the drop down list or click on the modif_act button
 		if mode!=None:
@@ -205,14 +207,23 @@ def act_info(request):
 						response_dic["msg_class"]="success_msg"
 					else:
 						print "info_form not valid", info_form.errors
-						response_dic['save_act_errors']=  dict([(k, info_form.error_class.as_text(v)) for k, v in info_form.errors.items()])
+						if request.is_ajax():
+							response_dic['save_act_errors']=  dict([(k, info_form.error_class.as_text(v)) for k, v in info_form.errors.items()])
+						else:
+							response_dic['info_form']=info_form
 						response_dic["msg"]="The form contains errors! Please correct them before submitting the data."
 						response_dic["msg_class"]="error_msg"
 						state="ongoing"
 
+				#update respPropos variables (click on update button or if a respPropos has been selected in the drop down list)
+				#only if javascript deactivated
+				elif not request.is_ajax() and any(request.POST[key]!="" for key in respPropos_keys):
+					print "update"
+					state="update"
+
 				#displays the retrieved information of the act to validate (selection of an act in the drop down list or click modif button)
 				#(selection of an act in the add / modif form  with no form error)
-				if not any(key in response_dic for key in keys):
+				if not any(key in response_dic for key in keys) or not request.is_ajax() and state!="saved":
 					print 'actsToValidate display'
 					#"compute" the url of the eurlex, oeil and prelex page
 					urlDic={}
@@ -226,7 +237,9 @@ def act_info(request):
 						#url saved in the database using the oeil ids in case of a split proposition
 						urlDic["prelexUrl"]=actId.filePrelexUrl
 					response_dic["url"]=urlDic
+
 					#an act has been selected in the drop down list (or modification of an act) -> the related information is displayed
+					#or update respPropos
 					if state=="display":
 						if addOrModif=="add":
 							print "info retrieval"
@@ -235,56 +248,67 @@ def act_info(request):
 							act=getInformationFromOeil(actId, act, urlDic["oeilUrl"])
 							#prelex configCons needs eurlex
 							act=getInformationFromPrelex(actId, act, urlDic["prelexUrl"])
-						info_form = ActsInformationForm(instance=act)
-						ids_form=ActsIdsForm(instance=actId)
+							#if at least one respPropos has been selected from a drop down list, replace the default selected value
 
+						info_form = ActsInformationForm(instance=act)
+						response_dic['ids_form']=ActsIdsForm(instance=actId)
+
+					#The following variables are not form controls -> reload them every time the page is reloaded
 					opal=getInformationFromOpal(actId.fileNoCelex)
 					#need oeil and prelex
 					gvt_compo=getGvtCompo(act)
-					respProposId1=respProposId2=respProposId3=None
-					respProposDic={}
+
+					#respPropos variables
 					for index in xrange(1,4):
 						index=str(index)
-						respPropos=getattr(act, "prelexRespProposId"+index+"_id")
-						respProposId=eval("respProposId"+index)
-						#long
-						if type(respPropos) is long:
-							respProposId=respPropos
-						#object
-						elif respPropos!=None:
-							respProposId=respPropos.id
-						respProposDic["prelexNationResp"+index], respProposDic["prelexNationalPartyResp"+index], respProposDic["prelexEUGroupResp"+index]=getRespProposRelatedData(respProposId)
+						#a new respPropos has been selected from the drop down list
+						if state=="update" and request.POST["prelexRespProposId"+index]!="":
+							setattr(act, "prelexRespProposId"+index+"_id", request.POST["prelexRespProposId"+index])
+						respProposId=getattr(act, "prelexRespProposId"+index+"_id")
+						#~ respProposId=eval("respProposId"+index)
+						#~ #long
+						#~ if type(respPropos) is long:
+							#~ respProposId=respPropos
+						#~ #object
+						#~ elif respPropos!=None:
+							#~ respProposId=respPropos.id
+						if respProposId!="None":
+							respProposDic["prelexNationResp"+index], respProposDic["prelexNationalPartyResp"+index], respProposDic["prelexEUGroupResp"+index]=getRespProposRelatedData(respProposId)
 
 					response_dic['actId']=actId
 					response_dic['act']=act
 					response_dic['respPropos']=respProposDic
 					response_dic['gvt_compo']=gvt_compo
 					response_dic['opal']=opal
-					response_dic['ids_form']=ids_form
 					response_dic['info_form']=info_form
 
 				response_dic['mode']=mode
 
-			#save act (with or without errors) or act display and modif (with errors)
-			if any(key in response_dic for key in keys):
-				return HttpResponse(simplejson.dumps(response_dic), mimetype="application/json")
-			else:
-				#act display or modif (without errors)
-				return HttpResponse(render_to_string(form_template, response_dic, RequestContext(request)))
+			if request.is_ajax():
+				#save act (with or without errors) or act display and modif (with errors)
+				if any(key in response_dic for key in keys):
+					return HttpResponse(simplejson.dumps(response_dic), mimetype="application/json")
+				else:
+					#act display or modif (without errors)
+					return HttpResponse(render_to_string(form_template, response_dic, RequestContext(request)))
 
-		#no act has been selected-> do nothing
-		return HttpResponse(simplejson.dumps(""), mimetype="application/json")
+		if request.is_ajax():
+			#no act has been selected-> do nothing
+			return HttpResponse(simplejson.dumps(""), mimetype="application/json")
 
-	#GET
+	print "get"
 	#unbound forms
-	response_dic['ids_form'] = ActsIdsForm()
-	response_dic['info_form'] = ActsInformationForm()
-	response_dic['respPropos']={}
-	response_dic['add_form'] = ActsAddForm()
-	response_dic['modif_form'] = ActsModifForm()
+	forms_list=[("ids_form", ActsIdsForm()), ("info_form", ActsInformationForm()), ("add_form", ActsAddForm()), ("modif_form", ActsModifForm())]
+	for form in forms_list:
+		if form[0] not in response_dic:
+			response_dic[form[0]] = form[1]
+
+	print "response_dic", response_dic
+
+	#~ response_dic['respPropos']={}
 	response_dic['form_template'] = form_template
 
-
+	#displays the page (GET) or POST if javascript disabled
 	return render_to_response('actsInformationRetrieval/index.html', response_dic, context_instance=RequestContext(request))
 
 

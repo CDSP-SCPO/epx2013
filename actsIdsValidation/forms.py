@@ -102,7 +102,7 @@ class ActsAddForm(forms.Form):
 	FORM
 	details the ActsAddForm form (fields for the add mode of Acts validation)
 	"""
-	actsToValidate=forms.ModelChoiceField(queryset=ActsIdsModel.objects.only("releveAnnee", "releveMois", "noOrdre").filter(validated=0), empty_label="Select an act to validate", widget=forms.Select(attrs={'onchange': 'display_or_update_act("add_act")'}))
+	actsToValidate=forms.ModelChoiceField(queryset=ActsIdsModel.objects.only("releveAnnee", "releveMois", "noOrdre").filter(validated=0), empty_label="Select an act to validate")
 
 
 class ActsModifForm(forms.Form):

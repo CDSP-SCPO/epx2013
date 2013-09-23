@@ -24,6 +24,11 @@
 	text-align:center;
 }
 
+#add_div  #add_act
+{
+	margin-left: 1%;
+}
+
 #modif_div
 {
 	margin-left: 0;

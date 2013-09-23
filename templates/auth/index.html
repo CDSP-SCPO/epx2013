@@ -12,7 +12,7 @@ displays the login page
 		<link rel="stylesheet" href="{{STATIC_URL}}europolix/css/login.css?{% now 'U' %}" />
 		<div class="row-fluid">
 			<div class="span12">
-				<form id="login_form" class="form-horizontal">{% csrf_token %}
+				<form id="login_form" class="form-horizontal" method="post" action="{% url login %}">{% csrf_token %}
 					<fieldset>
 						<legend>Please log in below:</legend>
 
@@ -38,7 +38,7 @@ displays the login page
 								<label class="control-label" for="password">password:</label>
 								<div class="span3">
 									<div class="controls">
-										<input type="password" id="password" name="password" value=""  placeholder="Enter your password" onKeyPress="if (event.keyCode == 13) $('#login_button').click();" />
+										<input type="password" id="password" name="password" value=""  placeholder="Enter your password" />
 									</div>
 								</div>
 							</div>
@@ -50,7 +50,7 @@ displays the login page
 								<label class="control-label"></label>
 								<div class="span3">
 									<div class="controls center">
-										<button type="button" id="login_button" class="btn btn-primary" onclick="submit_form($('#login_form'), '{% url login %}', 'no', $(this))"  data-loading-text="Loading...">LOG IN</button>
+										<button type="submit" id="login_button" class="btn btn-primary"  data-loading-text="Loading...">LOG IN</button>
 									</div>
 								</div>
 							</div>
@@ -68,6 +68,8 @@ displays the login page
 			</div>
 		</div>
 
+		<!-- js related to the login application -->
+		<script type="text/javascript" src="{{ STATIC_URL }}europolix/js/login.js?{% now 'U' %}"></script>
 	</div>
 {% endblock %}
 

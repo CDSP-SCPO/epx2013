@@ -1,4 +1,31 @@
 /* act ids and info javascript functions */
+$(function()
+{
+	/* if javascript activated, hide add act button (act ids) */
+	$('#add_div  #add_act').hide();
+	/* if javascript activated, hide respPropos update act button (act info) */
+	$('#prelex_table .update_respPropos').hide();
+
+});
+
+
+/* submit form if press enter on the last control */
+$("#id_noOrdreModif").keypress(function(event)
+{
+	if (event.keyCode == 13)
+	{
+		$('#modif_act').click();
+		event.preventDefault();
+	}
+});
+
+
+//onchange of releveAnneeModif, releveMoisModif or noOrdreModif in modif form
+$("#modif_form input:text").change(function()
+{
+	$('#modif_button_clicked').val('no');
+});
+
 
 //reset add form
 function reset_add_form(what, saved)
@@ -60,11 +87,13 @@ function reset_act_form(result, mode)
 			{
 				display_save_message(result);
 				//go to the bottom of the page
-				//~ alert("yes");
 				$('#top_anchor').click();
 			}
 		});
 	}
+
+	/* if javascript activated, hide respPropos update act button (act info) */
+	$('#prelex_table .update_respPropos').hide();
 }
 
 //display message when click on save button
@@ -181,10 +210,30 @@ function save_result(result)
 	}
 }
 
+/* add of an act (selection from drop down list) */
+$("#add_div select").change(function(event)
+{
+	display_or_update_act("add_act", event);
+});
+
+
+/* modification or update an act (act ids form) */
+$('body').on('click', '#modif_act, #update_act', function(event)
+{
+	if ($(this).attr('name')=="modif_act")
+	{
+		//tells the view we are trying to modif an act
+		$('#modif_button_clicked').val('yes');
+	}
+	display_or_update_act($(this).attr('name'), event);
+});
 
 /* display/modif or update the ids/infos of the selected act */
-function display_or_update_act(button_name)
+function display_or_update_act(button_name, event)
 {
+	//do not follow the href link
+	event.preventDefault();
+
 	//show loading gif
 	$("#loading_gif_"+button_name).show();
 
@@ -215,9 +264,19 @@ function display_or_update_act(button_name)
 	return false;
 }
 
-//submit the act ids or info form to save it or display validation errors
-function save_act_form(form, button)
+
+/* save an act*/
+$('body').on('click', '#save_act', function(event)
 {
+    save_act_form($("#act_form"), $(this), event);
+});
+
+//submit the act ids or info form to save it or display validation errors
+function save_act_form(form, button, event)
+{
+	//do not follow the href link
+	event.preventDefault();
+
 	//loading state for the button (use bootstrap function)
 	button.button('loading');
 	//remove previous errors (from the previous run) -> modif form
@@ -251,10 +310,10 @@ function save_act_form(form, button)
 }
 
 
-//onchange of releveAnneeModif, releveMoisModif or noOrdreModif in modif form
-$("#modif_form input:text").change(function()
+/* update a respPropos */
+$('body').on('change', '#prelexRespProposId1_id, #prelexRespProposId2_id, #prelexRespProposId3_id', function()
 {
-	$('#modif_button_clicked').val('no');
+	update_respPropos(this.id, this.value);
 });
 
 
@@ -270,7 +329,7 @@ function update_respPropos(element_id, respPropos_id)
 		success: function(result)
 		{
 			//get the number of respPropos 1, 2 or 3
-			id=element_id.slice(-1);
+			id=element_id.slice(-4, -3);
 			$("#prelexNationResp"+id).text(result.nationResp);
 			$("#prelexNationalPartyResp"+id).text(result.nationalPartyResp);
 			$("#prelexEUGroupResp"+id).text(result.euGroupResp);

@@ -83,7 +83,8 @@ def getPrelexUrlContent(url):
 	"""
 	try:
 		soup = BeautifulSoup(urllib.urlopen(url))
-		if(soup.find(text='This page does not exists')):
+		print soup
+		if soup.find(text='This page does not exists') or soup.find(text=re.compile('The document is not available in PreLex')):
 			return False
 		else:
 			return soup

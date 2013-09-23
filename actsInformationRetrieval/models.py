@@ -130,7 +130,7 @@ class ActsInformationModel(models.Model):
 	#~ opalNPActivityDate=models.CharField(max_length=500, blank=True, null=True, default=None)
 
 	#GENERAL (just for the program)
-	validated=models.BooleanField(default=False)
+	validated=models.BooleanField(default=False, db_index=True)
 
 
 	#display in the drop down list

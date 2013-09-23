@@ -23,10 +23,10 @@ function hide_msg()
 
 
 //select a file to upload
-function choose_file(div)
+function choose_file($div)
 {
-	hidden_input_file=$(div).prev();
-	visible_input_file=$(div).find('input');
+	hidden_input_file=$div.prev();
+	visible_input_file=$div.find('input');
 	$(hidden_input_file).click();
 
 	$(hidden_input_file).change(function()
@@ -37,7 +37,7 @@ function choose_file(div)
 	});
 
 	$(visible_input_file).blur();
-	$(div).blur();
+	$div.blur();
 }
 
 
@@ -130,8 +130,19 @@ $.ajaxSetup
 });
 
 //load the content of the page (right side) with Ajax (no need to reload the menu and header)
-function load_content(a, link)
+$('#menu a').click(function(event)
 {
+	load_content($(this), event);
+});
+
+function load_content($a, event)
+{
+	//do not follow the href link
+	event.preventDefault();
+
+	//get link
+	link=$a.attr("href")
+
 	//show message ("the page is being loaded")
 	show_msg("The page is being loaded...", "alert alert-info");
 
@@ -143,7 +154,6 @@ function load_content(a, link)
 
 	$.get(link, function(data)
 	{
-		//~ alert(data)
 		var title=$(data).find("#title");
 		var content=$(data).find("#content");
 		$("#title_base").html(title);
@@ -155,7 +165,7 @@ function load_content(a, link)
 
 	//change the active link in the menu
 	$('.active').removeClass('active');
-	$(a).parent().addClass('active');
+	$a.parent().addClass('active');
 }
 
 //create an iframe in the current form
@@ -174,6 +184,7 @@ function post_iframe(iframe, form, link, file)
 {
 	form.attr("action", link);
 	form.attr("method", "post");
+	//if import form
 	if (file!="")
 	{
 		form.attr("enctype", "multipart/form-data");
@@ -181,6 +192,9 @@ function post_iframe(iframe, form, link, file)
 		form.attr("file", $(file).val());
 	}
 	form.attr("target", $(iframe).attr("id"));
+	/* tells the view the result must be loaded in an iframe -> json */
+	var input = $("<input>").attr("type", "hidden").attr("name", "iframe");
+	form.append($(input));
 	form.submit();
 }
 
@@ -195,7 +209,7 @@ function send_file(form, link, file, loadCallback)
 	post_iframe(iframe, form, link, file)
 
 	//export form: if no error, no iframe load
-	if (form.attr("id")=="export" && $("#id_sortFields").val()!="" && $("#id_sortDirection").val()!="")
+	if (form.attr("id")=="export_form" && $("#id_sortFields").val()!="" && $("#id_sortDirection").val()!="")
 	{
 		var result = {
 		"msg": "The acts are being downloaded...",
@@ -217,12 +231,15 @@ function send_file(form, link, file, loadCallback)
 }
 
 
-var myTrigger;
-
-
 //submit a form and display an error or succes message with Ajax
-function submit_form(form, link, file, button)
+function submit_form($form, file, button, event)
 {
+	//do not reload the page
+	event.preventDefault();
+
+	//post link
+	link=$form.attr("action");
+
 	//loading state for the button (use bootstrap function)
 	button.button('loading');
 	//remove previous errors (from the previous run)
@@ -232,9 +249,9 @@ function submit_form(form, link, file, button)
 	if (file!="no")
 	{
 		//function(result)-> wait till the load is over and return the result variable (content of iframe)
-		result=send_file(form, link, file, function(result)
+		result=send_file($form, link, file, function(result)
 		{
-			handle_result(form, $.parseJSON(result));
+			handle_result($form, $.parseJSON(result));
 			//stops the loading state of the button
 			button.button('reset');
 		});
@@ -242,39 +259,20 @@ function submit_form(form, link, file, button)
 	else
 	{
 		//otherwise ajax to post the data
-		var form_data = form.serialize();
+		var form_data = $form.serialize();
 		$.ajax
 		({
 			type: 'POST',
 			url: link,
 			dataType: 'json',
 			data: form_data,
-			beforeSend: function (thisXHR)
-			{
-				myTrigger = setInterval (function ()
-				{
-					if (thisXHR.readyState > 2)
-					{
-						var totalBytes  = thisXHR.getResponseHeader('Content-length');
-						var dlBytes=thisXHR.responseText.length;
-						(totalBytes > 0)? alert(Math.round((dlBytes/ totalBytes) * 100) +"%"): alert(Math.round (dlBytes / 1024) + "K");
-					}
-				}, 200);
-			},
-			complete: function ()
-			{
-				clearInterval (myTrigger);
-			},
 			success: function(result)
 			{
 				//display success or error message
-				handle_result(form, result);
+				handle_result($form, result);
 				//stops the loading state of the button
 				$(button).button('reset');
 			}
 		});
 	}
-
-	//don't submit the form
-	return false;
 }

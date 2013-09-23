@@ -40,12 +40,12 @@ def checkEqualityFields(fieldsList):
 	return True
 
 
-def addOrModifFct(post, response_dic, add_form_name, modif_form_name):
+def addOrModifFct(request, response_dic, AddForm, ModifForm):
 	"""
 	FUNCTION
 	check if the form is in any of add and modification mode
 	PARAMETERS
-	post: request.POST variable
+	request: request variable
 	response_dic: dictionary containing all the different forms
 	RETURN
 	mode: "add" if selection of an act to add from the drop down list, "modif" if click on the modif_act button and None otherwise
@@ -56,10 +56,12 @@ def addOrModifFct(post, response_dic, add_form_name, modif_form_name):
 	addOrModif=mode=act=None
 
 	#adding of an act (validation of a new act)
-	if post["actsToValidate"]!="" and "modif_act" not in post:
+	if request.POST["actsToValidate"]!="" and "modif_act" not in request.POST:
 		print "add mode"
 		mode="add"
-		add_form=add_form_name(post)
+		add_form=AddForm(request.POST)
+		if not request.is_ajax():
+			response_dic['add_form']=add_form
 		#if an act has been selected in the drop down list
 		if add_form.is_valid():
 			addOrModif="add"
@@ -69,14 +71,17 @@ def addOrModifFct(post, response_dic, add_form_name, modif_form_name):
 			act=ActsIdsModel.objects.get(id=actToValidateId)
 		#empty selection for the drop down list
 		else:
-			response_dic['add_act_errors']=dict([(k, add_form.error_class.as_text(v)) for k, v in add_form.errors.items()])
+			if request.is_ajax():
+				response_dic['add_act_errors']=dict([(k, add_form.error_class.as_text(v)) for k, v in add_form.errors.items()])
 			print "add form not valid", add_form.errors
 
 	#modification of an act -> display
-	elif "modif_act" in post or post["modif_button_clicked"]=="yes":
+	elif "modif_act" in request.POST or request.POST["modif_button_clicked"]=="yes" or request.POST["releveAnneeModif"]!="" and not request.is_ajax():
 		print "modification mode"
 		mode="modif"
-		modif_form = modif_form_name(post)
+		modif_form = ModifForm(request.POST)
+		if not request.is_ajax():
+			response_dic['modif_form']=modif_form
 		if modif_form.is_valid():
 			addOrModif="modif"
 			print "modif form valid"
@@ -86,23 +91,22 @@ def addOrModifFct(post, response_dic, add_form_name, modif_form_name):
 			noOrdreModif=modif_form.cleaned_data['noOrdreModif']
 			act=ActsIdsModel.objects.get(releveAnnee=releveAnneeModif, releveMois=releveMoisModif, noOrdre=noOrdreModif, validated=1)
 		else:
-			response_dic['modif_act_errors']=dict([(k, modif_form.error_class.as_text(v)) for k, v in modif_form.errors.items()])
+			if request.is_ajax():
+				response_dic['modif_act_errors']=dict([(k, modif_form.error_class.as_text(v)) for k, v in modif_form.errors.items()])
 			print "modif form not valid", modif_form.errors
 
 	return mode, addOrModif, act, response_dic
 
 
+@login_required
 def act_ids(request):
 	"""
 	VIEW
 	displays and processes the acts validation page
-	template called: actsIdsValidation/index.html
+	templates called:
+	actsIdsValidation/index.html: display the act ids page which itself calls the template of the act_ids form
+	actsIdsValidation/form.html: display the act_ids form
 	"""
-	#update europolix.actsInformationRetrieval_actsinformationmodel set validated=0;
-	#update europolix.actsIdsValidation_actsidsmodel set validated=0;
-	#delete from europolix.actsInformationRetrieval_actsinformationmodel;
-	#delete from europolix.actsIdsValidation_actsidsmodel;
-
 	response_dic={}
 	#display "real" name of variables (not the one stored in db)
 	response_dic['displayName']=vn.variablesNameDic
@@ -116,7 +120,7 @@ def act_ids(request):
 		#addOrModif: same than mode but returns None if the add or modif form is not valid
 		#act=act to validate / modify or None if no act is found (modifcation)
 		#response_dic: add add_form or modif_form to the forms being displayed / to be displayed
-		mode, addOrModif, act, response_dic=addOrModifFct(request.POST, response_dic, ActsAddForm, ActsModifForm)
+		mode, addOrModif, act, response_dic=addOrModifFct(request, response_dic, ActsAddForm, ActsModifForm)
 		ids_form = ActsIdsForm(request.POST, instance=act)
 
 		#if any of this key is present in the response dictionary -> no act display and return the errors with a json object
@@ -147,17 +151,21 @@ def act_ids(request):
 						response_dic["msg_class"]="success_msg"
 					else:
 						print "ids_form not valid", ids_form.errors
-						response_dic['save_act_errors']=  dict([(k, ids_form.error_class.as_text(v)) for k, v in ids_form.errors.items()])
+						if request.is_ajax():
+							response_dic['save_act_errors']=  dict([(k, ids_form.error_class.as_text(v)) for k, v in ids_form.errors.items()])
+						else:
+							response_dic['ids_form']=ids_form
 						response_dic["msg"]="The form contains errors! Please correct them before submitting the data."
 						response_dic["msg_class"]="error_msg"
 						state="ongoing"
 
 				#if click on the actualisation button
 				elif 'update_act' in request.POST:
-					print "actualisation"
+					print "update"
+					state="update"
 					#news ids must be saved in the database
 					if ids_form.is_valid():
-						print "actualisation: ids_form valid"
+						print "update: ids_form valid"
 						ids_form.save()
 						#we retrieve and save the new ids (from the new urls)
 						idsList=[]
@@ -167,15 +175,20 @@ def act_ids(request):
 						act=ActsIdsModel.objects.get(id=act.id)
 					else:
 						print "ids_form not valid", ids_form.errors
-						response_dic['update_act_errors']=  dict([(k, ids_form.error_class.as_text(v)) for k, v in ids_form.errors.items()])
+						if request.is_ajax():
+							response_dic['update_act_errors']=  dict([(k, ids_form.error_class.as_text(v)) for k, v in ids_form.errors.items()])
+						else:
+							response_dic['ids_form']=ids_form
 
-				#displays the retrieved information of the act to validate
-				#(selection of an act in the add / modif form or update of an act with no form error)
-				if not any(key in response_dic for key in keys):
+				#displays the ids of an act to validate
+				#selection of an act in the add / modif form or update of an act with no form error
+				#if javasxript deactivated, also display act ids if click on save button and errors in ids_form
+				if not any(key in response_dic for key in keys) or not request.is_ajax() and state!="saved":
 					print 'actsToValidate display'
 					#an act has been selected in the drop down list -> the related information are displayed
 					if state=="display":
 						ids_form = ActsIdsForm(instance=act)
+					#otherwise use POST too (done before)
 
 					infoDic={}
 
@@ -185,7 +198,7 @@ def act_ids(request):
 					else:
 						infoDic["nosCelex"]=False
 
-					#checks if the corresponding data are equal
+					#checks if the corresponding data are equal -> they will appear in red if not
 					infoDic["noCelex"]=checkEqualityFields([act.fileNoCelex, act.eurlexNoCelex, act.oeilNoCelex])
 					infoDic["proposAnnee"]=checkEqualityFields([act.fileProposAnnee, act.eurlexProposAnnee, act.oeilProposAnnee, act.prelexProposAnnee])
 					infoDic["proposChrono"]=checkEqualityFields([act.fileProposChrono, act.eurlexProposChrono, act.oeilProposChrono, act.prelexProposChrono])
@@ -207,23 +220,28 @@ def act_ids(request):
 
 				response_dic['mode']=mode
 
-			#save act (with or without errors) or act display, modif and update (with errors)
-			if any(key in response_dic for key in keys):
-				return HttpResponse(simplejson.dumps(response_dic), mimetype="application/json")
-			else:
-				#act display, modif or update (without errors)
-				return HttpResponse(render_to_string(form_template, response_dic, RequestContext(request)))
+			if request.is_ajax():
+				#save act (with or without errors) or act display, modif and update (with errors)
+				if any(key in response_dic for key in keys):
+					return HttpResponse(simplejson.dumps(response_dic), mimetype="application/json")
+				else:
+					#act display, modif or update (without errors)
+					return HttpResponse(render_to_string(form_template, response_dic, RequestContext(request)))
 
-		#no act has been selected-> do nothing
-		return HttpResponse(simplejson.dumps(""), mimetype="application/json")
+		if request.is_ajax():
+			#no act has been selected-> do nothing
+			return HttpResponse(simplejson.dumps(""), mimetype="application/json")
 
 
-	#GET
 	#unbound forms
-	response_dic['ids_form'] = ActsIdsForm()
-	response_dic['add_form'] = ActsAddForm()
-	response_dic['modif_form'] = ActsModifForm()
+	forms_list=[("ids_form", ActsIdsForm()), ("add_form", ActsAddForm()), ("modif_form", ActsModifForm())]
+	for form in forms_list:
+		if form[0] not in response_dic:
+			response_dic[form[0]] = form[1]
+
 	response_dic['form_template'] = form_template
+
+	#displays the page (GET) or POST if javascript disabled
 	return render_to_response('actsIdsValidation/index.html', response_dic, context_instance=RequestContext(request))
 
 

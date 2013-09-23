@@ -8,18 +8,23 @@ from forms import CSVUploadForm
 from models import CSVUploadModel, DosIdModel
 from actsIdsValidation.models import ActsIdsModel
 from actsInformationRetrieval.models import ConfigConsModel, CodeSectRepModel, CodeAgendaModel, AdoptPCModel, GvtCompoModel, RespProposModel, NationRespModel, NationalPartyRespModel, EUGroupRespModel, NPModel
-#call function to save date in the iso format (YYYY-MM-DD)
-import datetime
+
+#path of the file to import
 import os
+
 #cross validation functions and get information from eurlex, oeil, prelex
 import getIdsFunctions as info
+
 #redirect to login page if not logged
 from django.contrib.auth.decorators import login_required
+
 #variables name
 import actsIdsValidation.variablesNameForIds as vnIds
 import actsInformationRetrieval.variablesNameForInformation as vnInfo
+
 #model as parameter
 from django.db.models.loading import get_model
+
 #use json for the ajax request
 from django.utils import simplejson
 from django.http import HttpResponse
@@ -155,7 +160,7 @@ def import2Tables(csvFile, table1, table2):
 
 				#save attr2
 				try:
-					attr2Instance.save()
+					attr2Instance.save(force_insert=True)
 					attr1List.append(noErrorMsg)
 				except IntegrityError, e:
 					print "exception", e
@@ -257,8 +262,10 @@ def getAndSaveRetrievedIds(idsList):
 		releveAnneeVar=ids[0]
 		releveMoisVar=ids[1]
 		noOrdreVar=ids[2]
+		#~ print "releveAnneeVar", releveAnneeVar
+		#~ print "releveMoisVar", releveMoisVar
+		#~ print "noOrdreVar", noOrdreVar
 		act=ActsIdsModel.objects.get(releveAnnee=releveAnneeVar,releveMois=releveMoisVar,noOrdre=noOrdreVar)
-
 		#get ids
 		#eurlex
 		dataDic=info.checkAndGetEurlexIds(str(act.fileNoCelex))
@@ -289,7 +296,7 @@ def getAndSaveRetrievedIds(idsList):
 		try:
 			#save the object
 			act.save()
-			print "act", releveAnneeVar, releveMoisVar, noOrdreVar,"saved"
+			print "act", releveAnneeVar, releveMoisVar, noOrdreVar, "saved"
 		except IntegrityError, e:
 			print e
 
@@ -365,7 +372,7 @@ def import1Table(csvFile, importType):
 	RETURN
 	list of variables saved / not saved
 	"""
-	savedList=[]
+	saved_list=[]
 	errors_list=[]
 	with open(csvFile, 'r') as myCsvfile:
 		reader=csv.reader(myCsvfile,delimiter=detectDelimiter(csvFile))
@@ -374,20 +381,20 @@ def import1Table(csvFile, importType):
 			#according to the type of import, extract the content of the row and put it in an instance model
 			instance, msg=eval("get"+importType[0].upper()+importType[1:]+"Data")(row)
 			try:
-				instance.save()
-				savedList.append(msg)
+				instance.save(force_insert=True)
+				saved_list.append(msg)
 			except IntegrityError, e:
+				print e
 				error= "The row " + str(msg) + " already exists!!"
 				errors_list.append(error)
-				print "error", e
 
-	return savedList, errors_list
+	return saved_list, errors_list
 
 
 def help_text(request):
 	"""
 	VIEW
-	displays the help text for the selected import in the import page
+	displays the help text for the selected import in the import page (called with ajax only)
 	template called: import/help_text.html
 	"""
 	response_dic={}
@@ -407,6 +414,10 @@ def importView(request):
 	template called: import/index.html
 	"""
 	response_dic={}
+	#template path to the help text div
+	response_dic["help_text_template"]='import/help_text.html'
+	response_dic['displayName']=vnIds.variablesNameDic
+	response_dic['displayName'].update(vnInfo.variablesNameDic)
 	if request.method == 'POST':
 		form = CSVUploadForm(request.POST, request.FILES)
 		#the form is valid and the import can be processed
@@ -420,46 +431,52 @@ def importView(request):
 				os.remove(path)
 			newCsvFile = CSVUploadModel(csvFile = request.FILES['csvFile'])
 			newCsvFile.save()
-			savedList=[]
+			saved_list=[]
 			errors_list=[]
 
 			#importation of dosId, act, adoptPC, gvtCompo or np file
 			if fileToImport in ["dosId","act","adoptPC","gvtCompo", "np"]:
-				savedList, errors_list= import1Table(path, fileToImport)
+				saved_list, errors_list= import1Table(path, fileToImport)
 				if fileToImport=="act":
 					#save retrieved ids
-					getAndSaveRetrievedIds(savedList)
+					getAndSaveRetrievedIds(saved_list)
 			#importation of configCons or codeAgenda
 			elif fileToImport in["configCons", "codeAgenda"]:
 				#model name, field name, position in the csv file
 				table1=[fileToImport[0].upper()+fileToImport[1:]+"Model", fileToImport, 1]
 				table2=["CodeSectRepModel", "codeSectRep", 0]
-				savedList, errors_list= import2Tables(path, table1, table2)
+				saved_list, errors_list= import2Tables(path, table1, table2)
 			#importation of respPropos
 			elif fileToImport=="respPropos":
 				#respPropos
 				table2=["RespProposModel", "respPropos", 0]
 				#nationResp
 				table1=["NationRespModel", "nationResp", 3]
-				savedList, errors_list= import2Tables(path, table1, table2)
+				saved_list, errors_list= import2Tables(path, table1, table2)
 				#nationalPartyResp
 				table1=["NationalPartyRespModel", "nationalPartyResp", 1]
-				savedList, errors_list= import2Tables(path, table1, table2)
+				saved_list, errors_list= import2Tables(path, table1, table2)
 				#euGroupResp
 				table1=["EUGroupRespModel", "euGroupResp", 2]
-				savedList, errors_list= import2Tables(path, table1, table2)
+				saved_list, errors_list= import2Tables(path, table1, table2)
 
 			response_dic['errors_list']=errors_list
-			response_dic['msg']=str(len(savedList)) + " raw(s) imported, "+ str(len(errors_list)) +" error(s)!"
+			response_dic['msg']=str(len(saved_list)) + " raw(s) imported, "+ str(len(errors_list)) +" error(s)!"
 			response_dic["msg_class"]="success_msg"
 
 		#validation errors
 		else:
-			response_dic['form_errors']=  dict([(k, form.error_class.as_text(v)) for k, v in form.errors.items()])
-			#~ print "form_errors", response_dic['form_errors']
+			if 'iframe' in request.POST:
+				response_dic['form_errors']=  dict([(k, form.error_class.as_text(v)) for k, v in form.errors.items()])
+			else:
+				response_dic['form']=form
 
-		return HttpResponse(simplejson.dumps(response_dic), mimetype="application/json")
+		if 'iframe' in request.POST:
+			return HttpResponse(simplejson.dumps(response_dic), mimetype="application/json")
 
-	#GET
-	response_dic['form']=CSVUploadForm()
+	#unbound form
+	if "form" not in response_dic:
+		response_dic['form']=CSVUploadForm()
+
+	#displays the page (GET) or POST if javascript disabled
 	return render_to_response('import/index.html', response_dic, context_instance=RequestContext(request))

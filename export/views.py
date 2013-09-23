@@ -200,11 +200,18 @@ def exportView(request):
 			acts_list=sort_acts(acts_list, sort_field_index, sort_direction)
 			#save into csv file
 			querySetToCsvFile(headers_list, acts_list, serverDirectory+fileName)
+			print "csv export"
 			return send_file(request, serverDirectory+fileName, fileName)
 		else:
-			response_dic['form_errors']=  dict([(k, form.error_class.as_text(v)) for k, v in form.errors.items()])
-			return HttpResponse(simplejson.dumps(response_dic), mimetype="application/json")
+			if 'iframe' in request.POST:
+				response_dic['form_errors']=  dict([(k, form.error_class.as_text(v)) for k, v in form.errors.items()])
+				return HttpResponse(simplejson.dumps(response_dic), mimetype="application/json")
+			else:
+				response_dic['form']=form
 
-	#GET
-	response_dic['form']= ActsExportForm()
+	#unbound forms
+	if "form" not in response_dic:
+		response_dic['form']= ActsExportForm()
+
+	#displays the page (GET) or POST if javascript disabled
 	return render_to_response('export/index.html', response_dic, context_instance=RequestContext(request))

@@ -75,7 +75,7 @@ contains the template of each webpage: doctype, left menu, right content templat
 							<!-- vertical left-side menu -->
 							<ul class="nav nav-list menu">
 								<li>
-									<a href="#" onclick="load_content(this, '{% url login %}')">
+									<a href="{% url login %}">
 										{% if user.username == "" %}
 											Log in
 										{% else %}
@@ -84,10 +84,10 @@ contains the template of each webpage: doctype, left menu, right content templat
 										<i class="icon-chevron-right"></i>
 									</a>
 								</li>
-								<li><a href="#" onclick="load_content(this, '{% url import %}')">CSV import<i class="icon-chevron-right"></i></a></li>
-								<li><a href="#" onclick="load_content(this, '{% url act_ids %}')">Acts validation<i class="icon-chevron-right"></i></a></li>
-								<li><a href="#" onclick="load_content(this, '{% url act_info %}')">Acts information retrieval<i class="icon-chevron-right"></i></a></li>
-								<li><a href="#" onclick="load_content(this, '{% url export %}')">CSV export<i class="icon-chevron-right"></i></a></li>
+								<li><a href="{% url import %}">CSV import<i class="icon-chevron-right"></i></a></li>
+								<li><a href="{% url act_ids %}">Acts validation<i class="icon-chevron-right"></i></a></li>
+								<li><a href="{% url act_info %}">Acts information retrieval<i class="icon-chevron-right"></i></a></li>
+								<li><a href="{% url export %}">CSV export<i class="icon-chevron-right"></i></a></li>
 								<li><a href="{% url admin:index %}">Administration<i class="icon-chevron-right"></i></a></li>
 							</ul>
 						</div>

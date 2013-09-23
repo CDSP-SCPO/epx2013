@@ -1,17 +1,10 @@
-<!-- css related to the note_and_save.html file -->
-<link rel="stylesheet" href="{{STATIC_URL}}europolix/css/notes_and_save.css?{% now 'U' %}" />
-
 <label  for="id_notes">{{ displayName.notes }}:</label>
 {{ ids_form.notes }}
 
-<button id="save_act" name="save_act" type="button" class="btn btn-primary" onclick="save_act_form($(this.form), $(this))"  data-loading-text="Loading...">SAVE THE ACT</button>
+<button id="save_act" name="save_act" type="submit" class="btn btn-primary" data-loading-text="Loading...">SAVE THE ACT</button>
 
 <!-- success or error message -->
 <div id="msg" class="control-group {{ msg_class }}">{{ msg }}</div>
 
 <!-- anchor top page -->
 <a id="bottom_anchor" href="#top_anchor">Go to the top</a>
-
-<!-- js related to the act ids and info applications -->
-<script type="text/javascript" src="{{ STATIC_URL }}europolix/js/act.js?{% now 'U' %}"></script>
-

@@ -724,10 +724,12 @@ def getPrelexInformation(soup, otherVariablesDic):
 	print "prelexVotePublic:", dataDic['prelexVotePublic']
 
 	#prelexAdoptCSContre
+	print "adoptCSContre", otherVariablesDic["adoptCSContre"]
 	dataDic['prelexAdoptCSContre']=otherVariablesDic["adoptCSContre"]
 	print "prelexAdoptCSContre:", dataDic['prelexAdoptCSContre']
 
 	#prelexAdoptCSAbs
+	print "adoptCSAbs", otherVariablesDic["adoptCSAbs"]
 	dataDic['prelexAdoptCSAbs']=otherVariablesDic["adoptCSAbs"]
 	print "prelexAdoptCSAbs:", dataDic['prelexAdoptCSAbs']
 

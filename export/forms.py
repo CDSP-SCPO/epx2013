@@ -20,9 +20,22 @@ class ActsExportForm(forms.Form):
 		"""
 		querySet=[]
 		querySet.append(('','Select the sort field'))
+		querySet.append(('','--------------------------------------------------'))
+		querySet.append(('','EURLEX'))
+		querySet.append(('','--------------------------------------------------'))
+		excluded_list=['actId', 'releveAnnee', 'releveMois', 'releveMoisInitial', 'noOrdre', 'validated']
 		for i in ActsInformationModel._meta.get_all_field_names():
-			if i!="actId" and i!="validated":
+			if i not in excluded_list:
 				querySet.append((i, vn.variablesNameDic[i]))
+				if i=="eurlexTypeActe":
+					querySet.append(('','--------------------------------------------------'))
+					querySet.append(('','OEIL'))
+					querySet.append(('','--------------------------------------------------'))
+				elif i=="oeilSignPECS":
+					querySet.append(('','--------------------------------------------------'))
+					querySet.append(('','PRELEX'))
+					querySet.append(('','--------------------------------------------------'))
+
 		return querySet
 
 	sortFields = forms.ChoiceField(choices=sortFieldsQueryset())

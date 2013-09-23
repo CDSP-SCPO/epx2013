@@ -20,9 +20,9 @@ class ActsInformationForm(forms.ModelForm):
 	prelexConfigCons=forms.RegexField(regex=r'^CAG|RE|ECOFIN|JAI|EPSCO|COMPET|TTE|AGRIFISH|AGRI-FISH|ENV|EYC$', required=False)
 
 	#respPropos drop down list -> order nouns
-	prelexRespProposId1=forms.ModelChoiceField(queryset=RespProposModel.objects.only("respPropos").order_by('respPropos').all(), empty_label="Select a RespPropos", widget=forms.Select(attrs={'onchange': 'update_respPropos(this.id, this.value)'}))
-	prelexRespProposId2=forms.ModelChoiceField(queryset=RespProposModel.objects.only("respPropos").order_by('respPropos').all(), empty_label="Select a RespPropos", widget=forms.Select(attrs={'onchange': 'update_respPropos(this.id, this.value)'}))
-	prelexRespProposId3=forms.ModelChoiceField(queryset=RespProposModel.objects.only("respPropos").order_by('respPropos').all(), empty_label="Select a RespPropos", widget=forms.Select(attrs={'onchange': 'update_respPropos(this.id, this.value)'}))
+	prelexRespProposId1=forms.ModelChoiceField(queryset=RespProposModel.objects.only("respPropos").order_by('respPropos').all(), empty_label="Select a RespPropos", widget=forms.Select(attrs={'id': 'prelexRespProposId1_id', 'name': 'prelexRespProposId1_id',}), required=False)
+	prelexRespProposId2=forms.ModelChoiceField(queryset=RespProposModel.objects.only("respPropos").order_by('respPropos').all(), empty_label="Select a RespPropos", widget=forms.Select(attrs={'id': 'prelexRespProposId2_id', 'name': "prelexRespProposId2_id",}), required=False)
+	prelexRespProposId3=forms.ModelChoiceField(queryset=RespProposModel.objects.only("respPropos").order_by('respPropos').all(), empty_label="Select a RespPropos", widget=forms.Select(attrs={'id': 'prelexRespProposId3_id', 'name': "prelexRespProposId3_id",}), required=False)
 
 	class Meta:
 		model = ActsInformationModel
@@ -46,7 +46,7 @@ class ActsAddForm(forms.Form):
 	FORM
 	details the ActsAddForm form (fields for the add mode of Acts information retrieval)
 	"""
-	actsToValidate=forms.ModelChoiceField(queryset=ActsInformationModel.objects.only("releveAnnee", 'releveMois', 'noOrdre').filter(validated=0), empty_label="Select an act to validate", widget=forms.Select(attrs={'onchange': 'display_or_update_act("add_act")'}))
+	actsToValidate=forms.ModelChoiceField(queryset=ActsInformationModel.objects.only("releveAnnee", 'releveMois', 'noOrdre').filter(validated=0), empty_label="Select an act to validate")
 
 
 class ActsModifForm(forms.Form):

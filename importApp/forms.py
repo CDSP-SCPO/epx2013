@@ -32,7 +32,7 @@ class CSVUploadForm(forms.Form):
 		('np', 'Import opal file (NP variables)'),
 		('gvtCompo', 'Import '+vnInfo.variablesNameDic['prelexNationGvtPoliticalComposition'])
 	)
-	fileToImport=forms.ChoiceField(choices=fileToImportChoices, widget=forms.Select(attrs={'onchange': "load_help_text()"}))
+	fileToImport=forms.ChoiceField(choices=fileToImportChoices)
 
 	csvFile = forms.FileField(validators=[fileExtensionValidation])
 
