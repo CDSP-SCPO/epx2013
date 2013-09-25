@@ -226,7 +226,13 @@
 								{% for gvt in gvt_compo %}
 									<tr>
 										{% for el in gvt %}
-											<td>{{ el }}</td>
+											{% if forloop.first %}
+												<!-- titles -->
+												<td class="table_column_title">{{ el }}</td>
+											{% else %}
+												<!-- values -->
+												<td class="second_column_others">{{ el }}</td>
+											{% endif %}
 										{% endfor %}
 									</tr>
 								{% endfor %}
@@ -264,7 +270,7 @@
 											<td class="table_column_title">{{ field }}</td>
 										{% else %}
 											<!-- values -->
-											<td class="opal_second_column">{{ field }}</td>
+											<td class="second_column_others">{{ field }}</td>
 										{% endif %}
 									{% endfor %}
 								</tr>

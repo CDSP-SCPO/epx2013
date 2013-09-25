@@ -4,6 +4,8 @@ from models import ActsInformationModel, RespProposModel, GvtCompoModel
 from actsIdsValidation.models import ActsIdsModel
 #modif form: add non field error
 from django.forms.util import ErrorList
+#variables names
+import variablesNameForInformation as vnInfo
 
 class ActsInformationForm(forms.ModelForm):
 	"""
@@ -31,13 +33,34 @@ class ActsInformationForm(forms.ModelForm):
 
 	#trim trailing spaces
 	def clean(self):
-		cleaned_data = self.cleaned_data
-		for k in self.cleaned_data:
+		cleaned_data = super(ActsInformationForm, self).clean()
+		for k in cleaned_data:
 			try:
 				#only strings
-				cleaned_data[k] = self.cleaned_data[k].strip()
+				cleaned_data[k] = cleaned_data[k].strip()
 			except:
 				pass
+
+		#respPropos drop down lists validation
+		respPropos1=cleaned_data.get("prelexRespProposId1")
+		respPropos2=cleaned_data.get("prelexRespProposId2")
+		respPropos3=cleaned_data.get("prelexRespProposId3")
+
+		#if respPropos1 not selected but respPropos2 or respPropos3 is selected -> error
+		if respPropos1==None and (respPropos2!=None or respPropos3!=None):
+			raise forms.ValidationError("Please select a "+vnInfo.variablesNameDic['prelexRespProposId1']+" (prelex).")
+
+		#if respPropos2 not selected but respPropos3 is selected -> error
+		if respPropos2==None and respPropos3!=None:
+			raise forms.ValidationError("Please select a "+vnInfo.variablesNameDic['prelexRespProposId2']+" (prelex).")
+
+		#respPropos cannot be equal
+		if respPropos1!=None and (respPropos1==respPropos2 or respPropos1==respPropos3):
+			raise forms.ValidationError("Please select different respPropos (prelex).")
+		if respPropos2!=None and respPropos2==respPropos3:
+			raise forms.ValidationError("Please select different respPropos (prelex).")
+
+		# Always return the full collection of cleaned data.
 		return cleaned_data
 
 

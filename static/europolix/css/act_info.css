@@ -108,15 +108,14 @@
 	width: auto;
 }
 
+#gvt_compo .second_column_others, #opal .second_column_others
+{
+	width: 800px;
+}
+
 #gvt_compo_table .fieldWrapper, #opal_table .fieldWrapper
 {
 	padding-bottom: 0;
-}
-
-
-#opal .opal_second_column
-{
-	width: 800px;
 }
 
 /* opal */
