@@ -5,7 +5,7 @@ get the information from Prelex (fields for the statistical analysis)
 import re
 from bs4 import BeautifulSoup
 #dg codes
-from actsInformationRetrieval.models import DGCodeModel, DGFullNameModel, RespProposModel, CodeSectRepModel, ConfigConsModel, RespProposModel, NationRespModel, NationalPartyRespModel, EUGroupRespModel, AdoptPCModel
+from actsInformationRetrieval.models import DGCodeModel, DGFullNameModel, RespProposModel, CodeSectRepModel, ConfigConsModel, RespProposModel, AdoptPCModel
 from common.commonFunctions import stringToIsoDate, listReverseEnum
 from datetime import datetime
 #model as parameter

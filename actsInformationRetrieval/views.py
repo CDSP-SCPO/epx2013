@@ -35,6 +35,29 @@ from django.template.loader import render_to_string
 from django.utils import simplejson
 
 
+def get_urls(act_ids):
+	"""
+	FUNCTION
+	get the eurlex, oeil and prelex urls
+	PARAMETERS
+	act_ids: ids of the act
+	RETURN
+	dictionary that contains the urls
+	"""
+	urlDic={}
+	urlDic["eurlexUrl"]=getEurlexUrl(act_ids.fileNoCelex)
+	urlDic["oeilUrl"]=getOeilUrl(str(act_ids.fileNoUniqueType), str(act_ids.fileNoUniqueAnnee), str(act_ids.fileNoUniqueChrono))
+	#in ActsIdsValidation, if split proposition (ProposChrono has a dash)-> oeil ids to construct url
+	#in ActsInformationRetrieval, if split proposition (ProposChrono has a dash)-> dosId to construct url
+	if act_ids.fileDosId!=None and act_ids.fileProposChrono!=None and "-" in act_ids.fileProposChrono:
+		urlDic["prelexUrl"]=getPrelexUrl(act_ids.fileDosId)
+	else:
+		#url saved in the database using the oeil ids in case of a split proposition
+		urlDic["prelexUrl"]=act_ids.filePrelexUrl
+
+	return urlDic
+
+
 def getInformation(src, actId, act, url, extraFieldsDic=None):
 	"""
 	FUNCTION
@@ -63,7 +86,7 @@ def getInformation(src, actId, act, url, extraFieldsDic=None):
 		setattr(actId, "file"+srcCap+"UrlExists", False)
 		print "error while retrieving "+src+" url"
 
-	#actualization url existence
+	#actualization url exist attribute
 	actId.save()
 
 	return act
@@ -154,6 +177,41 @@ def getRespProposRelatedData(resProposId):
 	nationResp, nationalPartyResp, euGroupResp=getRespProposInfo(resProposId)
 	return nationResp, nationalPartyResp, euGroupResp
 
+def getAllRespProposRelatedData(POST, act, add_or_modif):
+	"""
+	FUNCTION
+	get the related data of all the RespPropos (1, 2 and 3)
+	PARAMETERS
+	POST: request.POST object
+	act: information of the act
+	add_or_modif: "add" if the form is in add mode, "modif" otherwise
+	RETURN
+	act: updated information of the act if any new respPropos
+	respPropos_dic: respPropos related variables (for each respPropos)
+	"""
+	respPropos_dic={}
+	for index in xrange(1,4):
+		index=str(index)
+
+		#if no click on add or modif button, the form has been posted with possibly (new) respPropos values
+		if "add_act" not in POST and "modif_act" not in POST:
+			setattr(act, "prelexRespProposId"+index+"_id", POST["prelexRespProposId"+index])
+			print "respPropos", index, "POST"
+
+		if getattr(act, "prelexRespProposId"+index+"_id")!=None:
+			print "respPropos", index, "NOT NULL"
+			respProposId=getattr(act, "prelexRespProposId"+index+"_id")
+			try:
+				respProposId=respProposId.id
+			except:
+				print "respProposId exception", respProposId
+			#if add the attribute gives the id directly, if modif the attribute gives the full name (why ?)
+			respPropos_dic["prelexNationResp"+index], respPropos_dic["prelexNationalPartyResp"+index], respPropos_dic["prelexEUGroupResp"+index]=getRespProposRelatedData(respProposId)
+		else:
+			print "resPropos", index, "null"
+
+	return act, respPropos_dic
+
 
 @login_required
 def act_info(request):
@@ -164,7 +222,7 @@ def act_info(request):
 	actsInformationRetrieval/index.html: display the act info page which itself calls the template of the act_info form
 	actsInformationRetrieval/form.html: display the act_info form
 	"""
-	response_dic=respProposDic={}
+	response_dic=respPropos_dic={}
 	gvt_compo=opal=""
 	#display "real" name of variables (names given by europolix team, not the names stored in db)
 	response_dic['displayName']=vnIds.variablesNameDic
@@ -175,7 +233,6 @@ def act_info(request):
 	form_template='actsInformationRetrieval/form.html'
 
 	if request.method == 'POST':
-		print "post"
 		#addOrModif=None, "add" or "modif"
 		#act=act to validate / modify or None if no act is found (modifcation)
 		#response_dic: add add_form or modif_form to the forms being displayed / to be displayed
@@ -184,16 +241,16 @@ def act_info(request):
 		#if any of this key is present in the response dictionary -> no act display and return the errors with a json object
 		#otherwise display act and return the html form of the act to validate or modif in a string format
 		keys=["msg", "add_act_errors", "modif_act_errors"]
-		respPropos_keys=["prelexRespProposId1", "prelexRespProposId2", "prelexRespProposId3"]
 
 		#if selection of an act in the drop down list or click on the modif_act button
 		if mode!=None:
 			#if we are about to add or modif an act (the add or modif form is valid)
 			if addOrModif!=None:
-				act=ActsInformationModel.objects.get(actId_id=actId.id)
-				info_form = ActsInformationForm(request.POST, instance=act)
 				#saves the act
+				act=ActsInformationModel.objects.get(actId_id=actId.id)
+				#for save or info_form errors
 				if 'save_act' in request.POST:
+					info_form = ActsInformationForm(request.POST, instance=act)
 					print "save"
 					act.validated=True
 					if info_form.is_valid():
@@ -215,71 +272,50 @@ def act_info(request):
 						response_dic["msg_class"]="error_msg"
 						state="ongoing"
 
-				#update respPropos variables (click on update button or if a respPropos has been selected in the drop down list)
+				#update respPropos variables if the form is not saved
 				#only if javascript deactivated
-				elif not request.is_ajax() and any(request.POST[key]!="" for key in respPropos_keys):
+				if state!="saved":
 					print "update"
 					state="update"
+					#~ #for each respPropos, get its associated variables
+					act, respPropos_dic=getAllRespProposRelatedData(request.POST, act, addOrModif)
 
-				#displays the retrieved information of the act to validate (selection of an act in the drop down list or click modif button)
+				#displays the retrieved information of the act to validate / modify
 				#(selection of an act in the add / modif form  with no form error)
+				#or errors when saving the form if ajax deactivated
 				if not any(key in response_dic for key in keys) or not request.is_ajax() and state!="saved":
 					print 'actsToValidate display'
+
 					#"compute" the url of the eurlex, oeil and prelex page
-					urlDic={}
-					urlDic["eurlexUrl"]=getEurlexUrl(actId.fileNoCelex)
-					urlDic["oeilUrl"]=getOeilUrl(str(actId.fileNoUniqueType), str(actId.fileNoUniqueAnnee), str(actId.fileNoUniqueChrono))
-					#in ActsIdsValidation, if split proposition (ProposChrono has a dash)-> oeil ids to construct url
-					#in ActsInformationRetrieval, if split proposition (ProposChrono has a dash)-> dosId to construct url
-					if actId.fileDosId!=None and actId.fileProposChrono!=None and "-" in actId.fileProposChrono:
-						urlDic["prelexUrl"]=getPrelexUrl(actId.fileDosId)
+					url_dic=get_urls(actId)
+
+					#an act has been selected in the drop down list -> the related information is displayed
+					if state=="display" and addOrModif=="add":
+						print "info retrieval"
+						#retrieve all the information from all the sources
+						act=getInformationFromEurlex(actId, act, url_dic["eurlexUrl"])
+						act=getInformationFromOeil(actId, act, url_dic["oeilUrl"])
+						#prelex configCons needs eurlex
+						act=getInformationFromPrelex(actId, act, url_dic["prelexUrl"])
+
+					if "add_act" in request.POST or "modif_act" in request.POST:
+						info_form=ActsInformationForm(instance=act)
 					else:
-						#url saved in the database using the oeil ids in case of a split proposition
-						urlDic["prelexUrl"]=actId.filePrelexUrl
-					response_dic["url"]=urlDic
+						info_form=ActsInformationForm(request.POST, instance=act)
 
-					#an act has been selected in the drop down list (or modification of an act) -> the related information is displayed
-					#or update respPropos
-					if state=="display":
-						if addOrModif=="add":
-							print "info retrieval"
-							#retrieve all the information from all the sources
-							act=getInformationFromEurlex(actId, act, urlDic["eurlexUrl"])
-							act=getInformationFromOeil(actId, act, urlDic["oeilUrl"])
-							#prelex configCons needs eurlex
-							act=getInformationFromPrelex(actId, act, urlDic["prelexUrl"])
-							#if at least one respPropos has been selected from a drop down list, replace the default selected value
-
-						info_form = ActsInformationForm(instance=act)
-						response_dic['ids_form']=ActsIdsForm(instance=actId)
 
 					#The following variables are not form controls -> reload them every time the page is reloaded
 					opal=getInformationFromOpal(actId.fileNoCelex)
 					#need oeil and prelex
 					gvt_compo=getGvtCompo(act)
 
-					#respPropos variables
-					for index in xrange(1,4):
-						index=str(index)
-						#a new respPropos has been selected from the drop down list
-						if state=="update" and request.POST["prelexRespProposId"+index]!="":
-							setattr(act, "prelexRespProposId"+index+"_id", request.POST["prelexRespProposId"+index])
-						respProposId=getattr(act, "prelexRespProposId"+index+"_id")
-						#~ respProposId=eval("respProposId"+index)
-						#~ #long
-						#~ if type(respPropos) is long:
-							#~ respProposId=respPropos
-						#~ #object
-						#~ elif respPropos!=None:
-							#~ respProposId=respPropos.id
-						if respProposId!="None":
-							respProposDic["prelexNationResp"+index], respProposDic["prelexNationalPartyResp"+index], respProposDic["prelexEUGroupResp"+index]=getRespProposRelatedData(respProposId)
-
+					response_dic["url"]=url_dic
 					response_dic['actId']=actId
 					response_dic['act']=act
-					response_dic['respPropos']=respProposDic
+					response_dic['respPropos']=respPropos_dic
 					response_dic['gvt_compo']=gvt_compo
 					response_dic['opal']=opal
+					response_dic['ids_form']=ActsIdsForm(instance=actId)
 					response_dic['info_form']=info_form
 
 				response_dic['mode']=mode
@@ -296,16 +332,12 @@ def act_info(request):
 			#no act has been selected-> do nothing
 			return HttpResponse(simplejson.dumps(""), mimetype="application/json")
 
-	print "get"
 	#unbound forms
 	forms_list=[("ids_form", ActsIdsForm()), ("info_form", ActsInformationForm()), ("add_form", ActsAddForm()), ("modif_form", ActsModifForm())]
 	for form in forms_list:
 		if form[0] not in response_dic:
 			response_dic[form[0]] = form[1]
 
-	print "response_dic", response_dic
-
-	#~ response_dic['respPropos']={}
 	response_dic['form_template'] = form_template
 
 	#displays the page (GET) or POST if javascript disabled

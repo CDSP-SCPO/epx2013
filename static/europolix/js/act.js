@@ -8,7 +8,6 @@ $(function()
 
 });
 
-
 /* submit form if press enter on the last control */
 $("#id_noOrdreModif").keypress(function(event)
 {
@@ -42,7 +41,9 @@ function reset_add_form(what, saved)
 
 	if (what=="all")
 	{
+		//select empty and default value
 		$('#id_actsToValidate').val('');
+		//~ $("#id_actsToValidate option[value='']").attr('selected', true)
 	}
 
 	$('#add_div .errorlist').each(function()
@@ -82,7 +83,7 @@ function reset_act_form(result, mode)
 		//reset form
 		$('#act_form_div').load($("#reset_form_path").text(), function()
 		{
-			//form valid -> displays success message
+			//on save: form valid -> displays success message
 			if (mode=="save")
 			{
 				display_save_message(result);
@@ -99,7 +100,6 @@ function reset_act_form(result, mode)
 //display message when click on save button
 function display_save_message(result)
 {
-	$("#msg").text(result.msg);
 	//if there is already a message class on the element, remove it
 	$('#msg').removeClass(function()
 	{
@@ -107,6 +107,7 @@ function display_save_message(result)
 		return match ? match[0] : '';
 	});
 	$("#msg").addClass(result.msg_class);
+	$("#msg").text(result.msg);
 }
 
 //show django errors
@@ -266,10 +267,11 @@ function display_or_update_act(button_name, event)
 
 
 /* save an act*/
-$('body').on('click', '#save_act', function(event)
+$('#act_form').on('click', '#save_act', function(event)
 {
-    save_act_form($("#act_form"), $(this), event);
+	save_act_form($("#act_form"), $(this), event);
 });
+
 
 //submit the act ids or info form to save it or display validation errors
 function save_act_form(form, button, event)
