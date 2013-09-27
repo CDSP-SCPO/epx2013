@@ -211,8 +211,9 @@ function send_file(form, link, file, loadCallback)
 	//export form: if no error, no iframe load
 	if (form.attr("id")=="export_form" && $("#id_sortFields").val()!="" && $("#id_sortDirection").val()!="")
 	{
+		acts_nb=$("#acts_nb").val();
 		var result = {
-		"msg": "The acts are being downloaded...",
+		"msg": acts_nb+" act(s) are being downloaded...",
 		"msg_class": "success_msg"
 		};
 
