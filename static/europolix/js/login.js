@@ -1,7 +1,7 @@
 /* jquery functions for the login application */
 
 /* submit form if press enter on the last control */
-$( "#password" ).keypress(function(event)
+$("#password").keypress(function(event)
 {
 	if (event.keyCode == 13)
 	{

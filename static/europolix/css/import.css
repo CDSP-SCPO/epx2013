@@ -1,19 +1,19 @@
 /* css for the import application */
 
 /* FORM */
-#import_form fieldset > div.row-fluid
+fieldset > div.row-fluid
 {
 	padding-left: 1%;
 }
 
 
-#import_form legend
+legend
 {
 	width: 224px;
 }
 
 /* if javascript disabled, show standard upload file control */
-#import_form input[type="file"]
+#id_csvFile
 {
 	width: 92.8%;
 	padding: 4px 12px 0 9px;
@@ -40,7 +40,7 @@
 	border-radius: 4px;
 }
 
-#import_form select
+#id_fileToImport
 {
 	width: 100%;
 }

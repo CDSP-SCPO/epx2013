@@ -186,7 +186,6 @@ def getAllRespProposRelatedData(POST, act, add_or_modif):
 	act: information of the act
 	add_or_modif: "add" if the form is in add mode, "modif" otherwise
 	RETURN
-	act: updated information of the act if any new respPropos
 	respPropos_dic: respPropos related variables (for each respPropos)
 	"""
 	respPropos_dic={}
@@ -206,7 +205,7 @@ def getAllRespProposRelatedData(POST, act, add_or_modif):
 			#if add the attribute gives the id directly, if modif the attribute gives the full name (why ?)
 			respPropos_dic["prelexNationResp"+index], respPropos_dic["prelexNationalPartyResp"+index], respPropos_dic["prelexEUGroupResp"+index]=getRespProposRelatedData(respProposId)
 
-	return act, respPropos_dic
+	return respPropos_dic
 
 
 @login_required
@@ -271,9 +270,7 @@ def act_info(request):
 				#update respPropos variables if the form is not saved
 				if state!="saved":
 					print "update"
-					state="update"
-					#~ #for each respPropos, get its associated variables
-					act, respPropos_dic=getAllRespProposRelatedData(request.POST, act, addOrModif)
+					#~ state="update"
 
 				#displays the retrieved information of the act to validate / modify
 				#(selection of an act in the add / modif form  with no form error)
@@ -285,11 +282,9 @@ def act_info(request):
 					url_dic=get_urls(actId)
 
 					#an act has been selected in the drop down list -> the related information is displayed
-					#if state different of modif and save and ongoing
+					#if state different of modif, save and ongoing
 					#if the act is not being modified
-					#if the state is update but no update respPropos button has been clicked (so if at least one respPropos has a value)
-					respPropos_buttons=["update_respPropos1", "update_respPropos2", "update_respPropos3"]
-					if state=="display" or (state=="update" and not any(key in request.POST for key in respPropos_buttons)) and addOrModif=="add":
+					if state=="display" and addOrModif=="add":
 						print "info retrieval"
 						#retrieve all the information from all the sources
 						act=getInformationFromEurlex(actId, act, url_dic["eurlexUrl"])
@@ -306,10 +301,12 @@ def act_info(request):
 					gvt_compo=getGvtCompo(act)
 					#The following variables are not form controls -> reload them every time the page is reloaded
 					opal=getInformationFromOpal(actId.fileNoCelex)
+					#for each respPropos, get its associated variables (for posted respPropos)
+					respPropos_dic=getAllRespProposRelatedData(request.POST, act, addOrModif)
 
 					response_dic["url"]=url_dic
 					response_dic['actId']=actId
-					response_dic['act']=act
+					#~ response_dic['act']=act
 					response_dic['respPropos']=respPropos_dic
 					response_dic['gvt_compo']=gvt_compo
 					response_dic['opal']=opal

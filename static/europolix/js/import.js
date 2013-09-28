@@ -3,13 +3,13 @@
 $(function()
 {
 	/* if javascript activated, hide standard upload file control and show the other one */
-	$('#import_form input:file').hide();
+	$('#id_csvFile').hide();
 	$('#choose_file_div').show();
 });
 
 
 /* display the help text (column names and order for a given file to import) */
-$("#import_form select").change(function()
+$("#id_fileToImport").change(function()
 {
 	load_help_text();
 });
@@ -37,7 +37,7 @@ $('#choose_file_div').click(function()
 });
 
 /* after selection of a file, remove the focus from the control (so manual paths cannot be entered) */
-$( "#choose_file" ).keypress(function()
+$("#choose_file").keypress(function()
 {
 	this.blur();
 });
@@ -46,6 +46,5 @@ $( "#choose_file" ).keypress(function()
 /* submit the form with ajax */
 $('#import_button').click(function(event)
 {
-	$form=$('#import_form');
-	submit_form($form, $('#'+$form.attr('id')+' input:file'), $(this), event);
+	submit_form($('#import_form'), $('#id_fileToImport'), $(this), event);
 });

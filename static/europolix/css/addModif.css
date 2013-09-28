@@ -2,17 +2,18 @@
 
 #add_modif
 {
-	overflow:auto;
+	overflow: auto;
 	border-top: 1px groove #ddd;
 	border-bottom: 1px groove #ddd;
 }
 
+/* add_act and modif_act buttons, modif_act textboxes */
 #add_modif input
 {
 	width: 93%;
 }
 
-#add_modif select
+#id_actsToValidate
 {
 	width: auto;
 }
@@ -24,7 +25,7 @@
 	text-align:center;
 }
 
-#add_div  #add_act
+#add_act
 {
 	margin-left: 1%;
 }

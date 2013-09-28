@@ -2,9 +2,9 @@
 $(function()
 {
 	/* if javascript activated, hide add act button (act ids) */
-	$('#add_div  #add_act').hide();
-	/* if javascript activated, hide respPropos update act button (act info) */
-	$('#prelex_table .update_respPropos').hide();
+	$('#add_act').hide();
+	/* if javascript activated, hide respPropos update button (act info) */
+	$('.update_respPropos').hide();
 
 });
 
@@ -20,7 +20,7 @@ $("#id_noOrdreModif").keypress(function(event)
 
 
 //onchange of releveAnneeModif, releveMoisModif or noOrdreModif in modif form
-$("#modif_form input:text").change(function()
+$("#id_releveAnneeModif, #id_releveMoisModif, #id_noOrdreModif").change(function()
 {
 	$('#modif_button_clicked').val('no');
 });
@@ -66,7 +66,7 @@ function reset_modif_form(what)
 		$(this).remove();
 	});
 
-	//reset heights of errors
+	//~ //reset heights of errors
 	$('#add_modif .modif_errors').height("auto");
 }
 
@@ -77,6 +77,9 @@ function reset_act_form(result, mode)
 	{
 		//display act
 		$('#act_form_div').html(result);
+
+		/* if javascript activated, hide respPropos update button (act info) */
+		$('.update_respPropos').hide();
 	}
 	else
 	{
@@ -87,14 +90,15 @@ function reset_act_form(result, mode)
 			if (mode=="save")
 			{
 				display_save_message(result);
+
 				//go to the bottom of the page
 				$('#top_anchor').click();
+
+				/* if javascript activated, hide respPropos update button (act info) */
+				$('.update_respPropos').hide();
 			}
 		});
 	}
-
-	/* if javascript activated, hide respPropos update act button (act info) */
-	$('#prelex_table .update_respPropos').hide();
 }
 
 //display message when click on save button
@@ -161,18 +165,21 @@ function display_or_update_result(result, action)
 		//ajust height divs for the modif_form
 		if (action=="modif_act")
 		{
-			var maxHeight = Math.max.apply(null, $('#add_modif .modif_errors').map(function ()
+			var maxHeight = Math.max.apply(null, $('.modif_errors').map(function ()
 			{
 				return $(this).height();
 			}).get());
 
-			$('#add_modif .modif_errors').height(maxHeight);
+			$('.modif_errors').height(maxHeight);
 		}
 	}
 	else
 	{
 		//display act in act form
-		reset_act_form(result, "display");
+		if(!result.modif_act_errors)
+		{
+			reset_act_form(result, "display");
+		}
 	}
 }
 
@@ -212,14 +219,14 @@ function save_result(result)
 }
 
 /* add of an act (selection from drop down list) */
-$("#add_div select").change(function(event)
+$("#id_actsToValidate").change(function(event)
 {
 	display_or_update_act("add_act", event);
 });
 
 
-/* modification or update an act (act ids form) */
-$('body').on('click', '#modif_act, #update_act', function(event)
+/* modification or update of an act (act ids form) */
+$('#act_form').on('click', '#modif_act, #update_act', function(event)
 {
 	if ($(this).attr('name')=="modif_act")
 	{
@@ -313,7 +320,7 @@ function save_act_form(form, button, event)
 
 
 /* update a respPropos */
-$('body').on('change', '#prelexRespProposId1_id, #prelexRespProposId2_id, #prelexRespProposId3_id', function()
+$('#act_form').on('change', '#prelexRespProposId1_id, #prelexRespProposId2_id, #prelexRespProposId3_id', function()
 {
 	update_respPropos(this.id, this.value);
 });

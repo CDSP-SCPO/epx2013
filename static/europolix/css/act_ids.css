@@ -1,19 +1,17 @@
 /* css for the actsIdsValidation application */
 
-#act_form table input[type="text"]
+#act_ids_table input[type="text"]
 {
 	width: 93%;
 }
 
-#act_form table .btn
+#update_act
 {
 	padding: 1px;
 }
 
 
 /* loading gif*/
-
-
 #loading_gif_update_act
 {
 	display: none;

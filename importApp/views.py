@@ -160,7 +160,8 @@ def import2Tables(csvFile, table1, table2):
 
 				#save attr2
 				try:
-					attr2Instance.save(force_insert=True)
+					#respPropos: don't use force_insert=True
+					attr2Instance.save()
 					attr1List.append(noErrorMsg)
 				except IntegrityError, e:
 					print "exception", e

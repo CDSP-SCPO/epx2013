@@ -208,8 +208,9 @@ def exportView(request):
 				return HttpResponse(simplejson.dumps(response_dic), mimetype="application/json")
 			else:
 				response_dic['form']=form
+	#GET
 	else:
-		#fill the hidden input field with the number of acts to import
+		#fill the hidden input field with the number of acts to export
 		response_dic["acts_nb"]=ActsInformationModel.objects.filter(validated = 1).count()
 
 	#unbound forms

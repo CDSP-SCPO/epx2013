@@ -1,18 +1,17 @@
 /* css for the export application */
 
 
-#export_form fieldset > div.row-fluid
+fieldset > div.row-fluid
 {
 	padding-left: 1%;
 }
 
-
-#export_form legend
+legend
 {
 	width: 272px;
 }
 
-#export_form select
+#id_sortFields, #id_sortDirection
 {
 	width: 100%;
 }

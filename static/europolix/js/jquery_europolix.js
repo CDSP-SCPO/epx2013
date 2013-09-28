@@ -129,8 +129,8 @@ $.ajaxSetup
 	}
 });
 
-//load the content of the page (right side) with Ajax (no need to reload the menu and header)
-$('#menu a').click(function(event)
+//rfrom a menu link, load the content of the page (right side) with Ajax (no need to reload the menu and header)
+$('.internal_link').click(function(event)
 {
 	load_content($(this), event);
 });

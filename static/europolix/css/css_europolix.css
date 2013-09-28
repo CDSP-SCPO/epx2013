@@ -191,14 +191,9 @@ h1
 	color: #663300;
 }
 
-/* active element */
-.menu .active .icon-chevron-right, .menu .active a:hover .icon-chevron-right
-{
-	opacity: 1;
-}
 
 /* chevron at the right of each link */
-.menu .icon-chevron-right
+.icon-chevron-right
 {
 	float: right;
 	margin-top: 2px;
@@ -206,8 +201,15 @@ h1
 	opacity: .25;
 }
 
+
+/* active element */
+.active .icon-chevron-right
+{
+	opacity: 1;
+}
+
 /* first element rounded on the edges*/
-.menu > li:first-child > a
+#first_child
 {
 	-webkit-border-radius: 4px 4px 0 0;
 	-moz-border-radius: 4px 4px 0 0;
@@ -215,7 +217,7 @@ h1
 }
 
 /* last element rounded on the edges*/
-.menu > li:last-child > a
+#last_child
 {
 	-webkit-border-radius: 0 0 4px 4px;
 	-moz-border-radius: 0 0 4px 4px;
@@ -283,6 +285,8 @@ legend
 
 /* TABLES*/
 
+
+/* rounded corners for act_info tables */
 table
 {
 	display: block;
@@ -294,7 +298,7 @@ table .fieldWrapper
 	padding-bottom: 2px;
 }
 
-.row-fluid [class*="span"] .table
+[class*="span"] .table
 {
 	border-collapse: collapse;
 	font-size: 13px;
@@ -337,13 +341,13 @@ table .fieldWrapper
 	font-weight: bold;
 }
 
-.table .fieldWrapper input[type="text"]
+.table input[type="text"]
 {
 	margin-bottom: 0;
 	padding: 0 2px;
 }
 
-.table .fieldWrapper input[type="checkbox"]
+.table input[type="checkbox"]
 {
 	margin: 0;
 }

@@ -1,13 +1,15 @@
 /* css for the notes_and_save.html file */
 
-#notes_and_save textarea
+/* textarea */
+#id_notes
 {
 	width: 33%;
 	height: 150px;
 
 }
 
-#notes_and_save button
+/* button */
+#save_act
 {
 	margin-left: 1%;
 	padding: 12px;
