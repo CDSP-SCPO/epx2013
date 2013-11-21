@@ -9,19 +9,19 @@ from django.views.generic.simple import direct_to_template
 from django.contrib import admin
 admin.autodiscover()
 
-urlpatterns = patterns('',
+urlpatterns=patterns('',
 	#load the homepage template (no view)
 	url(r'^/?$', direct_to_template, {'template': 'index.html'}, name="homepage"),
 	#tests page
 	#~ url(r'^tests/$', 'tests.views.testView'),
 	#login page
-	url(r'^login/$', 'auth.views.login_view', name='login'),
+	url(r'^login/$', 'login.views.login_view', name='login'),
 	#acts ids validation page
-	url(r'^actsIdsValidation/', include('actsIdsValidation.urls')),
-	#acts information retrieval page
-	url(r'^actsInformationRetrieval/', include('actsInformationRetrieval.urls')),
+	url(r'^act_ids/', include('act_ids.urls')),
+	#acts data retrieval page
+	url(r'^act/', include('act.urls')),
 	#import page
-	url(r'^import/', include('importApp.urls')),
+	url(r'^import/', include('import_app.urls')),
 	#export page
 	url(r'^export/', include('export.urls')),
 	#export library
@@ -35,7 +35,7 @@ urlpatterns = patterns('',
 )+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT, show_indexes=True)
 
 if settings.DEBUG:
-	urlpatterns += patterns('',
+	urlpatterns +=patterns('',
 		(r'^static/(?P<path>.*)$', 'django.views.static.serve',
 		{'document_root': settings.STATIC_ROOT, 'show_indexes': True})
 )

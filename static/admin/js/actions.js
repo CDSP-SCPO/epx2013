@@ -1,9 +1,9 @@
 (function($) {
-	$.fn.actions = function(opts) {
-		var options = $.extend({}, $.fn.actions.defaults, opts);
-		var actionCheckboxes = $(this);
-		var list_editable_changed = false;
-		checker = function(checked) {
+	$.fn.actions=function(opts) {
+		var options=$.extend({}, $.fn.actions.defaults, opts);
+		var actionCheckboxes=$(this);
+		var list_editable_changed=false;
+		checker=function(checked) {
 			if (checked) {
 				showQuestion();
 			} else {
@@ -12,43 +12,43 @@
 			$(actionCheckboxes).attr("checked", checked)
 				.parent().parent().toggleClass(options.selectedClass, checked);
 		}
-		updateCounter = function() {
-			var sel = $(actionCheckboxes).filter(":checked").length;
+		updateCounter=function() {
+			var sel=$(actionCheckboxes).filter(":checked").length;
 			$(options.counterContainer).html(interpolate(
 			ngettext('%(sel)s of %(cnt)s selected', '%(sel)s of %(cnt)s selected', sel), {
 				sel: sel,
 				cnt: _actions_icnt
 			}, true));
 			$(options.allToggle).attr("checked", function() {
-				if (sel == actionCheckboxes.length) {
-					value = true;
+				if (sel==actionCheckboxes.length) {
+					value=true;
 					showQuestion();
 				} else {
-					value = false;
+					value=false;
 					clearAcross();
 				}
 				return value;
 			});
 		}
-		showQuestion = function() {
+		showQuestion=function() {
 			$(options.acrossClears).hide();
 			$(options.acrossQuestions).show();
 			$(options.allContainer).hide();
 		}
-		showClear = function() {
+		showClear=function() {
 			$(options.acrossClears).show();
 			$(options.acrossQuestions).hide();
 			$(options.actionContainer).toggleClass(options.selectedClass);
 			$(options.allContainer).show();
 			$(options.counterContainer).hide();
 		}
-		reset = function() {
+		reset=function() {
 			$(options.acrossClears).hide();
 			$(options.acrossQuestions).hide();
 			$(options.allContainer).hide();
 			$(options.counterContainer).show();
 		}
-		clearAcross = function() {
+		clearAcross=function() {
 			reset();
 			$(options.acrossInput).val(0);
 			$(options.actionContainer).removeClass(options.selectedClass);
@@ -59,7 +59,7 @@
 		$(this).filter(":checked").each(function(i) {
 			$(this).parent().parent().toggleClass(options.selectedClass);
 			updateCounter();
-			if ($(options.acrossInput).val() == 1) {
+			if ($(options.acrossInput).val()==1) {
 				showClear();
 			}
 		});
@@ -79,17 +79,17 @@
 			checker(0);
 			updateCounter();
 		});
-		lastChecked = null;
+		lastChecked=null;
 		$(actionCheckboxes).click(function(event) {
-			if (!event) { var event = window.event; }
-			var target = event.target ? event.target : event.srcElement;
-			if (lastChecked && $.data(lastChecked) != $.data(target) && event.shiftKey == true) {
-				var inrange = false;
+			if (!event) { var event=window.event; }
+			var target=event.target ? event.target : event.srcElement;
+			if (lastChecked && $.data(lastChecked) !=$.data(target) && event.shiftKey==true) {
+				var inrange=false;
 				$(lastChecked).attr("checked", target.checked)
 					.parent().parent().toggleClass(options.selectedClass, target.checked);
 				$(actionCheckboxes).each(function() {
-					if ($.data(this) == $.data(lastChecked) || $.data(this) == $.data(target)) {
-						inrange = (inrange) ? false : true;
+					if ($.data(this)==$.data(lastChecked) || $.data(this)==$.data(target)) {
+						inrange=(inrange) ? false : true;
 					}
 					if (inrange) {
 						$(this).attr("checked", target.checked)
@@ -98,11 +98,11 @@
 				});
 			}
 			$(target).parent().parent().toggleClass(options.selectedClass, target.checked);
-			lastChecked = target;
+			lastChecked=target;
 			updateCounter();
 		});
 		$('form#changelist-form table#result_list tr').find('td:gt(0) :input').change(function() {
-			list_editable_changed = true;
+			list_editable_changed=true;
 		});
 		$('form#changelist-form button[name="index"]').click(function(event) {
 			if (list_editable_changed) {
@@ -110,10 +110,10 @@
 			}
 		});
 		$('form#changelist-form input[name="_save"]').click(function(event) {
-			var action_changed = false;
+			var action_changed=false;
 			$('div.actions select option:selected').each(function() {
 				if ($(this).val()) {
-					action_changed = true;
+					action_changed=true;
 				}
 			});
 			if (action_changed) {
@@ -126,7 +126,7 @@
 		});
 	}
 	/* Setup plugin defaults */
-	$.fn.actions.defaults = {
+	$.fn.actions.defaults={
 		actionContainer: "div.actions",
 		counterContainer: "span.action-counter",
 		allContainer: "div.actions span.all",

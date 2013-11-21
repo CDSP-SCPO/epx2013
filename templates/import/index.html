@@ -17,7 +17,7 @@ displays the import page
 				<legend>Please choose the import:</legend>
 
 				<div class="row-fluid">
-					You can import many kinds of files on this page: acts to validate, dosId variables (prelex unique id) or external files. It must be a csv file (from excel or calc, you can easily change the format by clicking on "Save as" and choosing "csv").<br />
+					You can import many kinds of files on this page: acts to validate, dos_id variables (prelex unique id) or external files. It must be a csv file (from excel or calc, you can easily change the format by clicking on "Save as" and choosing "csv").<br />
 					Please select the kind of import you want to do in the drop down list, then the file to download and click on the import button.<br />
 					According to the size of the file, it might take some time. Please be patient :).
 				</div>
@@ -32,16 +32,16 @@ displays the import page
 					<div class="span4">
 						<!-- drop down list choose type of import -->
 						<div class="fieldWrapper">
-							<div id="id_{{ form.fileToImport.name }}_errors" class="row-fluid">{{ form.fileToImport.errors }}</div>
-							<div class="row-fluid">{{ form.fileToImport }}</div>
+							<div id="id_{{ form.file_to_import.name }}_errors" class="row-fluid">{{ form.file_to_import.errors }}</div>
+							<div class="row-fluid">{{ form.file_to_import }}</div>
 						</div>
 
 						<!-- button choose file to import -->
 						<div id="file_to_import" class="fieldWrapper">
-							<div id="id_{{ form.csvFile.name }}_errors" class="row-fluid">{{ form.csvFile.errors }}</div>
+							<div id="id_{{ form.csv_file.name }}_errors" class="row-fluid">{{ form.csv_file.errors }}</div>
 							<div id="file_div" >
 								<!-- mimic django field -->
-								<input id="id_{{ form.csvFile.name }}" name="{{ form.csvFile.name }}" type="file" />
+								<input id="id_{{ form.csv_file.name }}" name="{{ form.csv_file.name }}" type="file" />
 								<div id="choose_file_div" class="input-append btn" style="display: none;">
 									<span id="choose_file">Choose file</span>
 									<input id="file_path" type="text">
@@ -58,7 +58,7 @@ displays the import page
 					<!-- help text for the selected import (on the right) -->
 					<div id="help_text_view" style="display: none;">{% url help_text %}</div>
 					<div class="span8">
-						<div id="help_text" class="info_msg">{% include help_text_template %}</div>
+						<div id="help_text" class="data_msg">{% include help_text_template %}</div>
 					</div>
 				</div>
 
@@ -72,10 +72,10 @@ displays the import page
 
 				<br />
 
-				<div id="errors_list" class="row-fluid error_msg">
+				<div id="errors" class="row-fluid error_msg">
 					<!-- displays importation errors-->
-					{% if errors_list %}
-						{% for error in errors_list %}
+					{% if errors %}
+						{% for error in errors %}
 							<p>{{ error }}</p>
 						{% empty %}
 							No error during the importation!

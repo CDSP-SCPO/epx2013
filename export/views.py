@@ -1,4 +1,3 @@
-# Create your views here.
 #-*- coding: utf-8 -*-
 import csv
 from django.db.models.loading import get_model
@@ -6,19 +5,18 @@ from django.conf import settings
 from django.shortcuts import render, render_to_response
 from django.template import RequestContext
 #display drop down lists
-from export.forms import ActsExportForm
-#data to export coming from the two main models ActsIdsModel and ActsInformationModel
-from actsIdsValidation.models import ActsIdsModel
-from actsInformationRetrieval.models import ActsInformationModel
+from export.forms import Export
+#data to export coming from the two main models ActIds and Act
+from act_ids.models import ActIds
+from act.models import Act, PartyFamily
 #for the export
 import os, tempfile, zipfile
 from django.core.servers.basehttp import FileWrapper
 from django.conf import settings
 import mimetypes
 #change variable names (first row of the csv file)
-import actsIdsValidation.variablesNameForIds as vnIds
-import actsInformationRetrieval.variablesNameForInformation as vnInfo
-
+import act_ids.var_name_ids
+import act.var_name_data
 #redirect to login page if not logged
 from django.contrib.auth.decorators import login_required
 
@@ -27,195 +25,249 @@ from django.utils import simplejson
 from django.http import HttpResponse
 
 
-def getHeaders(act_ids_exclude_list, act_info_exclude_list):
+def get_headers(excl_fields_act_ids, excl_fields_act):
 	"""
 	FUNCTION
-	returns the headers for the fields too export acts of the model
+	get the headers of the fields to export (csv file)
 	PARAMETERS
-	act_ids_exclude_list: list of fields not to be exported (ActsIdsModel)
-	act_info_exclude_list:  list of fields not to be exported (ActsInformationModel)
+	excl_fields_act_ids: fields not to be exported (ActIds) [list of strings]
+	excl_fields_act:  fields not to be exported (Act) [list of strings]
 	RETURNS
-	list of headers
+	headers: name of the fields to be saved in the csv file [list of strings]
 	"""
-	headers_list=[]
-	#ActsIdsModel
-	for field in ActsIdsModel()._meta.fields:
-		if field.name not in act_ids_exclude_list:
-			headers_list.append(vnIds.variablesNameDic[field.name])
+	headers=[]
+	#ActIds
+	for field in ActIds()._meta.fields:
+		if field.name not in excl_fields_act_ids:
+			headers.append(var_name_ids.var_name[field.name])
 
-	#ActsInformationModel
-	for field in ActsInformationModel()._meta.fields:
-		if field.name not in act_info_exclude_list:
-			headers_list.append(vnInfo.variablesNameDic[field.name])
+	#Act
+	for field in Act()._meta.fields:
+		if field.name not in excl_fields_act:
+			headers.append(var_name_data.var_name[field.name])
+			#CodeSect and related
+			if "code_sect_" in field.name:
+				index=field.name[-1]
+				headers.append(var_name_data.var_name["code_agenda_"+index])
+			#Rapporteurs (Person) and related (oeil)
+			elif "rapp_" in field.name:
+				index=field.name[-1]
+				headers.append(var_name_data.var_name["rapp_country_"+index])
+				headers.append(var_name_data.var_name["rapp_party_"+index])
+			#Responsibles (Person) and related (prelex)
+			elif "resp_" in field.name:
+				index=field.name[-1]
+				headers.append(var_name_data.var_name["resp_country_"+index])
+				headers.append(var_name_data.var_name["resp_party_"+index])
+				headers.append(var_name_data.var_name["resp_party_family_"+index])
+			#GvtCompo
+			elif "gvt_compo"==field.name:
+				headers.append(var_name_data.var_name[field.name+"_country"])
+			#DG and related
+			elif "dg_" in field.name:
+				index=field.name[-1]
+				headers.append(var_name_data.var_name["dg_sigle_"+index])
 
-	#NPModel (gvtCompo)
-	headers_list.append(vnInfo.variablesNameDic["prelexNationGvtPoliticalComposition"])
+	#NP (opal)
+	headers.append(var_name_data.var_name["case_nb"])
+	headers.append(var_name_data.var_name["np"])
+	headers.append(var_name_data.var_name["act_type"])
+	headers.append(var_name_data.var_name["act_date"])
 
-	#RespProposModel and related
-	for index in xrange(1, 4):
-		index=str(index)
-		headers_list.append(vnInfo.variablesNameDic["prelexRespProposId"+index])
-		headers_list.append(vnInfo.variablesNameDic["prelexNationResp"+index])
-		headers_list.append(vnInfo.variablesNameDic["prelexNationalPartyResp"+index])
-		headers_list.append(vnInfo.variablesNameDic["prelexEUGroupResp"+index])
-
-	return headers_list
+	return headers
 
 
 
-def fetchValidatedActs(act_ids_exclude_list, act_info_exclude_list):
+def get_validated_acts(excl_fields_act_ids, excl_fields_act):
 	"""
 	FUNCTION
-	returns all the validated acts of the model
+	return all the validated acts of the model
 	PARAMETERS
-	act_ids_exclude_list: list of fields not to be exported (ActsIdsModel)
-	act_info_exclude_list:  list of fields not to be exported (ActsInformationModel)
+	excl_fields_act_ids: fields not to be exported (ActIds) [list of strings]
+	excl_fields_act: fields not to be exported (Act) [list of strings]
 	RETURNS
-	list of lists of acts
+	acts: validated acts and relative data [list of Act model instances]
 	"""
-	db_queryset=ActsInformationModel.objects.filter(validated = 1).prefetch_related('prelexNationGvtPoliticalComposition')
-	#list of lists of acts
-	acts_list=[]
+	qs=Act.objects.filter(validated=2)
+	#list of acts
+	acts=[]
 
-	for act in db_queryset.iterator():
-		#list of values for one act
-		act_list=[]
-		#ActsIdsModel
-		for field in act.actId.__class__._meta.fields:
-			if field.name not in act_ids_exclude_list:
-				act_list.append(getattr(act.actId, field.name))
+	for act in qs.iterator():
+		#list of fields for one act
+		fields=[]
+		act_ids=ActIds.objects.get(act=act, src="index")
 
-		#ActsInformationModel
-		for field in ActsInformationModel()._meta.fields:
-			if field.name not in act_info_exclude_list:
-				act_list.append(getattr(act, field.name))
+		#ActIds
+		for field in ActIds()._meta.fields:
+			if field.name not in excl_fields_act_ids:
+					fields.append(getattr(act_ids, field.name))
 
-		#NPModel (gvtCompo)
-		gvt_compo=""
-		for gvtCompo in act.prelexNationGvtPoliticalComposition.all():
-			gvt_compo+=gvtCompo.nationGvtPoliticalComposition+"; "
-		#delete last "; "
-		act_list.append(gvt_compo[:-2])
+		#Act
+		for field in Act()._meta.fields:
+			if field.name not in excl_fields_act:
+				#CodeSect and related
+				if "code_sect_" in field.name:
+					fields.append(getattr(act, field.name.code_sect))
+					fields.append(getattr(act, field.name.code_agenda.code_agenda))
+				#Rapporteurs (Person) and related (oeil) or Responsibles (Person) and related (prelex)
+				elif "rapp_" in field.name or "resp_" in field.name:
+					fields.append(getattr(act, field.name.name))
+					country=getattr(act, field.name.country.country_code)
+					fields.append(country)
+					party=field.name.party
+					fields.append(getattr(act, party.party))
+					if "resp_" in field.name:
+						#party_family
+						fields.append(PartyFamily.objects.only("party_family").get(party=party.pk, country=country))
+				#DG and related
+				elif "dg_" in field.name:
+					fields.append(getattr(act, field.name.dg))
+					fields.append(getattr(act, field.name.dg_sigle.dg_sigle))
+				#GvtCompo
+				elif "gvt_compo"==field.name:
+					gvt_compos=gvt_compos_country=""
+					#for each country
+					for gvt_compo in act.field.name.all():
+						#parties
+						for party in gvt_compo.party.all():
+							gvt_compos+=party.party+", "
+						gvt_compos=gvt_compos[:-2]+"; "
+						#countries
+						gvt_compos_country+=gvt_compo.country.country_code+"; "
+					#delete last "; "
+					fields.append(gvt_compos[:-2])
+					fields.append(gvt_compos_country[:-2])
+				#adopt_cs_contre, adopt_cs_abs, adopt_pc_contre, adopt_pc_abs
+				elif "adopt_cs_" in field.name or "adopt_pc_" in field.name:
+					countries=""
+					for country in act.field.name.all():
+						countries+=country+"; "
+					fields.append(countries[:-2])
+				else:
+					#for all the other non fk fields, get its value
+					fields.append(getattr(act, field.name))
 
-		#RespProposModel (3 respPropos)
-		for index in xrange(1,4):
-			index=str(index)
-			try:
-				act_list.append(getattr(act, "prelexRespProposId"+index).respPropos)
-				act_list.append(getattr(act, "prelexRespProposId"+index).nationResp.nationResp)
-				act_list.append(getattr(act, "prelexRespProposId"+index).euGroupResp.euGroupResp)
-			except Exception, e:
-				print "exception", e
+		#Opal
+		np_instances=NP.objects.filter(act_ids=act_ids)
+		np_vars={"case_nb":"", "np":"", "act_type":"", "act_date":""}
+		for np_instance in np_instances:
+			for np_var in np_vars:
+				np_vars[np_var]+=getattr(np_instance, np_var)+"; "
+		for np_var in np_vars:
+			fields.append(np_vars[np_var][:-2])
 
-		acts_list.append(act_list)
+		acts.append(fields)
 
-	return acts_list
+	return acts
 
 
-def sort_acts(list_of_lists, sort_field_index, sort_direction):
+def sort_acts(acts, sort_field_index, sort_direction):
 	"""
 	FUNCTION
 	sorts a query set according to a sorting field and sort direction
 	PARAMETERS
-	list_of_lists: list of lists of acts to sort
-	sort_field_index: index of the field to use for the sort
-	sort_direction: direction of the sort (ascending or descending)
+	acts: acts to sort [list of model instances]
+	sort_field_index: index of the field to use for the sort [int]
+	sort_direction: direction of the sort (ascending or descending) [string]
 	RETURNS
-	sorted query set
+	acts: sorted acts [list of Act model instances]
 	"""
 	if sort_direction=="ascending":
-		list_of_lists.sort(key = lambda row: row[sort_field_index])
+		acts.sort(key=lambda row: row[sort_field_index])
 	else:
-		list_of_lists.sort(key = lambda row: row[sort_field_index], reverse=True)
-	return list_of_lists
+		acts.sort(key=lambda row: row[sort_field_index], reverse=True)
+	return acts
 
 
-def querySetToCsvFile(headers_list, acts_list, outfile_path):
+def qs_to_csv_file(headers, acts, outfile_path):
 	"""
 	FUNCTION
 	saves a query set in a csv file on the server
 	PARAMETERS
-	headers_list: list of headers
-	acts_list: list of acts
-	outfile_path: path of the file to save
+	headers: list of headers [list of strings]
+	acts: list of acts [list of Act model instances]
+	outfile_path: path of the file to save [string]
 	RETURNS
 	none
 	"""
-	writer = csv.writer(open(outfile_path, 'w'))
+	writer=csv.writer(open(outfile_path, 'w'))
 
 	#write headers
-	writer.writerow(headers_list)
+	writer.writerow(headers)
 
 	#write every acts in the db
-	for act in acts_list:
+	for act in acts:
 		writer.writerow(act)
 
 
-def send_file(request, serverFileName, clientFileName):
+def send_file(request, file_server, file_client):
 	"""
 	FUNCTION
 	downloads a file from the server
 	PARAMETERS
-	request: html request
+	request: html request [HttpRequest object]
+	file_server: name of the file on the server side [string]
+	file_client: name of the file on the client side [string]
 	RETURNS
-	response: html response
+	response: html response [HttpResponse object]
 	SRC
 	http://stackoverflow.com/questions/1930983/django-download-csv-file-using-a-link
 	"""
-	wrapper      = FileWrapper(open(serverFileName))
-	content_type = mimetypes.guess_type(serverFileName)[0]
-	response     = HttpResponse(wrapper,content_type=content_type)
-	response['Content-Length']      = os.path.getsize(serverFileName)
-	response['Content-Disposition'] = "attachment; filename=%s"%clientFileName
+	wrapper     =FileWrapper(open(file_server))
+	content_type=mimetypes.guess_type(file_server)[0]
+	response    =HttpResponse(wrapper,content_type=content_type)
+	response['Content-Length']     =os.path.getize(file_server)
+	response['Content-Disposition']="attachment; file_name=%s"%file_client
 	return response
 
 
 @login_required
-def exportView(request):
+def export(request):
 	"""
 	VIEW
 	displays the export page -> export all the acts in the db regarding the sorting variable
-	template called: export/index.html
+	TEMPLATES
+	export/index.html
 	"""
-	response_dic={}
-	if request.method == 'POST':
-		form = ActsExportForm(request.POST)
+	response={}
+	if request.method=='POST':
+		form=Export(request.POST)
 		if form.is_valid():
 			#for key, value in request.POST.iteritems():
-			sort_field = request.POST['sortFields']
-			sort_direction = request.POST['sortDirection']
-			serverDirectory = settings.MEDIA_ROOT+"/export/"
-			fileName="europeanActs.csv"
+			sort_field=request.POST['sort_fields']
+			sort_direction=request.POST['sort_direction']
+			dir_server=settings.MEDIA_ROOT+"/export/"
+			file_name="europeanActs.csv"
 			#if a file with the same name already exists, we delete it
-			if os.path.exists(serverDirectory+fileName):
-				os.remove(serverDirectory+fileName)
+			if os.path.exists(dir_server+file_name):
+				os.remove(dir_server+file_name)
 			#get the headers
-			act_ids_exclude_list=["id", "filePrelexUrl", "validated"]
-			act_info_exclude_list=["id", "actId", "prelexRespProposId1", "prelexRespProposId2", "prelexRespProposId3", "validated"]
-			headers_list=getHeaders(act_ids_exclude_list, act_info_exclude_list)
+			excl_fields_act_ids=["id", 'src', "url_exists", 'act']
+			excl_fields_act=["id", "url_prelex", "notes", "validated"]
+			headers=get_headers(excl_fields_act_ids, excl_fields_act)
 			#fetch every acts in the db
-			acts_list=fetchValidatedActs(act_ids_exclude_list, act_info_exclude_list)
-			sort_field_index=headers_list.index(vnInfo.variablesNameDic[sort_field])
+			acts=get_validated_acts(excl_fields_act_ids, excl_fields_act)
+			sort_field_index=headers.index(var_name_data.var_name[sort_field])
 			#sort the acts
-			acts_list=sort_acts(acts_list, sort_field_index, sort_direction)
+			acts=sort_acts(acts, sort_field_index, sort_direction)
 			#save into csv file
-			querySetToCsvFile(headers_list, acts_list, serverDirectory+fileName)
+			qs_to_csv_file(headers, acts, dir_server+file_name)
 			print "csv export"
-			return send_file(request, serverDirectory+fileName, fileName)
+			return send_file(request, dir_server+file_name, file_name)
 		else:
 			if 'iframe' in request.POST:
-				response_dic['form_errors']=  dict([(k, form.error_class.as_text(v)) for k, v in form.errors.items()])
-				return HttpResponse(simplejson.dumps(response_dic), mimetype="application/json")
+				response['form_errors']= dict([(k, form.error_class.as_text(v)) for k, v in form.errors.items()])
+				return HttpResponse(simplejson.dumps(response), mimetype="application/json")
 			else:
-				response_dic['form']=form
+				response['form']=form
 	#GET
 	else:
 		#fill the hidden input field with the number of acts to export
-		response_dic["acts_nb"]=ActsInformationModel.objects.filter(validated = 1).count()
+		response["acts_nb"]=Act.objects.filter(validated=2).count()
 
 	#unbound forms
-	if "form" not in response_dic:
-		response_dic['form']= ActsExportForm()
+	if "form" not in response:
+		response['form']=Export()
 
 	#displays the page (GET) or POST if javascript disabled
-	return render_to_response('export/index.html', response_dic, context_instance=RequestContext(request))
+	return render_to_response('export/index.html', response, context_instance=RequestContext(request))

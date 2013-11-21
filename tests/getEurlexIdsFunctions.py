@@ -5,36 +5,36 @@ get the ids from Eurlex
 import urllib
 import re
 from bs4 import BeautifulSoup
-import configurationFile as conf
+import config_file as conf
 
 
-def getEurlexUrl(noCelex):
+def get_url_eurlex(act):
 	"""
 	FUNCTION
-	returns the eurlex url
+	return the eurlex url
 	PARAMETERS
-	noCelex: noCelex variable
+	act: act variable
 	RETURN
 	url of the eurlex page
 	"""
 	#http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CELEX:32006R1921:EN:NOT
-	#~ dummyUrl="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CELEX:NOCELEX:EN:NOT"
-	dummyUrl=conf.eurlexUrl
-	dummyUrl=dummyUrl.replace("NOCELEX", noCelex, 1)
-	return dummyUrl
+	#~ url="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CELEX:NOCELEX:EN:NOT"
+	url=conf.url_eurlex
+	url=url.replace("NOCELEX", act, 1)
+	return url
 
 
-def getEurlexUrlContent(url):
+def get_url_content_eurlex(url):
 	"""
 	FUNCTION
-	checks if the eurlex url exists and return its content
+	check if the eurlex url exists and return its content
 	PARAMETERS
 	url: eurlex url
 	RETURN
 	content of the page if the url exists and false otherwise
 	"""
 	try:
-		soup = BeautifulSoup(urllib.urlopen(url))
+		soup=BeautifulSoup(urllib.urlopen(url))
 		if(soup.title.string=='EUR-Lex - Simple search'):
 			return False
 		else:
@@ -43,26 +43,26 @@ def getEurlexUrlContent(url):
 		return False
 
 
-def getEurlexIdFromEurlex(soup):
+def get_no_celex(soup):
 	"""
 	FUNCTION
-	gets noCelex from eurlex
+	get act from eurlex
 	PARAMETERS
 	soup: eurlex url content
 	RETURN
-	noCelex
+	act
 	"""
 	return soup.title.string.split("-")[2].strip()
 
 
-def getOeilIdsFromEurlex(soup):
+def get_nos_unique(soup):
 	"""
 	FUNCTION
-	gets oeil ids from eurlex
+	get oeil ids from eurlex
 	PARAMETERS
 	soup: eurlex url content
 	RETURN
-	oeil ids (noUniqueType, noUniqueAnnee, noUniqueChrono)
+	oeil ids (no_unique_type, no_unique_annee, no_unique_chrono)
 	"""
 	try:
 		oldOeilUrl=soup.find(text="European Parliament - Legislative observatory").findParent().findParent()['href']
@@ -70,112 +70,112 @@ def getOeilIdsFromEurlex(soup):
 		#http://www.europarl.europa.eu/oeil/FindByProcnum.do?lang=2&procnum=COD/2005/0223
 		
 		oldOeilUrl=oldOeilUrl[oldOeilUrl.rfind('='):][1:].split("/")
-		noUniqueType=oldOeilUrl[0].upper()
-		#~ print 'noUniqueType (eurlex):', noUniqueType
-		noUniqueAnnee=oldOeilUrl[1]
-		#~ print 'noUniqueAnnee (eurlex):', noUniqueAnnee
-		tempNoUniqueChrono=oldOeilUrl[2]
-		#~ print "tempNoUniqueChrono (eurlex):", tempNoUniqueChrono
-		beginIndex=0
+		no_unique_type=oldOeilUrl[0].upper()
+		#~ print 'no_unique_type (eurlex):', no_unique_type
+		no_unique_annee=oldOeilUrl[1]
+		#~ print 'no_unique_annee (eurlex):', no_unique_annee
+		no_unique_chrono_temp=oldOeilUrl[2]
+		#~ print "no_unique_chrono_temp (eurlex):", no_unique_chrono_temp
+		index_start=0
 		#we remove the 0s at the beginning
-		for character in tempNoUniqueChrono:
+		for character in no_unique_chrono_temp:
 			if character=="0":
-				beginIndex+=1
+				index_start+=1
 			else:
 				break
-		noUniqueChrono=tempNoUniqueChrono[beginIndex:]
-		#~ print 'noUniqueChrono (eurlex):', noUniqueChrono
+		no_unique_chrono=no_unique_chrono_temp[index_start:]
+		#~ print 'no_unique_chrono (eurlex):', no_unique_chrono
 	except:
 		try:
-			oeilIds=soup.find(text="Procedure number:").findNext('br').next.strip()
-			#~ print "oeilIds (eurlex):", oeilIds
-			oeilIds=oeilIds.split("(")
-			noUniqueType=oeilIds[0].strip().upper()
-			#~ print 'noUniqueType (eurlex):', noUniqueType
-			oeilIds=oeilIds[1].split(")")
-			noUniqueAnnee=oeilIds[0]
-			#~ print 'noUniqueAnnee (eurlex):', noUniqueAnnee
-			tempNoUniqueChrono=oeilIds[1].strip()
-			#~ print "tempNoUniqueChrono (eurlex):", tempNoUniqueChrono
+			ids_oeil=soup.find(text="Procedure number:").findNext('br').next.strip()
+			#~ print "ids_oeil (eurlex):", ids_oeil
+			ids_oeil=ids_oeil.split("(")
+			no_unique_type=ids_oeil[0].strip().upper()
+			#~ print 'no_unique_type (eurlex):', no_unique_type
+			ids_oeil=ids_oeil[1].split(")")
+			no_unique_annee=ids_oeil[0]
+			#~ print 'no_unique_annee (eurlex):', no_unique_annee
+			no_unique_chrono_temp=ids_oeil[1].strip()
+			#~ print "no_unique_chrono_temp (eurlex):", no_unique_chrono_temp
 			#we remove the 0s at the beginning
-			beginIndex=0
-			for character in tempNoUniqueChrono:
+			index_start=0
+			for character in no_unique_chrono_temp:
 				if character=="0":
-					beginIndex+=1
+					index_start+=1
 				else:
 					break
-			noUniqueChrono=tempNoUniqueChrono[beginIndex:]
-			#~ print 'noUniqueChrono (eurlex):', noUniqueChrono
+			no_unique_chrono=no_unique_chrono_temp[index_start:]
+			#~ print 'no_unique_chrono (eurlex):', no_unique_chrono
 		except:
-			noUniqueType=None
-			noUniqueAnnee=None
-			noUniqueChrono=None
+			no_unique_type=None
+			no_unique_annee=None
+			no_unique_chrono=None
 			print "no oeil page (eurlex)"
 	
-	return noUniqueType, noUniqueAnnee, noUniqueChrono
+	return no_unique_type, no_unique_annee, no_unique_chrono
 
 
-def getPrelexIdsFromEurlex(soup):
+def get_proposs(soup):
 	"""
 	FUNCTION
-	gets prelex ids from eurlex
+	get prelex ids from eurlex
 	PARAMETERS
 	soup: eurlex url content
 	RETURN
-	prelex ids (proposOrigine, proposAnnee, proposChrono)
+	prelex ids (propos_origine, propos_annee, propos_chrono)
 	"""
 	try:
-		prelexIds=soup.find(text=re.compile("Proposal Commission")).split(";")[1].strip()
-		#~ print "prelexIds (eurlex):", prelexIds
-		prelexIds=prelexIds.split(" ")
-		proposOrigine=prelexIds[0].upper()
-		if proposOrigine=="COMMITTEE":
-			proposOrigine="COM"
-		prelexIds=prelexIds[1].split("/")
-		proposAnnee=prelexIds[0]
-		tempProposChrono=prelexIds[1]
+		ids_prelex=soup.find(text=re.compile("Proposal Commission")).split(";")[1].strip()
+		#~ print "ids_prelex (eurlex):", ids_prelex
+		ids_prelex=ids_prelex.split(" ")
+		propos_origine=ids_prelex[0].upper()
+		if propos_origine=="COMMITTEE":
+			propos_origine="COM"
+		ids_prelex=ids_prelex[1].split("/")
+		propos_annee=ids_prelex[0]
+		propos_chrono_temp=ids_prelex[1]
 		#we remove the 0s at the beginning
-		beginIndex=0
-		for character in tempProposChrono:
+		index_start=0
+		for character in propos_chrono_temp:
 			if character=="0":
-				beginIndex+=1
+				index_start+=1
 			else:
 				break
-		proposChrono=tempProposChrono[beginIndex:]
+		propos_chrono=propos_chrono_temp[index_start:]
 	except:
-		proposOrigine=None
-		proposAnnee=None
-		proposChrono=None
+		propos_origine=None
+		propos_annee=None
+		propos_chrono=None
 		print "no prelex page (eurlex)"
 		
-	return proposOrigine, proposAnnee, proposChrono
+	return propos_origine, propos_annee, propos_chrono
 
 
-def getAllEurlexIds(soup):
+def get_ids_eurlex(soup):
 	"""
 	FUNCTION
-	gets all the ids from the eurlex url
+	get all the ids from the eurlex url
 	PARAMETERS
 	soup: eurlex url content
 	RETURN
 	dictionary of retrieved data from eurlex
 	"""
-	dataDic={}
+	fields={}
 	
-	#noCelex
-	dataDic['eurlexNoCelex']=getEurlexIdFromEurlex(soup)
-	print "eurlexNoCelex:", dataDic['eurlexNoCelex']
+	#act
+	fields['no_celex']=get_no_celex(soup)
+	print "no_celex:", fields['no_celex']
 	
 	#oeil ids
-	dataDic['eurlexNoUniqueType'], dataDic['eurlexNoUniqueAnnee'], dataDic['eurlexNoUniqueChrono']=getOeilIdsFromEurlex(soup)
-	print 'eurlexNoUniqueType:', dataDic['eurlexNoUniqueType']
-	print 'eurlexNoUniqueAnnee:', dataDic['eurlexNoUniqueAnnee']
-	print 'eurlexNoUniqueChrono:', dataDic['eurlexNoUniqueChrono']
+	fields['no_unique_type'], fields['no_unique_annee'], fields['no_unique_chrono']=get_nos_unique(soup)
+	print 'no_unique_type:', fields['no_unique_type']
+	print 'no_unique_annee:', fields['no_unique_annee']
+	print 'no_unique_chrono:', fields['no_unique_chrono']
 		
 	#prelex ids
-	dataDic['eurlexProposOrigine'], dataDic['eurlexProposAnnee'], dataDic['eurlexProposChrono']= getPrelexIdsFromEurlex(soup)
-	print 'eurlexProposOrigine:', dataDic['eurlexProposOrigine']
-	print 'eurlexProposAnnee:', dataDic['eurlexProposAnnee']
-	print 'eurlexProposChrono:', dataDic['eurlexProposChrono']
+	fields['propos_origine'], fields['propos_annee'], fields['propos_chrono']=get_proposs(soup)
+	print 'propos_origine:', fields['propos_origine']
+	print 'propos_annee:', fields['propos_annee']
+	print 'propos_chrono:', fields['propos_chrono']
 		
-	return dataDic
+	return fields

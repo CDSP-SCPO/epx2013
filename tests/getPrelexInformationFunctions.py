@@ -1,19 +1,19 @@
 # -*- coding: utf-8 -*-
 """
-get the information from Prelex (fields for the statistical analysis)
+get the data from Prelex (fields for the statistical analysis)
 """
 import re
 from bs4 import BeautifulSoup
 #dg codes
-from actsInformationRetrieval.models import DGCodeModel, DGFullNameModel, RespProposModel
+from act.models import DGSigle, DG, Person
 import dateFunctions as dateFct
 from datetime import datetime
 
 
-def getPrelexAdoptionByCommissionTable(soup):
+def get_adopt_com_table(soup):
 	"""
 	FUNCTION
-	gets the html content of the table tag "Adoption by Commission" from the prelex url
+	get the html content of the table tag "Adoption by Commission" from the prelex url
 	PARAMETERS
 	soup: prelex url content
 	RETURN
@@ -26,113 +26,113 @@ def getPrelexAdoptionByCommissionTable(soup):
 		return None
 
 
-def getPrelexAdoptionProposOrigine(soup, proposOrigine):
+def get_adopt_propos_origineine(soup, propos_origine):
 	"""
 	FUNCTION
-	gets the prelexAdoptionProposOrigine variable from the prelex url
+	get the adopt_propos_origine variable from the prelex url
 	PARAMETERS
 	soup: prelex url content
 	RETURN
-	prelexAdoptionProposOrigine
+	adopt_propos_origine
 	"""
 	try:
-		adoptionProposOrigine=None
-		if proposOrigine=="COM":
-			adoptionProposOrigine=soup.find("a", text=re.compile("Adoption by Commission")).findNext('br').next.strip()
-		if proposOrigine=="JAI":
-			adoptionProposOrigine=getPrelexTransmissionCouncil(soup, proposOrigine)
-		if proposOrigine=="CONS":
+		adopt_propos_origine=None
+		if propos_origine=="COM":
+			adopt_propos_origine=soup.find("a", text=re.compile("Adoption by Commission")).findNext('br').next.strip()
+		if propos_origine=="JAI":
+			adopt_propos_origine=get_transm_council(soup, propos_origine)
+		if propos_origine=="CONS":
 			print "TODO: extraction pdf almost done (see tests)"
 
 		#transform dates to the iso format (YYYY-MM-DD)
-		if adoptionProposOrigine!=None:
-			year, month, day=dateFct.splitFrenchFormatDate(adoptionProposOrigine)
-			adoptionProposOrigine=dateFct.dateToIso(year, month, day)
+		if adopt_propos_origine!=None:
+			year, month, day=dateFct.splitFrenchFormatDate(adopt_propos_origine)
+			adopt_propos_origine=dateFct.dateToIso(year, month, day)
 
-		return adoptionProposOrigine
+		return adopt_propos_origine
 	except:
-		print "no prelexAdoptionProposOrigine!"
+		print "no adopt_propos_origine!"
 		return None
 
 #~ Date in front of "Adoption by Commission"
 #~ not NULL
 #~ AAAA-MM-JJ format
-#~ ProposOrigine = COM -> date adoption de la proposition par la Commission
-#~ ProposOrigine = JAI -> TransmissionConseil date
-#~ EM -> not processed because appears only when noUniqueType=CS which concerns non definitive acts (not processed)
-#~ ProposOrigine = CONS -> date in pdf document (council path link)
-#~ TODO: case where proposOrigine=CONS
+#~ ProposOrigine=COM -> date adoption de la proposition par la Commission
+#~ ProposOrigine=JAI -> TransmissionConseil date
+#~ EM -> not processed because appears only when no_unique_type=CS which concerns non definitive acts (not processed)
+#~ ProposOrigine=CONS -> date in pdf document (council path link)
+#~ TODO: case where propos_origine=CONS
 
 
-def getPrelexComProc(soup, proposOrigine):
+def get_com_proc(soup, propos_origine):
 	"""
 	FUNCTION
-	gets the prelexComProc variable from the prelex url
+	get the com_proc variable from the prelex url
 	PARAMETERS
 	soup: prelex url content
 	RETURN
-	prelexComProc
+	com_proc
 	"""
 	try:
-		if proposOrigine== "COM":
+		if propos_origine=="COM":
 			return soup.find("td", text="Decision mode:").findNext('td').get_text().strip()
 	except:
-		print "no prelexComProc!"
+		print "no com_proc!"
 	return None
 
 #~ in front of "Decision mode"
 #~ Possible values:
 #~ "Oral Procedure", "Written Procedure", "Empowerment procedure"
-#~ Null if ProposOrigine != COM
+#~ Null if ProposOrigine !=COM
 
 
-def saveRespProposAndGetRespProposId(respPropos):
+def saveRespProposAndGetresp_(person):
 	"""
 	FUNCTION
-	save respPropos if doesn't exist in the db yet and get respProposId
+	save person if doesn't exist in the db yet and get personId
 	PARAMETERS
-	respPropos: full name of respPropos
+	person: full name of person
 	RETURN
-	respProposId: id of respPropos
+	personId: id of person
 	"""
 	try:
-		#checks if respPropos already exists in the db
-		return RespProposModel.objects.get(respPropos=respPropos).id
+		#check if person already exists in the db
+		return Person.objects.get(person=person).id
 	except:
-		#respPropos doesn't exist in the db yet -> we add it in the table
-		respProposDB=RespProposModel(respPropos=respPropos)
-		respProposDB.save()
-		print "respProposDB.id", respProposDB.id
-		#we get respPropos
-		return respProposDB.id
+		#person doesn't exist in the db yet -> we add it in the table
+		personDB=Person(person=person)
+		personDB.save()
+		print "personDB.id", personDB.id
+		#we get person
+		return personDB.id
 
 	return None
 
 
-def getPrelexJointlyResponsibles(soup):
+def get_jointly_resps(soup):
 	"""
 	FUNCTION
-	gets the jointly responsible persons (prelexDGProposition2 and prelexRespPropos2 (+id) or prelexRespPropos3 (+id)) from the prelex url
+	get the jointly responsible persons (dg_2 and resp_2 (+id) or RespPropos3 (+id)) from the prelex url
 	PARAMETERS
 	soup: prelex url content
 	RETURN
-	list of jointly responsible persons (prelexDGProposition2 and prelexRespProposId2 or prelexRespProposId3)
+	list of jointly responsible persons (dg_2 and resp_2 or resp_3)
 	"""
-	prelexDGProposition2=prelexRespProposId2=prelexRespPropos2=None
+	dg_2=resp_2=resp_2=None
 	try:
 		#~ http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=en&DosId=191926
-		jointlyResponsibles=soup.findAll("td", text="Jointly responsible")
-		#prelexDGProposition2
-		prelexDGProposition2=specialDgSearch(jointlyResponsibles[0].findNext('td').get_text().strip())
-		#prelexRespPropos2 or 3
-		prelexRespPropos2=jointlyResponsibles[1].findNext('td').get_text().strip()
-		#get the id from RespProposModel
-		prelexRespProposId2=saveRespProposAndGetRespProposId(prelexRespPropos2)
+		jointly_resps=soup.findAll("td", text="Jointly responsible")
+		#dg_2
+		dg_2=specialDgSearch(jointly_resps[0].findNext('td').get_text().strip())
+		#resp_2 or 3
+		resp_2=jointly_resps[1].findNext('td').get_text().strip()
+		#get the id from Person
+		resp_2=saveRespProposAndGetresp_(resp_2)
 
 	except:
-		print "no prelexDGProposition2, prelexRespProposId2, prelexRespPropos2"
+		print "no dg_2, resp_2, resp_2"
 
-	return prelexDGProposition2, prelexRespProposId2, prelexRespPropos2
+	return dg_2, resp_2, resp_2
 
 #in front of "Jointly responsible"
 #can be Null
@@ -259,37 +259,37 @@ def specialDgSearch(dg):
 	PARAMETERS
 	dg: primarily responsible
 	RETURN
-	short name or dg itself if it is not associated to a dgCode in the db
+	short name or dg itself if it is not associated to a dg_sigle in the db
 	"""
-	dgCode=dg
+	dg_sigle=dg
 	try:
-		#if there is a match in the db -> return dgCode
-		dgCode=DGFullNameModel.objects.get(dgFullName=dg).dgCode_id
-		dgCode=DGCodeModel.objects.get(id=dgCode).dgCode
+		#if there is a match in the db -> return dg_sigle
+		dg_sigle=DG.objects.get(dg=dg).dg_sigle_id
+		dg_sigle=DGSigle.objects.get(id=dg_sigle).dg_sigle
 	except:
 		print "Full name not stored in db"
 
-	print "dgCode", dgCode
-	return dgCode
+	print "dg_sigle", dg_sigle
+	return dg_sigle
 
 
-def getPrelexDGProposition1(soup):
+def get_dg_1(soup):
 	"""
 	FUNCTION
-	gets the prelexDGProposition1 variable from the prelex url
+	get the dg_1 variable from the prelex url
 	PARAMETERS
 	soup: prelex url content
 	RETURN
-	prelexDGProposition1
+	dg_1
 	"""
 	try:
-		#dgProposition
+		#dg
 		dg=soup.find("td", text="Primarily responsible").findNext('td').get_text().strip()
 		specialDg=specialDgSearch(dg)
-		#the variable corresponds to a real person
+		#the variable corresponds to a real personon
 		if specialDg==None:
 			return dg
-		#it can be associated to a dgCode
+		#it can be associated to a dg_sigle
 		#~ http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=en&DosId=111863
 		return specialDg
 
@@ -300,226 +300,226 @@ def getPrelexDGProposition1(soup):
 #can be Null
 
 
-def getPrelexRespProposList(soup):
+def get_resps(soup):
 	"""
 	FUNCTION
-	gets the responsible(s) from the prelex url (prelexRespProposId1, prelexRespProposId2, prelexRespProposId3)
+	get the responsible(s) from the prelex url (resp_1, resp_2, resp_3)
 	PARAMETERS
 	soup: prelex url content
 	RETURN
-	respProposList: list of responsible(s) with ids and full names
+	persons: list of responsible(s) with ids and full names
 	"""
-	respProposList=[]
+	persons=[]
 	for index in range(0, 3):
-		respProposList.append((None, None))
+		persons.append((None, None))
 
 	try:
 		resp=soup.find("td", text="Responsible").findNext('td').get_text().strip()
 		temp=resp.split(";")
 		print "temp responsible", temp
 		#only one responsible
-		respProposList[0][0]=saveRespProposAndGetRespProposId(temp[0].strip())
-		respProposList[0][1]=temp[0].strip()
+		persons[0][0]=saveRespProposAndGetresp_(temp[0].strip())
+		persons[0][1]=temp[0].strip()
 		print "temp responsible 2", temp
 		#two responsibles
 		#~ http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=en&DosId=191554
-		respProposList[1][0]=saveRespProposAndGetRespProposId(temp[1].strip())
-		respProposList[1][1]=temp[1].strip()
+		persons[1][0]=saveRespProposAndGetresp_(temp[1].strip())
+		persons[1][1]=temp[1].strip()
 		print "temp responsible 3", temp
 		#three responsibles
-		respProposList[2][0]=saveRespProposAndGetRespProposId(temp[2].strip())
-		respProposList[2][1]=temp[2].strip()
-		print "respProposList", respProposList
+		persons[2][0]=saveRespProposAndGetresp_(temp[2].strip())
+		persons[2][1]=temp[2].strip()
+		print "persons", persons
 	except:
 		print "no Responsible"
 
-	return respProposList
+	return persons
 
 #~ in front of "Responsible"
 #can be Null
 
 
-def getPrelexTransmissionCouncil(soup, proposOrigine):
+def get_transm_council(soup, propos_origine):
 	"""
 	FUNCTION
-	gets the prelexTransmissionCouncil variable from the prelex url
+	get the transm_council variable from the prelex url
 	PARAMETERS
 	soup: prelex url content
 	RETURN
-	prelexTransmissionCouncil
+	transm_council
 	"""
-	transmissionCouncil=None
+	transm_council=None
 	try:
-		if proposOrigine=="CONS":
-			transmissionCouncil=getPrelexAdoptionProposOrigine(soup, proposOrigine)
+		if propos_origine=="CONS":
+			transm_council=get_adopt_propos_origineine(soup, propos_origine)
 		else:
-			transmissionCouncil=soup.find("a", text=re.compile("Transmission to Council")).findNext('br').next.strip()
+			transm_council=soup.find("a", text=re.compile("Transmission to Council")).findNext('br').next.strip()
 	except:
-		print "pb transmissionCouncil"
+		print "pb transm_council"
 
 	#transform dates to the iso format (YYYY-MM-DD)
-	if transmissionCouncil!=None:
-		year, month, day=dateFct.splitFrenchFormatDate(transmissionCouncil)
-		transmissionCouncil=dateFct.dateToIso(year, month, day)
-	return transmissionCouncil
+	if transm_council!=None:
+		year, month, day=dateFct.splitFrenchFormatDate(transm_council)
+		transm_council=dateFct.dateToIso(year, month, day)
+	return transm_council
 
 #date in front of "Transmission to Council"
 #not Null (except blank page -> error on page)
 #AAAA-MM-JJ format
-#ProposOrigine = CONS -> AdoptionProposOrigine
+#ProposOrigine=CONS -> AdoptionProposOrigine
 
 
-def getPrelexNbPointB(soup, proposOrigine):
+def get_nb_point_b(soup, propos_origine):
 	"""
 	FUNCTION
-	gets the prelexNbPointB variable from the prelex url
+	get the nb_point_b variable from the prelex url
 	PARAMETERS
 	soup: prelex url content
 	RETURN
-	prelexNbPointB
+	nb_point_b
 	"""
 	try:
-		if proposOrigine=="CONS" or proposOrigine=="BCE":
+		if propos_origine=="CONS" or propos_origine=="BCE":
 			return None
 		return len(soup.findAll(text=re.compile('ITEM "B"')))
 	except:
-		print "no prelexNbPointB!"
+		print "no nb_point_b!"
 		return None
 
 #~ in front of "COUNCIL AGENDA": counts the number of 'ITEM "B"' on the page
 #~ not NULL
 #~ De 0 a 20
-#~ if proposOrigine=="CONS" or "BCE", filled manually
+#~ if propos_origine=="CONS" or "BCE", filled manually
 
 
-def getPrelexConsB(soup, proposOrigine):
+def get_cons_b(soup, propos_origine):
 	"""
 	FUNCTION
-	gets the prelexConsB variable from the prelex url
+	get the cons_b variable from the prelex url
 	PARAMETERS
 	soup: prelex url content
 	RETURN
-	prelexConsB
+	cons_b
 	"""
 	try:
-		if proposOrigine!="CONS":
-			consB=""
+		if propos_origine!="CONS":
+			cons_b_temp=""
 			for tables in soup.findAll(text=re.compile('ITEM "B" ON COUNCIL AGENDA')):
-				consB+=tables.findParent('table').find(text=re.compile("SUBJECT")).findNext("font", {"size":-2}).get_text().strip()+'; '
-			if consB=="":
+				cons_b_temp+=tables.findParent('table').find(text=re.compile("SUBJECT")).findNext("font", {"size":-2}).get_text().strip()+'; '
+			if cons_b_temp=="":
 				return None
-			return consB[:-2]
+			return cons_b_temp[:-2]
 		return None
 	except:
-		print "no prelexNbPointB!"
+		print "no nb_point_b!"
 		return None
 
 #can be Null
 #in front of SUBJECT, only if the act is processed at B point (preceded by 'ITEM "B" ON COUNCIL AGENDA')
 #concatenate all the values, even if redundancy
-#~ if proposOrigine=="CONS", filled manually
+#~ if propos_origine=="CONS", filled manually
 
 
-def getPrelexAdoptionConseil(soup, suite2LecturePE, proposSplittee, nbLectures):
+def get_adopt_conseil(soup, suite_2e_lecture_pe, split_propos, nb_lectures):
 	"""
 	FUNCTION
-	gets the prelexAdoptionConseil variable from the prelex url
+	get the adopt_conseil variable from the prelex url
 	PARAMETERS
 	soup: prelex url content
 	RETURN
-	prelexAdoptionConseil
+	adopt_conseil
 	"""
-	adoptionCouncil=None
+	adopt_conseil=None
 	# if there is no  2d Lecture at PE
-	if suite2LecturePE==0:
-		actsList=["Formal adoption by Council", "Adoption common position", "Council approval 1st rdg"]
-		for act in actsList:
+	if suite_2e_lecture_pe==0:
+		acts=["Formal adoption by Council", "Adoption common position", "Council approval 1st rdg"]
+		for act in acts:
 			try:
-				adoptionCouncil=soup.find("a", text=re.compile(act)).findNext('br').next.strip()
+				adopt_conseil=soup.find("a", text=re.compile(act)).findNext('br').next.strip()
 				break
 			except:
 				print "pb", act
-	# if Suite2LecturePE=Y and proposSplittee=N
-	elif proposSplittee==0:
-		if nbLectures==2:
+	# if Suite2LecturePE=Y and split_propos=N
+	elif split_propos==0:
+		if nb_lectures==2:
 			try:
 				#~ http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=en&DosId=156619
-				dateTableSoup=soup.find("b", text="EP opinion 2nd rdg").findParent("table")
+				date_table_soup=soup.find("b", text="EP opinion 2nd rdg").findParent("table")
 				#check table contains "Approval without amendment"
-				approval=dateTableSoup.find(text="Approval without amendment")
+				approval=date_table_soup.find(text="Approval without amendment")
 				#check next table title is "Signature by EP and Council"
-				nextTableTitle=dateTableSoup.findNext("table").find(text="Signature by EP and Council")
+				next_table_title=date_table_soup.findNext("table").find(text="Signature by EP and Council")
 				#if conditions are met, then get the date
-				adoptionCouncil=dateTableSoup.find("b").get_text()
+				adopt_conseil=date_table_soup.find("b").get_text()
 			except:
-				print "pb AdoptionConseil (case proposSplittee==0)"
-		elif nbLectures==3:
+				print "pb AdoptionConseil (case split_propos==0)"
+		elif nb_lectures==3:
 			#~ http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=en&DosId=137644
-			dateTableSoup=soup.find("b", text="Council decision at 3rd rdg").findParent("table")
+			date_table_soup=soup.find("b", text="Council decision at 3rd rdg").findParent("table")
 			#check next table title is "Signature by EP and Council"
-			nextTableTitle=dateTableSoup.findNext("table").find(text="Signature by EP and Council")
+			next_table_title=date_table_soup.findNext("table").find(text="Signature by EP and Council")
 			#if conditions are met, then get the date
-			adoptionCouncil=dateTableSoup.find("b").get_text()
+			adopt_conseil=date_table_soup.find("b").get_text()
 			#~ return soup.find("a", text=re.compile("Council decision at 3rd rdg")).findNext('br').next.strip()
 
 		#transform dates to the iso format (YYYY-MM-DD)
-	if adoptionCouncil!=None:
-		year, month, day=dateFct.splitFrenchFormatDate(adoptionCouncil)
-		adoptionCouncil=dateFct.dateToIso(year, month, day)
-	return adoptionCouncil
+	if adopt_conseil!=None:
+		year, month, day=dateFct.splitFrenchFormatDate(adopt_conseil)
+		adopt_conseil=dateFct.dateToIso(year, month, day)
+	return adopt_conseil
 
 #~ date in front of "Formal adoption by Council" or "Adoption common position" or "Council approval 1st rdg"
 #not Null
 #~ AAAA-MM-JJ format
 
-#~ quand Suite2LecturePE= Y ET quand ProposSplittee= N and nbLectures=2. Dans ce cas, la date AdoptionConseil= la date qui se trouve en face de la ligne « EP Opinion 2nd rdg » (vérifier qu’à la ligne qui suit dans le même carré, on trouve « Approval without amendment » et que le titre du carré qui suit est bien « Signature by EP and Council »
+#~ quand Suite2LecturePE=Y ET quand ProposSplittee=N and nb_lectures=2. Dans ce cas, la date AdoptionConseil=la date qui se trouve en face de la ligne « EP Opinion 2nd rdg » (vérifier qu’à la ligne qui suit dans le même carré, on trouve « Approval without amendment » et que le titre du carré qui suit est bien « Signature by EP and Council »
 #~ Exemple : http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=en&DosId=156619
 
-#~ quand Suite2LecturePE= Y ET quand ProposSplittee= N and nbLectures=3 -> date in front of Council decision at 3rd rdg (vérifier que le titre du carré qui suit est bien « Signature by EP and Council »)
+#~ quand Suite2LecturePE=Y ET quand ProposSplittee=N and nb_lectures=3 -> date in front of Council decision at 3rd rdg (vérifier que le titre du carré qui suit est bien « Signature by EP and Council »)
 #~ Example: http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=en&DosId=137644
 
-# if Suite2LecturePE=Y and proposSplittee=Y -> to fill manually
+# if Suite2LecturePE=Y and split_propos=Y -> to fill manually
 
 
-def getPrelexNbPointA(soup, proposOrigine):
+def get_nb_point_a(soup, propos_origine):
 	"""
 	FUNCTION
-	gets the prelexNbPointA variable from the prelex url
+	get the nb_point_a variable from the prelex url
 	PARAMETERS
 	soup: prelex url content
 	RETURN
-	prelexNbPointA
+	nb_point_a
 	"""
 	try:
-		if proposOrigine=="CONS" or proposOrigine=="BCE":
+		if propos_origine=="CONS" or propos_origine=="BCE":
 			return None
 		return len(soup.findAll(text=re.compile('ITEM "A"')))
 	except:
-		print "no prelexNbPointA!"
+		print "no nb_point_a!"
 		return None
 
 #~ in front of "COUNCIL AGENDA": counts the number of 'ITEM "A"' on the page
 #~ not NULL
 #~ De 0 a 20
-#~ if proposOrigine=="CONS" or "BCE", filled manually
+#~ if propos_origine=="CONS" or "BCE", filled manually
 
 
-def getPrelexCouncilA(soup):
+def get_council_a(soup):
 	"""
 	FUNCTION
-	gets the prelexCouncilA variable from the prelex url
+	get the council_a variable from the prelex url
 	PARAMETERS
 	soup: prelex url content
 	RETURN
-	prelexCouncilA
+	council_a
 	"""
 	try:
-		councilA=""
+		council_a_temp=""
 		for tables in soup.findAll(text=re.compile('ITEM "A" ON COUNCIL AGENDA')):
-			councilA+=tables.findParent('table').find(text=re.compile("SUBJECT")).findNext("font", {"size":-2}).get_text().strip()+'; '
-		return councilA[:-2]
+			council_a_temp+=tables.findParent('table').find(text=re.compile("SUBJECT")).findNext("font", {"size":-2}).get_text().strip()+'; '
+		return council_a_temp[:-2]
 	except:
-		print "no prelexCouncilA!"
+		print "no council_a!"
 		return None
 
 #not Null
@@ -527,20 +527,20 @@ def getPrelexCouncilA(soup):
 #concatenate all the values, even if redundancy
 
 
-def getPrelexNombreLectures(soup, noUniqueType, proposSplittee):
+def get_nb_lectures(soup, no_unique_type, split_propos):
 	"""
 	FUNCTION
-	gets the prelexNombreLectures variable from the prelex url
+	get the nb_lectures variable from the prelex url
 	PARAMETERS
 	soup: prelex url content
 	RETURN
-	prelexNombreLectures
+	nb_lectures
 	"""
-	if noUniqueType!="COD":
+	if no_unique_type!="COD":
 		return None
 
 	#proposition not splited
-	if proposSplittee==0:
+	if split_propos==0:
 		if soup.find(text=re.compile('EP opinion 3rd rdg'))>0 or soup.find(text=re.compile('EP decision 3rd rdg'))>0 or soup.find(text=re.compile('EP decision on 3rd rdg'))>0:
 			return 3
 		if soup.find(text=re.compile('EP opinion 2nd rdg'))>0:
@@ -560,7 +560,7 @@ def getPrelexNombreLectures(soup, noUniqueType, proposSplittee):
 
 #Possible values
 #1, 2, 3 ou NULL
-#~ NULL if NoUniqueType != COD
+#~ NULL if NoUniqueType !=COD
 #~ if NoUniqueType=COD and if the proposition is not splitted:
 	#~ if page contains "EP opinion 3rd rdg" or "EP decision 3rd rdg" -> nombreLectures=3
 	#~ if page contains "EP opinion 2nd rdg" -> nombreLectures=2
@@ -573,21 +573,21 @@ def getPrelexNombreLectures(soup, noUniqueType, proposSplittee):
 	#~ otherwise error
 
 
-def getPrelexDateDiff(date1, date2):
+def get_date_diff(date_1, date_2):
 	"""
 	FUNCTION
 	compute the difference between two dates
 	PARAMETERS
-	date1: first date
-	date2: second date
+	date_1: first date
+	date_2: second date
 	RETURN
 	difference between the two dates in parameters
 	"""
-	if date1!=None and date2!=None:
+	if date_1!=None and date_2!=None:
 		#transform dates to the iso format (YYYY-MM-DD)
-		date1 = datetime.strptime(date1, "%Y-%m-%d")
-		date2 = datetime.strptime(date2, "%Y-%m-%d")
-		return (date1 - date2).days
+		date_1=datetime.strptime(date_1, "%Y-%m-%d")
+		date_2=datetime.strptime(date_2, "%Y-%m-%d")
+		return (date_1 - date_2).days
 	return None
 
 #DureeAdoptionTrans (TransmissionConseil - AdoptionProposOrigine)
@@ -598,108 +598,108 @@ def getPrelexDateDiff(date1, date2):
 
 
 
-def getPrelexInformation(soup, idsDataDic):
+def get_data_prelex(soup, idsDataDic):
 	"""
 	FUNCTION
-	gets all the information from the prelex url
+	get all the data from the prelex url
 	PARAMETERS
 	soup: prelex url content
 	RETURN
 	dictionary of retrieved data from prelex
 	"""
-	dataDic={}
+	fields={}
 
-	#prelexAdoptionProposOrigine
-	dataDic['prelexAdoptionProposOrigine']=getPrelexAdoptionProposOrigine(soup, idsDataDic['prelexProposOrigine'])
-	print "prelexAdoptionProposOrigine:", dataDic['prelexAdoptionProposOrigine']
+	#adopt_propos_origine
+	fields['adopt_propos_origine']=get_adopt_propos_origineine(soup, idsDataDic['propos_origine'])
+	print "adopt_propos_origine:", fields['adopt_propos_origine']
 
 	#extract Adoption by Commission table (html content)
-	adoptionByCommissionTableSoup=getPrelexAdoptionByCommissionTable(soup)
-	#~ print "adoptionByCommissionTableSoup", adoptionByCommissionTableSoup
+	adopt_com_table_oup=get_adopt_com_table(soup)
+	#~ print "adopt_com_table_oup", adopt_com_table_oup
 
-	#prelexComProc
-	dataDic['prelexComProc']=getPrelexComProc(adoptionByCommissionTableSoup, idsDataDic['prelexProposOrigine'])
-	print "prelexComProc:", dataDic['prelexComProc']
+	#com_proc
+	fields['com_proc']=get_com_proc(adopt_com_table_oup, idsDataDic['propos_origine'])
+	print "com_proc:", fields['com_proc']
 
-	#jointly responsible persons (prelexDGProposition2 and prelexRespProposId2 or prelexRespProposId3)
-	prelexDGProposition2, prelexRespProposId2, prelexRespPropos2=getPrelexJointlyResponsibles(adoptionByCommissionTableSoup)
+	#jointly responsible persons (dg_2 and resp_2 or resp_3)
+	dg_2, resp_2, resp_2=get_jointly_resps(adopt_com_table_oup)
 
-	#prelexDGProposition1 and prelexDGProposition2
-	dataDic['prelexDGProposition1']=getPrelexDGProposition1(adoptionByCommissionTableSoup)
-	dataDic['prelexDGProposition2']=prelexDGProposition2
-	print "prelexDGProposition1:", dataDic['prelexDGProposition1']
-	print "prelexDGProposition2:", dataDic['prelexDGProposition2']
+	#dg_1 and dg_2
+	fields['dg_1']=get_dg_1(adopt_com_table_oup)
+	fields['dg_2']=dg_2
+	print "dg_1:", fields['dg_1']
+	print "dg_2:", fields['dg_2']
 
-	#prelexRespProposId1, prelexRespPropos1, prelexRespProposId2, prelexRespPropos2, prelexRespProposId3, prelexRespPropos3
-	respProposList=getPrelexRespProposList(adoptionByCommissionTableSoup)
-	dataDic['prelexRespProposId1']=respProposList[0][0]
-	dataDic['prelexRespPropos1']=respProposList[0][1]
-	dataDic['prelexRespProposId2']=respProposList[1][0]
-	dataDic['prelexRespPropos2']=respProposList[1][1]
-	dataDic['prelexRespProposId3']=respProposList[2][0]
-	dataDic['prelexRespPropos3']=respProposList[2][1]
+	#resp_1, RespPropos1, resp_2, resp_2, resp_3, RespPropos3
+	persons=get_resps(adopt_com_table_oup)
+	fields['resp_1']=persons[0][0]
+	fields['RespPropos1']=persons[0][1]
+	fields['resp_2']=persons[1][0]
+	fields['resp_2']=persons[1][1]
+	fields['resp_3']=persons[2][0]
+	fields['RespPropos3']=persons[2][1]
 
-	#jointly responsible (prelexRespProposId2 or prelexRespProposId3)
-	if dataDic['prelexRespProposId2']==None:
-		dataDic['prelexRespProposId2']=prelexRespProposId2
-		dataDic['prelexRespPropos2']=prelexRespPropos2
-	elif dataDic['prelexRespProposId3']==None:
-		dataDic['prelexRespProposId3']=prelexRespProposId2
-		dataDic['prelexRespPropos3']=prelexRespPropos2
+	#jointly responsible (resp_2 or resp_3)
+	if fields['resp_2']==None:
+		fields['resp_2']=resp_2
+		fields['resp_2']=resp_2
+	elif fields['resp_3']==None:
+		fields['resp_3']=resp_2
+		fields['RespPropos3']=resp_2
 
-	print "prelexRespProposId1:", dataDic['prelexRespProposId1']
-	print "prelexRespPropos1:", dataDic['prelexRespPropos1']
-	print "prelexRespProposId2:", dataDic['prelexRespProposId2']
-	print "prelexRespPropos2:", dataDic['prelexRespPropos2']
-	print "prelexRespProposId3:", dataDic['prelexRespProposId3']
-	print "prelexRespPropos3:", dataDic['prelexRespPropos3']
+	print "resp_1:", fields['resp_1']
+	print "RespPropos1:", fields['RespPropos1']
+	print "resp_2:", fields['resp_2']
+	print "resp_2:", fields['resp_2']
+	print "resp_3:", fields['resp_3']
+	print "RespPropos3:", fields['RespPropos3']
 
-	#prelexTransmissionCouncil
-	dataDic['prelexTransmissionCouncil']=getPrelexTransmissionCouncil(soup, idsDataDic['prelexProposOrigine'])
-	print "prelexTransmissionCouncil:", dataDic['prelexTransmissionCouncil']
+	#transm_council
+	fields['transm_council']=get_transm_council(soup, idsDataDic['propos_origine'])
+	print "transm_council:", fields['transm_council']
 
-	#prelexNbPointB
-	dataDic['prelexNbPointB']=getPrelexNbPointB(soup, idsDataDic['prelexProposOrigine'])
-	print "prelexNbPointB:", dataDic['prelexNbPointB']
+	#nb_point_b
+	fields['nb_point_b']=get_nb_point_b(soup, idsDataDic['propos_origine'])
+	print "nb_point_b:", fields['nb_point_b']
 
-	#prelexConsB
-	dataDic['prelexConsB']=getPrelexConsB(soup, idsDataDic['prelexProposOrigine'])
-	print "prelexConsB:", dataDic['prelexConsB']
+	#cons_b
+	fields['cons_b']=get_cons_b(soup, idsDataDic['propos_origine'])
+	print "cons_b:", fields['cons_b']
 
-	#prelexNombreLectures -> ALREADY IN OEIL -> used only for prelexAdoptionConseil!
-	dataDic['prelexNombreLectures']=getPrelexNombreLectures(soup, idsDataDic['prelexNoUniqueType'], idsDataDic['proposSplittee'])
-	#~ print "prelexNombreLectures:", dataDic['prelexNombreLectures']
+	#nb_lectures -> ALREADY IN OEIL -> used only for adopt_conseil!
+	fields['nb_lectures']=get_nb_lectures(soup, idsDataDic['no_unique_type'], idsDataDic['split_propos'])
+	#~ print "nb_lectures:", fields['nb_lectures']
 
-	#prelexAdoptionConseil
-	dataDic['prelexAdoptionConseil']=getPrelexAdoptionConseil(soup, idsDataDic['suite2eLecturePE'], idsDataDic['proposSplittee'], dataDic['prelexNombreLectures'])
-	print "prelexAdoptionConseil:", dataDic['prelexAdoptionConseil']
+	#adopt_conseil
+	fields['adopt_conseil']=get_adopt_conseil(soup, idsDataDic['suite_2e_lecture_pe'], idsDataDic['split_propos'], fields['nb_lectures'])
+	print "adopt_conseil:", fields['adopt_conseil']
 
-	#prelexNbPointA
-	dataDic['prelexNbPointA']=getPrelexNbPointA(soup, idsDataDic['prelexProposOrigine'])
-	print "prelexNbPointA:", dataDic['prelexNbPointA']
+	#nb_point_a
+	fields['nb_point_a']=get_nb_point_a(soup, idsDataDic['propos_origine'])
+	print "nb_point_a:", fields['nb_point_a']
 
-	#prelexCouncilA
-	dataDic['prelexCouncilA']=getPrelexCouncilA(soup)
-	print "prelexCouncilA:", dataDic['prelexCouncilA']
+	#council_a
+	fields['council_a']=get_council_a(soup)
+	print "council_a:", fields['council_a']
 
-	#prelexDureeAdoptionTrans
-	dataDic['prelexDureeAdoptionTrans']=getPrelexDateDiff(dataDic['prelexTransmissionCouncil'], dataDic['prelexAdoptionProposOrigine'])
-	print "prelexDureeAdoptionTrans:", dataDic['prelexDureeAdoptionTrans']
+	#duree_adopt_trans
+	fields['duree_adopt_trans']=get_date_diff(fields['transm_council'], fields['adopt_propos_origine'])
+	print "duree_adopt_trans:", fields['duree_adopt_trans']
 
-	#prelexDureeProcedureDepuisPropCom
-	dataDic['prelexDureeProcedureDepuisPropCom']=getPrelexDateDiff(dataDic['prelexAdoptionConseil'], dataDic['prelexAdoptionProposOrigine'])
-	print "prelexDureeProcedureDepuisPropCom:", dataDic['prelexDureeProcedureDepuisPropCom']
+	#duree_proc_depuis_prop_com
+	fields['duree_proc_depuis_prop_com']=get_date_diff(fields['adopt_conseil'], fields['adopt_propos_origine'])
+	print "duree_proc_depuis_prop_com:", fields['duree_proc_depuis_prop_com']
 
-	#prelexDureeProcedureDepuisTransCons
-	dataDic['prelexDureeProcedureDepuisTransCons']=getPrelexDateDiff(dataDic['prelexAdoptionConseil'], dataDic['prelexTransmissionCouncil'])
-	print "prelexDureeProcedureDepuisTransCons:", dataDic['prelexDureeProcedureDepuisTransCons']
+	#duree_proc_depuis_trans_cons
+	fields['duree_proc_depuis_trans_cons']=get_date_diff(fields['adopt_conseil'], fields['transm_council'])
+	print "duree_proc_depuis_trans_cons:", fields['duree_proc_depuis_trans_cons']
 
-	#prelexDureeTotaleDepuisPropCom
-	dataDic['prelexDureeTotaleDepuisPropCom']=getPrelexDateDiff(idsDataDic["signPECS"], dataDic['prelexAdoptionProposOrigine'])
-	print "prelexDureeTotaleDepuisPropCom:", dataDic['prelexDureeTotaleDepuisPropCom']
+	#duree_tot_depuis_prop_com
+	fields['duree_tot_depuis_prop_com']=get_date_diff(idsDataDic["sign_pecs"], fields['adopt_propos_origine'])
+	print "duree_tot_depuis_prop_com:", fields['duree_tot_depuis_prop_com']
 
-	#prelexDureeTotaleDepuisTransCons
-	dataDic['prelexDureeTotaleDepuisTransCons']=getPrelexDateDiff(idsDataDic["signPECS"], dataDic['prelexTransmissionCouncil'])
-	print "prelexDureeTotaleDepuisTransCons:", dataDic['prelexDureeTotaleDepuisTransCons']
+	#duree_tot_depuis_trans_cons
+	fields['duree_tot_depuis_trans_cons']=get_date_diff(idsDataDic["sign_pecs"], fields['transm_council'])
+	print "duree_tot_depuis_trans_cons:", fields['duree_tot_depuis_trans_cons']
 
-	return dataDic
+	return fields

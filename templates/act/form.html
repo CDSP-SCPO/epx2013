@@ -1,0 +1,375 @@
+<!-- act data form -->
+{% load act_extra %}
+
+<div id="id_update_act__all__errors" class="row-fluid">{{ form_data.non_field_errors }}</div>
+
+<br />
+
+<div class="row-fluid border">
+	<div class="row-fluid"><h4>Act ids:</h4></div>
+
+	<table id="ids_table" class="ids_table table table-bordered table-hover table-condensed">
+		<thead>
+			<tr>
+				<th>{{ display_name.releve_annee}}</th>
+				<th>{{ display_name.releve_mois}}</th>
+				<th>{{ display_name.releve_mois_init}}</th>
+				<th>{{ display_name.no_ordre}}</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr>
+				<td>
+					<div class="fieldWrapper">
+						{{ act.releve_annee }}
+					</div>
+				</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ act.releve_mois }}
+					</div>
+				</td>
+				<td>
+					<div class="fieldWrapper">
+						<div id="id_{{ form_data.releve_mois_init.name }}_errors" class="row-fluid">{{ form_data.releve_mois_init.errors }}</div>
+						{{ form_data.releve_mois_init }}
+					</div>
+				</td>
+				<td>
+					<div class="fieldWrapper">
+						{{ act.no_ordre }}
+					</div>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+
+<br /><br />
+
+
+<div class="row-fluid"><h4>Eurlex:</h4></div>
+
+<table id="eurlex_ids_table" class="ids_table table table-bordered table-hover table-condensed">
+	<thead>
+		<tr>
+			<th>{{ display_name.no_celex }}</th>
+			<th>url exists?</th>
+			<th>url link</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>{{ act_ids.index.no_celex }}</td>
+			<!-- does the url exist? -->
+			{% if act_ids.eurlex.url_exists %}<td>{% else %}<td class="error_msg">{% endif %}
+			{{ act_ids.eurlex.url_exists }}</td>
+			<!-- display url -->
+			<td><a href="{{ urls.url_eurlex }}" target="_blank">eurlex</a></td>
+		</tr>
+	</tbody>
+</table>
+
+<!-- eurlex validation table -->
+<table id="eurlex_table" class="table table-bordered table-hover table-condensed">
+
+	<!-- link view to update code_sect data -->
+	<div id="code_sect" style="display:none">{% url update_code_sect %}</div>
+
+	{% for field in form_data %}
+		{% if field.name in vars_eurlex %}
+			<tr>
+				<!-- get_value template tag used to print display_name.field.name or display_name[field[name]] -->
+				<td class="first_column table_column_title">{{ display_name|get_value:field.name }}</td>
+				<td class="second_column">
+					<div class="fieldWrapper">
+						<div id="id_{{ field.name }}_errors" class="row-fluid">{{ field.errors }}</div>
+							<div class="row-fluid">
+							{{ field }}
+
+							<!-- code_sect and code_agenda -->
+							{% if field.name|slice:":10" == 'code_sect_' %}
+								{% with index=field.name|slice:"-1:" %}
+									<!-- if javascript disabled -->
+									<button id="update_code_sect_{{ index }}" name="update_code_sect_{{ index }}" type="submit" class="btn btn-primary update_btn">Update</button>
+									<div id="code_agenda_{{ index }}" class="update_fields">
+										<strong>{{ display_name.code_agenda_ }}{{ index }}</strong>=<span id="code_agenda_{{ index }}">{% get_related_field act "code_sect_" index "code_agenda" %}</span><br />
+									 </div>
+								{% endwith %}
+							{% endif %}
+
+						</div>
+					</div>
+				</td>
+			</tr>
+		{% endif %}
+	{% endfor %}
+</table>
+
+<br />
+
+
+<div class="row-fluid"><h4>Oeil:</h4></div>
+
+<table id="oeil_ids_table" class="ids_table table table-bordered table-hover table-condensed">
+	<thead>
+		<tr>
+			<th>{{ display_name.no_unique_type }}</th>
+			<th>{{ display_name.no_unique_annee }}</th>
+			<th>{{ display_name.no_unique_chrono }}</th>
+			<th>url exists?</th>
+			<th>url link</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>{{ act_ids.index.no_unique_type }}</td>
+			<td>{{ act_ids.index.no_unique_annee }}</td>
+			<td>{{ act_ids.index.no_unique_chrono }}</td>
+			{% if act_ids.oeil.url_exists %}<td>{% else %}<td class="error_msg">{% endif %}
+			{{ act_ids.oeil.url_exists }}</td>
+			<td><a href="{{ urls.url_oeil }}" target="_blank">oeil</a></td>
+		</tr>
+	</tbody>
+</table>
+
+<!-- oeil validation table -->
+<table id="oeil_table" class="table table-bordered table-hover table-condensed">
+
+	<!-- link view to update rapp or resp data -->
+	<div id="person" style="display:none">{% url update_person %}</div>
+
+	{% for field in form_data %}
+		{% if field.name in vars_oeil %}
+			<tr>
+				<td class="first_column table_column_title">{{ display_name|get_value:field.name }}</td>
+				<td class="second_column">
+					<div class="fieldWrapper">
+						<div id="id_{{ field.name }}_errors" class="row-fluid">{{ field.errors }}</div>
+						{{ field }}
+
+						<!-- rapporteurs rapp_1, rapp_2, rapp_3, rapp_4, rapp_5 -->
+						{% if field.name|slice:":5" == 'rapp_' %}
+							{% with index=field.name|slice:"-1:" %}
+								<!-- if javascript disabled -->
+								<button id="update_rapp_{{ index }}" name="update_rapp_{{ index }}" type="submit" class="btn btn-primary update_btn">Update</button>
+								<div id="rapp_{{ index }}" class="update_fields">
+									<strong>{{ display_name.rapp_country_ }}{{ index }}</strong>=<span id="rapp_country_{{ index }}">{% get_related_field act "rapp_" index "country" %}</span><br />
+									<strong>{{ display_name.rapp_party_ }}{{ index }}</strong>=<span id="rapp_party_{{ index }}">{% get_related_field act "rapp_" index "party" %}</span><br />
+								 </div>
+							{% endwith %}
+						{% endif %}
+
+					</div>
+				</td>
+			</tr>
+		{% endif %}
+	{% endfor %}
+</table>
+
+<br />
+
+
+<div class="row-fluid"><h4>Prelex:</h4></div>
+
+<table id="prelex_ids_table" class="ids_table table table-bordered table-hover table-condensed">
+	<thead>
+		<tr>
+			<th>{{ display_name.propos_origine }}</th>
+			<th>{{ display_name.propos_annee }}</th>
+			<th>{{ display_name.propos_chrono }}</th>
+			<th>{{ display_name.dos_id }}</th>
+			<th>url exists?</th>
+			<th>url link</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td>{{ act_ids.index.propos_origine }}</td>
+			<td>{{ act_ids.index.propos_annee }}</td>
+			<td>{{ act_ids.index.propos_chrono }}</td>
+			<td>{{ act_ids.index.dos_id }}</td>
+			{% if act_ids.prelex.url_exists %}<td>{% else %}<td class="error_msg">{% endif %}
+			{{ act_ids.prelex.url_exists }}</td>
+			<td><a href="{{ urls.url_prelex }}" target="_blank">prelex</a></td>
+		</tr>
+	</tbody>
+</table>
+
+<!-- prelex validation tables -->
+<table class="prelex_table table table-bordered table-hover table-condensed">
+
+	<!-- link view to update dg data -->
+	<div id="dg" style="display:none">{% url update_dg %}</div>
+
+	{% for field in form_data %}
+		{% if field.name in vars_prelex_1 %}
+
+			<tr>
+				<td class="first_column table_column_title">{{ display_name|get_value:field.name }}</td>
+				<td class="second_column">
+					<div class="fieldWrapper">
+						<div id="id_{{ field.name }}_errors" class="row-fluid">{{ field.errors }}</div>
+						<div class="row-fluid">
+							{{ field }}
+
+							<!-- dg_1, dg_2 -->
+							{% if field.name|slice:":3" == 'dg_' %}
+								{% with index=field.name|slice:"-1:" %}
+									<!-- if javascript disabled -->
+									<button id="update_dg_{{ index }}" name="update_dg_{{ index }}" type="submit" class="btn btn-primary update_btn">Update</button>
+									<div id="dg_{{ index }}" class="update_fields">
+										<strong>{{ display_name.dg_sigle_ }}{{ index }}</strong>=<span id="dg_sigle_{{ index }}">{% get_related_field act "dg_" index "dg_sigle" %}</span><br />
+									 </div>
+								{% endwith %}
+							{% endif %}
+
+							<!-- responsibles resp_1, resp_2, resp_3 -->
+							{% if field.name|slice:":5" == 'resp_' %}
+								{% with index=field.name|slice:"-1:" %}
+									<!-- if javascript disabled -->
+									<button id="update_resp_{{ index }}" name="update_resp_{{ index }}" type="submit" class="btn btn-primary update_btn">Update</button>
+									<div id="resp_{{ index }}" class="update_fields">
+										<strong>{{ display_name.resp_country_ }}{{ index }}</strong>=<span id="resp_country_{{ index }}">{% get_related_field act "resp_" index "country" %}</span><br />
+										<strong>{{ display_name.resp_party_ }}{{ index }}</strong>=<span id="resp_party_{{ index }}">{% get_related_field act "resp_" index "party" %}</span><br />
+										<strong>{{ display_name.resp_party_family_ }}{{ index }}</strong>=<span id="resp_party_family_{{ index }}">{{ party_family|get_value:index }}</span>
+									 </div>
+								{% endwith %}
+							{% endif %}
+
+						</div>
+					</div>
+				</td>
+			</tr>
+		{% endif %}
+	{% endfor %}
+</table>
+
+<br />
+
+<!-- prelex validation tables -->
+<!-- prelex data split in two tables -> 2d table starts with the field rejet_conseil  -->
+<table class="prelex_table table table-bordered table-hover table-condensed">
+	{% for field in form_data %}
+		{% if field.name in vars_prelex_2 %}
+
+			<!-- congig_cons -->
+			{% if field.name == "chgt_base_j" %}
+				<tr>
+					<td class="first_column table_column_title">{{ display_name.config_cons }}</td>
+					<td class="second_column">{{ act.code_sect_1_id.config_cons.config_cons }}</td>
+				</tr>
+			{% endif %}
+
+			<!-- display all the fields -->
+			<tr>
+				<td class="first_column table_column_title">{{ display_name|get_value:field.name }}</td>
+				<td class="second_column">
+
+					<!-- gvt_compo -->
+					{% if field.name == "gvt_compo" %}
+						<div class="fieldWrapper gvt_compo_table_div">
+							{% with gvt_compo_instances=act.gvt_compo.all %}
+								{% if gvt_compo_instances %}
+									<table id="gvt_compo" class="table table-bordered table-condensed">
+										<!-- column names -->
+										<tr>
+											<td class="table_column_title">{{ display_name.country }}</td>
+											<td class="table_column_title">{{ display_name.party }}</td>
+										</tr>
+
+										{% for gvt_compo_instance in gvt_compo_instances %}
+											<tr>
+												<td class="second_column_others">{{ gvt_compo_instance.country.country_code }}</td>
+
+												<td class="second_column_others">
+													{% for party in gvt_compo_instance.party.all %}
+														{% if forloop.last %}
+															{{ party.party }}
+														{% else %}
+															{{ party.party }};&nbsp;
+														{% endif %}
+													{% endfor %}
+												</td>
+											</tr>
+										{% endfor %}
+									</table>
+								{% else %}
+									<span class="empty">Sorry, no match.</span>
+								{% endif %}
+							{% endwith %}
+						</div>
+
+					<!-- adopt_cs_contre, adopt_cs_abs, adopt_pc_contre, adopt_pc_abs -->
+					{% elif  field.name == "adopt_cs_contre" or field.name == "adopt_cs_abs" or "adopt_pc_" in field.name %}
+						{% with instance=act|get_instance:field.name %}
+							{% for adopt in instance.all %}
+								{% if forloop.last %}
+									{{ adopt.country_code }}
+								{% else %}
+									{{ adopt.country_code }};&nbsp;
+								{% endif %}
+							{% endfor %}
+						{% endwith %}
+
+					{% else %}
+						<!-- all the other fields -->
+						<div class="fieldWrapper">
+							<div id="id_{{ field.name }}_errors" class="row-fluid">{{ field.errors }}</div>
+							<div class="row-fluid">
+								{{ field }}
+							</div>
+						</div>
+					{% endif %}
+				</td>
+			</tr>
+		{% endif %}
+	{% endfor %}
+</table>
+
+<br />
+
+
+<div class="row-fluid"><h4>Opal:</h4></div>
+<br />
+
+<!-- opal validation table -->
+<table id="opal_table" class="table table-bordered table-hover table-condensed">
+	<!-- display all the fields for each different NP (reverse relationship) -->
+	{% for country, fields in opals.items %}
+		<tr>
+			<!-- display np -->
+			<td class="first_column table_column_title">{{ display_name.np }}={{ country }}</td>
+
+			<td class="second_column">
+				<div class="fieldWrapper opal_table_div">
+					<table id="opal" class="table table-bordered table-condensed">
+						<!-- display act_type -->
+						<tr>
+							<td class="table_column_title">{{ display_name.act_type }}</td>
+							<td class="second_column_others">{{ fields.act_type }}</td>
+						</tr>
+						<!-- display act_date -->
+						<tr>
+							<td class="table_column_title">{{ display_name.act_date }}</td>
+							<td class="second_column_others">{{ fields.act_date }}</td>
+						</tr>
+						<!-- display case_nb -->
+						<tr>
+							<td class="table_column_title">{{ display_name.case_nb }}</td>
+							<td class="second_column_others">{{ fields.case_nb }}</td>
+						</tr>
+
+					</table>
+				</div>
+			</td>
+	{% empty %}
+		<tr><td class="empty">Sorry, no match.</td></tr>
+	{% endfor %}
+</table>
+
+<div id="notes_and_save" class="row-fluid">{% include "notes_save.html" %}</div>
+
+<!-- hide update buttons if javascript is activated -->
+<script type="text/javascript" src="{{ STATIC_URL }}europolix/js/act_hide.js?{% now 'U' %}"></script>
+

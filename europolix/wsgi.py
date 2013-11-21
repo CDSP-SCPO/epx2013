@@ -27,16 +27,16 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "europolix.settings")
 # file. This includes Django's development server, if the WSGI_APPLICATION
 # setting points here.
 import sys
-path = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
+path=os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
 if path not in sys.path:
 	sys.path.append(path)
 	sys.path.append( os.path.join( path, 'europolix') )
-os.environ['DJANGO_SETTINGS_MODULE'] = 'europolix.settings'
+os.environ['DJANGO_SETTINGS_MODULE']='europolix.settings'
 import django.core.handlers.wsgi
 from django.core.wsgi import get_wsgi_application
-application = django.core.handlers.wsgi.WSGIHandler()
+application=django.core.handlers.wsgi.WSGIHandler()
 
 
 # Apply WSGI middleware here.
 # from helloworld.wsgi import HelloWorldApplication
-# application = HelloWorldApplication(application)
+# application=HelloWorldApplication(application)

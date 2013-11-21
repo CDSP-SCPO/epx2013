@@ -1,0 +1,40 @@
+<!--
+TEMPLATE
+displays the data of a given act (data for the statistical analysis displays data from eurlex, oeil and prelex and allow to validate the act and modify its data if needed)
+-->
+{% extends "base.html" %}
+
+{% block contentTitle %}<div id="title">Act data validation</div>{% endblock %}
+
+{% block content %}
+	<div id="content">
+		<!-- css related to the act application -->
+		<link rel="stylesheet" href="{{STATIC_URL}}europolix/css/act.css?{% now 'U' %}" />
+		<!-- css related to the add_modif.html file -->
+		<link rel="stylesheet" href="{{STATIC_URL}}europolix/css/add_modif.css?{% now 'U' %}" />
+		<!-- css related to the notes_save.html file -->
+		<link rel="stylesheet" href="{{STATIC_URL}}europolix/css/notes_and_save.css?{% now 'U' %}" />
+
+		<div class="row-fluid">
+			This page lets you display, modify and save retrieved data of an act (if its ids have been previously validated). Acts data can be displayed one at a time. <br />
+			Select an act to validate in the drop down list to validate a new act. Fill in the {{ display_name.releve_annee}}, {{ display_name.releve_mois}}, {{ display_name.no_ordre}} textboxes and click on the modif button to modify an already validated act.<br />
+			You can then check the data in the table below. Change any value (second column) if you detect a mistake. Eventually, click on the save button to validate and save the act data.
+		</div>
+
+		<br />
+
+		<!-- act data form -->
+		<form id="act_form" class="form-inline" method="post" action="{% url act %}">{% csrf_token %}
+			<div id="reset_form_path" style="display: none;">{% url reset_form %}</div>
+			<div class="row-fluid">{% include "add_modif.html" %}</div>
+
+			<br />
+
+			<div id="act_form_div">{% include form_template %}</div>
+
+		</form>
+
+		<!-- js related to the act ids and data applications -->
+		<script type="text/javascript" src="{{ STATIC_URL }}europolix/js/act.js?{% now 'U' %}"></script>
+	</div>
+{% endblock %}

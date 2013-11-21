@@ -29,7 +29,7 @@ contains the template of each webpage: doctype, left menu, right content templat
 			<div class="span4 header_row">
 				<a href="http://www.sciencespo.fr/" target="_blank"><img id="size_sp" class="header_elements" src="{{STATIC_URL}}europolix/img/sciencesPo.png"></a>
 				&nbsp;
-				<a href="http://www.cee.sciences-po.fr/" target="_blank"><img id="size_CEE" class="header_elements" src="{{STATIC_URL}}europolix/img/CEE.png"></a>
+				<a href="http://www.cee.sciences-po.fr/" target="_blank"><img id="size_cee" class="header_elements" src="{{STATIC_URL}}europolix/img/CEE.png"></a>
 			</div>
 
 			<div class="span4 header_row">
@@ -85,8 +85,8 @@ contains the template of each webpage: doctype, left menu, right content templat
 									</a>
 								</li>
 								<li><a href="{% url import %}" class="internal_link">CSV import<i class="icon-chevron-right"></i></a></li>
-								<li><a href="{% url act_ids %}" class="internal_link">Acts validation<i class="icon-chevron-right"></i></a></li>
-								<li><a href="{% url act_info %}" class="internal_link">Acts information retrieval<i class="icon-chevron-right"></i></a></li>
+								<li><a href="{% url act_ids %}" class="internal_link">Act ids validation<i class="icon-chevron-right"></i></a></li>
+								<li><a href="{% url act %}" class="internal_link">Act data validation<i class="icon-chevron-right"></i></a></li>
 								<li><a href="{% url export %}" class="internal_link">CSV export<i class="icon-chevron-right"></i></a></li>
 								<li><a id="last_child" href="{% url admin:index %}">Administration<i class="icon-chevron-right"></i></a></li>
 							</ul>

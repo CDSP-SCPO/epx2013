@@ -1,27 +1,27 @@
 # -*- coding: utf-8 -*-
 """
-get the information from Oeil (fields for the statistical analysis)
+get the data from Oeil (fields for the statistical analysis)
 """
 import re
 from bs4 import BeautifulSoup
 import urllib
 
 
-def getOeilCommissionPE(soup):
+def get_commission(soup):
 	"""
 	FUNCTION
-	get the oeilCommissionPE variable from the oeil url
+	get the commission variable from the oeil url
 	PARAMETERS
 	soup: oeil url content
 	RETURN
-	oeilCommissionPE
+	commission
 	"""
 	try:
-		oeilCommissionPE=soup.find(text="Committee responsible").findNext("acronym")
-		if oeilCommissionPE.get_text()=="DELE":
-			return oeilCommissionPE.findNext("acronym").get_text()
+		commission=soup.find(text="Committee responsible").findNext("acronym")
+		if commission.get_text()=="DELE":
+			return commission.findNext("acronym").get_text()
 		else:
-			return oeilCommissionPE.get_text()
+			return commission.get_text()
 	except:
 		#~ print "no commissionPE! (oeil)"
 		return None
@@ -31,7 +31,7 @@ def getOeilCommissionPE(soup):
 
 
 #~ http://www.europarl.europa.eu/oeil/popups/ficheprocedure.do?lang=en&reference=2005/0017(COD)
-def getOeilVotesPage(soup):
+def get_vote_page(soup):
 	"""
 	FUNCTION
 	get the html page about votes from the oeil url
@@ -41,84 +41,84 @@ def getOeilVotesPage(soup):
 	html page about votes
 	"""
 	try:
-		votesLink=soup.find(text="Results of vote in Parliament").findNext("td").find("a")["href"]
-		return BeautifulSoup(urllib.urlopen("http://www.europarl.europa.eu/"+votesLink))
+		link_votes=soup.find(text="Results of vote in Parliament").findNext("td").find("a")["href"]
+		return BeautifulSoup(urllib.urlopen("http://www.europarl.europa.eu/"+link_votes))
 	except:
 		print "no vote page (oeil)"
 		return None
 
 
-def getOeilEPComAndtTabled(soup):
+def get_com_amdt_tabled(soup):
 	"""
 	FUNCTION
-	get the oeilEPComAndtTabled variable from the oeil url
+	get the com_amdt_tabled variable from the oeil url
 	PARAMETERS
 	soup: oeil url content
 	RETURN
-	oeilEPComAndtTabled
+	com_amdt_tabled
 	"""
 	try:
 		return soup.find(text="EP Committee").findNext('td').get_text()
 	except:
-		print "no oeilEPComAndtTabled!"
+		print "no com_amdt_tabled!"
 		return None
 
 #on vote page:
 #Last table "Amendments adopted in plenary": EP Committee (row) and Tabled by (column)
 
 
-def getOeilEPComAndtAdopt(soup):
+def get_com_amdt_adopt(soup):
 	"""
 	FUNCTION
-	get the oeilEPComAndtAdopt variable from the oeil url
+	get the com_amdt_adopt variable from the oeil url
 	PARAMETERS
 	soup: oeil url content
 	RETURN
-	oeilEPComAndtAdopt
+	com_amdt_adopt
 	"""
 	try:
 		return soup.find(text="EP Committee").findNext('td').findNext('td').get_text()
 	except:
-		print "no oeilEPComAndtAdopt"
+		print "no com_amdt_adopt"
 		return None
 
 #on vote page:
 #Last table "Amendments adopted in plenary": EP Committee (row) and Adopted (column)
 
 
-def getOeilEPAmdtTabled(soup):
+def get_amdt_tabled(soup):
 	"""
 	FUNCTION
-	get the oeilEPAmdtTabled variable from the oeil url
+	get the amdt_tabled variable from the oeil url
 	PARAMETERS
 	soup: oeil url content
 	RETURN
-	oeilEPAmdtTabled
+	amdt_tabled
 	"""
 	try:
 		return soup.find(text="Total").findNext('th').get_text()
 	except:
-		print "no oeilEPAmdtTabled"
+		print "no amdt_tabled"
 		return None
 
 
-def getOeilEPAmdtAdopt(soup):
+def get_amdt_adopt(soup):
 	"""
 	FUNCTION
-	get the oeilEPAmdtAdopt variable from the oeil url
+	get the amdt_adopt variable from the oeil url
 	PARAMETERS
 	soup: oeil url content
 	RETURN
-	oeilEPAmdtAdopt
+	amdt_adopt
 	"""
 	try:
 		return soup.find(text="Total").findNext('th').findNext('th').get_text()
 	except:
-		print "no oeilEPAmdtAdopt"
+		print "no amdt_adopt"
 		return None
 
 
-def getOeilEPVoteTables(soup):
+def get_vote_tables(soup):
 	"""
 	FUNCTION
 	get the two tables Final vote and final vote part two from the vote page
@@ -129,57 +129,57 @@ def getOeilEPVoteTables(soup):
 	"""
 	#<td class="rowtitle">Final vote&nbsp;20/10/2010</td>
 	#<td class="rowtitle">Final vote Part two</td>
-	tableVotesList=[None]*2
+	vote_tables=[None]*2
 	try:
-		tableVotesTemp=soup.findAll("td", {"class": "rowtitle"})
-		tableVotesList[0]=tableVotesTemp[0].findNext("table").find("table")
-		tableVotesList[1]=tableVotesTemp[1].findNext("table").find("table")
-		#~ print "tableVotesList[0]", tableVotesList[0]
-		#~ print "tableVotesList[1]", tableVotesList[1]
-		return tableVotesList
+		vote_tables_temp=soup.findAll("td", {"class": "rowtitle"})
+		vote_tables[0]=vote_tables_temp[0].findNext("table").find("table")
+		vote_tables[1]=vote_tables_temp[1].findNext("table").find("table")
+		#~ print "vote_tables[0]", vote_tables[0]
+		#~ print "vote_tables[1]", vote_tables[1]
+		return vote_tables
 	except:
 		#~ print "no table of vote! (oeil)"
-		return tableVotesList
+		return vote_tables
 
 
-def getOeilEPVote(tableVote, vote):
+def get_vote(vote_table, vote):
 	"""
 	FUNCTION
 	get the vote variable For, Against or Abstentions from one of the two vote tables
 	PARAMETERS
-	tableVote: html content of the first or second vote table
+	vote_table: html content of the first or second vote table
 	vote="For", "Against" or "Abstentions"
 	RETURN
-	one of the following vote variables: getOeilEPVotesFor1, oeilEPVotesAgst1, oeilEPVotesAbs1, getOeilEPVotesFor2, oeilEPVotesAgst2, oeilEPVotesAbs2
+	one of the following vote variables: get_votesFor1, votes_agst_1, votes_abs_1, get_votesFor2, votes_agst_2, votes_abs_2
 	"""
-	if tableVote!=None:
-		return tableVote.find("p", text=vote).findNext("p").get_text()
+	if vote_table!=None:
+		return vote_table.find("p", text=vote).findNext("p").get_text()
 	else:
 		#~ print "no vote variable! (oeil)"
 		return None
 
 
-def getOeilRapporteursList(soup):
+def get_rapps(soup):
 	"""
 	FUNCTION
 	get the html content about rapporteurs from the oeil url
 	PARAMETERS
 	soup: oeil url content
 	RETURN
-	list of rapporteurs infos
+	list of rapporteurs datas
 	"""
-	rapporteursList=[None]*5
+	rapps=[None]*5
 	try:
-		#exclude shadow rapporteurs (parent: <div class="result_moreinfo shadow">)
-		rapporteursListTemp=[rapporteur for rapporteur in soup.find(text="Committee responsible").findNext("td", {"class": "players_rapporter_com "}).findAll("p", {"class": "players_content"}) if rapporteur.parent.name!="div"]
-		for index in range(len(rapporteursListTemp)):
-			rapporteursList[index]=rapporteursListTemp[index]
+		#exclude shadow rapporteurs (parent: <div class="result_moredata shadow">)
+		rapps_temp=[rapporteur for rapporteur in soup.find(text="Committee responsible").findNext("td", {"class": "players_rapporter_com "}).findAll("p", {"class": "players_content"}) if rapporteur.parent.name!="div"]
+		for index in range(len(rapps_temp)):
+			rapps[index]=rapps_temp[index]
 	except:
-		return rapporteursList
-	return rapporteursList
+		return rapps
+	return rapps
 
 
-def getCountryAcronym(country):
+def get_country_code(country):
 	"""
 	FUNCTION
 	get the acronym of the country passed in parameter
@@ -254,17 +254,17 @@ def getCountryAcronym(country):
 	return country
 
 
-def getOeilGroupePolitiqueRapporteur(rapporteurInfos):
+def get_party(rapps_data):
 	"""
 	FUNCTION
-	get the oeilGroupePolitiqueRapporteur1-5 variable from infos of the rapporteur
+	get the rapp_party_1-5 variable from datas of the rapporteur
 	PARAMETERS
-	rapporteurInfos: rapporteur information
+	rapps_data: rapporteur data
 	RETURN
-	oeilGroupePolitiqueRapporteur1-5
+	rapp_party_1-5
 	"""
 	try:
-		return rapporteurInfos.find("span", {"class": "tiptip"})["title"]
+		return rapps_data.find("span", {"class": "tiptip"})["title"]
 	except:
 		#~ print "no groupePolitiqueRapporteur! (oeil)"
 		return None
@@ -273,17 +273,17 @@ def getOeilGroupePolitiqueRapporteur(rapporteurInfos):
 #can be NULL
 
 
-def getOeilRapporteurPE(rapporteurInfos):
+def get_rapp(rapps_data):
 	"""
 	FUNCTION
-	get the oeilRapporteurPE1-5 variable from the infos of the rapporteur
+	get the rapp_1-5 variable from the datas of the rapporteur
 	PARAMETERS
-	rapporteurInfos: rapporteur information
+	rapps_data: rapporteur data
 	RETURN
-	oeilRapporteurPE1-5
+	rapp_1-5
 	"""
 	try:
-		return rapporteurInfos.find("span", {"class": "players_rapporter_text"}).get_text()
+		return rapps_data.find("span", {"class": "players_rapporter_text"}).get_text()
 	except:
 		#~ print "no rapporteurPE! (oeil)"
 		return None
@@ -292,40 +292,40 @@ def getOeilRapporteurPE(rapporteurInfos):
 #can be NULL
 
 
-def getOeilEtatMbRapport(rapporteurInfos):
+def get_country(rapps_data):
 	"""
 	FUNCTION
-	get the oeilEtatMbRapport1-5 variable from the infos of the rapporteur
+	get the rapp_country_1-5 variable from the datas of the rapporteur
 	PARAMETERS
-	rapporteurInfos: rapporteur information
+	rapps_data: rapporteur data
 	RETURN
-	oeilEtatMbRapport1-5
+	rapp_country_1-5
 	"""
 	try:
-		link=rapporteurInfos.find("span", {"class": "players_rapporter_text"}).find("a")['href']
-		deputyLinkSoup=BeautifulSoup(urllib.urlopen(link))
+		link=rapps_data.find("span", {"class": "players_rapporter_text"}).find("a")['href']
+		link_deputy_soup=BeautifulSoup(urllib.urlopen(link))
 		#return acronym of the country
-		return(getCountryAcronym(deputyLinkSoup.find("li", {"class": "nationality"}).contents[0].strip()))
+		return(get_country_code(link_deputy_soup.find("li", {"class": "nationality"}).contents[0].strip()))
 	except:
 		#~ print "no etatMbRapport! (oeil)"
 		return None
 
-#on the deputy's personal page: country (next to the flag, next to the picture)
+#on the deputy's persononal page: country (next to the flag, next to the picture)
 #can be NULL
 #27 possible values (EU countries)
 
 
-def getOeilModifPropos(soup):
+def get_modif_propos(soup):
 	"""
 	FUNCTION
-	get the oeilModifPropos variable from the oeil url
+	get the modif_propos variable from the oeil url
 	PARAMETERS
 	soup: oeil url content
 	RETURN
-	oeilModifPropos
+	modif_propos
 	"""
-	modifProposList=["Modified legislative proposal published", "Amended legislative proposal for reconsultation published", "Legislative proposal published"]
-	for modifPropos in modifProposList:
+	modif_proposs=["Modified legislative proposal published", "Amended legislative proposal for reconsultation published", "Legislative proposal published"]
+	for modifPropos in modif_proposs:
 		if soup.find(text=re.compile(modifPropos))!=None:
 			if modifPropos=="Legislative proposal published":
 				if soup.find(text=re.compile("Initial legislative proposal published"))==None:
@@ -344,202 +344,202 @@ def getOeilModifPropos(soup):
 	#- otherwise -> Modif Propos=N (http://www.europarl.europa.eu/oeil/popups/ficheprocedure.do?lang=en&reference=2005/0223(COD))
 
 
-def getOeilNombreLectures(soup, suite2eLecturePE):
+def get_nb_lectures(soup, suite_2e_lecture_pe):
 	"""
 	FUNCTION
-	get the oeilNombreLectures variable from the oeil url
+	get the nb_lectures variable from the oeil url
 	PARAMETERS
 	soup: oeil url content
 	RETURN
-	oeilNombreLectures
+	nb_lectures
 	"""
 	#search in the key event table only
-	keyEventsSoup=soup.find("a", {"class": "expand_button"}, text="Key events").findNext("table")
+	key_events_soup=soup.find("a", {"class": "expand_button"}, text="Key events").findNext("table")
 
 	#3d lecture
-	if keyEventsSoup.find(text=re.compile('Decision by Council, 3rd rdg'))>0 or keyEventsSoup.find(text=re.compile('Decision by Council, 3rd reading'))>0:
+	if key_events_soup.find(text=re.compile('Decision by Council, 3rd rdg'))>0 or key_events_soup.find(text=re.compile('Decision by Council, 3rd reading'))>0:
 		return 3
 
 	#2d lecture
-	#if suite2eLecturePE=Yes
-	if suite2eLecturePE==1:
+	#if suite_2e_lecture_pe=Yes
+	if suite_2e_lecture_pe==1:
 		pattern="Decision by Parliament, 2nd reading"
-	#if suite2eLecturePE=No
+	#if suite_2e_lecture_pe=No
 	else:
 		pattern="Act approved by Council, 2nd reading"
-	if keyEventsSoup.find(text=re.compile(pattern))>0:
+	if key_events_soup.find(text=re.compile(pattern))>0:
 		return 2
 
 	#1st lecture
-	if keyEventsSoup.find(text=re.compile("Act adopted by Council after Parliament's 1st reading"))>0:
+	if key_events_soup.find(text=re.compile("Act adopted by Council after Parliament's 1st reading"))>0:
 		return 1
 
 	return None
 
 #possible values: 1, 2, 3 or NULL
 #3: "Decision by Council, 3rd rdg ou reading"
-#2:	- Suite2LecturePE= Y, "Decision by Parliament 2nd reading".
+#2:	- Suite2LecturePE=Y, "Decision by Parliament 2nd reading".
 #	- Suite2LecturePE=N, "Act approved by Council, 2nd reading"
 #1: "Act adopted by Council after Parliament's 1st reading"
 
 
-def getOeilSignPECS(soup, noUniqueType):
+def get_sign_pecs(soup, no_unique_type):
 	"""
 	FUNCTION
-	get the oeilSignPECS variable from the oeil url
+	get the sign_pecs variable from the oeil url
 	PARAMETERS
 	soup: oeil url content
 	RETURN
-	oeilSignPECS
+	sign_pecs
 	"""
-	if noUniqueType=="COD" or noUniqueType=="ACI":
+	if no_unique_type=="COD" or no_unique_type=="ACI":
 		return soup.find("td", text="Final act signed").findPrevious("td").get_text()
 	#null value
 	return None
 
 #date in front of "Final act signed"
 #can be NULL
-#only if NoUniqueType = COD or ACI
+#only if NoUniqueType=COD or ACI
 
 
 
-def getOeilInformation(soup, idsDic):
+def get_data_oeil(soup, ids):
 	"""
 	FUNCTION
-	get all the information from the oeil url
+	get all the data from the oeil url
 	PARAMETERS
 	soup: oeil url content
 	RETURN
 	dictionary of retrieved data from oeil
 	"""
-	dataDic={}
+	fields={}
 
-	#oeilCommissionPE
-	dataDic['oeilCommissionPE']=getOeilCommissionPE(soup)
-	print "oeilCommissionPE:", dataDic['oeilCommissionPE']
+	#commission
+	fields['commission']=get_commission(soup)
+	print "commission:", fields['commission']
 
 	#html content of the votes page
-	votesPageSoup=getOeilVotesPage(soup)
+	vote_page_soup=get_vote_page(soup)
 	#~ print votesSectionSoup
 
-	#oeilEPComAndtTabled
-	dataDic['oeilEPComAndtTabled']=getOeilEPComAndtTabled(votesPageSoup)
-	print "oeilEPComAndtTabled:", dataDic['oeilEPComAndtTabled']
+	#com_amdt_tabled
+	fields['com_amdt_tabled']=get_com_amdt_tabled(vote_page_soup)
+	print "com_amdt_tabled:", fields['com_amdt_tabled']
 
-	#oeilEPComAndtAdopt
-	dataDic['oeilEPComAndtAdopt']=getOeilEPComAndtAdopt(votesPageSoup)
-	print "oeilEPComAndtAdopt:", dataDic['oeilEPComAndtAdopt']
+	#com_amdt_adopt
+	fields['com_amdt_adopt']=get_com_amdt_adopt(vote_page_soup)
+	print "com_amdt_adopt:", fields['com_amdt_adopt']
 
-	#oeilEPAmdtTabled
-	dataDic['oeilEPAmdtTabled']=getOeilEPAmdtTabled(votesPageSoup)
-	print "oeilEPAmdtTabled:", dataDic['oeilEPAmdtTabled']
+	#amdt_tabled
+	fields['amdt_tabled']=get_amdt_tabled(vote_page_soup)
+	print "amdt_tabled:", fields['amdt_tabled']
 
-	#oeilEPAmdtAdopt
-	dataDic['oeilEPAmdtAdopt']=getOeilEPAmdtAdopt(votesPageSoup)
-	print "oeilEPAmdtAdopt:", dataDic['oeilEPAmdtAdopt']
+	#amdt_adopt
+	fields['amdt_adopt']=get_amdt_adopt(vote_page_soup)
+	print "amdt_adopt:", fields['amdt_adopt']
 
 	#html content of the 2 tables of vote (Final vote and Final vote part two):
-	voteTables=getOeilEPVoteTables(votesPageSoup)
-	voteTable1=voteTables[0]
-	voteTable2=voteTables[1]
+	vote_tables=get_vote_tables(vote_page_soup)
+	vote_table_1=vote_tables[0]
+	vote_table_2=vote_tables[1]
 
-	#oeilEPVotesFor1
-	dataDic['oeilEPVotesFor1']=getOeilEPVote(voteTable1, "For")
-	print "oeilEPVotesFor1:", dataDic['oeilEPVotesFor1']
+	#votes_for_1
+	fields['votes_for_1']=get_vote(vote_table_1, "For")
+	print "votes_for_1:", fields['votes_for_1']
 
-	#oeilEPVotesAgst1
-	dataDic['oeilEPVotesAgst1']=getOeilEPVote(voteTable1, "Against")
-	print "oeilEPVotesAgst1:", dataDic['oeilEPVotesAgst1']
+	#votes_agst_1
+	fields['votes_agst_1']=get_vote(vote_table_1, "Against")
+	print "votes_agst_1:", fields['votes_agst_1']
 
-	#oeilEPVotesAbs1
-	dataDic['oeilEPVotesAbs1']=getOeilEPVote(voteTable1, "Abstentions")
-	print "oeilEPVotesAbs1:", dataDic['oeilEPVotesAbs1']
+	#votes_abs_1
+	fields['votes_abs_1']=get_vote(vote_table_1, "Abstentions")
+	print "votes_abs_1:", fields['votes_abs_1']
 
-	#oeilEPVotesFor2
-	dataDic['oeilEPVotesFor2']=getOeilEPVote(voteTable2, "For")
-	print "oeilEPVotesFor2:", dataDic['oeilEPVotesFor2']
+	#votes_for_2
+	fields['votes_for_2']=get_vote(vote_table_2, "For")
+	print "votes_for_2:", fields['votes_for_2']
 
-	#oeilEPVotesAgst2
-	dataDic['oeilEPVotesAgst2']=getOeilEPVote(voteTable2, "Against")
-	print "oeilEPVotesAgst2:", dataDic['oeilEPVotesAgst2']
+	#votes_agst_2
+	fields['votes_agst_2']=get_vote(vote_table_2, "Against")
+	print "votes_agst_2:", fields['votes_agst_2']
 
-	#oeilEPVotesAbs2
-	dataDic['oeilEPVotesAbs2']=getOeilEPVote(voteTable2, "Abstentions")
-	print "oeilEPVotesAbs2:", dataDic['oeilEPVotesAbs2']
+	#votes_abs_2
+	fields['votes_abs_2']=get_vote(vote_table_2, "Abstentions")
+	print "votes_abs_2:", fields['votes_abs_2']
 
 	#rapporteurs list
-	rapporteursList=getOeilRapporteursList(soup)
+	rapps=get_rapps(soup)
 
-	#oeilGroupePolitiqueRapporteur1
-	dataDic['oeilGroupePolitiqueRapporteur1']=getOeilGroupePolitiqueRapporteur(rapporteursList[0])
-	print "oeilGroupePolitiqueRapporteur1:", dataDic['oeilGroupePolitiqueRapporteur1']
+	#rapp_party_1
+	fields['rapp_party_1']=get_party(rapps[0])
+	print "rapp_party_1:", fields['rapp_party_1']
 #~ #~
-	#oeilRapporteurPE1
-	dataDic['oeilRapporteurPE1']=getOeilRapporteurPE(rapporteursList[0])
-	print "oeilRapporteurPE1:", dataDic['oeilRapporteurPE1']
+	#rapp_1
+	fields['rapp_1']=get_rapp(rapps[0])
+	print "rapp_1:", fields['rapp_1']
 #~ #~
-	#oeilEtatMbRapport1
-	dataDic['oeilEtatMbRapport1']=getOeilEtatMbRapport(rapporteursList[0])
-	print "oeilEtatMbRapport1:", dataDic['oeilEtatMbRapport1']
+	#rapp_country_1
+	fields['rapp_country_1']=get_country(rapps[0])
+	print "rapp_country_1:", fields['rapp_country_1']
 #~ #~
-	#oeilGroupePolitiqueRapporteur2
-	dataDic['oeilGroupePolitiqueRapporteur2']=getOeilGroupePolitiqueRapporteur(rapporteursList[1])
-	print "oeilGroupePolitiqueRapporteur2:", dataDic['oeilGroupePolitiqueRapporteur2']
+	#rapp_party_2
+	fields['rapp_party_2']=get_party(rapps[1])
+	print "rapp_party_2:", fields['rapp_party_2']
 #~ #~
-	#oeilRapporteurPE2
-	dataDic['oeilRapporteurPE2']=getOeilRapporteurPE(rapporteursList[1])
-	print "oeilRapporteurPE2:", dataDic['oeilRapporteurPE2']
+	#rapp_2
+	fields['rapp_2']=get_rapp(rapps[1])
+	print "rapp_2:", fields['rapp_2']
 #~ #~
-	#oeilEtatMbRapport2
-	dataDic['oeilEtatMbRapport2']=getOeilEtatMbRapport(rapporteursList[1])
-	print "oeilEtatMbRapport2:", dataDic['oeilEtatMbRapport2']
+	#rapp_country_2
+	fields['rapp_country_2']=get_country(rapps[1])
+	print "rapp_country_2:", fields['rapp_country_2']
 #~ #~
-	#oeilGroupePolitiqueRapporteur3
-	dataDic['oeilGroupePolitiqueRapporteur3']=getOeilGroupePolitiqueRapporteur(rapporteursList[2])
-	print "oeilGroupePolitiqueRapporteur3:", dataDic['oeilGroupePolitiqueRapporteur3']
+	#rapp_party_3
+	fields['rapp_party_3']=get_party(rapps[2])
+	print "rapp_party_3:", fields['rapp_party_3']
 #~ #~
-	#oeilRapporteurPE3
-	dataDic['oeilRapporteurPE3']=getOeilRapporteurPE(rapporteursList[2])
-	print "oeilRapporteurPE3:", dataDic['oeilRapporteurPE3']
+	#rapp_3
+	fields['rapp_3']=get_rapp(rapps[2])
+	print "rapp_3:", fields['rapp_3']
 #~ #~
-	#oeilEtatMbRapport3
-	dataDic['oeilEtatMbRapport3']=getOeilEtatMbRapport(rapporteursList[2])
-	print "oeilEtatMbRapport3:", dataDic['oeilEtatMbRapport3']
+	#rapp_country_3
+	fields['rapp_country_3']=get_country(rapps[2])
+	print "rapp_country_3:", fields['rapp_country_3']
 #~ #~
-	#oeilGroupePolitiqueRapporteur4
-	dataDic['oeilGroupePolitiqueRapporteur4']=getOeilGroupePolitiqueRapporteur(rapporteursList[3])
-	print "oeilGroupePolitiqueRapporteur4:", dataDic['oeilGroupePolitiqueRapporteur4']
+	#rapp_party_4
+	fields['rapp_party_4']=get_party(rapps[3])
+	print "rapp_party_4:", fields['rapp_party_4']
 #~ #~
-	#oeilRapporteurPE4
-	dataDic['oeilRapporteurPE4']=getOeilRapporteurPE(rapporteursList[3])
-	print "oeilRapporteurPE4:", dataDic['oeilRapporteurPE4']
+	#rapp_4
+	fields['rapp_4']=get_rapp(rapps[3])
+	print "rapp_4:", fields['rapp_4']
 #~ #~
-	#oeilEtatMbRapport4
-	dataDic['oeilEtatMbRapport4']=getOeilEtatMbRapport(rapporteursList[3])
-	print "oeilEtatMbRapport4:", dataDic['oeilEtatMbRapport4']
+	#rapp_country_4
+	fields['rapp_country_4']=get_country(rapps[3])
+	print "rapp_country_4:", fields['rapp_country_4']
 #~ #~
-	#oeilGroupePolitiqueRapporteur5
-	dataDic['oeilGroupePolitiqueRapporteur5']=getOeilGroupePolitiqueRapporteur(rapporteursList[4])
-	print "oeilGroupePolitiqueRapporteur5:", dataDic['oeilGroupePolitiqueRapporteur5']
+	#rapp_party_5
+	fields['rapp_party_5']=get_party(rapps[4])
+	print "rapp_party_5:", fields['rapp_party_5']
 #~ #~
-	#oeilRapporteurPE5
-	dataDic['oeilRapporteurPE5']=getOeilRapporteurPE(rapporteursList[4])
-	print "oeilRapporteurPE5:", dataDic['oeilRapporteurPE5']
+	#rapp_5
+	fields['rapp_5']=get_rapp(rapps[4])
+	print "rapp_5:", fields['rapp_5']
 #~ #~
-	#oeilEtatMbRapport5
-	dataDic['oeilEtatMbRapport5']=getOeilEtatMbRapport(rapporteursList[4])
-	print "oeilEtatMbRapport5:", dataDic['oeilEtatMbRapport5']
+	#rapp_country_5
+	fields['rapp_country_5']=get_country(rapps[4])
+	print "rapp_country_5:", fields['rapp_country_5']
 
-	#oeilModifPropos
-	dataDic['oeilModifPropos']=getOeilModifPropos(soup)
-	print "oeilModifPropos:", dataDic['oeilModifPropos']
+	#modif_propos
+	fields['modif_propos']=get_modif_propos(soup)
+	print "modif_propos:", fields['modif_propos']
 
-	#oeilNombreLectures
-	dataDic['oeilNombreLectures']=getOeilNombreLectures(soup, idsDic["suite2eLecturePE"])
-	print "oeilNombreLectures:", dataDic['oeilNombreLectures']
+	#nb_lectures
+	fields['nb_lectures']=get_nb_lectures(soup, ids["suite_2e_lecture_pe"])
+	print "nb_lectures:", fields['nb_lectures']
 
-	#oeilSignPECS
-	dataDic['oeilSignPECS']=getOeilSignPECS(soup, idsDic["oeilNoUniqueType"])
-	print "oeilSignPECS:", dataDic['oeilSignPECS']
+	#sign_pecs
+	fields['sign_pecs']=get_sign_pecs(soup, ids["no_unique_type"])
+	print "sign_pecs:", fields['sign_pecs']
 
-	return dataDic
+	return fields

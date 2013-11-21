@@ -3,13 +3,13 @@
 $(function()
 {
 	/* if javascript activated, hide standard upload file control and show the other one */
-	$('#id_csvFile').hide();
+	$('#id_csv_file').hide();
 	$('#choose_file_div').show();
 });
 
 
 /* display the help text (column names and order for a given file to import) */
-$("#id_fileToImport").change(function()
+$("#id_file_to_import").change(function()
 {
 	load_help_text();
 });
@@ -17,7 +17,7 @@ $("#id_fileToImport").change(function()
 function load_help_text()
 {
 	view_path=$('#help_text_view').text();
-	var datastring = $('#import_form').serialize();
+	var datastring=$('#import_form').serialize();
 	$.ajax({
 		type: "POST",
 		url: view_path,
@@ -46,5 +46,5 @@ $("#choose_file").keypress(function()
 /* submit the form with ajax */
 $('#import_button').click(function(event)
 {
-	submit_form($('#import_form'), $('#id_fileToImport'), $(this), event);
+	submit_form($('#import_form'), $('#id_file_to_import'), $(this), event);
 });

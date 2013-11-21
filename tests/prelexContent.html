@@ -59,7 +59,7 @@
 
 		<LINK REL="stylesheet" HREF="http://ec.europa.eu/prelex/include/layout/apc_style.css" TYPE="text/css">
 
-		<LINK REL="stylesheet" HREF="http://ec.europa.eu/prelex/include/layout/infobulle_style.css" TYPE="text/css">
+		<LINK REL="stylesheet" HREF="http://ec.europa.eu/prelex/include/layout/databulle_style.css" TYPE="text/css">
 
 			<LINK REL="stylesheet" HREF="http://ec.europa.eu/stylesheets/commission.css" TYPE="text/css">
 
@@ -76,47 +76,47 @@
 {
         if(document.images)
         {
-                document.images[imgname].src = eval( "isimages." + imgvar + ".src");
+                document.images[imgname].src=eval( "isimages." + imgvar + ".src");
         }
 }
 
-isimages = new Object();
+isimages=new Object();
 
 
 
-	isimages.btn_nav_pinoff = new Image();
-isimages.btn_nav_pinoff.src = 'images/btn_pin.gif';
-isimages.btn_nav_pinon = new Image();
-isimages.btn_nav_pinon.src = 'images/btn_pinon.gif';
+	isimages.btn_nav_pinoff=new Image();
+isimages.btn_nav_pinoff.src='images/btn_pin.gif';
+isimages.btn_nav_pinon=new Image();
+isimages.btn_nav_pinon.src='images/btn_pinon.gif';
 
 
 
-	isimages.btn_doc_pinoff = new Image();
-isimages.btn_doc_pinoff.src = 'images/doc_pin.gif';
-isimages.btn_doc_pinon = new Image();
-isimages.btn_doc_pinon.src = 'images/doc_pinon.gif';
+	isimages.btn_doc_pinoff=new Image();
+isimages.btn_doc_pinoff.src='images/doc_pin.gif';
+isimages.btn_doc_pinon=new Image();
+isimages.btn_doc_pinon.src='images/doc_pinon.gif';
 
 
 
 
 
-definirObj("laBulle","","infoBulle")
+definirObj("laBulle","","dataBulle")
 cacherObj("laBulle")
 var flagpos=false
 if(document.layers){
 	document.captureEvents(Event.MOUSEMOVE)
 }
-document.onmousemove=bougeinfo
+document.onmousemove=bougedata
 
 
 
-function bougeinfo(e){
+function bougedata(e){
 	if(flagpos){
 		positionnerObj("laBulle",xSouris(e)-(xSouris(e)/document.body.clientWidth )*200,ySouris(e)+16)
 	}
 }
 
-function visioninfo(titB,corB,notB) {
+function visiondata(titB,corB,notB) {
 	flagpos=true
 	msg	="<TABLE width=200><TR><TD class=cadreBulle><TABLE cellspacing=0 width=100%><TR>"
 		+((titB!=null)?("<tr width=100%><td width=100% class=titreBulle>"+titB+"</td></tr>"):(""))
@@ -127,7 +127,7 @@ function visioninfo(titB,corB,notB) {
 	voirObj("laBulle")
 }
 
-function cacheinfo(){
+function cachedata(){
 	flagpos=false;
 	cacherObj("laBulle");
 	positionnerObj("laBulle",8,8);
@@ -234,15 +234,15 @@ function toggleview(nom,imag) {
 
 	function ResetShortcuts()
 {
-for (var i = 0; i < document.LangForm.Language.length; i++) {
-if (document.LangForm.Language.options[i].defaultSelected == true){
+for (var i=0; i < document.LangForm.Language.length; i++) {
+if (document.LangForm.Language.options[i].defaultSelected==true){
 document.LangForm.Language.options[i].selected=true
 }
 }
 }
 function JumpMenu(item)
 {
-document.location= item;
+document.location=item;
 }
 
 
@@ -250,7 +250,7 @@ document.location= item;
 {
         if(document.images)
         {
-                document.images[imgname].src = imgvar;
+                document.images[imgname].src=imgvar;
         }
 }
 
@@ -294,7 +294,7 @@ document.location= item;
 	</ul>
 	<ul id="item"><li class="top">|</li></ul>
 	<ul id="item">
-		<li class="top"><a href="http://europa.eu/geninfo/query/search_en.html">Search&nbsp;EUROPA</a></li>
+		<li class="top"><a href="http://europa.eu/gendata/query/search_en.html">Search&nbsp;EUROPA</a></li>
 	</ul>
 	<ul id="item"><li class="top">|</li></ul>
 	<ul id="item">
@@ -847,12 +847,12 @@ document.location= item;
 	/* opens window manual */
 	function OpenWin_manual(pageurl)
 	{
-	  var params ='toolbar=no,location=no,menubar=no,directories=no,status=no,'
+	  var params='toolbar=no,location=no,menubar=no,directories=no,status=no,'
 	             + 'scrollbars=no,resizable=yes,copyhistory=no,'
 		         + 'width=600,height=300';
-	  intLeft = screen.width/2 - 300;
-	  params = params + ',RIGHT=' + intLeft;
-	  f = window.open(pageurl,'manual',params);
+	  intLeft=screen.width/2 - 300;
+	  params=params + ',RIGHT=' + intLeft;
+	  f=window.open(pageurl,'manual',params);
 	  f.focus();
 	}
 	</script>
@@ -4401,7 +4401,7 @@ Description of the database
 
 	<table width="100%">
 		<tr>
-			<td width="100%"><table border="0" cellpadding="0" cellspacing="0" width="100%"><tr><td width="100%" background="images/background_blue2.gif"><font face="Arial,Helvetica" size="-2">European Commission</font></td><td background="images/background_blue1.gif" valign="center" align="left"><a href="#374673" onMouseOver="visioninfo('Adoption by Commission','11-11-2005','<img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> ')" onMouseOut="cacheinfo()"><img src="http://ec.europa.eu/prelex/images/bullet_blue1.gif" border="0" align="middle" width="8"></a><img src="http://ec.europa.eu/prelex/images/clearpixel.gif" width="257" height="16" border="0" align="middle"><a href="#378807" onMouseOver="visioninfo('Commission position on EP amendments on 1st reading','15-06-2006','')" onMouseOut="cacheinfo()"><img src="http://ec.europa.eu/prelex/images/bullet_blue1.gif" border="0" align="middle" width="8"></a><img src="http://ec.europa.eu/prelex/images/clearpixel.gif" width="177" height="16" border="0" align="middle"><a href="#381792" onMouseOver="visioninfo('Adopt. declaration comn posit.','14-11-2006','<img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> ')" onMouseOut="cacheinfo()"><img src="http://ec.europa.eu/prelex/images/bullet_blue1.gif" border="0" align="middle" width="8"></a></td><td></td></tr><tr><td width="100%" background="images/background_purple2.gif"><font face="Arial,Helvetica" size="-2">European Parliament</font></td><td background="images/background_purple1.gif" valign="center" align="left"><img src="http://ec.europa.eu/prelex/images/clearpixel.gif" width="264" height="16" border="0" align="middle"><a href="#378646" onMouseOver="visioninfo('EP opinion 1st rdg','15-06-2006','<img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> ')" onMouseOut="cacheinfo()"><img src="http://ec.europa.eu/prelex/images/bullet_blue1.gif" border="0" align="middle" width="8"></a><img src="http://ec.europa.eu/prelex/images/clearpixel.gif" width="181" height="16" border="0" align="middle"><a href="#381963" onMouseOver="visioninfo('EP receipt of common position','16-11-2006','')" onMouseOut="cacheinfo()"><img src="http://ec.europa.eu/prelex/images/bullet_blue1.gif" border="0" align="middle" width="8"></a><img src="http://ec.europa.eu/prelex/images/clearpixel.gif" width="24" height="16" border="0" align="middle"><a href="#382451" onMouseOver="visioninfo('EP opinion 2nd rdg','12-12-2006','<img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> ')" onMouseOut="cacheinfo()"><img src="http://ec.europa.eu/prelex/images/bullet_blue1.gif" border="0" align="middle" width="8"></a><a href="#383234" onMouseOver="visioninfo('Signature by EP and Council','18-12-2006','<img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> ')" onMouseOut="cacheinfo()"><img src="http://ec.europa.eu/prelex/images/bullet_blue1.gif" border="0" align="middle" width="8"></a></td><td></td></tr><tr><td width="100%" background="images/background_green2.gif"><font face="Arial,Helvetica" size="-2">Council</font></td><td background="images/background_green1.gif" valign="center" align="left"><img src="http://ec.europa.eu/prelex/images/clearpixel.gif" width="450" height="16" border="0" align="middle"><a href="#381830" onMouseOver="visioninfo('Adoption common position','14-11-2006','<img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> ')" onMouseOut="cacheinfo()"><img src="http://ec.europa.eu/prelex/images/bullet_blue1.gif" border="0" align="middle" width="8"></a><img src="http://ec.europa.eu/prelex/images/clearpixel.gif" width="34" height="16" border="0" align="middle"><a href="#383234" onMouseOver="visioninfo('Signature by EP and Council','18-12-2006','<img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> ')" onMouseOut="cacheinfo()"><img src="http://ec.europa.eu/prelex/images/bullet_blue1.gif" border="0" align="middle" width="8"></a></td><td></td></tr><tr><td width="" background="#000000"></td><td height="8"><img src="http://ec.europa.eu/prelex/images/background_grey2.gif" width="25" height="8" border="0" alt="11-2005"><img src="http://ec.europa.eu/prelex/images/background_grey1.gif" width="39" height="8" border="0" alt="12-2005"><img src="http://ec.europa.eu/prelex/images/background_grey2.gif" width="38" height="8" border="0" alt="01-2006"><img src="http://ec.europa.eu/prelex/images/background_grey1.gif" width="35" height="8" border="0" alt="02-2006"><img src="http://ec.europa.eu/prelex/images/background_grey2.gif" width="39" height="8" border="0" alt="03-2006"><img src="http://ec.europa.eu/prelex/images/background_grey1.gif" width="37" height="8" border="0" alt="04-2006"><img src="http://ec.europa.eu/prelex/images/background_grey2.gif" width="39" height="8" border="0" alt="05-2006"><img src="http://ec.europa.eu/prelex/images/background_grey1.gif" width="37" height="8" border="0" alt="06-2006"><img src="http://ec.europa.eu/prelex/images/background_grey2.gif" width="39" height="8" border="0" alt="07-2006"><img src="http://ec.europa.eu/prelex/images/background_grey1.gif" width="38" height="8" border="0" alt="08-2006"><img src="http://ec.europa.eu/prelex/images/background_grey2.gif" width="37" height="8" border="0" alt="09-2006"><img src="http://ec.europa.eu/prelex/images/background_grey1.gif" width="39" height="8" border="0" alt="10-2006"><img src="http://ec.europa.eu/prelex/images/background_grey2.gif" width="37" height="8" border="0" alt="11-2006"><img src="http://ec.europa.eu/prelex/images/background_grey1.gif" width="21" height="8" border="0" alt="12-2006"></td><td><img src="http://ec.europa.eu/prelex/images/arrowright1.gif" width="16" height="8" border="0"></td></tr><tr><td></td><td><table width="100%" border="0" cellspacing="0" cellpadding="0"><td align="left" width="20%"><font face="Arial,Helvetica" size="-2">^<br>11-11-2005</font></td><td align="center" width="20%"><font face="Arial,Helvetica" size="-2">^<br>03-2006</font></td><td align="center" width="20%"><font face="Arial,Helvetica" size="-2">^<br>05-2006</font></td><td align="center" width="20%"><font face="Arial,Helvetica" size="-2">^<br>08-2006</font></td><td align="right" width="20%"><font face="Arial,Helvetica" size="-2">^<br>18-12-2006</font></td></table></td></tr></table></td>
+			<td width="100%"><table border="0" cellpadding="0" cellspacing="0" width="100%"><tr><td width="100%" background="images/background_blue2.gif"><font face="Arial,Helvetica" size="-2">European Commission</font></td><td background="images/background_blue1.gif" valign="center" align="left"><a href="#374673" onMouseOver="visiondata('Adoption by Commission','11-11-2005','<img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> ')" onMouseOut="cachedata()"><img src="http://ec.europa.eu/prelex/images/bullet_blue1.gif" border="0" align="middle" width="8"></a><img src="http://ec.europa.eu/prelex/images/clearpixel.gif" width="257" height="16" border="0" align="middle"><a href="#378807" onMouseOver="visiondata('Commission position on EP amendments on 1st reading','15-06-2006','')" onMouseOut="cachedata()"><img src="http://ec.europa.eu/prelex/images/bullet_blue1.gif" border="0" align="middle" width="8"></a><img src="http://ec.europa.eu/prelex/images/clearpixel.gif" width="177" height="16" border="0" align="middle"><a href="#381792" onMouseOver="visiondata('Adopt. declaration comn posit.','14-11-2006','<img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> ')" onMouseOut="cachedata()"><img src="http://ec.europa.eu/prelex/images/bullet_blue1.gif" border="0" align="middle" width="8"></a></td><td></td></tr><tr><td width="100%" background="images/background_purple2.gif"><font face="Arial,Helvetica" size="-2">European Parliament</font></td><td background="images/background_purple1.gif" valign="center" align="left"><img src="http://ec.europa.eu/prelex/images/clearpixel.gif" width="264" height="16" border="0" align="middle"><a href="#378646" onMouseOver="visiondata('EP opinion 1st rdg','15-06-2006','<img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> ')" onMouseOut="cachedata()"><img src="http://ec.europa.eu/prelex/images/bullet_blue1.gif" border="0" align="middle" width="8"></a><img src="http://ec.europa.eu/prelex/images/clearpixel.gif" width="181" height="16" border="0" align="middle"><a href="#381963" onMouseOver="visiondata('EP receipt of common position','16-11-2006','')" onMouseOut="cachedata()"><img src="http://ec.europa.eu/prelex/images/bullet_blue1.gif" border="0" align="middle" width="8"></a><img src="http://ec.europa.eu/prelex/images/clearpixel.gif" width="24" height="16" border="0" align="middle"><a href="#382451" onMouseOver="visiondata('EP opinion 2nd rdg','12-12-2006','<img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> ')" onMouseOut="cachedata()"><img src="http://ec.europa.eu/prelex/images/bullet_blue1.gif" border="0" align="middle" width="8"></a><a href="#383234" onMouseOver="visiondata('Signature by EP and Council','18-12-2006','<img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> ')" onMouseOut="cachedata()"><img src="http://ec.europa.eu/prelex/images/bullet_blue1.gif" border="0" align="middle" width="8"></a></td><td></td></tr><tr><td width="100%" background="images/background_green2.gif"><font face="Arial,Helvetica" size="-2">Council</font></td><td background="images/background_green1.gif" valign="center" align="left"><img src="http://ec.europa.eu/prelex/images/clearpixel.gif" width="450" height="16" border="0" align="middle"><a href="#381830" onMouseOver="visiondata('Adoption common position','14-11-2006','<img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> ')" onMouseOut="cachedata()"><img src="http://ec.europa.eu/prelex/images/bullet_blue1.gif" border="0" align="middle" width="8"></a><img src="http://ec.europa.eu/prelex/images/clearpixel.gif" width="34" height="16" border="0" align="middle"><a href="#383234" onMouseOver="visiondata('Signature by EP and Council','18-12-2006','<img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> ')" onMouseOut="cachedata()"><img src="http://ec.europa.eu/prelex/images/bullet_blue1.gif" border="0" align="middle" width="8"></a></td><td></td></tr><tr><td width="" background="#000000"></td><td height="8"><img src="http://ec.europa.eu/prelex/images/background_grey2.gif" width="25" height="8" border="0" alt="11-2005"><img src="http://ec.europa.eu/prelex/images/background_grey1.gif" width="39" height="8" border="0" alt="12-2005"><img src="http://ec.europa.eu/prelex/images/background_grey2.gif" width="38" height="8" border="0" alt="01-2006"><img src="http://ec.europa.eu/prelex/images/background_grey1.gif" width="35" height="8" border="0" alt="02-2006"><img src="http://ec.europa.eu/prelex/images/background_grey2.gif" width="39" height="8" border="0" alt="03-2006"><img src="http://ec.europa.eu/prelex/images/background_grey1.gif" width="37" height="8" border="0" alt="04-2006"><img src="http://ec.europa.eu/prelex/images/background_grey2.gif" width="39" height="8" border="0" alt="05-2006"><img src="http://ec.europa.eu/prelex/images/background_grey1.gif" width="37" height="8" border="0" alt="06-2006"><img src="http://ec.europa.eu/prelex/images/background_grey2.gif" width="39" height="8" border="0" alt="07-2006"><img src="http://ec.europa.eu/prelex/images/background_grey1.gif" width="38" height="8" border="0" alt="08-2006"><img src="http://ec.europa.eu/prelex/images/background_grey2.gif" width="37" height="8" border="0" alt="09-2006"><img src="http://ec.europa.eu/prelex/images/background_grey1.gif" width="39" height="8" border="0" alt="10-2006"><img src="http://ec.europa.eu/prelex/images/background_grey2.gif" width="37" height="8" border="0" alt="11-2006"><img src="http://ec.europa.eu/prelex/images/background_grey1.gif" width="21" height="8" border="0" alt="12-2006"></td><td><img src="http://ec.europa.eu/prelex/images/arrowright1.gif" width="16" height="8" border="0"></td></tr><tr><td></td><td><table width="100%" border="0" cellspacing="0" cellpadding="0"><td align="left" width="20%"><font face="Arial,Helvetica" size="-2">^<br>11-11-2005</font></td><td align="center" width="20%"><font face="Arial,Helvetica" size="-2">^<br>03-2006</font></td><td align="center" width="20%"><font face="Arial,Helvetica" size="-2">^<br>05-2006</font></td><td align="center" width="20%"><font face="Arial,Helvetica" size="-2">^<br>08-2006</font></td><td align="right" width="20%"><font face="Arial,Helvetica" size="-2">^<br>18-12-2006</font></td></table></td></tr></table></td>
 
 		</tr>
 	</table>

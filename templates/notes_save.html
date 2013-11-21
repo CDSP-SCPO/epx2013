@@ -1,0 +1,10 @@
+<label  for="id_notes">{{ display_name.notes }}:</label>
+{{ form_data.notes }}
+
+<button id="save_act" name="save_act" type="submit" class="btn btn-primary" data-loading-text="Loading...">SAVE THE ACT</button>
+
+<!-- success or error message -->
+<div id="msg" class="{{ msg_class }}">{{ msg }}</div>
+
+<!-- anchor top page -->
+<a id="bottom_anchor" href="#top_anchor">Go to the top</a>

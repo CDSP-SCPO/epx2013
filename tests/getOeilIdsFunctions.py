@@ -5,52 +5,52 @@ get the ids from Oeil
 import urllib
 import re
 from bs4 import BeautifulSoup
-import configurationFile as conf
+import config_file as conf
 
 
-def getOeilUrl(noUniqueType, noUniqueAnnee, noUniqueChrono):
+def get_url_oeil(no_unique_type, no_unique_annee, no_unique_chrono):
 	"""
 	FUNCTION
-	returns the oeil url
+	return the oeil url
 	PARAMETERS
-	noUniqueAnnee: noUniqueAnnee variable
-	noUniqueChrono: noUniqueChrono variable
-	noUniqueType: noUniqueType variable
+	no_unique_annee: no_unique_annee variable
+	no_unique_chrono: no_unique_chrono variable
+	no_unique_type: no_unique_type variable
 	RETURN
 	url of the oeil page
 	"""
-	#noUniqueChrono coded on 4 digits if numbers only and 5 if final character is a letter
+	#no_unique_chrono coded on 4 digits if numbers only and 5 if final character is a letter
 	#if only digits
-	if noUniqueChrono=="":
+	if no_unique_chrono=="":
 		return None
-	if noUniqueChrono[-1].isdigit():
-		noUniqueChronoLen=4
+	if no_unique_chrono[-1].isdigit():
+		no_unique_chrono_len=4
 	else:
-		noUniqueChronoLen=5
+		no_unique_chrono_len=5
 
-	while len(noUniqueChrono)!=noUniqueChronoLen:
-		noUniqueChrono="0"+str(noUniqueChrono)
+	while len(no_unique_chrono)!=no_unique_chrono_len:
+		no_unique_chrono="0"+str(no_unique_chrono)
 
 	#http://www.europarl.europa.eu/oeil/popups/ficheprocedure.do?lang=en&reference=2005/0223(COD)
-	#~ dummyUrl="http://www.europarl.europa.eu/oeil/popups/ficheprocedure.do?lang=en&reference=NOUNIQUEANNEE/NOUNIQUECHRONO(NOUNIQUETYPE)"
-	dummyUrl=conf.oeilUrl
-	dummyUrl=dummyUrl.replace("NOUNIQUEANNEE", noUniqueAnnee, 1)
-	dummyUrl=dummyUrl.replace("NOUNIQUECHRONO", noUniqueChrono, 1)
-	dummyUrl=dummyUrl.replace("NOUNIQUETYPE", noUniqueType, 1)
-	return dummyUrl
+	#~ url="http://www.europarl.europa.eu/oeil/popups/ficheprocedure.do?lang=en&reference=NOUNIQUEANNEE/NOUNIQUECHRONO(NOUNIQUETYPE)"
+	url=conf.url_oeil
+	url=url.replace("NOUNIQUEANNEE", no_unique_annee, 1)
+	url=url.replace("NOUNIQUECHRONO", no_unique_chrono, 1)
+	url=url.replace("NOUNIQUETYPE", no_unique_type, 1)
+	return url
 
 
-def getOeilUrlContent(url):
+def get_url_content_oeil(url):
 	"""
 	FUNCTION
-	checks if the oeil url exists and return its content
+	check if the oeil url exists and return its content
 	PARAMETERS
 	url: oeil url
 	RETURN
 	content of the page if the url exists and false otherwise
 	"""
 	try:
-		soup = BeautifulSoup(urllib.urlopen(url))
+		soup=BeautifulSoup(urllib.urlopen(url))
 		if (soup.title.string=="Procedure File: ERROR"):
 			return False
 		else:
@@ -59,143 +59,143 @@ def getOeilUrlContent(url):
 		return False
 
 
-def getEurlexIdFromOeil(soup):
+def get_no_celex(soup):
 	"""
 	FUNCTION
-	gets noCelex from oeil
+	get act from oeil
 	PARAMETERS
 	soup: oeil url content
 	RETURN
-	noCelex
+	act
 	"""
 	try:
-		noCelex=soup.find("div", {"id": "final_act"}).find("a", {"class": "sumbutton"})["title"]
-		return noCelex.split(" ")[-1]
+		act=soup.find("div", {"id": "final_act"}).find("a", {"class": "sumbutton"})["title"]
+		return act.split(" ")[-1]
 
 	except:
 		#~ print "numero celex PAS ok (oeil):"
 		return None
 
 
-def getOeilIdsFromOeil(soup):
+def get_nos_unique(soup):
 	"""
 	FUNCTION
-	gets oeil ids from oeil
+	get oeil ids from oeil
 	PARAMETERS
 	soup: oeil url content
 	RETURN
-	oeil ids (noUniqueType, noUniqueAnnee, noUniqueChrono)
+	oeil ids (no_unique_type, no_unique_annee, no_unique_chrono)
 	"""
 	try:
 		title=soup.title.string
 		#~ print "title (oeil):", title
 		#Procedure File: 2005/0223(COD)
-		title = title.replace('Procedure File: ','').split("/")
+		title=title.replace('Procedure File: ','').split("/")
 		#~ print "new title (oeil):", title
-		noUniqueAnnee=title[0]
+		no_unique_annee=title[0]
 		title=title[1].split("(")
-		tempNoUniqueChrono=title[0]
+		no_unique_chrono_temp=title[0]
 		#we remove the 0s at the beginning
-		beginIndex=0
-		for character in tempNoUniqueChrono:
+		index_start=0
+		for character in no_unique_chrono_temp:
 			if character=="0":
-				beginIndex+=1
+				index_start+=1
 			else:
 				break
-		noUniqueChrono=tempNoUniqueChrono[beginIndex:]
-		noUniqueType=title[1][:-1].upper()
+		no_unique_chrono=no_unique_chrono_temp[index_start:]
+		no_unique_type=title[1][:-1].upper()
 
-		return noUniqueType, noUniqueAnnee, noUniqueChrono
+		return no_unique_type, no_unique_annee, no_unique_chrono
 
 	except:
 		return None, None, None
 
 
-def getPrelexIdsFromOeil(soup):
+def get_proposs(soup):
 	"""
 	FUNCTION
-	gets prelex ids from oeil
+	get prelex ids from oeil
 	PARAMETERS
 	soup: oeil url content
 	RETURN
-	prelex ids (proposOrigine, proposAnnee, proposChrono)
+	prelex ids (propos_origine, propos_annee, propos_chrono)
 	"""
 	#3 different kinds of acts -> 3 possibilities to retrieve prelex ids
-	kindOfAct=["Legislative proposal published", "Non-legislative basic document", "Supplementary legislative basic document", "Initial legislative proposal published"]
-	for act in kindOfAct:
+	act_type=["Legislative proposal published", "Non-legislative basic document", "Supplementary legislative basic document", "Initial legislative proposal published"]
+	for act in act_type:
 		try:
 			prelex=soup.find(text=act).findParent().findParent().find("td", {"class": "event_column_document"}).find('a')
 			#~ print "prelex (oeil):", prelex
-			prelexIds=prelex.get_text().strip()
-			#~ print "prelexIds (oeil):", prelexIds
+			ids_prelex=prelex.get_text().strip()
+			#~ print "ids_prelex (oeil):", ids_prelex
 
-			if prelexIds=="":
-				prelexIds=prelex.previousSibling.strip()
+			if ids_prelex=="":
+				ids_prelex=prelex.previousSibling.strip()
 
-			#~ print "prelexId (oeil):", prelexIds
-			prelexIds=prelexIds.split('(')
-			proposOrigine=prelexIds[0].upper()
-			prelexIds=prelexIds[1].split(')')
-			proposAnnee=prelexIds[0]
-			tempProposChrono=prelexIds[1]
-			#~ print "tempProposChrono (oeil):", tempProposChrono
+			#~ print "prelexId (oeil):", ids_prelex
+			ids_prelex=ids_prelex.split('(')
+			propos_origine=ids_prelex[0].upper()
+			ids_prelex=ids_prelex[1].split(')')
+			propos_annee=ids_prelex[0]
+			propos_chrono_temp=ids_prelex[1]
+			#~ print "propos_chrono_temp (oeil):", propos_chrono_temp
 
 			#remove trailing zeros
-			beginIndex=0
-			for character in tempProposChrono:
+			index_start=0
+			for character in propos_chrono_temp:
 				if character=="0":
-					beginIndex+=1
+					index_start+=1
 				else:
 					break
 
 			#if regex catches text after oeil ids, we delete it -> starts with '\r' or `'n'
-			spaces=tempProposChrono.find('\r')
-			endIndex=spaces
+			spaces=propos_chrono_temp.find('\r')
+			index_end=spaces
 
-			spaces=tempProposChrono.find('\n')
-			if spaces!=-1 and (spaces<endIndex or endIndex==-1):
-				endIndex=spaces
+			spaces=propos_chrono_temp.find('\n')
+			if spaces!=-1 and (spaces<index_end or index_end==-1):
+				index_end=spaces
 
-			if endIndex==-1:
-				proposChrono=tempProposChrono[beginIndex:]
+			if index_end==-1:
+				propos_chrono=propos_chrono_temp[index_start:]
 			else:
-				proposChrono=tempProposChrono[beginIndex:endIndex]
+				propos_chrono=propos_chrono_temp[index_start:index_end]
 			break
 
 		except:
-			proposOrigine=None
-			proposAnnee=None
-			proposChrono=None
+			propos_origine=None
+			propos_annee=None
+			propos_chrono=None
 			print "no prelex page (oeil)"
 
-	return proposOrigine, proposAnnee, proposChrono
+	return propos_origine, propos_annee, propos_chrono
 
 
-def getAllOeilIds(soup):
+def get_ids_oeil(soup):
 	"""
 	FUNCTION
-	gets all the ids from the oeil url
+	get all the ids from the oeil url
 	PARAMETERS
 	soup: oeil url content
 	RETURN
 	dictionary of retrieved data from oeil
 	"""
-	dataDic={}
+	fields={}
 
 	#eurlex id
-	dataDic['oeilNoCelex']=getEurlexIdFromOeil(soup)
-	print "oeilNoCelex:", dataDic['oeilNoCelex']
+	fields['no_celex']=get_no_celex(soup)
+	print "no_celex:", fields['no_celex']
 
 	#oeil ids
-	dataDic['oeilNoUniqueType'], dataDic['oeilNoUniqueAnnee'], dataDic['oeilNoUniqueChrono']=getOeilIdsFromOeil(soup)
-	print "oeilNoUniqueType:", dataDic['oeilNoUniqueType']
-	print "oeilNoUniqueAnnee:", dataDic['oeilNoUniqueAnnee']
-	print "oeilNoUniqueChrono:", dataDic['oeilNoUniqueChrono']
+	fields['no_unique_type'], fields['no_unique_annee'], fields['no_unique_chrono']=get_nos_unique(soup)
+	print "no_unique_type:", fields['no_unique_type']
+	print "no_unique_annee:", fields['no_unique_annee']
+	print "no_unique_chrono:", fields['no_unique_chrono']
 
 	#prelex ids
-	dataDic['oeilProposOrigine'], dataDic['oeilProposAnnee'], dataDic['oeilProposChrono']= getPrelexIdsFromOeil(soup)
-	print "oeilProposOrigine:", dataDic['oeilProposOrigine']
-	print "oeilProposAnnee:", dataDic['oeilProposAnnee']
-	print "oeilProposChrono:", dataDic['oeilProposChrono']
+	fields['propos_origine'], fields['propos_annee'], fields['propos_chrono']=get_proposs(soup)
+	print "propos_origine:", fields['propos_origine']
+	print "propos_annee:", fields['propos_annee']
+	print "propos_chrono:", fields['propos_chrono']
 
-	return dataDic
+	return fields

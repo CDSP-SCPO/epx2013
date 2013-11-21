@@ -1,0 +1,5 @@
+python==2.7.3
+Django==1.4.2
+beautifulsoup4
+mysql-server-5.5
+python-mysqldb

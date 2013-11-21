@@ -5,7 +5,7 @@
 $('#menu a[href*="' + location.pathname.split("/")[2] + '"][class!="noselect"]').parent().addClass('active');
 
 
-//show loading page info or error message
+//show loading page data or error message
 function show_msg(msg, msg_class)
 {
 	$("#loading")
@@ -15,7 +15,7 @@ function show_msg(msg, msg_class)
 	$("#loading_div").show();
 }
 
-//hide loading page info or error message
+//hide loading page data or error message
 function hide_msg()
 {
 	$("#loading_div").hide();
@@ -31,9 +31,9 @@ function choose_file($div)
 
 	$(hidden_input_file).change(function()
 	{
-		var index = $(this).val().lastIndexOf("\\") + 1;
-		var filename = $(this).val().substr(index);
-		$(visible_input_file).val(filename);
+		var index=$(this).val().lastIndexOf("\\") + 1;
+		var file_name=$(this).val().substr(index);
+		$(visible_input_file).val(file_name);
 	});
 
 	$(visible_input_file).blur();
@@ -50,11 +50,11 @@ function remove_previous_errors()
 		$(this).remove();
 	});
 	//import form
-	$("#errors_list").empty();
+	$("#errors").empty();
 }
 
 //reset a form (input text, textarea and checkbox)
-function resetForm($form)
+function reset_form($form)
 {
 	$form.find('input:text, textarea').val('');
 	$form.find('input:checkbox').removeAttr('checked').removeAttr('selected');
@@ -88,24 +88,24 @@ function handle_result(form, result)
 		//if there is already a message class on the element, remove it
 		$('#msg').removeClass(function()
 		{
-			var match = $(this).attr('class').match(/(success|error)_msg/);
+			var match=$(this).attr('class').match(/(success|error)_msg/);
 			return match ? match[0] : '';
 		});
 		$("#msg").addClass(result.msg_class);
 
-		//display errors_list (import)
+		//display errors (import)
 		if (form.attr("id")=="import_form")
 		{
-			errors_list="";
-			for ( var i = 0; i < result.errors_list.length; i++ )
+			errors="";
+			for ( var i=0; i < result.errors.length; i++ )
 			{
-				errors_list+='<div class="row-fluid error_msg">'+result.errors_list[i]+'</div>';
+				errors+='<div class="row-fluid error_msg">'+result.errors[i]+'</div>';
 			}
-			$("#errors_list").html(errors_list);
+			$("#errors").html(errors);
 		}
 
 		//reset the form
-		//~ resetForm(form);
+		//~ reset_form(form);
 	}
 }
 
@@ -129,7 +129,7 @@ $.ajaxSetup
 	}
 });
 
-//rfrom a menu link, load the content of the page (right side) with Ajax (no need to reload the menu and header)
+//from a menu link, load the content of the page (right side) with Ajax (no need to reload the menu and header)
 $('.internal_link').click(function(event)
 {
 	load_content($(this), event);
@@ -144,7 +144,7 @@ function load_content($a, event)
 	link=$a.attr("href")
 
 	//show message ("the page is being loaded")
-	show_msg("The page is being loaded...", "alert alert-info");
+	show_msg("The page is being loaded...", "alert alert-data");
 
 	//change the welcome message (login form)
 	if (link.match(/login/))
@@ -171,7 +171,7 @@ function load_content($a, event)
 //create an iframe in the current form
 function iframe_creation()
 {
-	var iframe = $('<iframe name="postiframe" id="postiframe" style="display: none" />');
+	var iframe=$('<iframe name="postiframe" id="postiframe" style="display: none" />');
 	//remove the previous iframe if more than one click on the submit button
 	$("#"+$(iframe).attr("id")).remove();
 	//append the iframe to the html page
@@ -193,14 +193,14 @@ function post_iframe(iframe, form, link, file)
 	}
 	form.attr("target", $(iframe).attr("id"));
 	/* tells the view the result must be loaded in an iframe -> json */
-	var input = $("<input>").attr("type", "hidden").attr("name", "iframe");
+	var input=$("<input>").attr("type", "hidden").attr("name", "iframe");
 	form.append($(input));
 	form.submit();
 }
 
 
 /* submit a form containing a file to upload or download */
-function send_file(form, link, file, loadCallback)
+function send_file(form, link, file, callback)
 {
 	//create iframe
 	var iframe=iframe_creation();
@@ -209,15 +209,15 @@ function send_file(form, link, file, loadCallback)
 	post_iframe(iframe, form, link, file)
 
 	//export form: if no error, no iframe load
-	if (form.attr("id")=="export_form" && $("#id_sortFields").val()!="" && $("#id_sortDirection").val()!="")
+	if (form.attr("id")=="export_form" && $("#id_sort_fields").val()!="" && $("#id_sort_direction").val()!="")
 	{
 		acts_nb=$("#acts_nb").val();
-		var result = {
+		var result={
 		"msg": acts_nb+" act(s) are being downloaded...",
 		"msg_class": "success_msg"
 		};
 
-		loadCallback(JSON.stringify(result));
+		callback(JSON.stringify(result));
 	}
 
 	//import form
@@ -226,7 +226,7 @@ function send_file(form, link, file, loadCallback)
 		//get result sent by the view and loaded into the iframe
 		var body=window.frames[$(iframe).attr("name")].document.body;
 		result=(body.textContent || body.innerText);
-		loadCallback(result);
+		callback(result);
 	});
 
 }
@@ -260,7 +260,7 @@ function submit_form($form, file, button, event)
 	else
 	{
 		//otherwise ajax to post the data
-		var form_data = $form.serialize();
+		var form_data=$form.serialize();
 		$.ajax
 		({
 			type: 'POST',

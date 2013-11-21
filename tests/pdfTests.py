@@ -3,13 +3,13 @@
 import pyPdf
 
 def getPDFContent(path):
-    content = ""
+    content=""
     # Load PDF into pyPDF
-    pdf = pyPdf.PdfFileReader(file(path, "rb"))
+    pdf=pyPdf.PdfFileReader(file(path, "rb"))
     # Extract text from page and add to content
-    content += pdf.getPage(0).extractText()
+    content +=pdf.getPage(0).extractText()
     # Collapse whitespace
-    #~ content = " ".join(content.replace("\xa0", " ").strip().split())
+    #~ content=" ".join(content.replace("\xa0", " ").strip().split())
     return content
     
     
@@ -32,18 +32,18 @@ from cStringIO import StringIO
 
 def extractTextFromPdf(path):
 
-    rsrcmgr = PDFResourceManager()
-    retstr = StringIO()
-    codec = 'utf-8'
-    laparams = LAParams()
-    device = TextConverter(rsrcmgr, retstr, codec=codec, laparams=laparams)
+    rsrcmgr=PDFResourceManager()
+    retstr=StringIO()
+    codec='utf-8'
+    laparams=LAParams()
+    device=TextConverter(rsrcmgr, retstr, codec=codec, laparams=laparams)
 
-    fp = file(path, 'rb')
+    fp=file(path, 'rb')
     process_pdf(rsrcmgr, device, fp)
     fp.close()
     device.close()
 
-    str = retstr.getvalue()
+    str=retstr.getvalue()
     retstr.close()
     return str
 

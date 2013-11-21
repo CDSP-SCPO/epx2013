@@ -1,0 +1,141 @@
+<!-- act ids form -->
+
+<div id="id_update_act__all__errors" class="row-fluid">{{ form_ids.non_field_errors }}</div>
+{% if act.council_path %}
+	<div class="row-fluid data_msg">Link to the <a href="{{ act.council_path }}" target="_blank">{{ display_name.council_path }}.</a></div>
+{% endif %}
+{% if act.split_propos %}
+	<div class="row-fluid"><span class="data_msg">This is a split proposition ({{ display_name.split_propos }}={{ act.split_propos }}).</span></div>
+{% endif %}
+
+<br />
+
+<!-- validation table -->
+<table id="act_ids_table" class="table table-bordered table-hover table-condensed span12">
+	<thead>
+		<tr class="table_column_title">
+			<th>-</th>
+			<th>{{ display_name.no_celex }}</th>
+			<th>{{ display_name.no_unique_type }}</th>
+			<th>{{ display_name.no_unique_annee }}</th>
+			<th>{{ display_name.no_unique_chrono }}</th>
+			<th>{{ display_name.propos_origine }}</th>
+			<th>{{ display_name.propos_annee }}</th>
+			<th>{{ display_name.propos_chrono }}</th>
+			<th>{{ display_name.dos_id }}</th>
+			<th>url exists?</th>
+			<th>url link</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td class="table_column_title">csv file</td>
+			{% if data.no_celex %}<td>{% else %}<td class="error_msg">{% endif %}
+			{{ act_ids.index.no_celex }}</td>
+			{% if data.no_unique_type %}<td>{% else %}<td class="error_msg">{% endif %}
+			{{ act_ids.index.no_unique_type }}</td>
+			{% if data.no_unique_annee %}<td>{% else %}<td class="error_msg">{% endif %}
+			{{ act_ids.index.no_unique_annee }}</td>
+			{% if data.no_unique_chrono %}<td>{% else %}<td class="error_msg">{% endif %}
+			{{ act_ids.index.no_unique_chrono }}</td>
+			{% if data.propos_origine %}<td>{% else %}<td class="error_msg">{% endif %}
+			{{ act_ids.index.propos_origine }}</td>
+			{% if data.propos_annee %}<td>{% else %}<td class="error_msg">{% endif %}
+			{{ act_ids.index.propos_annee }}</td>
+			{% if data.propos_chrono %}<td>{% else %}<td class="error_msg">{% endif %}
+			{{ act_ids.index.propos_chrono }}</td>
+			{% if data.dos_id %}<td>{% else %}<td class="error_msg">{% endif %}
+			<div class="fieldWrapper">{{ form_ids.dos_id_choices }}</div></td>
+			<td>-</td>
+			<td>-</td>
+		</tr>
+		<tr>
+			<td class="table_column_title">eurlex</td>
+			{% if data.no_celex %}<td>{% else %}<td class="error_msg">{% endif %}
+			{{ act_ids.eurlex.no_celex }}</td>
+			{% if data.no_unique_type %}<td>{% else %}<td class="error_msg">{% endif %}
+			{{ act_ids.eurlex.no_unique_type }}</td>
+			{% if data.no_unique_annee %}<td>{% else %}<td class="error_msg">{% endif %}
+			{{ act_ids.eurlex.no_unique_annee }}</td>
+			{% if data.no_unique_chrono %}<td>{% else %}<td class="error_msg">{% endif %}
+			{{ act_ids.eurlex.no_unique_chrono }}</td>
+			{% if data.propos_origine %}<td>{% else %}<td class="error_msg">{% endif %}
+			{{ act_ids.eurlex.propos_origine }}</td>
+			{% if data.propos_annee %}<td>{% else %}<td class="error_msg">{% endif %}
+			{{ act_ids.eurlex.propos_annee }}</td>
+			{% if data.propos_chrono %}<td>{% else %}<td class="error_msg">{% endif %}
+			{{ act_ids.eurlex.propos_chrono }}</td>
+			<td>-</td>
+			{% if act_ids.eurlex.url_exists %}<td>{% else %}<td class="error_msg">{% endif %}
+			{{ act_ids.eurlex.url_exists }}</td>
+			<td><a href="{{ data.url_eurlex }}" target="_blank">eurlex</a></td>
+		</tr>
+		<tr>
+			<td class="table_column_title">oeil</td>
+			{% if data.no_celex %}<td>{% else %}<td class="error_msg">{% endif %}
+			{{ act_ids.oeil.no_celex }}</td>
+			{% if data.no_unique_type %}<td>{% else %}<td class="error_msg">{% endif %}
+			{{ act_ids.oeil.no_unique_type }}</td>
+			{% if data.no_unique_annee %}<td>{% else %}<td class="error_msg">{% endif %}
+			{{ act_ids.oeil.no_unique_annee }}</td>
+			{% if data.no_unique_chrono %}<td>{% else %}<td class="error_msg">{% endif %}
+			{{ act_ids.oeil.no_unique_chrono }}</td>
+			{% if data.propos_origine %}<td>{% else %}<td class="error_msg">{% endif %}
+			{{ act_ids.oeil.propos_origine }}</td>
+			{% if data.propos_annee %}<td>{% else %}<td class="error_msg">{% endif %}
+			{{ act_ids.oeil.propos_annee }}</td>
+			{% if data.propos_chrono %}<td>{% else %}<td class="error_msg">{% endif %}
+			{{ act_ids.oeil.propos_chrono }}</td>
+			<td>-</td>
+			{% if act_ids.oeil.url_exists %}<td>{% else %}<td class="error_msg">{% endif %}
+			{{ act_ids.oeil.url_exists }}</td>
+			<td><a href="{{ data.url_oeil }}" target="_blank">oeil</a></td>
+		</tr>
+		<tr>
+			<td class="table_column_title">prelex</td>
+			{% if data.no_celex %}<td>{% else %}<td class="error_msg">{% endif %}
+			{{ act_ids.prelex.no_celex }}</td>
+			{% if data.no_unique_type %}<td>{% else %}<td class="error_msg">{% endif %}
+			{{ act_ids.prelex.no_unique_type }}</td>
+			{% if data.no_unique_annee %}<td>{% else %}<td class="error_msg">{% endif %}
+			{{ act_ids.prelex.no_unique_annee }}</td>
+			{% if data.no_unique_chrono %}<td>{% else %}<td class="error_msg">{% endif %}
+			{{ act_ids.prelex.no_unique_chrono }}</td>
+			{% if data.propos_origine %}<td>{% else %}<td class="error_msg">{% endif %}
+			{{ act_ids.prelex.propos_origine }}</td>
+			{% if data.propos_annee %}<td>{% else %}<td class="error_msg">{% endif %}
+			{{ act_ids.prelex.propos_annee }}</td>
+			{% if data.propos_chrono %}<td>{% else %}<td class="error_msg">{% endif %}
+			{{ act_ids.prelex.propos_chrono }}</td>
+			{% if data.dos_id %}<td>{% else %}<td class="error_msg">{% endif %}
+			{{ act_ids.prelex.dos_id }}</td>
+			{% if act_ids.prelex.url_exists %}<td>{% else %}<td class="error_msg">{% endif %}
+			{{ act_ids.prelex.url_exists }}</td>
+			<td><a href="{{ data.url_prelex }}" target="_blank">prelex</a></td>
+		</tr>
+
+		<tr>
+			<td class="table_column_title">VALIDATION</td>
+			{% for field in form_ids %}
+				{% if field.name != "dos_id_choices" %}
+					<td>
+						<div class="fieldWrapper">
+							<div id="id_{{ field.name }}_errors" class="row-fluid">{{ field.errors }}</div>
+							{{ field }}
+						</div>
+					</td>
+				{% endif %}
+			{% endfor %}
+
+			<td>
+				<button id="update_act" name="update_act" type="submit" class="btn btn-primary">Update</button>
+			</td>
+			<td><img id="loading_gif_update_act" src="{{STATIC_URL}}europolix/img/loading_small.gif" /></td>
+		</tr>
+	</tbody>
+
+</table>
+
+<div id="notes_and_save" class="row-fluid">{% include "notes_save.html" %}</div>
+
+

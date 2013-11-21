@@ -4,105 +4,101 @@
 3/cross validation between the websites
 """
 
-import getEurlexIdsFunctions as eurlex
-import getOeilIdsFunctions as oeil
-import getPrelexIdsFunctions as prelex
+import get_ids_eurlex as eurlex
+import get_ids_oeil as oeil
+import get_ids_prelex as prelex
 
 
-def checkAndGetEurlexIds(noCelex):
+def check_get_ids_eurlex(act):
 	"""
 	FUNCTION
-	checks and gets all the ids from the eurlex id
+	check and get all the ids from the eurlex id
 	PARAMETERS
-	noCelex: noCelex id (Eurlex)
+	act: act id (Eurlex)
 	RETURN
 	dictionary of retrieved data from eurlex
 	"""
-	dataDic={}
-	eurlexUrl=eurlex.getEurlexUrl(noCelex)
-	print "eurlex url", eurlexUrl
-	eurlexUrlContent=eurlex.getEurlexUrlContent(eurlexUrl)
-	if eurlexUrlContent!=False:
-		#~ #gets information from eurlex
-		dataDic['fileEurlexUrlExists']=True
-		dataDic.update(eurlex.getAllEurlexIds(eurlexUrlContent))
+	fields={}
+	url_eurlex=eurlex.get_url_eurlex(act)
+	print "eurlex url", url_eurlex
+	url_eurlex_content=eurlex.get_url_content_eurlex(url_eurlex)
+	if url_eurlex_content!=False:
+		#~ #get data from eurlex
+		fields['url_exists']=True
+		fields.update(eurlex.get_ids_eurlex(url_eurlex_content))
 	else:
-		dataDic['fileEurlexUrlExists']=False
+		fields['url_exists']=False
 		print "eurlex url does not exist!!"
-	
-	#~ dataDic['eurlexEurlexUrl']=eurlexUrl
-	
-	return dataDic
-	
 
-def checkAndGetOeilIds(noUniqueType, noUniqueAnnee, noUniqueChrono):
+	return fields
+
+
+def check_get_ids_oeil(no_unique_type, no_unique_annee, no_unique_chrono):
 	"""
 	FUNCTION
-	checks and gets all the ids from the oeil ids
+	check and get all the ids from the oeil ids
 	PARAMETERS
-	noUniqueAnnee: noUniqueAnnee id
-	noUniqueChrono: noUniqueChrono id
-	noUniqueType: noUniqueType id
+	no_unique_annee: no_unique_annee id
+	no_unique_chrono: no_unique_chrono id
+	no_unique_type: no_unique_type id
 	RETURN
 	dictionary of retrieved data from oeil
 	"""
-	dataDic={}
-	oeilUrl=oeil.getOeilUrl(noUniqueType, noUniqueAnnee, noUniqueChrono)
-	print "oeil url", oeilUrl
-	oeilUrlContent=oeil.getOeilUrlContent(oeilUrl)
-	if oeilUrlContent!=False:
-		#~ #gets information from oeil
-		dataDic['fileOeilUrlExists']=True
-		dataDic.update(oeil.getAllOeilIds(oeilUrlContent))
+	fields={}
+	url_oeil=oeil.get_url_oeil(no_unique_type, no_unique_annee, no_unique_chrono)
+	print "oeil url", url_oeil
+	url_oeil_content=oeil.get_url_content_oeil(url_oeil)
+	if url_oeil_content!=False:
+		#~ #get data from oeil
+		fields['url_exists']=True
+		fields.update(oeil.get_ids_oeil(url_oeil_content))
 	else:
 		print "oeil url does not exist!!"
-		dataDic['fileOeilUrlExists']=False
-		dataDic['oeilNoCelex']=None
-		dataDic['oeilNoUniqueAnnee']=None
-		dataDic['oeilNoUniqueType']=None
-		dataDic['oeilNoUniqueChrono']=None
-		dataDic['oeilProposOrigine']=None
-		dataDic['oeilProposAnnee']=None
-		dataDic['oeilProposChrono']=None
-	
-	#~ dataDic['oeilOeilUrl']=oeilUrl
-	
-	return dataDic
-	
-def checkAndGetPrelexIds(idsDic):
+		fields['url_exists']=False
+		fields['no_celex']=None
+		fields['no_unique_annee']=None
+		fields['no_unique_type']=None
+		fields['no_unique_chrono']=None
+		fields['propos_origine']=None
+		fields['propos_annee']=None
+		fields['propos_chrono']=None
+
+	return fields
+
+def check_get_ids_prelex(ids):
 	"""
 	FUNCTION
-	checks and gets all the ids from the prelex ids
+	check and get all the ids from the prelex ids
 	PARAMETERS
-	idsDic: dosId or proposOrigine proposAnnee proposChrono
+	ids: dos_id or propos_origine propos_annee propos_chrono
 	RETURN
 	dictionary of retrieved data from prelex
 	"""
-	dataDic={}
-	if "proposOrigine" in idsDic:
-		prelexUrl=prelex.getOldPrelexUrl(idsDic['proposOrigine'], idsDic['proposAnnee'], idsDic['proposChrono'])
-	elif "noUniqueType" in idsDic:
-		prelexUrl=prelex.getOldPrelexUrlWithOeilIds(idsDic['noUniqueType'], idsDic['noUniqueAnnee'], idsDic['noUniqueChrono'])
-	elif "dosId" in idsDic:
-		prelexUrl=prelex.getPrelexUrl(idsDic['dosId'])
-			
-	prelexUrlContent=prelex.getPrelexUrlContent(prelexUrl)
-	if prelexUrlContent!=False:
-		#~ #gets information from prelex
-		dataDic['filePrelexUrlExists']=True
-		dataDic.update(prelex.getAllPrelexIds(prelexUrlContent))
+	fields={}
+	if "propos_origine" in ids:
+		url_prelex=prelex.get_url_prelex_propos(ids['propos_origine'], ids['propos_annee'], ids['propos_chrono'])
+	elif "no_unique_type" in ids:
+		url_prelex=prelex.get_url_prelex_no_unique(ids['no_unique_type'], ids['no_unique_annee'], ids['no_unique_chrono'])
+	elif "dos_id" in ids:
+		url_prelex=prelex.get_url_prelex(ids['dos_id'])
+
+	url_prelex_content=prelex.get_url_content_prelex(url_prelex)
+	if url_prelex_content!=False:
+		#~ #get data from prelex
+		fields['url_exists']=True
+		fields.update(prelex.get_ids_prelex(url_prelex_content))
 	else:
 		print "prelex url does not exist!!"
-		dataDic['filePrelexUrlExists']=False
-		dataDic['prelexNosCelex']=None
-		dataDic['prelexDosId']=None
-		dataDic['prelexNoUniqueAnnee']=None
-		dataDic['prelexNoUniqueType']=None
-		dataDic['prelexNoUniqueChrono']=None
-		dataDic['prelexProposOrigine']=None
-		dataDic['prelexProposAnnee']=None
-		dataDic['prelexProposChrono']=None
-		
-	dataDic['filePrelexUrl']=prelexUrl
+		fields['url_exists']=False
+		fields['no_celex']=None
+		fields['dos_id']=None
+		fields['no_unique_annee']=None
+		fields['no_unique_type']=None
+		fields['no_unique_chrono']=None
+		fields['propos_origine']=None
+		fields['propos_annee']=None
+		fields['propos_chrono']=None
 
-	return dataDic
+	fields['url_prelex']=url_prelex
+
+	return fields

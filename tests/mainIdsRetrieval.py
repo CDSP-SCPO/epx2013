@@ -1,35 +1,35 @@
-import getEurlexIdsFunctions as eurlex
-import getOeilIdsFunctions as oeil
-import getPrelexIdsFunctions as prelex
+import get_ids_eurlex as eurlex
+import get_ids_oeil as oeil
+import get_ids_prelex as prelex
 
 #ids
 #eurlex
-noCelex="32006R1921"
-#~ noCelex="32009D0829"
+act="32006R1921"
+#~ act="32009D0829"
 
 #oeil
-noUniqueAnnee="2005"
-noUniqueChrono="63"
-noUniqueType="CNS"
-noUniqueAnnee="2008"
-noUniqueChrono="0762"
-noUniqueType="COD"
+no_unique_annee="2005"
+no_unique_chrono="63"
+no_unique_type="CNS"
+no_unique_annee="2008"
+no_unique_chrono="0762"
+no_unique_type="COD"
 
 #prelex
-dosId="193517"
-dosId="196066"
-proposAnnee="2004"
-proposChrono="15130"
-proposOrigine="CONS"
-prelexIdsDic={}
-prelexIdsDic['dosId']=dosId
-prelexIdsDic["proposAnnee"]=proposAnnee
-prelexIdsDic["proposChrono"]=proposChrono
-prelexIdsDic["proposOrigine"]=proposOrigine
+dos_id="193517"
+dos_id="196066"
+propos_annee="2004"
+propos_chrono="15130"
+propos_origine="CONS"
+ids_prelexDic={}
+ids_prelexDic['dos_id']=dos_id
+ids_prelexDic["propos_annee"]=propos_annee
+ids_prelexDic["propos_chrono"]=propos_chrono
+ids_prelexDic["propos_origine"]=propos_origine
 
-eurlexUrl="eurlexContent.html"
-oeilUrl="oeilContent.html"
-prelexUrl="prelexContent.html"
+url_eurlex="eurlexContent.html"
+url_oeil="oeilContent.html"
+url_prelex="prelexContent.html"
 
 
 #PARAMETERS TO CHANGE
@@ -43,34 +43,34 @@ choice="oeil"
 
 print ""
 
-if choice =="eurlex":
+if choice=="eurlex":
 	if ids=="yes":
-		html=eurlex.getEurlexUrlContent(eurlex.getEurlexUrl(noCelex))
+		html=eurlex.get_url_content_eurlex(eurlex.get_url_eurlex(act))
 	else:
-		html=eurlex.getEurlexUrlContent(eurlexUrl)
+		html=eurlex.get_url_content_eurlex(url_eurlex)
 
-	eurlex.getAllEurlexIds(html)
+	eurlex.get_ids_eurlex(html)
 
 elif choice=="oeil":
 	if ids=="yes":
-		html=oeil.getOeilUrlContent(oeil.getOeilUrl(noUniqueType, noUniqueAnnee, noUniqueChrono))
+		html=oeil.get_url_content_oeil(oeil.get_url_oeil(no_unique_type, no_unique_annee, no_unique_chrono))
 	else:
-		html=oeil.getOeilUrlContent(oeilUrl)
+		html=oeil.get_url_content_oeil(url_oeil)
 
-	oeil.getAllOeilIds(html)
+	oeil.get_ids_oeil(html)
 
 else:
 	if ids=="yes":
 		if choice=="prelexWithOldIds":
-			prelexUrl=prelex.getOldPrelexUrl(prelexIdsDic['proposOrigine'], prelexIdsDic['proposAnnee'], prelexIdsDic['proposChrono'])
+			url_prelex=prelex.get_url_prelex_propos(ids_prelexDic['propos_origine'], ids_prelexDic['propos_annee'], ids_prelexDic['propos_chrono'])
 		elif choice=="prelexWithOeilIds":
-			prelexUrl=prelex.getOldPrelexUrlWithOeilIds(noUniqueType, noUniqueAnnee, noUniqueChrono)
-			print "prelexUrl", prelexUrl
+			url_prelex=prelex.get_url_prelex_no_unique(no_unique_type, no_unique_annee, no_unique_chrono)
+			print "url_prelex", url_prelex
 		else:
-			prelexUrl=prelex.getPrelexUrl(prelexIdsDic['dosId'])
+			url_prelex=prelex.get_url_prelex(ids_prelexDic['dos_id'])
 
-	html=prelex.getPrelexUrlContent(prelexUrl)
-	prelex.getAllPrelexIds(html)
+	html=prelex.get_url_content_prelex(url_prelex)
+	prelex.get_ids_prelex(html)
 
 
 print ""

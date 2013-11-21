@@ -11,7 +11,7 @@ legend
 	width: 272px;
 }
 
-#id_sortFields, #id_sortDirection
+#id_sort_fields, #id_sort_direction
 {
 	width: 100%;
 }

@@ -1,4 +1,4 @@
-{% if form.fileToImport.value != None and form.fileToImport.value != "" %}
+{% if form.file_to_import.value != None and form.file_to_import.value != "" %}
 
 	<div id="help_text_border">
 
@@ -6,24 +6,27 @@
 
 		<span id="help_text_header">Here is an explanation of the format of the file to import. It must be a csv file. The first line should contain the names of the fields or be empty. It is not used for the import but the order of the fields must be as follow (starting from the very first column, 1 or A):</span><br />
 
-		<span id="import_type">{{ form.fileToImport.value|selected_label:form.fileToImport.field.choices }}: </span>
-		{% if form.fileToImport.value == "act" %}
-			{{ displayName.releveAnnee }}, {{ displayName.releveMois }}, {{ displayName.noOrdre }}, {{ displayName.titreRMC }}, {{ displayName.adoptCSRegleVote }}, {{ displayName.adoptCSAbs }}, {{ displayName.adoptCSContre }}, {{ displayName.fileNoCelex }}, {{ displayName.fileProposAnnee }}, {{ displayName.fileProposChrono }}, {{ displayName.fileProposOrigine }}, {{ displayName.fileNoUniqueAnnee }}, {{ displayName.fileNoUniqueType }}, {{ displayName.fileNoUniqueChrono }}, {{ displayName.proposSplittee }}, {{ displayName.suite2eLecturePE }}, {{ displayName.councilPath }}, {{ displayName.notes }}. <br />
-		{% elif form.fileToImport.value == "dosId" %}
-			{{ displayName.fileDosId }}, {{ displayName.fileProposAnnee }}, {{ displayName.fileProposChrono }}, {{ displayName.fileProposOrigine }}, {{ displayName.fileSplitProposNumber }}. <br />
-		{% elif form.fileToImport.value == "configCons" %}
-			{{ displayName.eurlexCodeSectRep }}, {{ displayName.prelexConfigCons }}. <br />
-		{% elif form.fileToImport.value == "codeAgenda" %}
-			{{ displayName.eurlexCodeSectRep }}, {{ displayName.eurlexCodeAgenda }}. <br />
-		{% elif form.fileToImport.value == "respPropos" %}
-			{{ displayName.prelexRespPropos }}, {{ displayName.prelexNationalPartyResp }}, {{ displayName.prelexEUGroupResp }}, {{ displayName.prelexNationResp }}. <br />
-		{% elif form.fileToImport.value == "adoptPC" %}
-			{{ displayName.releveAnnee }}, {{ displayName.releveMois }}, {{ displayName.noOrdre }}, {{ displayName.prelexAdoptPCAbs }} , {{ displayName.prelexAdoptPCContre }}. <br />
-		{% elif form.fileToImport.value == "np" %}
-			{{ displayName.opalNPCaseNumber }}, {{ displayName.fileNoCelex }}, {{ displayName.opalNP }}, {{ displayName.opalNPActivityType }},  {{ displayName.opalNPActivityDate }}. <br />
-		{% elif form.fileToImport.value == "gvtCompo" %}
-			startDate, endDate, {{ displayName.prelexNationGvtPoliticalComposition }}. <br />
+		<span id="import_type">{{ form.file_to_import.value|selected_label:form.file_to_import.field.choices }}: </span>
+		{% if form.file_to_import.value == "act" %}
+			{{ display_name.releve_annee }}, {{ display_name.releve_mois }}, {{ display_name.no_ordre }}, {{ display_name.titre_rmc }}, {{ display_name.adopt_cs_regle_vote }}, {{ display_name.adopt_cs_abs }}, {{ display_name.adopt_cs_contre }}, {{ display_name.no_celex }}, {{ display_name.propos_annee }}, {{ display_name.propos_chrono }}, {{ display_name.propos_origine }}, {{ display_name.no_unique_annee }}, {{ display_name.no_unique_type }}, {{ display_name.no_unique_chrono }}, {{ display_name.split_propos }}, {{ display_name.suite_2e_lecture_pe }}, {{ display_name.council_path }}, {{ display_name.notes }}
+		{% elif form.file_to_import.value == "dos_id" %}
+			{{ display_name.dos_id }}, {{ display_name.no_celex }} (VAL_CHP_SUP_01), {{ display_name.no_celex }} (VAL_CHP_SUP_03)
+		{% elif form.file_to_import.value == "code_agenda" %}
+			{{ display_name.code_sect }}, {{ display_name.code_agenda }}
+		{% elif form.file_to_import.value == "name" %}
+			{{ display_name.resp }}, {{ display_name.resp_party }}, {{ display_name.resp_party_family }}, {{ display_name.resp_country }}
+		{% elif form.file_to_import.value == "dg" %}
+			{{ display_name.dg }}, {{ display_name.dg_sigle }}, {{ display_name.dg_nb }}
+		{% elif form.file_to_import.value == "config_cons" %}
+			{{ display_name.code_sect }}, {{ display_name.config_cons }}
+		{% elif form.file_to_import.value == "adopt_pc" %}
+			{{ display_name.releve_annee }}, {{ display_name.releve_mois }}, {{ display_name.no_ordre }}, {{ display_name.adopt_pc_abs }} , {{ display_name.adopt_pc_contre }}
+		{% elif form.file_to_import.value  == "gvt_compo" %}
+			{{ display_name.start_date }}, {{ display_name.end_date }}, {{ display_name.gvt_compo }}
+		{% elif form.file_to_import.value == "np" %}
+			{{ display_name.case_nb }}, {{ display_name.no_celex }}, {{ display_name.np }}, {{ display_name.act_type }},  {{ display_name.act_date }}
 		{% endif %}
+		.<br />
 
 	</div>
 

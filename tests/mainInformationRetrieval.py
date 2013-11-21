@@ -1,5 +1,5 @@
 idsDataDic={}
-dataDic={}
+fields={}
 print ""
 
 #CHO0SE SOURCE (COMMENT OTHER SOURCES)
@@ -12,39 +12,39 @@ if src=="eurlex":
 	#MODIFY AT WILL!!
 	url="eurlexContent.html"
 
-	import getEurlexIdsFunctions as eurlexIds
-	import getEurlexInformationFunctions as eurlexInfo
-	html=eurlexIds.getEurlexUrlContent(url)
+	import get_ids_eurlex as eurlexIds
+	import get_data_eurlex as eurlexInfo
+	html=eurlexIds.get_url_content_eurlex(url)
 	print "INFORMATION RETRIEVAL"
-	dataDic=eurlexInfo.getEurlexInformation(html)
+	fields=eurlexInfo.get_data_eurlex(html)
 
 elif src=="oeil":
 	#MODIFY AT WILL!!
 	url="oeilContent.html"
-	idsDataDic['suite2eLecturePE']=1
+	idsDataDic['suite_2e_lecture_pe']=1
 
-	import getOeilIdsFunctions as oeilIds
-	import getOeilInformationFunctions as oeilInfo
-	html=oeilIds.getOeilUrlContent(url)
+	import get_ids_oeil as ids_oeil
+	import get_data_oeil as oeilInfo
+	html=ids_oeil.get_url_content_oeil(url)
 	print "IDS RETRIEVAL"
-	idsDataDic.update(oeilIds.getAllOeilIds(html))
+	idsDataDic.update(ids_oeil.get_ids_oeil(html))
 	print ""
 	print "INFORMATION RETRIEVAL"
-	dataDic=oeilInfo.getOeilInformation(html, idsDataDic)
+	fields=oeilInfo.get_data_oeil(html, idsDataDic)
 
 elif src=="prelex":
 	#MODIFY AT WILL!!
 	url="prelexContent.html"
-	idsDataDic['proposSplittee']=0
-	idsDataDic['suite2eLecturePE']=1
+	idsDataDic['split_propos']=0
+	idsDataDic['suite_2e_lecture_pe']=1
 
-	import getPrelexIdsFunctions as prelexIds
-	import getPrelexInformationFunctions as prelexInfo
-	html=prelexIds.getPrelexUrlContent(url)
+	import get_ids_prelex as ids_prelex
+	import get_data_prelex as prelexInfo
+	html=ids_prelex.get_url_content_prelex(url)
 	print "IDS RETRIEVAL"
-	idsDataDic.update(prelexIds.getAllPrelexIds(html))
+	idsDataDic.update(ids_prelex.get_ids_prelex(html))
 	print ""
 	print "INFORMATION RETRIEVAL"
-	dataDic=prelexInfo.getPrelexInformation(html, idsDataDic)
+	fields=prelexInfo.get_data_prelex(html, idsDataDic)
 
 print ""

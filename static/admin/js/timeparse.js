@@ -1,8 +1,8 @@
-var timeParsePatterns = [
+var timeParsePatterns=[
     // 9
     {   re: /^\d{1,2}$/i,
         handler: function(bits) {
-            if (bits[0].length == 1) {
+            if (bits[0].length==1) {
                 return '0' + bits[0] + ':00';
             } else {
                 return bits[0] + ':00';
@@ -24,13 +24,13 @@ var timeParsePatterns = [
     // 3 am / 3 a.m. / 3am
     {   re: /^(\d+)\s*([ap])(?:.?m.?)?$/i,
         handler: function(bits) {
-            var hour = parseInt(bits[1]);
-            if (hour == 12) {
-                hour = 0;
+            var hour=parseInt(bits[1]);
+            if (hour==12) {
+                hour=0;
             }
-            if (bits[2].toLowerCase() == 'p') {
-                if (hour == 12) {
-                    hour = 0;
+            if (bits[2].toLowerCase()=='p') {
+                if (hour==12) {
+                    hour=0;
                 }
                 return (hour + 12) + ':00';
             } else {
@@ -45,17 +45,17 @@ var timeParsePatterns = [
     // 3.30 am / 3:15 a.m. / 3.00am
     {   re: /^(\d+)[.:](\d{2})\s*([ap]).?m.?$/i,
         handler: function(bits) {
-            var hour = parseInt(bits[1]);
-            var mins = parseInt(bits[2]);
+            var hour=parseInt(bits[1]);
+            var mins=parseInt(bits[2]);
             if (mins < 10) {
-                mins = '0' + mins;
+                mins='0' + mins;
             }
-            if (hour == 12) {
-                hour = 0;
+            if (hour==12) {
+                hour=0;
             }
-            if (bits[3].toLowerCase() == 'p') {
-                if (hour == 12) {
-                    hour = 0;
+            if (bits[3].toLowerCase()=='p') {
+                if (hour==12) {
+                    hour=0;
                 }
                 return (hour + 12) + ':' + mins;
             } else {
@@ -82,10 +82,10 @@ var timeParsePatterns = [
 ];
 
 function parseTimeString(s) {
-    for (var i = 0; i < timeParsePatterns.length; i++) {
-        var re = timeParsePatterns[i].re;
-        var handler = timeParsePatterns[i].handler;
-        var bits = re.exec(s);
+    for (var i=0; i < timeParsePatterns.length; i++) {
+        var re=timeParsePatterns[i].re;
+        var handler=timeParsePatterns[i].handler;
+        var bits=re.exec(s);
         if (bits) {
             return handler(bits);
         }
