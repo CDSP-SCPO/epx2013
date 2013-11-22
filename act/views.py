@@ -85,6 +85,11 @@ def link_get_act_opal(act, act_ids):
 		except Exception, e:
 			print "opal varibles already saved!", e
 
+	#remove last "; "
+	for country in opal_dic:
+		for field in opal_dic[country]:
+			opal_dic[country][field]=opal_dic[country][field][:-2]
+
 	return opal_dic
 
 
@@ -163,8 +168,8 @@ def get_data_all(state, add_modif, act, POST, response):
 	if state=="display" and add_modif=="add":
 		print "data retrieval"
 		#retrieve all the data from all the sources
-		#~ act.__dict__.update(get_data("eurlex", act_ids["eurlex"], urls["url_eurlex"], act))
-		#~ act.__dict__.update(get_data("oeil", act_ids["oeil"], urls["url_oeil"], act))
+		act.__dict__.update(get_data("eurlex", act_ids["eurlex"], urls["url_eurlex"], act))
+		act.__dict__.update(get_data("oeil", act_ids["oeil"], urls["url_oeil"], act))
 		#prelex config_cons needs eurlex, gvt_compo needs oeil
 		act.__dict__.update(get_data("prelex", act_ids["prelex"], urls["url_prelex"], act))
 	else:

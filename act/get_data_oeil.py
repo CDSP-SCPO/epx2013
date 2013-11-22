@@ -230,14 +230,16 @@ def get_rapps_html(soup, searched_text):
 	RETURN
 	rapps: rapporteurs data [BeautifulSoup object]
 	"""
+	print "searched_text", searched_text
 	rapps=[None]*5
-	try:
-		#exclude shadow rapporteurs (parent: <div class="result_moredata shadow">)
-		rapps_temp=[rapp for rapp in soup.find(text=searched_text).find_next("td", {"class": "players_rapporter_com "}).find_all("p", {"class": "players_content"}) if rapp.parent.name!="div"]
-		for index in range(len(rapps_temp)):
-			rapps[index]=rapps_temp[index]
-	except:
-		pass
+	if searched_text!=None:
+		try:
+			#exclude shadow rapporteurs (parent: <div class="result_moredata shadow">)
+			rapps_temp=[rapp for rapp in soup.find(text=searched_text).find_next("td", {"class": "players_rapporter_com "}).find_all("p", {"class": "players_content"}) if rapp.parent.name!="div"]
+			for index in range(len(rapps_temp)):
+				rapps[index]=rapps_temp[index]
+		except:
+			pass
 	return rapps
 
 

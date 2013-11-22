@@ -280,14 +280,13 @@
 
 										{% for gvt_compo_instance in gvt_compo_instances %}
 											<tr>
-												<td class="second_column_others">{{ gvt_compo_instance.country.country_code }}</td>
+												<td>{{ gvt_compo_instance.country.country_code }}</td>
 
 												<td class="second_column_others">
 													{% for party in gvt_compo_instance.party.all %}
-														{% if forloop.last %}
-															{{ party.party }}
-														{% else %}
-															{{ party.party }};&nbsp;
+														{{ party.party }} ({% get_party_family gvt_compo_instance.country party %})
+														{% if not forloop.last %}
+															;&nbsp;
 														{% endif %}
 													{% endfor %}
 												</td>
@@ -304,10 +303,9 @@
 					{% elif  field.name == "adopt_cs_contre" or field.name == "adopt_cs_abs" or "adopt_pc_" in field.name %}
 						{% with instance=act|get_instance:field.name %}
 							{% for adopt in instance.all %}
-								{% if forloop.last %}
-									{{ adopt.country_code }}
-								{% else %}
-									{{ adopt.country_code }};&nbsp;
+								{{ adopt.country_code }}
+								{% if not forloop.last %}
+									;&nbsp;
 								{% endif %}
 							{% endfor %}
 						{% endwith %}

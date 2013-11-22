@@ -194,7 +194,6 @@ def save_get_dgs(dgs):
 			#if it is a dg_nb, it can refer to more than one DG (manual validation)
 			if dg[-1].isdigit():
 				try:
-
 					dg_nb=DGNb.objects.get(dg_nb=dg)
 					#only one dg one many possible dgs?
 					try:
@@ -642,7 +641,6 @@ def get_data_prelex(soup, act_ids, act):
 
 	#dg_* and dg_sigle_*
 	dgs=save_get_dgs([dg_1, dg_2])
-	print "dgs", dgs
 	for index in xrange(len(dgs)):
 		num=str(index+1)
 		#django adds "_id" to foreign keys field names
@@ -651,9 +649,15 @@ def get_data_prelex(soup, act_ids, act):
 		if dgs[index]!=None:
 			fields[dg]=dgs[index]
 			#list possible dgs
-			for possible_dg in dgs[index]:
-				print dg+":", possible_dg.dg
-				print "dg_sigle_"+num+":", possible_dg.dg_sigle.dg_sigle
+			try:
+				for possible_dg in dgs[index]:
+					print dg+":", possible_dg.dg
+					print "dg_sigle_"+num+":", possible_dg.dg_sigle.dg_sigle
+			except Exception, e:
+				#only one dg
+				#~ print "only one dg", e
+				print dg+":", dgs[index].dg
+				print "dg_sigle_"+num+":", dgs[index].dg_sigle.dg_sigle
 
 
 	#resp_1, resp_2, resp_3

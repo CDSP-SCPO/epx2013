@@ -1,3 +1,4 @@
+from act.models import PartyFamily
 from django import template
 register=template.Library()
 
@@ -16,6 +17,25 @@ def get_value(dic, key):
 		return dic.get(key)
 	else:
 		return ""
+
+
+@register.filter
+def get_instance(act, field):
+	"""
+	FUNCTION
+	get the instance associated to the field given in parameter (for example act and "adopt_cs_contre")
+	PARAMETERS
+	act: instance of the data of the act [Act model instance]
+	field: name of the field to get [string]
+	RETURN
+	instance of the field [Act model instance]
+	"""
+	try:
+		return getattr(act, field)
+	except Exception, e:
+		print "get_instance pb", e
+		return None
+
 
 @register.simple_tag
 def get_related_field(act, field_father, index, field_son):
@@ -42,19 +62,15 @@ def get_related_field(act, field_father, index, field_son):
 	return field
 
 
-@register.filter
-def get_instance(act, field):
+@register.simple_tag
+def get_party_family(country, party):
 	"""
 	FUNCTION
-	get the instance associated to the field given in parameter (for example act and "adopt_cs_contre")
+	get the party family variable of a country and party given in parameters
 	PARAMETERS
-	act: instance of the data of the act [Act model instance]
-	field: name of the field to get [string]
+	country: country instance [Country model instance]
+	party: party instance [Party model instance]
 	RETURN
-	instance of the field [Act model instance]
+	party_family variable [string]
 	"""
-	try:
-		return getattr(act, field)
-	except Exception, e:
-		print "get_instance pb", e
-		return None
+	return PartyFamily.objects.get(country=country, party=party).party_family

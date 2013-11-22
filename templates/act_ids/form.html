@@ -138,4 +138,5 @@
 
 <div id="notes_and_save" class="row-fluid">{% include "notes_save.html" %}</div>
 
-
+<!-- hide update buttons if javascript is activated -->
+<script type="text/javascript" src="{{ STATIC_URL }}europolix/js/act_hide.js?{% now 'U' %}"></script>
