@@ -93,7 +93,7 @@
 									<!-- if javascript disabled -->
 									<button id="update_code_sect_{{ index }}" name="update_code_sect_{{ index }}" type="submit" class="btn btn-primary update_btn">Update</button>
 									<div id="code_agenda_{{ index }}" class="update_fields">
-										<strong>{{ display_name.code_agenda_ }}{{ index }}</strong>=<span id="code_agenda_{{ index }}">{% get_related_field act "code_sect_" index "code_agenda" %}</span><br />
+										{{ display_name.code_agenda_ }}{{ index }}=<span id="code_agenda_{{ index }}">{% get_related_field act "code_sect_" index "code_agenda" %}</span><br />
 									 </div>
 								{% endwith %}
 							{% endif %}
@@ -154,8 +154,8 @@
 								<!-- if javascript disabled -->
 								<button id="update_rapp_{{ index }}" name="update_rapp_{{ index }}" type="submit" class="btn btn-primary update_btn">Update</button>
 								<div id="rapp_{{ index }}" class="update_fields">
-									<strong>{{ display_name.rapp_country_ }}{{ index }}</strong>=<span id="rapp_country_{{ index }}">{% get_related_field act "rapp_" index "country" %}</span><br />
-									<strong>{{ display_name.rapp_party_ }}{{ index }}</strong>=<span id="rapp_party_{{ index }}">{% get_related_field act "rapp_" index "party" %}</span><br />
+									{{ display_name.rapp_country_ }}{{ index }}=<span id="rapp_country_{{ index }}">{% get_related_field act "rapp_" index "country" %}</span><br />
+									{{ display_name.rapp_party_ }}{{ index }}=<span id="rapp_party_{{ index }}">{% get_related_field act "rapp_" index "party" %}</span><br />
 								 </div>
 							{% endwith %}
 						{% endif %}
@@ -219,7 +219,7 @@
 									<!-- if javascript disabled -->
 									<button id="update_dg_{{ index }}" name="update_dg_{{ index }}" type="submit" class="btn btn-primary update_btn">Update</button>
 									<div id="dg_{{ index }}" class="update_fields">
-										<strong>{{ display_name.dg_sigle_ }}{{ index }}</strong>=<span id="dg_sigle_{{ index }}">{% get_related_field act "dg_" index "dg_sigle" %}</span><br />
+										{{ display_name.dg_sigle_ }}{{ index }}=<span id="dg_sigle_{{ index }}">{% get_related_field act "dg_" index "dg_sigle" %}</span><br />
 									 </div>
 								{% endwith %}
 							{% endif %}
@@ -230,9 +230,9 @@
 									<!-- if javascript disabled -->
 									<button id="update_resp_{{ index }}" name="update_resp_{{ index }}" type="submit" class="btn btn-primary update_btn">Update</button>
 									<div id="resp_{{ index }}" class="update_fields">
-										<strong>{{ display_name.resp_country_ }}{{ index }}</strong>=<span id="resp_country_{{ index }}">{% get_related_field act "resp_" index "country" %}</span><br />
-										<strong>{{ display_name.resp_party_ }}{{ index }}</strong>=<span id="resp_party_{{ index }}">{% get_related_field act "resp_" index "party" %}</span><br />
-										<strong>{{ display_name.resp_party_family_ }}{{ index }}</strong>=<span id="resp_party_family_{{ index }}">{{ party_family|get_value:index }}</span>
+										{{ display_name.resp_country_ }}{{ index }}=<span id="resp_country_{{ index }}">{% get_related_field act "resp_" index "country" %}</span><br />
+										{{ display_name.resp_party_ }}{{ index }}=<span id="resp_party_{{ index }}">{% get_related_field act "resp_" index "party" %}</span><br />
+										{{ display_name.resp_party_family_ }}{{ index }}=<span id="resp_party_family_{{ index }}">{{ party_family|get_value:index }}</span>
 									 </div>
 								{% endwith %}
 							{% endif %}

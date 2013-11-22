@@ -83,11 +83,13 @@
 	padding-left: 5px;
 }
 
+/* foreign key fields on the right of drop down lists */
 .update_fields
 {
 	width: 49.5%;
 	padding-left: 1.5%;
 	text-align: left;
+	font-weight: bold;
 }
 
 /* button to update person variables if javascript disabled */

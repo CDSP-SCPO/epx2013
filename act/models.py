@@ -30,7 +30,7 @@ class PartyFamily(models.Model):
 	"""
 	party = models.ForeignKey(Party)
 	country = models.ForeignKey(Country)
-	party_family = models.CharField(max_length=50)
+	party_family = models.CharField(max_length=30)
 
 	class Meta:
 		unique_together=(("party", "country"), )
@@ -86,7 +86,7 @@ class DG(models.Model):
 	MODEL
 	instances of dg variables
 	"""
-	dg=models.CharField(max_length=100, unique=True)
+	dg=models.CharField(max_length=120, unique=True)
 	dg_sigle=models.ForeignKey(DGSigle)
 	#link between DG with nb and real name
 	dg_nb=models.ManyToManyField(DGNb)
