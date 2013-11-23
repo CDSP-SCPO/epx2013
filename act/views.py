@@ -103,7 +103,10 @@ def get_party_family(resps):
 	party_family: dictionary of party_family variables for each responsible [dictionary of strings]
 	"""
 	for index in resps:
-		if resps[index]!=None and resps[index].party!=None:
+		if resps[index]!=None:
+			#if id and not instance, get the instance instead
+			if type(resps[index]) is long:
+				resps[index]=Person.objects.get(pk=resps[index])
 			resps[index]=PartyFamily.objects.get(party=resps[index].party, country=resps[index].country).party_family
 		else:
 			resps[index]=None
@@ -144,6 +147,36 @@ def get_data(src, act_ids, url, act=None):
 	return fields
 
 
+def check_multiple_dgs(act):
+	"""
+	FUNCTION
+	check if act.dg_1 or act.dg_2 contains one or more dgs (if it's a DG with a number, there can be 2 or 3 possible DGs)
+	assignate the first one to the corresponding act field and store all the possibilities in a dictionary (to be displayed in the template)
+	PARAMETERS
+	act: instance of the data of the act [Act model instance]
+	RETURN
+	dgs:  dictionary that contains all the possible dgs for each dg [dictionary of (lists of) DG model instances]
+	act: updated instance of the data of the act [Act model instance]
+	"""
+	dgs={}
+	for index in range(1,3):
+		num=str(index)
+		name="dg_"+num+"_id"
+		instances=getattr(act, name)
+		try:
+			nb=instances.count()
+			if nb>1:
+				#store all the possible values to be displayed in the template
+				dgs_temp=[dg.dg for dg in instances]
+				dgs[num]=", ".join(dgs_temp)+"."
+				#if many possible dgs, keep the first one only (to be displayed in the drop down list)
+				setattr(act, name, instances[0])
+		except Exception, e:
+			print "dg is None", e
+	print "dgs", dgs
+	return dgs, act
+
+
 def get_data_all(state, add_modif, act, POST, response):
 	"""
 	FUNCTION
@@ -172,21 +205,17 @@ def get_data_all(state, add_modif, act, POST, response):
 		act.__dict__.update(get_data("oeil", act_ids["oeil"], urls["url_oeil"], act))
 		#prelex config_cons needs eurlex, gvt_compo needs oeil
 		act.__dict__.update(get_data("prelex", act_ids["prelex"], urls["url_prelex"], act))
-	else:
-		#foreign key fields contain primarey keys, not instances -> let's fix that!
-		fields={"code_sect": 5, "rapp": 6, "dg": 3, "resp": 4}
-		for field in fields:
-			for index in xrange(1, fields[field]):
-				#example: dg_1="DG Energy" and dg_1_id=17
-				#the program uses dg_1_id, so let's assignate dg_1 to dg_1_id
-				setattr(act, field+"_"+ str(index)+"_id", getattr(act, field+"_"+ str(index)))
+		#check multiple values for dgs with numbers
+		response["dg"], act=check_multiple_dgs(act)
 
 	if "add_act" in POST or "modif_act" in POST:
+		#~ act=get_foreign_key_fields(act)
 		form_data=ActForm(instance=act)
 	else:
+		print "post", POST
 		form_data=ActForm(POST, instance=act)
 
-
+	print "typeof act.code_agenda_"
 	response["urls"]=urls
 	response['act']=act
 	response['opals']=link_get_act_opal(act, act_ids["index"])

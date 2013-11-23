@@ -60,7 +60,6 @@ def check_fields(fields, name):
 	msg=[]
 	#check that all the rapp or resp are filled in order
 	index=check_order_fields(fields)
-	print "index order", index
 	if index!=True:
 		msg.append("Please select a "+var_name_data.var_name[name+"_"+index]+" first.")
 	#check that all the rapp or resp are different
