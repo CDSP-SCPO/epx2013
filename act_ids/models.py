@@ -33,18 +33,17 @@ class ActIds(models.Model):
 	#no_celex from index file must be unique
 	def clean(self, *args, **kwargs):
 		#~ super(ActIds, self).clean(*args, **kwargs)
-		print "clean"
 		if self.src=="index":
 			no_celex=self.no_celex
 			try:
 				act_ids=ActIds.objects.get(no_celex=no_celex, src="index")
-				print "clean ActIds: act_ids pk:", act_ids.pk
 				#if another act has the same no_celex already
 				if act_ids!=self:
 					#if it exists already, raise error
 					raise ValidationError('%s NoCelex must be unique')
 			except Exception, e:
-				print "the no_celex does not exist in the db yet", e
+				#~ print "the no_celex does not exist in the db yet", e
+				pass
 
 		return self
 

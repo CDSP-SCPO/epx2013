@@ -8,15 +8,15 @@ from django.template import RequestContext
 from export.forms import Export
 #data to export coming from the two main models ActIds and Act
 from act_ids.models import ActIds
-from act.models import Act, PartyFamily
+from act.models import Act, PartyFamily, NP
 #for the export
 import os, tempfile, zipfile
 from django.core.servers.basehttp import FileWrapper
 from django.conf import settings
 import mimetypes
 #change variable names (first row of the csv file)
-import act_ids.var_name_ids
-import act.var_name_data
+import act_ids.var_name_ids  as var_name_ids
+import act.var_name_data  as var_name_data
 #redirect to login page if not logged
 from django.contrib.auth.decorators import login_required
 
@@ -60,19 +60,26 @@ def get_headers(excl_fields_act_ids, excl_fields_act):
 				headers.append(var_name_data.var_name["resp_country_"+index])
 				headers.append(var_name_data.var_name["resp_party_"+index])
 				headers.append(var_name_data.var_name["resp_party_family_"+index])
-			#GvtCompo
-			elif "gvt_compo"==field.name:
-				headers.append(var_name_data.var_name[field.name+"_country"])
 			#DG and related
 			elif "dg_" in field.name:
 				index=field.name[-1]
 				headers.append(var_name_data.var_name["dg_sigle_"+index])
 
+	#Act many to many fields
+	for field in Act()._meta.many_to_many:
+		if field.name not in excl_fields_act:
+			#GvtCompo: country, party and party_family variable
+			if "gvt_compo"==field.name:
+				headers.append(var_name_data.var_name[field.name+"_country"])
+				headers.append(var_name_data.var_name[field.name+"_party"])
+				headers.append(var_name_data.var_name[field.name+"_party_family"])
+			else:
+				headers.append(var_name_data.var_name[field.name])
+
 	#NP (opal)
-	headers.append(var_name_data.var_name["case_nb"])
-	headers.append(var_name_data.var_name["np"])
-	headers.append(var_name_data.var_name["act_type"])
-	headers.append(var_name_data.var_name["act_date"])
+	for field in NP()._meta.fields:
+		if field.name!="act":
+			headers.append(var_name_data.var_name[field.name])
 
 	return headers
 
@@ -107,52 +114,77 @@ def get_validated_acts(excl_fields_act_ids, excl_fields_act):
 			if field.name not in excl_fields_act:
 				#CodeSect and related
 				if "code_sect_" in field.name:
-					fields.append(getattr(act, field.name.code_sect))
-					fields.append(getattr(act, field.name.code_agenda.code_agenda))
+					temp=getattr(act, field.name)
+					if temp!=None:
+						fields.append(temp.code_sect)
+						fields.append(temp.code_agenda.code_agenda)
+					else:
+						fields.extend([None, None])
 				#Rapporteurs (Person) and related (oeil) or Responsibles (Person) and related (prelex)
 				elif "rapp_" in field.name or "resp_" in field.name:
-					fields.append(getattr(act, field.name.name))
-					country=getattr(act, field.name.country.country_code)
-					fields.append(country)
-					party=field.name.party
-					fields.append(getattr(act, party.party))
-					if "resp_" in field.name:
-						#party_family
-						fields.append(PartyFamily.objects.only("party_family").get(party=party.pk, country=country))
+					temp=getattr(act, field.name)
+					if temp!=None:
+						fields.append(temp.name)
+						country=temp.country
+						party=temp.party
+						fields.append(country.country_code)
+						fields.append(party.party)
+						if "resp_" in field.name:
+							#party_family
+							fields.append(PartyFamily.objects.get(party=party, country=country).party_family)
+					else:
+						if "resp_" in field.name:
+							temp=[None]*4
+						else:
+							temp=[None]*3
+						fields.extend(temp)
 				#DG and related
 				elif "dg_" in field.name:
-					fields.append(getattr(act, field.name.dg))
-					fields.append(getattr(act, field.name.dg_sigle.dg_sigle))
-				#GvtCompo
-				elif "gvt_compo"==field.name:
-					gvt_compos=gvt_compos_country=""
-					#for each country
-					for gvt_compo in act.field.name.all():
-						#parties
-						for party in gvt_compo.party.all():
-							gvt_compos+=party.party+", "
-						gvt_compos=gvt_compos[:-2]+"; "
-						#countries
-						gvt_compos_country+=gvt_compo.country.country_code+"; "
-					#delete last "; "
-					fields.append(gvt_compos[:-2])
-					fields.append(gvt_compos_country[:-2])
-				#adopt_cs_contre, adopt_cs_abs, adopt_pc_contre, adopt_pc_abs
-				elif "adopt_cs_" in field.name or "adopt_pc_" in field.name:
-					countries=""
-					for country in act.field.name.all():
-						countries+=country+"; "
-					fields.append(countries[:-2])
+					temp=getattr(act, field.name)
+					if temp!=None:
+						fields.append(temp.dg)
+						fields.append(temp.dg_sigle.dg_sigle)
+					else:
+						fields.extend([None, None])
 				else:
 					#for all the other non fk fields, get its value
 					fields.append(getattr(act, field.name))
 
+		#Act many to many fields
+		for field in Act()._meta.many_to_many:
+			#GvtCompo
+			if "gvt_compo"==field.name:
+				gvt_compos_country=gvt_compos_party=gvt_compos_party_family=""
+				#for each country
+				for gvt_compo in getattr(act, field.name).all():
+					country=gvt_compo.country
+					#for each party, add a "row" for each variable (country, party, party family)
+					for party in gvt_compo.party.all():
+						gvt_compos_country+=country.country_code+"; "
+						gvt_compos_party+=party.party+"; "
+						gvt_compos_party_family+=PartyFamily.objects.get(country=country, party=party).party_family+"; "
+				#delete last "; "
+				fields.append(gvt_compos_country[:-2])
+				fields.append(gvt_compos_party[:-2])
+				fields.append(gvt_compos_party_family[:-2])
+			#adopt_cs_contre, adopt_cs_abs, adopt_pc_contre, adopt_pc_abs
+			else:
+				countries=""
+				for country in getattr(act, field.name).all():
+					countries+=country.country_code+"; "
+				fields.append(countries[:-2])
+
 		#Opal
-		np_instances=NP.objects.filter(act_ids=act_ids)
+		np_instances=NP.objects.filter(act=act)
 		np_vars={"case_nb":"", "np":"", "act_type":"", "act_date":""}
 		for np_instance in np_instances:
 			for np_var in np_vars:
-				np_vars[np_var]+=getattr(np_instance, np_var)+"; "
+				if np_var=="np":
+					inst=getattr(np_instance, np_var)
+					inst=inst.country_code
+				else:
+					inst=getattr(np_instance, np_var)
+				np_vars[np_var]+=str(inst)+"; "
 		for np_var in np_vars:
 			fields.append(np_vars[np_var][:-2])
 
@@ -216,8 +248,8 @@ def send_file(request, file_server, file_client):
 	wrapper     =FileWrapper(open(file_server))
 	content_type=mimetypes.guess_type(file_server)[0]
 	response    =HttpResponse(wrapper,content_type=content_type)
-	response['Content-Length']     =os.path.getize(file_server)
-	response['Content-Disposition']="attachment; file_name=%s"%file_client
+	response['Content-Length']     =os.path.getsize(file_server)
+	response['Content-Disposition']="attachment; filename=%s"%file_client
 	return response
 
 
@@ -237,7 +269,7 @@ def export(request):
 			sort_field=request.POST['sort_fields']
 			sort_direction=request.POST['sort_direction']
 			dir_server=settings.MEDIA_ROOT+"/export/"
-			file_name="europeanActs.csv"
+			file_name="acts.csv"
 			#if a file with the same name already exists, we delete it
 			if os.path.exists(dir_server+file_name):
 				os.remove(dir_server+file_name)

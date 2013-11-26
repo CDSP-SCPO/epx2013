@@ -5,7 +5,7 @@ from  import_app.models import ImportDosId
 #modif form: add non field error
 from django.forms.util import ErrorList
 #variables name
-import var_name_ids
+import act_ids.var_name_ids as var_name_ids
 import act.var_name_data as var_name_data
 #concatain querysets
 from itertools import chain
@@ -107,10 +107,10 @@ class ActIdsForm(forms.ModelForm):
 				if dos_id.dos_id not in [dos_id_temp[0] for dos_id_temp in dos_ids]:
 					dos_ids.append((dos_id.dos_id, dos_id.dos_id))
 			except Exception, e:
-				print "no validated dos_id for this act", e
+				#~ print "no validated dos_id for this act", e
+				pass
 
 			#assign the choices to the drop down list
-			print "dos_ids", dos_ids
 			self.fields['dos_id_choices'].choices = dos_ids
 			#~ self.fields['dos_id_choices'].queryset = result_list
 
@@ -205,7 +205,6 @@ class Modif(forms.Form):
 		try:
 			act=Act.objects.get(releve_annee=releve_annee_modif, releve_mois=releve_mois_modif, no_ordre=no_ordre_modif, validated__gt=0)
 		except:
-			print "pb find act"
 			self._errors['__all__']=ErrorList([u"The act you are looking for has not been validated yet!"])
 			return False
 

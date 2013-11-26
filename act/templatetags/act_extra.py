@@ -34,19 +34,29 @@ def get_instance(act, field):
 	try:
 		return getattr(act, field)
 	except Exception, e:
-		print "get_instance pb", e
+		#~ print "get_instance pb", e
 		return None
 
 
 @register.simple_tag
 def get_related_field(model_name, value_pk, name_son):
+	"""
+	FUNCTION
+	get the related field of a selected value in a drop down list (code_agenda for code_sect, party and country for a person, dg_sigle for a dg)
+	PARAMETERS
+	model_name: name of the model of the mother table [string]
+	value_pk: value of the field of the mother table [int]
+	name_son: name of the son field [string]
+	RETURN
+	instance of the son field [model instance]
+	"""
 	field=None
 	try:
 		model=get_model('act', model_name)
 		field=getattr(model.objects.get(pk=value_pk), name_son)
 		field=getattr(field, name_son)
 	except Exception, e:
-		print "pb get_field", e
+		#~ print "pb get_field", e
 		pass
 
 	return field

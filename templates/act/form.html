@@ -317,10 +317,7 @@
 					{% elif  field.name == "adopt_cs_contre" or field.name == "adopt_cs_abs" or "adopt_pc_" in field.name %}
 						{% with instance=act|get_instance:field.name %}
 							{% for adopt in instance.all %}
-								{{ adopt.country_code }}
-								{% if not forloop.last %}
-									;&nbsp;
-								{% endif %}
+								{{ adopt.country_code }}{% if not forloop.last %};&nbsp;{% endif %}
 							{% endfor %}
 						{% endwith %}
 

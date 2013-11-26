@@ -72,7 +72,6 @@ def get_commission(soup, no_unique_type, nb_lectures):
 	try:
 		commission=soup.find(text="Committee responsible").find_next("acronym")
 		searched_text="Committee responsible"
-		print searched_text
 	except:
 		if no_unique_type=="COD" and nb_lectures==3:
 			try:

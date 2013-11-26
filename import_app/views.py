@@ -196,7 +196,7 @@ def save_adopt_cs_pc(instance, field, values):
 		if value!="":
 			field_instance=getattr(instance, field)
 			try:
-				field_instance.add(value.strip())
+				field_instance.add(Country.objects.get(pk=value.strip()))
 			except Exception, e:
 				print field+" already exists!"
 

@@ -130,7 +130,6 @@ def get_data(src, act_ids, url, act=None):
 	#act doesn't exist, problem on page or problem with the Internet connection
 	if url_content!=False:
 		#set the url_exists attribute of the given source to True
-		print
 		setattr(act_ids, "url_exists", True)
 		#call the corresponding function to retrieve the data and pass it to an object
 		fields=eval("get_data_"+src)(url_content, act_ids, act)
@@ -172,8 +171,8 @@ def check_multiple_dgs(act):
 				#if many possible dgs, keep the first one only (to be displayed in the drop down list)
 				setattr(act, name, instances[0])
 		except Exception, e:
-			print "dg is None", e
-	print "dgs", dgs
+			#~ print "dg is None", e
+			pass
 	return dgs, act
 
 
@@ -209,13 +208,10 @@ def get_data_all(state, add_modif, act, POST, response):
 		response["dg"], act=check_multiple_dgs(act)
 
 	if "add_act" in POST or "modif_act" in POST:
-		#~ act=get_foreign_key_fields(act)
 		form_data=ActForm(instance=act)
 	else:
-		print "post", POST
 		form_data=ActForm(POST, instance=act)
 
-	print "typeof act.code_agenda_"
 	response["urls"]=urls
 	response['act']=act
 	response['opals']=link_get_act_opal(act, act_ids["index"])
@@ -244,7 +240,8 @@ def save_act(act, request, response):
 	print "save"
 	if form_data.is_valid():
 		print "form_data valid"
-		form_data.save()
+		#if use form_data m2m are deleted!
+		act.save()
 		state="saved"
 		response["msg"]="The act " + str(act) + " has been validated!"
 		response["msg_class"]="success_msg"
