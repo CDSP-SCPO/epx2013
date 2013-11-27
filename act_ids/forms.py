@@ -100,11 +100,10 @@ class ActIdsForm(forms.ModelForm):
 			qs=ImportDosId.objects.only("dos_id").filter(no_celex=self.instance.no_celex)
 			dos_ids=[(row.dos_id, row.dos_id) for row in qs]
 			#check if there is already a validated dos_id
-			dos_id=None
 			try:
 				dos_id=ActIds.objects.only("dos_id").get(src="index", act=self.instance.act)
 				#if it's not a possible dos_id yet, add it to the list
-				if dos_id.dos_id not in [dos_id_temp[0] for dos_id_temp in dos_ids]:
+				if dos_id.dos_id!=None and dos_id.dos_id not in [dos_id_temp[0] for dos_id_temp in dos_ids]:
 					dos_ids.append((dos_id.dos_id, dos_id.dos_id))
 			except Exception, e:
 				#~ print "no validated dos_id for this act", e

@@ -222,13 +222,14 @@ def get_resps(soup):
 	RETURN
 	resps: resp_* names [list of strings]
 	"""
-	resps=None
+	resps=[None]*3
 	try:
-		resps=soup.find("td", text="Responsible").find_next('td').get_text()
-		resps=resps.split(";")
+		temps=soup.find("td", text="Responsible").find_next('td').get_text().split(";")
+		for index in range(len(temps)):
+			resps[index]=temps[index]
 	except Exception, e:
 		print "no responsible", e
-	#two responsibles
+	#two responsibles (2006, 7, 19)
 	#http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=en&DosId=191554
 	return resps
 
