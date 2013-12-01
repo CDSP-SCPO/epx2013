@@ -9,7 +9,7 @@ import unicodedata
 def split_fr_date(date_str):
 	"""
 	FUNCTION
-	split a date ('DD-MM-YYYY') into year, month and day
+	split a date ('DD-MM-YYYY' or 'DD/MM/YYYY') into year, month and day
 	PARAMETERS
 	date_str: date to split [string]
 	RETURN

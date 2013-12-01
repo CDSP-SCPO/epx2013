@@ -20,6 +20,7 @@ from import_app.get_ids_prelex import get_url_prelex, get_url_content_prelex
 from get_data_eurlex import get_data_eurlex
 from get_data_oeil import get_data_oeil
 from get_data_prelex import get_data_prelex
+from get_data_others import get_data_others
 #redirect to login page if not logged
 from django.contrib.auth.decorators import login_required
 #use json for the ajax request
@@ -53,46 +54,6 @@ def get_urls(act_ids, url_prelex, dos_id):
 	return urls
 
 
-def link_get_act_opal(act, act_ids):
-	"""
-	FUNCTION
-	fill the table which links an act to its opal variables
-	PARAMETERS
-	act: instance of the act [Act model instance]
-	act_ids: instance of the ids of the act [ActIds model instance]
-	RETURN
-	opal_dic: opal variables [dictionary]
-	"""
-	opal_dic={}
-
-	#Are there matches in the ImportOpal table?
-	opals=ImportNP.objects.defer("no_celex").filter(no_celex=act_ids.no_celex)
-
-	for opal in opals:
-		#store data
-		country=opal.np
-		#initialization
-		if country not in opal_dic:
-			opal_dic[country]={"act_type": "", "act_date": "", "case_nb": ""}
-		opal_dic[country]["act_type"]+=opal.act_type+"; "
-		opal_dic[country]["act_date"]+=str(opal.act_date)+"; "
-		opal_dic[country]["case_nb"]+=str(opal.case_nb)+"; "
-
-		try:
-			#save opal instances
-			fields={"case_nb": opal.case_nb, "np": Country.objects.get(pk=opal.np), "act_type": opal.act_type, "act_date": opal.act_date , "act": act}
-			NP.objects.create(**fields)
-		except Exception, e:
-			print "opal varibles already saved!", e
-
-	#remove last "; "
-	for country in opal_dic:
-		for field in opal_dic[country]:
-			opal_dic[country][field]=opal_dic[country][field][:-2]
-
-	return opal_dic
-
-
 def get_party_family(resps):
 	"""
 	FUNCTION
@@ -120,10 +81,11 @@ def get_data(src, act_ids, url, act=None):
 	PARAMETERS
 	src: source (eurlex, oeil or prelex) [string]
 	act_ids: ids of the act for a given source source [ActIds model instance]
-	url: link to the act page [BeautifulSoup object]
+	url: link to the act page [string]
 	act: data of the act for prelex only [Act model instance]
 	RETURN
 	fields:  dictionary which contains retrieved data for a given source [dictionary]
+	url_content: html content of the source url (only eurlex) [string]
 	"""
 	fields={}
 	url_content=eval("get_url_content_"+src)(url)
@@ -143,6 +105,8 @@ def get_data(src, act_ids, url, act=None):
 	#actualization url exist attribute
 	act_ids.save()
 
+	if src=="eurlex":
+		return fields, url_content
 	return fields
 
 
@@ -200,7 +164,8 @@ def get_data_all(state, add_modif, act, POST, response):
 	if state=="display" and add_modif=="add":
 		print "data retrieval"
 		#retrieve all the data from all the sources
-		act.__dict__.update(get_data("eurlex", act_ids["eurlex"], urls["url_eurlex"], act))
+		fields, url_content=get_data("eurlex", act_ids["eurlex"], urls["url_eurlex"], act)
+		act.__dict__.update(fields)
 		act.__dict__.update(get_data("oeil", act_ids["oeil"], urls["url_oeil"], act))
 		#prelex config_cons needs eurlex, gvt_compo needs oeil
 		act.__dict__.update(get_data("prelex", act_ids["prelex"], urls["url_prelex"], act))
@@ -214,7 +179,7 @@ def get_data_all(state, add_modif, act, POST, response):
 
 	response["urls"]=urls
 	response['act']=act
-	response['opals']=link_get_act_opal(act, act_ids["index"])
+	response['opals']=get_data_others(url_content, act_ids["index"], act)
 	response["party_family"]=get_party_family({"1": act.resp_1_id, "2": act.resp_2_id, "3": act.resp_3_id})
 	response['act_ids']=act_ids
 	response['form_data']=form_data

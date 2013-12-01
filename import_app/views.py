@@ -355,12 +355,12 @@ def get_save_act_ids(acts_ids):
 		elif act_ids["index"].propos_chrono==None or "-" in act_ids["index"].propos_chrono:
 			#try with the oeil ids
 			ids['no_unique_type']=act_ids["index"].no_unique_type
-			ids['no_unique_annee']=str(act_ids["index"].no_unique_annee)
+			ids['no_unique_annee']=act_ids["index"].no_unique_annee
 			ids['no_unique_chrono']=act_ids["index"].no_unique_chrono
 		else:
 			#prelex ids
 			ids['propos_origine']=act_ids["index"].propos_origine
-			ids['propos_annee']=str(act_ids["index"].propos_annee)
+			ids['propos_annee']=act_ids["index"].propos_annee
 			ids['propos_chrono']=act_ids["index"].propos_chrono
 
 		prelex_ids, act.url_prelex=get_ids.check_get_ids_prelex(ids, act_ids["index"].no_celex)

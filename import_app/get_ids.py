@@ -72,9 +72,10 @@ def check_get_ids_prelex(ids, no_celex):
 	url_prelex: prelex url [string]
 	"""
 	fields={}
+	url_prelex=None
 	if "propos_origine" in ids:
 		url_prelex=prelex.get_url_prelex_propos(ids['propos_origine'], ids['propos_annee'], ids['propos_chrono'])
-	elif "no_unique_type" in ids:
+	elif "no_unique_annee" in ids and ids["no_unique_annee"]!=None:
 		url_prelex=prelex.get_url_prelex_no_unique(ids['no_unique_type'], ids['no_unique_annee'], ids['no_unique_chrono'])
 	elif "dos_id" in ids:
 		url_prelex=prelex.get_url_prelex(ids['dos_id'])

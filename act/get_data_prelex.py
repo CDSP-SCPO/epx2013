@@ -555,39 +555,6 @@ def get_vote_public(adopt_cs_contre, adopt_cs_abs):
 
 
 #external table
-def link_act_gvt_compo(act, adopt_conseil, sign_pecs):
-	"""
-	FUNCTION
-	fill the assocation table which links an act to its governments composition
-	PARAMETERS
-	act: instance of an act [Act model instance]
-	adopt_conseil: adopt_conseil variable [date]
-	sign_pecs: sign_pecs variable [date]
-	RETURN
-	None
-	"""
-
-	#we retrieve all the rows from GvtCompo for which start_date<adoptionConseil<end_date
-	if adopt_conseil!=None:
-		date=adopt_conseil
-	elif sign_pecs!=None:
-		#if no adopt_conseil, take sign_pecs
-		date=sign_pecs
-	else:
-		return None
-
-	gvt_compos=GvtCompo.objects.filter(start_date__lte=date, end_date__gte=date)
-	#fill the association
-	for gvt_compo in gvt_compos:
-		try:
-			act.gvt_compo.add(gvt_compo)
-		except Exception, e:
-			print "gvt compo already exists!", e
-	else:
-		print "gvt compo: no matching date"
-
-
-#external table
 def link_act_adopt_pc(act):
 	"""
 	FUNCTION
@@ -607,6 +574,8 @@ def link_act_adopt_pc(act):
 		print "no adopt_pc variables for this act!"
 
 	return adopt_pc
+
+
 
 
 
@@ -752,15 +721,5 @@ def get_data_prelex(soup, act_ids, act):
 	if adopt_pc!=None:
 		print "adopt_pc_contre:", adopt_pc.adopt_pc_contre
 		print "adopt_pc_abs:", adopt_pc.adopt_pc_abs
-
-	#TEST ONLY -> TO REMOVE
-	#~ act.adopt_conseil="2012-02-21"
-	link_act_gvt_compo(act, fields['adopt_conseil'], act.sign_pecs)
-	for gvt_compo in act.gvt_compo.all():
-		print "gvt_compo_country:", gvt_compo.country.country_code
-		partys=""
-		for party in gvt_compo.party.all():
-			partys+=party.party+"; "
-		print "gvt_compo_partys:", partys[:-2]
 
 	return fields
