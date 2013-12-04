@@ -22,7 +22,7 @@ def get_url_prelex_propos(propos_origine, propos_annee, propos_chrono):
 	#~ url="http://prelex.europa.eu/liste_resultats.cfm?ReqId=0&CL=en&DocType=PROPOSORIGINE&DocYear=PROPOSANNEE&DocNum=PROPOSCHRONO"
 	url=conf.url_prelex_propos
 	url=url.replace("PROPOSORIGINE", propos_origine, 1)
-	url=url.replace("PROPOSANNEE", propos_annee, 1)
+	url=url.replace("PROPOSANNEE", str(propos_annee), 1)
 	url=url.replace("PROPOSCHRONO", propos_chrono, 1)
 	return url
 

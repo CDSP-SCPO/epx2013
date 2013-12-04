@@ -47,7 +47,7 @@ def link_act_gvt_compo(soup, act_ids, act):
 	elif act.sign_pecs!=None:
 		#if no adopt_conseil, take sign_pecs
 		date=act.sign_pecs
-	elif act_ids.propos_origine=="EM":
+	elif act_ids.propos_origine in["EM", "CONS", "BCE", "CJUE"]:
 		date=get_date(soup)
 
 	if date==None:
