@@ -61,14 +61,18 @@ def get_party_family(resps):
 	PARAMETERS
 	resps: dictionary of responsibles [dictionary of Person model instances]
 	RETURN
-	party_family: dictionary of party_family variables for each responsible [dictionary of strings]
+	resps: dictionary of party_family variables for each responsible [dictionary of strings]
 	"""
 	for index in resps:
 		if resps[index]!=None:
 			#if id and not instance, get the instance instead
 			if type(resps[index]) is long:
 				resps[index]=Person.objects.get(pk=resps[index])
-			resps[index]=PartyFamily.objects.get(party=resps[index].party, country=resps[index].country).party_family
+			#party is None if the responsible does not exist in responsible file (on prelex, we have only names, no party, no country)
+			if resps[index].party!=None:
+				resps[index]=PartyFamily.objects.get(party=resps[index].party, country=resps[index].country).party_family
+			else:
+				resps[index]=None
 		else:
 			resps[index]=None
 	return resps
@@ -105,8 +109,6 @@ def get_data(src, act_ids, url, act=None):
 	#actualization url exist attribute
 	act_ids.save()
 
-	if src=="eurlex":
-		return fields, url_content
 	return fields
 
 
@@ -127,13 +129,14 @@ def check_multiple_dgs(act):
 		name="dg_"+num+"_id"
 		instances=getattr(act, name)
 		try:
-			nb=instances.count()
+			nb=len(instances)
 			if nb>1:
 				#store all the possible values to be displayed in the template
+				#only dgs with a number can have many values (dg number with only one value: 1999-3-1)
 				dgs_temp=[dg.dg for dg in instances]
 				dgs[num]=", ".join(dgs_temp)+"."
-				#if many possible dgs, keep the first one only (to be displayed in the drop down list)
-				setattr(act, name, instances[0])
+			#if many possible dgs, keep the first one only (to be displayed in the drop down list)
+			setattr(act, name, instances[0])
 		except Exception, e:
 			#~ print "dg is None", e
 			pass
@@ -164,8 +167,8 @@ def get_data_all(state, add_modif, act, POST, response):
 	if state=="display" and add_modif=="add":
 		print "data retrieval"
 		#retrieve all the data from all the sources
-		fields, url_content=get_data("eurlex", act_ids["eurlex"], urls["url_eurlex"], act)
-		act.__dict__.update(fields)
+		#COMMENT FOR TESTS ONLY
+		act.__dict__.update(get_data("eurlex", act_ids["eurlex"], urls["url_eurlex"], act))
 		act.__dict__.update(get_data("oeil", act_ids["oeil"], urls["url_oeil"], act))
 		#prelex config_cons needs eurlex, gvt_compo needs oeil
 		act.__dict__.update(get_data("prelex", act_ids["prelex"], urls["url_prelex"], act))
@@ -179,7 +182,8 @@ def get_data_all(state, add_modif, act, POST, response):
 
 	response["urls"]=urls
 	response['act']=act
-	response['opals']=get_data_others(url_content, act_ids["index"], act)
+	#COMMENT FOR TESTS ONLY
+	response['opals']=get_data_others(act_ids["index"], act)
 	response["party_family"]=get_party_family({"1": act.resp_1_id, "2": act.resp_2_id, "3": act.resp_3_id})
 	response['act_ids']=act_ids
 	response['form_data']=form_data

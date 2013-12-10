@@ -121,11 +121,13 @@ $.ajaxSetup
 	{
 		//show error message
 		window.scrollTo(0, 0);
-		show_msg("Something is not right. Please try again.", "alert alert-error");
+		show_msg("Something is not right. Please reload the page and try again.", "alert alert-error");
 		//hide the message after a few seconds
-		window.setTimeout(hide_msg, 7000);
+		window.setTimeout(hide_msg, 10000);
 		window.console&&console.log(xhr.responseText);
-		alert("An AJAX error occured: " + status + "\nError: " + error);
+		//for administrator only (or deactivate the javascript)
+		//alert("An AJAX error occured: " + status + "\n" + error);
+		alert("An error occured. Please reload the page and try again. If the problem persists, please contact the administrator.");
 	}
 });
 

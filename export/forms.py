@@ -23,7 +23,7 @@ class Export(forms.Form):
 		qs.append(('','--------------------------------------------------'))
 		qs.append(('','EURLEX'))
 		qs.append(('','--------------------------------------------------'))
-		excluded_list=['id', 'actids', 'releve_annee', 'releve_mois', 'releve_mois_init', 'no_ordre', 'titre_rmc', 'council_path', 'url_prelex', 'notes', 'validated']
+		excluded_list=['id', 'actids', 'releve_annee', 'releve_mois', 'releve_mois_init', 'no_ordre', 'titre_rmc', 'council_path', 'date_doc', 'url_prelex', 'notes', 'validated']
 		for field in Act._meta.get_all_field_names():
 			if field not in excluded_list:
 				qs.append((field, var_name_data.var_name[field]))

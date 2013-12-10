@@ -275,7 +275,7 @@ def export(request):
 				os.remove(dir_server+file_name)
 			#get the headers
 			excl_fields_act_ids=["id", 'src', "url_exists", 'act']
-			excl_fields_act=["id", "url_prelex", "notes", "validated"]
+			excl_fields_act=["id",  'date_doc', "url_prelex", "notes", "validated"]
 			headers=get_headers(excl_fields_act_ids, excl_fields_act)
 			#fetch every acts in the db
 			acts=get_validated_acts(excl_fields_act_ids, excl_fields_act)

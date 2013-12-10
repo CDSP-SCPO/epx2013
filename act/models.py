@@ -143,7 +143,7 @@ class Act(models.Model):
 	council_path=models.CharField(max_length=200, blank=True, null=True, default=None)
 
 	#EURLEX
-	titre_en=models.CharField(max_length=500, blank=True, null=True, default=None)
+	titre_en=models.CharField(max_length=600, blank=True, null=True, default=None)
 	code_sect_1=models.ForeignKey(CodeSect, related_name='code_sect_1', blank=True, null=True, default=None)
 	code_sect_2=models.ForeignKey(CodeSect, related_name='code_sect_2', blank=True, null=True, default=None)
 	code_sect_3=models.ForeignKey(CodeSect, related_name='code_sect_3', blank=True, null=True, default=None)
@@ -154,6 +154,8 @@ class Act(models.Model):
 	rep_en_4=models.CharField(max_length=200, blank=True, null=True, default=None)
 	type_acte=models.CharField(max_length=100, blank=True, null=True, default=None)
 	base_j=models.CharField(max_length=300, blank=True, null=True, default=None)
+	#used for gvt_compo when propos_origine= "EM", "CONS", "BCE", "CJUE"
+	date_doc=models.DateField(max_length=10, blank=True, null=True, default=None)
 
 	#OEIL
 	commission=models.CharField(max_length=10, blank=True, null=True, default=None)

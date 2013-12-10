@@ -3,38 +3,18 @@
 """
 get government composition from the file Composition politique gvts nationaux 93-12.csv (NationGvtPoliticalComposition) and opal variables
 """
-from act.models import GvtCompo
+from act.models import GvtCompo, Country, NP
 from import_app.models import ImportNP
-from common.functions import date_string_to_iso
 from bs4 import BeautifulSoup
 import re
 
 
-def get_date(soup):
-	"""
-	FUNCTION
-	get the date of the act (used for gvt_compo when ProposOrigine=EM) from the eurlex url
-	PARAMETERS
-	soup: eurlex url content [BeautifulSoup object]
-	RETURN
-	titre_en [string]
-	"""
-	try:
-		return date_string_to_iso(soup.find("h2", text="Dates").find_next("ul").find(text=re.compile("of document")).strip()[-10:])
-	except Exception, e:
-		print "no date gvt_compo!", e
-		return None
 
-#right under "Title and reference"
-#not NULL
-
-
-def link_act_gvt_compo(soup, act_ids, act):
+def link_act_gvt_compo(act_ids, act):
 	"""
 	FUNCTION
 	fill the assocation table which links an act to its governments composition
 	PARAMETERS
-	soup: eurlex url content [BeautifulSoup object]
 	act_ids: instance of the ids of the act [ActIds model instance]
 	act: instance of an act [Act model instance]
 	RETURN
@@ -47,8 +27,8 @@ def link_act_gvt_compo(soup, act_ids, act):
 	elif act.sign_pecs!=None:
 		#if no adopt_conseil, take sign_pecs
 		date=act.sign_pecs
-	elif act_ids.propos_origine in["EM", "CONS", "BCE", "CJUE"]:
-		date=get_date(soup)
+	elif act_ids.propos_origine in ["EM", "CONS", "BCE", "CJUE"]:
+		date=act.date_doc
 
 	if date==None:
 		return None
@@ -94,7 +74,7 @@ def link_get_act_opal(act_ids, act):
 			fields={"case_nb": opal.case_nb, "np": Country.objects.get(pk=opal.np), "act_type": opal.act_type, "act_date": opal.act_date , "act": act}
 			NP.objects.create(**fields)
 		except Exception, e:
-			print "opal varibles already saved!", e
+			print "opal variables already saved!", e
 
 	#remove last "; "
 	for country in opal_dic:
@@ -105,12 +85,11 @@ def link_get_act_opal(act_ids, act):
 
 
 
-def get_data_others(soup, act_ids, act):
+def get_data_others(act_ids, act):
 	"""
 	FUNCTION
 	link the government composition of each European country at the time of the act (given in parameter) and get the opal variables
 	PARAMETERS
-	soup: eurlex url content [BeautifulSoup object]
 	act_ids: instance of the ids of the act [ActIds model instance]
 	act: instance of the data of the act [Act model instance]
 	RETURN
@@ -119,7 +98,7 @@ def get_data_others(soup, act_ids, act):
 
 	#TEST ONLY -> TO REMOVE
 	#~ act.adopt_conseil="2012-02-21"
-	link_act_gvt_compo(soup, act_ids, act)
+	link_act_gvt_compo(act_ids, act)
 	for gvt_compo in act.gvt_compo.all():
 		print "gvt_compo_country:", gvt_compo.country.country_code
 		partys=""

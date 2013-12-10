@@ -178,19 +178,21 @@ def get_dg_1(soup):
 #can be Null
 
 
-def save_get_dgs(dgs):
+def save_get_dg(dg):
 	"""
 	FUNCTION
-	get the dg instances associated to each dg passed in parameter
+	get the dg instance(s) associated to the dg passed in parameter
 	PARAMETERS
-	dgs: list of dgs [list of strings]
+	dg: dg 1 or 2 [string]
 	RETURN
-	dgs_instances: list of dg instances [list of DG model instances]
+	dg_instance: list of dg instance(s) [list of DG model instances]
 	"""
-	dgs_instances=[]
-	for dg in dgs:
-		instance=None
-		if dg!=None:
+	dg_instance=[]
+	if dg!=None:
+		#if there are two possible dgs separated by a semi-column
+		temp=dg.split(";")
+		for dg in temp:
+			dg=dg.strip()
 			#if it is a dg_nb, it can refer to more than one DG (manual validation)
 			if dg[-1].isdigit():
 				try:
@@ -208,9 +210,9 @@ def save_get_dgs(dgs):
 			else:
 				instance=save_get_object(DG, {"dg": dg})
 
-		dgs_instances.append(instance)
+			dg_instance.append(instance)
 
-	return dgs_instances
+	return dg_instance
 
 
 def get_resps(soup):
@@ -610,24 +612,25 @@ def get_data_prelex(soup, act_ids, act):
 	dg_2, resp_2=get_jointly_resps(adopt_com_table_soup)
 
 	#dg_* and dg_sigle_*
-	dgs=save_get_dgs([dg_1, dg_2])
-	for index in xrange(len(dgs)):
+	dgs_temp=[dg_1, dg_2]
+	for index in xrange(len(dgs_temp)):
+		dgs=save_get_dg(dgs_temp[index])
 		num=str(index+1)
 		#django adds "_id" to foreign keys field names
 		dg='dg_'+num+"_id"
 		fields[dg]=None
-		if dgs[index]!=None:
-			fields[dg]=dgs[index]
+		if dgs!=None:
+			fields[dg]=dgs
 			#list possible dgs
 			try:
-				for possible_dg in dgs[index]:
+				for possible_dg in dgs:
 					print dg+":", possible_dg.dg
 					print "dg_sigle_"+num+":", possible_dg.dg_sigle.dg_sigle
 			except Exception, e:
 				#only one dg
 				#~ print "only one dg", e
-				print dg+":", dgs[index].dg
-				print "dg_sigle_"+num+":", dgs[index].dg_sigle.dg_sigle
+				print dg+":", dgs.dg
+				print "dg_sigle_"+num+":", dgs.dg_sigle.dg_sigle
 
 
 	#resp_1, resp_2, resp_3

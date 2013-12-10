@@ -113,8 +113,7 @@ class ActForm(forms.ModelForm):
 	class Meta:
 		model=Act
 		#fields NOT used for the validation
-		exclude=('id', 'releve_annee', 'releve_mois', 'no_ordre', 'titre_rmc', 'council_path', 'url_prelex', "validated")
-		#~ exclude=('id', 'releve_annee', 'releve_mois', 'no_ordre', 'titre_rmc', 'council_path', 'url_prelex', 'adopt_cs_contre', 'adopt_cs_abs', 'adopt_pc_contre','adopt_pc_abs', "gvt_compo",)
+		exclude=('id', 'releve_annee', 'releve_mois', 'no_ordre', 'titre_rmc', 'council_path', 'date_doc', 'url_prelex', "validated")
 
 	#trim trailing spaces
 	def clean(self):

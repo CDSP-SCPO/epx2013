@@ -6,7 +6,7 @@ get data from Eurlex (data for the statistical analysis)
 import re
 from bs4 import BeautifulSoup
 from act.models import CodeSect
-from common.functions import list_reverse_enum
+from common.functions import list_reverse_enum, date_string_to_iso
 from common.db import save_fk_code_sect, save_get_object
 
 
@@ -219,6 +219,24 @@ def get_base_j(soup):
 #~ ) -> can be repeated
 
 
+def get_date_doc(soup):
+	"""
+	FUNCTION
+	get the date of the act (used for gvt_compo when ProposOrigine="EM", "CONS", "BCE", "CJUE") from the eurlex url
+	PARAMETERS
+	soup: eurlex url content [BeautifulSoup object]
+	RETURN
+	titre_en [string]
+	"""
+	try:
+		return date_string_to_iso(soup.find("h2", text="Dates").find_next("ul").find(text=re.compile("of document")).strip()[-10:])
+	except Exception, e:
+		print "no date gvt_compo!", e
+		return None
+
+#right under "Title and reference"
+#not NULL
+
 
 def get_data_eurlex(soup, act_ids=None, act=None):
 	"""
@@ -266,5 +284,9 @@ def get_data_eurlex(soup, act_ids=None, act=None):
 	#base_j
 	data['base_j']=get_base_j(soup)
 	print "base_j:", data['base_j']
+
+	#date_doc
+	data['date_doc']=get_date_doc(soup)
+	print "date_doc:", data['date_doc']
 
 	return data
