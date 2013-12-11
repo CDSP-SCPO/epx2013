@@ -15,7 +15,7 @@ from django.db.models.loading import get_model
 from common.functions import remove_nonspacing_marks, date_string_to_iso, list_reverse_enum
 from datetime import datetime
 #save resp
-from common.db import save_get_field_and_fk, save_get_object, save_fk_code_sect
+from common.db import save_get_object, save_fk_code_sect, save_get_resp_prelex
 
 
 def get_adopt_com_table(soup):
@@ -110,7 +110,6 @@ def save_get_resp(names):
 	#change name format: "Firstname LASTNAME" -> "LASTNAME Firstname"
 	names=names.split()
 	first_name=last_name=""
-	#get first names
 	for name in names:
 		#get last names
 		if name.isupper():
@@ -120,11 +119,7 @@ def save_get_resp(names):
 			first_name+=name+" "
 
 	names=last_name[:-1]+" "+first_name[:-1]
-	print "name", names
-
-	field=[Person, "name", names]
-	src="resp"
-	instance=save_get_field_and_fk(field, [], src)[0]
+	instance=save_get_resp_prelex(names)
 
 	return instance
 

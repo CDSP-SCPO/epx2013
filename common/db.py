@@ -2,7 +2,7 @@
 eurlex, oeil or prelex data retrieval: db access and modif
 """
 from act_ids.models import ActIds
-from act.models import CodeSect, Country
+from act.models import CodeSect, Country, Person
 from functions import list_reverse_enum
 
 def get_act_ids(act):
@@ -129,3 +129,41 @@ def save_get_field_and_fk(field, fields_fk, src=""):
 		instance.save()
 
 	return instance, exist
+
+
+def save_get_resp_prelex(names):
+	"""
+	FUNCTION
+	save a resp from prelex and get its instance
+	PARAMETERS
+	names: first name(s) and last name(s) of the responsible [string]
+	RETURN
+	instance: instance of the responsible [Pers model instance]
+	"""
+	instance=None
+	try:
+		#get the instance
+		instance=Person.objects.get(src="resp", name=names)
+		#check that there are the associated data
+		print instance.country.country
+	except:
+		#there is an error on prelex
+		#problem of case?
+		names=[name.strip().upper() for name in names.split()]
+		persons=Person.objects.filter(src="resp")
+		for person in persons:
+			person_name=person.name.upper()
+			found=True
+			for name in names:
+				if name not in person_name:
+					found=False
+					break
+				#~ else:
+					#~ print "person_name", person_name
+					#~ print "name", name
+			#if a match is found, stop the program and return the instance
+			if found==True and person.country!=None:
+				instance=person
+				break
+
+	return instance
