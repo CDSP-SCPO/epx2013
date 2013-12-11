@@ -12,7 +12,7 @@ from import_app.models import ImportAdoptPC
 #model as parameter
 from django.db.models.loading import get_model
 #remove accents
-from common.functions import remove_nonspacing_marks, date_string_to_iso, list_reverse_enum
+from common.functions import date_string_to_iso, list_reverse_enum
 from datetime import datetime
 #save resp
 from common.db import save_get_object, save_fk_code_sect, save_get_resp_prelex
@@ -105,8 +105,6 @@ def save_get_resp(names):
 	#remove trailing "'"
 	if names[-1]=="'":
 		names=names[:-1]
-	#remove accents
-	names=remove_nonspacing_marks(names)
 	#change name format: "Firstname LASTNAME" -> "LASTNAME Firstname"
 	names=names.split()
 	first_name=last_name=""

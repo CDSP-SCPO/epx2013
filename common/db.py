@@ -3,7 +3,7 @@ eurlex, oeil or prelex data retrieval: db access and modif
 """
 from act_ids.models import ActIds
 from act.models import CodeSect, Country, Person
-from functions import list_reverse_enum
+from functions import list_reverse_enum, remove_nonspacing_marks
 
 def get_act_ids(act):
 	"""
@@ -148,11 +148,14 @@ def save_get_resp_prelex(names):
 		print instance.country.country
 	except:
 		#there is an error on prelex
+		#problem of accent?
+		#remove accents
+		names=remove_nonspacing_marks(names)
 		#problem of case?
 		names=[name.strip().upper() for name in names.split()]
 		persons=Person.objects.filter(src="resp")
 		for person in persons:
-			person_name=person.name.upper()
+			person_name=remove_nonspacing_marks(person.name.upper())
 			found=True
 			for name in names:
 				if name not in person_name:
