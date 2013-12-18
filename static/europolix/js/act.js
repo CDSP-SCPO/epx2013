@@ -96,6 +96,7 @@ function reset_act_form(result, mode)
 //display message when click on save button
 function display_save_message(result)
 {
+	alert('youpi');
 	//if there is already a message class on the element, remove it
 	$('#msg').removeClass(function()
 	{
@@ -395,3 +396,32 @@ function update_dg(name, value)
 		}
 	});
 }
+
+
+/* modal add dg / resp*/
+
+/* bind the event to update a dg /resp with the associated drop down list */
+$('#act_form').on('click', '.add_dg_js, .add_resp_js', function()
+{
+	//fill the hidden div with the name of the drop down list to update (if add a record with the modal)
+	field_id=this.id;
+	field_id=field_id.substr(field_id.indexOf("_") + 1);
+	$("#modal_field").html(field_id);
+
+	variables = $(this).data('id').split(";");
+	field=variables[0]
+	name=variables[1]
+	url="/db_mgmt/form_add.html/"+field+"/"
+
+	$.get(url, function(data)
+	{
+		$('#modal_add')
+		.find('#modal_title').html("Add a new "+name)
+		.end()
+		.find('#modal_content').html($(data))
+		.end()
+		.find('#div_button_add').hide()
+		.end()
+		.find("#var_id").html(field_id)
+	});
+});

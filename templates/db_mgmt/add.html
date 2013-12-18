@@ -1,0 +1,30 @@
+<!--
+TEMPLATE
+displays a f rom to add a dg or responsible
+-->
+{% extends "base.html" %}
+
+{% load act_extra %}
+
+{% block contentTitle %}<div id="title">Add a {{ display_name|get_value:var }}</div>{% endblock %}
+
+{% block content %}
+	<div id="content">
+
+		<div class="row-fluid">
+			<div class="span12">
+
+				<div class="row-fluid">
+					This page lets you add a {{ display_name|get_value:var }} and its associated fields.<br />
+					Fill in the form and click on the save button to save the data.
+				</div>
+
+				<br />
+
+				<div id="form_add_div">{% include form_template with field=field %}</div>
+
+			</div>
+		</div>
+
+	</div>
+{% endblock %}

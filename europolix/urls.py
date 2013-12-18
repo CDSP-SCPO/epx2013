@@ -16,17 +16,16 @@ urlpatterns=patterns('',
 	#~ url(r'^tests/$', 'tests.views.testView'),
 	#login page
 	url(r'^login/$', 'login.views.login_view', name='login'),
-	#acts ids validation page
-	url(r'^act_ids/', include('act_ids.urls')),
-	#acts data retrieval page
-	url(r'^act/', include('act.urls')),
 	#import page
 	url(r'^import/', include('import_app.urls')),
+	#acts ids validation page
+	url(r'^act_ids/', include('act_ids.urls')),
+	#acts data validation page
+	url(r'^act/', include('act.urls')),
+	#db management page
+	url(r'^db_mgmt/', include('db_mgmt.urls')),
 	#export page
 	url(r'^export/', include('export.urls')),
-	#export library
-	#url(r'^exports/', include('data_exports.urls', namespace='data_exports')),
-
 	# Uncomment the admin/doc line below to enable admin documentation:
 	# url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
 

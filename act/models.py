@@ -12,6 +12,9 @@ class Country(models.Model):
 	country_code=models.CharField(max_length=2, primary_key=True)
 	country=models.CharField(max_length=20, unique=True)
 
+	def __unicode__(self):
+		return u"%s" % self.country
+
 
 class Party(models.Model):
 	"""
@@ -22,6 +25,9 @@ class Party(models.Model):
 	#if party_family None: party comes from rapp (oeil); otherwise comes from resp (prelex) or gvt_compo
 	#~ country=models.ManyToManyField(Country, through='PartyFamily')
 
+	def __unicode__(self):
+		return u"%s" % self.party
+
 
 class PartyFamily(models.Model):
 	"""
@@ -31,6 +37,9 @@ class PartyFamily(models.Model):
 	party = models.ForeignKey(Party)
 	country = models.ForeignKey(Country)
 	party_family = models.CharField(max_length=30)
+
+	def __unicode__(self):
+		return u"%s" % self.party_family
 
 	class Meta:
 		unique_together=(("party", "country"), )
@@ -71,6 +80,9 @@ class DGSigle(models.Model):
 	instances of dg_sigle variables
 	"""
 	dg_sigle=models.CharField(max_length=10, unique=True)
+
+	def __unicode__(self):
+		return u"%s" % self.dg_sigle
 
 
 class DGNb(models.Model):

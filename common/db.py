@@ -90,7 +90,7 @@ def save_get_field_and_fk(field, fields_fk, src=""):
 	src: "rapp" or "resp" if saving a pers (extra parameter) [string]
 	RETURN
 	instance: instance of the field with its foreign keys [model instance]
-	exist: True if the value of the field or all its foreignkeys already exist, False otherwise [boolean]
+	exist: True if the value of the field and all its foreignkeys already exist, False otherwise [boolean]
 	"""
 	exist=True
 	instance_fks={}

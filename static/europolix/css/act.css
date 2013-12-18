@@ -100,6 +100,36 @@
 	padding: 3px 6px;
 }
 
+/* align link to add a dg */
+.add_dg
+{
+	float: left;
+	margin-left: 1.5%;
+}
+
+/* hide link for javascript version */
+.add_dg_js
+{
+	display: none;
+}
+
+/* align link to add a resp */
+.add_resp
+{
+	position: absolute;
+/*
+	top: 67%;
+*/
+	top: 42px;
+	left: 1.5%;
+}
+
+/* hide link for javascript version */
+.add_resp_js
+{
+	display: none;
+}
+
 
 /* gvt_compo and opal */
 #gvt_compo, #opal

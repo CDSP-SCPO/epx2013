@@ -6,18 +6,18 @@ contains the template of each webpage: doctype, left menu, right content templat
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<link rel="shortcut icon" href="{{STATIC_URL}}europolix/img/favicon.ico" />
+<link rel="shortcut icon" href="/{{STATIC_URL}}europolix/img/favicon.ico" />
 <title>{% block title %}Europolix project{% endblock%}</title>
 <!-- Bootstrap -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link  rel="stylesheet" href="{{STATIC_URL}}bootstrap/css/bootstrap.min.css" media="screen">
+<link  rel="stylesheet" href="/{{STATIC_URL}}bootstrap/css/bootstrap.min.css" media="screen">
 <!--
-<link href="{{STATIC_URL}}bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
+<link href="/{{STATIC_URL}}bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
 -->
 <!-- css common to all the applications -->
-<link rel="stylesheet" href="{{STATIC_URL}}europolix/css/css_europolix.css?{% now 'U' %}" />
+<link rel="stylesheet" href="/{{STATIC_URL}}europolix/css/css_europolix.css?{% now 'U' %}" />
 <!-- jquery -->
-<script type="text/javascript" src="{{ STATIC_URL }}jquery.min.js"></script>
+<script type="text/javascript" src="/{{ STATIC_URL }}jquery.min.js"></script>
 </head>
 <body>
 
@@ -27,9 +27,9 @@ contains the template of each webpage: doctype, left menu, right content templat
 		<!-- images -->
 		<header class="page-header">
 			<div class="span4 header_row">
-				<a href="http://www.sciencespo.fr/" target="_blank"><img id="size_sp" class="header_elements" src="{{STATIC_URL}}europolix/img/sciencesPo.png"></a>
+				<a href="http://www.sciencespo.fr/" target="_blank"><img id="size_sp" class="header_elements" src="/{{STATIC_URL}}europolix/img/sciencesPo.png"></a>
 				&nbsp;
-				<a href="http://www.cee.sciences-po.fr/" target="_blank"><img id="size_cee" class="header_elements" src="{{STATIC_URL}}europolix/img/CEE.png"></a>
+				<a href="http://www.cee.sciences-po.fr/" target="_blank"><img id="size_cee" class="header_elements" src="/{{STATIC_URL}}europolix/img/CEE.png"></a>
 			</div>
 
 			<div class="span4 header_row">
@@ -37,11 +37,11 @@ contains the template of each webpage: doctype, left menu, right content templat
 			</div>
 
 			<div class="span4 header_row">
-				<a href="http://www.europarl.europa.eu/" target="_blank"><img id="size_o" class="header_elements" src="{{STATIC_URL}}europolix/img/oeil.png"></a>
+				<a href="http://www.europarl.europa.eu/" target="_blank"><img id="size_o" class="header_elements" src="/{{STATIC_URL}}europolix/img/oeil.png"></a>
 				&nbsp;
-				<a href="http://new.eur-lex.europa.eu/" target="_blank"><img id="size_e" class="header_elements" src="{{STATIC_URL}}europolix/img/eurlex.png"></a>
+				<a href="http://new.eur-lex.europa.eu/" target="_blank"><img id="size_e" class="header_elements" src="/{{STATIC_URL}}europolix/img/eurlex.png"></a>
 				&nbsp;
-				<a href="http://ec.europa.eu/" target="_blank"><img id="size_p" class="header_elements" src="{{STATIC_URL}}europolix/img/prelex.png"></a>
+				<a href="http://ec.europa.eu/" target="_blank"><img id="size_p" class="header_elements" src="/{{STATIC_URL}}europolix/img/prelex.png"></a>
 			</div>
 		</header>
 	</div>
@@ -118,9 +118,9 @@ contains the template of each webpage: doctype, left menu, right content templat
 
 
 <!-- js common to all the applications -->
-<script type="text/javascript" src="{{STATIC_URL }}europolix/js/jquery_europolix.js?{% now 'U' %}"></script>
-<script type="text/javascript" src="{{ STATIC_URL }}europolix/js/csrf.js"></script>
+<script type="text/javascript" src="/{{STATIC_URL }}europolix/js/jquery_europolix.js?{% now 'U' %}"></script>
+<script type="text/javascript" src="/{{ STATIC_URL }}europolix/js/csrf.js"></script>
 <!-- Bootstrap -->
-<script src="{{STATIC_URL}}bootstrap/js/bootstrap.min.js"></script>
+<script src="/{{STATIC_URL}}bootstrap/js/bootstrap.min.js"></script>
 </body>
 </html>

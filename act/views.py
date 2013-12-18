@@ -68,7 +68,7 @@ def get_party_family(resps):
 			#if id and not instance, get the instance instead
 			if type(resps[index]) is long:
 				resps[index]=Person.objects.get(pk=resps[index])
-			#party is None if the responsible does not exist in responsible file (on prelex, we have only names, no party, no country)
+			# if party None: the responsible does not exist in responsible file (on prelex, we have only names, no party, no country)
 			if resps[index].party!=None:
 				resps[index]=PartyFamily.objects.get(party=resps[index].party, country=resps[index].country).party_family
 			else:
@@ -138,7 +138,7 @@ def check_multiple_dgs(act):
 			#if many possible dgs, keep the first one only (to be displayed in the drop down list)
 			setattr(act, name, instances[0])
 		except Exception, e:
-			#~ print "dg is None", e
+			print "dg is None", e
 			pass
 	return dgs, act
 
@@ -381,8 +381,10 @@ def update_dg(request):
 	"""
 	response={}
 	if request.POST["dg_id"]!="":
+		print "dg_id", request.POST["dg_id"]
 		instance=DG.objects.get(pk=request.POST["dg_id"])
 		response["dg_sigle"]=instance.dg_sigle.dg_sigle
+		print "dg_sigle", response["dg_sigle"]
 	else:
 		response["dg_sigle"]=None
 	return HttpResponse(simplejson.dumps(response), mimetype="application/json")

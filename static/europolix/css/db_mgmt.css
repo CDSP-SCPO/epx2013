@@ -1,0 +1,31 @@
+#/* css for the db management application */
+
+fieldset > div.row-fluid
+{
+	padding-left: 10px;
+}
+
+
+#form_add .control-label
+{
+	width: 130px;
+}
+
+legend
+{
+	width: 260px;
+}
+
+/* align error messages with the field and not its label */
+.field_error
+{
+	padding-left: 157px;
+	width: auto;
+}
+
+/* error or success message */
+#form_add_msg
+{
+	padding-right: 5px;
+	padding-left: 10px;
+}

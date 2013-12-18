@@ -93,14 +93,14 @@ def get_com_proc(soup, propos_origine):
 #~ Null if ProposOrigine !=COM
 
 
-def save_get_resp(names):
+def format_resp_name(names):
 	"""
 	FUNCTION
-	save the name in the db and get the instance
+	rewrite  the name of the responsible in the right format
 	PARAMETERS
 	names: full name of the person [string]
 	RETURN
-	instance: instance of Person [Person model instance]
+	instance: full name of the person, in the right format [string]
 	"""
 	#remove trailing "'"
 	if names[-1]=="'":
@@ -116,10 +116,9 @@ def save_get_resp(names):
 		else:
 			first_name+=name+" "
 
-	names=last_name[:-1]+" "+first_name[:-1]
-	instance=save_get_resp_prelex(names)
+	names=last_name+first_name[:-1]
 
-	return instance
+	return names
 
 
 def get_jointly_resps(soup):
@@ -201,7 +200,13 @@ def save_get_dg(dg):
 					instance=None
 			#it is a dg
 			else:
-				instance=save_get_object(DG, {"dg": dg})
+				try:
+					#dg exists
+					instance=DG.objects.get(dg=dg)
+				except Exception, e:
+					print "dg does not exist yet", e
+					#TODO
+					instance=dg
 
 			dg_instance.append(instance)
 
@@ -225,7 +230,7 @@ def get_resps(soup):
 	except Exception, e:
 		print "no responsible", e
 	#two responsibles (2006, 7, 19)
-	#http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=en&DosId=191554
+	#http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=en&DosId=191554 (2006, 7, 19)
 	return resps
 
 #~ in front of "Responsible"
@@ -244,7 +249,8 @@ def get_resp_objs(resps):
 	persons=[None for i in range(3)]
 	try:
 		for index in xrange(len(persons)):
-			persons[index]=save_get_resp(resps[index].strip())
+			names=format_resp_name(resps[index].strip())
+			persons[index]=save_get_resp_prelex(names)
 	except Exception, e:
 		print "exception", e
 	return persons
@@ -621,9 +627,12 @@ def get_data_prelex(soup, act_ids, act):
 					print "dg_sigle_"+num+":", possible_dg.dg_sigle.dg_sigle
 			except Exception, e:
 				#only one dg
-				#~ print "only one dg", e
-				print dg+":", dgs.dg
-				print "dg_sigle_"+num+":", dgs.dg_sigle.dg_sigle
+				#error: dg does not exist in db yet
+				if isinstance(dgs[0], unicode):
+					print dg+":", dgs[0]
+				else:
+					print dg+":", dgs[0].dg
+					print "dg_sigle_"+num+":", dgs[0].dg_sigle.dg_sigle
 
 
 	#resp_1, resp_2, resp_3

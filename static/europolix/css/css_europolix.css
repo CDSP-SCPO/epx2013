@@ -21,6 +21,7 @@ body
 header
 {
 	position: fixed;
+	padding-left: 1%;
 	z-index: 2;
 	width: 100%;
 	height: inherit;
@@ -89,17 +90,17 @@ header
 #size_o
 {
     width: auto;
-    height: 39px;
+    height: 40px;
 }
 #size_e
 {
     width: auto;
-    height: 38px;
+    height: 36px;
 }
 #size_p
 {
     width: auto;
-    height: 38px;
+    height: 36px;
 }
 
 /* HEADINGS */
@@ -260,7 +261,7 @@ legend
 /* vertical space between controls */
 .form-horizontal .control-group
 {
-	margin-bottom: 1%;
+	margin-bottom: 10px;
 }
 
 /* form aligned on the left */

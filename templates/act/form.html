@@ -201,6 +201,8 @@
 
 	<!-- link view to update dg data -->
 	<div id="dg" style="display:none">{% url update_dg %}</div>
+	<!-- field that triggered the modal -->
+	<div id="modal_field" style="display:none"></div>
 
 	{% for field in form_data %}
 		{% if field.name in vars_prelex_1 %}
@@ -215,6 +217,9 @@
 						{% if field.name|slice:":3" == 'dg_' %}
 							{% with index=field.name|slice:"-1:" %}
 								<div class="row-fluid">
+<!--
+									Value found on prelex: {{ field.data }}
+-->
 									{% if dg and dg|get_value:index %}
 										<strong class="data_msg">
 											More than one possible value. Please choose among: {{ dg|get_value:index }}
@@ -224,7 +229,7 @@
 							{% endwith %}
 						{% endif %}
 
-						<div class="row-fluid">
+						<div class="row-fluid" style="position: relative">
 							{{ field }}
 
 							<!-- dg_1, dg_2 -->
@@ -235,6 +240,9 @@
 									<div id="dg_{{ index }}" class="update_fields">
 										{{ display_name.dg_sigle_ }}{{ index }}=<span id="dg_sigle_{{ index }}">{% get_related_field "DG" field.value "dg_sigle" %}</span><br />
 									 </div>
+									<br /><br />
+									<a class="add_dg add_dg_no_js" href="{% url add field='dg' %}" target="_blank">Add a new {{ display_name.dg }}</a>
+									<a id="modal_{{ field.name }}" class="add_dg add_dg_js" href="#modal_add" role="button" data-id="dg;{{ display_name.dg }}" data-toggle="modal">Add a new {{ display_name.dg }}</a>
 								{% endwith %}
 							{% endif %}
 
@@ -247,7 +255,9 @@
 										{{ display_name.resp_country_ }}{{ index }}=<span id="resp_country_{{ index }}">{% get_related_field "Person" field.value "country" %}</span><br />
 										{{ display_name.resp_party_ }}{{ index }}=<span id="resp_party_{{ index }}">{% get_related_field "Person" field.value "party" %}</span><br />
 										{{ display_name.resp_party_family_ }}{{ index }}=<span id="resp_party_family_{{ index }}">{{ party_family|get_value:index }}</span>
-									 </div>
+									</div>
+									<a class="add_resp add_resp_no_js" href="{% url add field='resp' %}" target="_blank">Add a new {{ display_name.resp }}</a>
+									<a  id="modal_{{ field.name }}" class="add_resp add_resp_js" href="#modal_add" role="button"  data-id="resp;{{ display_name.resp }}" data-toggle="modal">Add a new {{ display_name.resp }}</a>
 								{% endwith %}
 							{% endif %}
 
