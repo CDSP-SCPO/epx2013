@@ -728,3 +728,5 @@ def get_data_prelex(soup, act_ids, act):
 		print "adopt_pc_abs:", adopt_pc.adopt_pc_abs
 
 	return fields
+	#TODO
+	#~ return fields, dgs, resp_names
