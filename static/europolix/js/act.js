@@ -411,7 +411,7 @@ $('#act_form').on('click', '.add_dg_js, .add_resp_js', function()
 	variables = $(this).data('id').split(";");
 	field=variables[0]
 	name=variables[1]
-	url="/db_mgmt/form_add.html/"+field+"/"
+	url="db_mgmt/form_add.html/"+field+"/"
 
 	$.get(url, function(data)
 	{

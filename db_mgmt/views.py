@@ -13,6 +13,8 @@ from forms import AddDG, AddResp
 #variables names
 import act.var_name_data as var_name_data
 
+from django.conf import settings
+
 
 def init_response(field):
 	"""
@@ -48,6 +50,11 @@ def add(request, field):
 	db_mgmt/add.html: display a form to add a dg or a responsible and theirs related fields
 	"""
 	response=init_response(field)
+
+	#~ print "PROJECT_ROOT", settings.PROJECT_ROOT
+	#~ print "STATIC_ROOT", settings.STATIC_ROOT
+	#~ print "STATIC_URL", settings.STATIC_URL
+	#~ print "WEB_ROOT", settings.WEB_ROOT
 
 	if request.method=='POST':
 		form=response["model"](request.POST)
