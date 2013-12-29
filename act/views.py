@@ -89,7 +89,8 @@ def get_data(src, act_ids, url, act=None):
 	act: data of the act for prelex only [Act model instance]
 	RETURN
 	fields:  dictionary which contains retrieved data for a given source [dictionary]
-	url_content: html content of the source url (only eurlex) [string]
+	dg_names: list of dg names [list of strings]
+	resp_names: list of resp names [list of strings]
 	"""
 	fields={}
 	url_content=eval("get_url_content_"+src)(url)
@@ -98,18 +99,19 @@ def get_data(src, act_ids, url, act=None):
 		#set the url_exists attribute of the given source to True
 		setattr(act_ids, "url_exists", True)
 		#call the corresponding function to retrieve the data and pass it to an object
-		fields=eval("get_data_"+src)(url_content, act_ids, act)
+		fields, dg_names, resp_names=eval("get_data_"+src)(url_content, act_ids, act)
 		#store dictionary data variables into the model object
 		#~ for (key, value) in fields.items():
 			#~ setattr(act_ids.act, key, value)
 	else:
+		dg_names, resp_names=None
 		setattr(act_ids, "url_exists", False)
 		print "error while retrieving "+src+" url"
 
 	#actualization url exist attribute
 	act_ids.save()
 
-	return fields
+	return fields, dg_names, resp_names
 
 
 def check_multiple_dgs(act):
@@ -168,10 +170,12 @@ def get_data_all(state, add_modif, act, POST, response):
 		print "data retrieval"
 		#retrieve all the data from all the sources
 		#COMMENT FOR TESTS ONLY
-		#~ act.__dict__.update(get_data("eurlex", act_ids["eurlex"], urls["url_eurlex"], act))
-		#~ act.__dict__.update(get_data("oeil", act_ids["oeil"], urls["url_oeil"], act))
+		act.__dict__.update(get_data("eurlex", act_ids["eurlex"], urls["url_eurlex"], act)[0])
+		fields, dg_names_oeil, resp_names_oeil=get_data("oeil", act_ids["oeil"], urls["url_oeil"], act)
+		act.__dict__.update(fields)
 		#prelex config_cons needs eurlex, gvt_compo needs oeil
-		act.__dict__.update(get_data("prelex", act_ids["prelex"], urls["url_prelex"], act))
+		fields, dg_names_prelex, resp_names_prelex=get_data("prelex", act_ids["prelex"], urls["url_prelex"], act)
+		act.__dict__.update(fields)
 		#check multiple values for dgs with numbers
 		response["dg"], act=check_multiple_dgs(act)
 
@@ -184,6 +188,10 @@ def get_data_all(state, add_modif, act, POST, response):
 	response['act']=act
 	#COMMENT FOR TESTS ONLY
 	response['opals']=get_data_others(act_ids["index"], act)
+	response["dg_names_oeil"]={"1": dg_names_oeil[0], "2": dg_names_oeil[1]}
+	response["dg_names_prelex"]={"1": dg_names_prelex[0], "2": dg_names_prelex[1]}
+	response["resp_names_oeil"]={"1": resp_names_oeil[0], "2": resp_names_oeil[1], "3": resp_names_oeil[2]}
+	response["resp_names_prelex"]={"1": resp_names_prelex[0], "2": resp_names_prelex[1], "3": resp_names_prelex[2]}
 	response["party_family"]=get_party_family({"1": act.resp_1_id, "2": act.resp_2_id, "3": act.resp_3_id})
 	response['act_ids']=act_ids
 	response['form_data']=form_data

@@ -229,7 +229,6 @@ def get_rapps_html(soup, searched_text):
 	RETURN
 	rapps: rapporteurs data [BeautifulSoup object]
 	"""
-	print "searched_text", searched_text
 	rapps=[None]*5
 	if searched_text!=None:
 		try:
@@ -237,8 +236,10 @@ def get_rapps_html(soup, searched_text):
 			rapps_temp=[rapp for rapp in soup.find(text=searched_text).find_next("td", {"class": "players_rapporter_com "}).find_all("p", {"class": "players_content"}) if rapp.parent.name!="div"]
 			for index in range(len(rapps_temp)):
 				rapps[index]=rapps_temp[index]
-		except:
+		except Exception, e:
+			print "pb rapps html", e
 			pass
+
 	return rapps
 
 
@@ -409,6 +410,48 @@ def get_sign_pecs(soup, no_unique_type):
 #only if NoUniqueType=COD or ACI
 
 
+def get_dg_names(soup):
+	"""
+	FUNCTION
+	get the dg names from the oeil url
+	PARAMETERS
+	soup: oeil url content [BeautifulSoup object]
+	RETURN
+	dg_names: list of dg names [list of strings]
+	"""
+	#view-source:http://www.europarl.europa.eu/oeil/popups/ficheprocedure.do?lang=en&reference=2005/0223(COD) (2 dgs)
+	#<td class="players_committee">
+	soup=soup.find("td", {"class": "players_committee"})
+	# <p class="players_content">
+	dg_names=soup.find_all("p", {"class": "players_content"})
+	#<a href="http://epp.eurostat.ec.europa.eu/portal/page/portal/eurostat/home" title="Eurostat" target="_blank">Eurostat</a>
+	dg_names=[dg_name.find("a").get_text().strip() for dg_name in dg_names]
+	while len(dg_names)<2:
+		dg_names.append(None)
+	return dg_names
+
+
+def get_resp_names(soup):
+	"""
+	FUNCTION
+	get the resp names from the oeil url
+	PARAMETERS
+	soup: oeil url content [BeautifulSoup object]
+	RETURN
+	resp_names: list of resp names [list of strings]
+	"""
+	#http://www.europarl.europa.eu/oeil/popups/ficheprocedure.do?lang=en&reference=2007/0128(COD)
+	#<td class="players_rapporter_com">
+	soup=soup.find("td", {"class": "players_rapporter_com"})
+	# <p class="players_content">
+	resp_names=soup.find_all("p", {"class": "players_content"})
+	#<p class="players_content">KYPRIANOU  Markos</p>
+	resp_names=[resp_name.get_text().strip() for resp_name in resp_names]
+	while len(resp_names)<3:
+		resp_names.append(None)
+	return resp_names
+
+
 
 def get_data_oeil(soup, act_ids, act=None):
 	"""
@@ -419,20 +462,27 @@ def get_data_oeil(soup, act_ids, act=None):
 	act_ids: act ids instance [ActIds model instance]
 	RETURN
 	fields: retrieved data from oeil [dictionary]
+	dg_names: list of dg names [list of strings]
+	resp_names: list of resp names [list of strings]
 	"""
 	fields={}
 	act=act_ids.act
 
+	#<table style="margin:0;" width="100%" id="key_players">
+	soup_key_players=soup.find("table", {"id": "key_players"})
+	#<div id="keyEvents" class="ep_borderbox">
+	soup_key_events=soup.find("div", {"id": "keyEvents"})
+
 	#nb_lectures
-	fields['nb_lectures']=get_nb_lectures(soup, act.suite_2e_lecture_pe)
+	fields['nb_lectures']=get_nb_lectures(soup_key_events, act.suite_2e_lecture_pe)
 	print "nb_lectures:", fields['nb_lectures']
 
 	#commission
-	fields['commission'], searched_text=get_commission(soup, act_ids.no_unique_type, fields['nb_lectures'])
+	fields['commission'], searched_text=get_commission(soup_key_players, act_ids.no_unique_type, fields['nb_lectures'])
 	print "commission:", fields['commission']
 
 	#html content of the votes page
-	vote_page_soup=get_vote_page(soup)
+	vote_page_soup=get_vote_page(soup_key_events)
 	#~ print votesSectionSoup
 
 	#com_amdt_tabled
@@ -480,8 +530,9 @@ def get_data_oeil(soup, act_ids, act=None):
 	fields['votes_abs_2']=get_vote(vote_table_2, "Abstentions")
 	print "votes_abs_2:", fields['votes_abs_2']
 
+
 	#rapporteurs
-	rapps_html=get_rapps_html(soup, searched_text)
+	rapps_html=get_rapps_html(soup_key_players, searched_text)
 	rapps=get_rapps(rapps_html)
 	#rapp variables (name, country, party)
 	for rapp in rapps:
@@ -493,11 +544,21 @@ def get_data_oeil(soup, act_ids, act=None):
 			print 'party_'+num+": ", rapps[rapp].party.party
 
 	#modif_propos
-	fields['modif_propos']=get_modif_propos(soup)
+	fields['modif_propos']=get_modif_propos(soup_key_events)
 	print "modif_propos:", fields['modif_propos']
 
 	#sign_pecs
-	fields['sign_pecs']=get_sign_pecs(soup, act_ids.no_unique_type)
+	fields['sign_pecs']=get_sign_pecs(soup_key_events, act_ids.no_unique_type)
 	print "sign_pecs:", fields['sign_pecs']
 
-	return fields
+	soup_dg_resp=soup_key_players.find("a", {"title": "European Commission"}).find_next("table")
+
+	#get dg names
+	dg_names=get_dg_names(soup_dg_resp)
+	print "dg_names:", dg_names
+
+	#get resp names
+	resp_names=get_resp_names(soup_dg_resp)
+	print "resp_names:", resp_names
+
+	return fields, dg_names, resp_names

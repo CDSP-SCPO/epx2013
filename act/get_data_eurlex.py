@@ -249,6 +249,9 @@ def get_data_eurlex(soup, act_ids=None, act=None):
 	"""
 	data={}
 
+	#<div class="listNotice">
+	soup=soup.find("div", {"class": "listNotice"})
+
 	#titre_en
 	data['titre_en']=get_titre_en(soup)
 	print "titre_en:", data['titre_en']
@@ -289,4 +292,4 @@ def get_data_eurlex(soup, act_ids=None, act=None):
 	data['date_doc']=get_date_doc(soup)
 	print "date_doc:", data['date_doc']
 
-	return data
+	return data, None, None

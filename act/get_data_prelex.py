@@ -590,25 +590,30 @@ def get_data_prelex(soup, act_ids, act):
 	act: instance of the data of the act [Act model instance]
 	RETURN
 	fields: retrieved data from prelex [dictionary]
+	dgs_temp: list of dg names [list of strings]
+	resp_names: list of resp names [list of strings]
 	"""
 	fields={}
 
+	#<table border="0" cellpadding="0" cellspacing="1">
+	soup_table_dates=soup.find("table", {"cellspacing": "1"})
+
 	#adopt_propos_origine
-	fields['adopt_propos_origine']=get_adopt_propos_origine(soup, act_ids.propos_origine)
+	fields['adopt_propos_origine']=get_adopt_propos_origine(soup_table_dates, act_ids.propos_origine)
 	print "adopt_propos_origine:", fields['adopt_propos_origine']
 
 	#extract Adoption by Commission table (html content)
-	adopt_com_table_soup=get_adopt_com_table(soup)
+	soup_adopt_com_table=get_adopt_com_table(soup)
 
 	#com_proc
-	fields['com_proc']=get_com_proc(adopt_com_table_soup, act_ids.propos_origine)
+	fields['com_proc']=get_com_proc(soup_adopt_com_table, act_ids.propos_origine)
 	print "com_proc:", fields['com_proc']
 
 	#dg_1
-	dg_1=get_dg_1(adopt_com_table_soup)
+	dg_1=get_dg_1(soup_adopt_com_table)
 
 	#jointly responsible persons (dg_2 and resp_2 or resp_3)
-	dg_2, resp_2=get_jointly_resps(adopt_com_table_soup)
+	dg_2, resp_2=get_jointly_resps(soup_adopt_com_table)
 
 	#dg_* and dg_sigle_*
 	dgs_temp=[dg_1, dg_2]
@@ -636,7 +641,7 @@ def get_data_prelex(soup, act_ids, act):
 
 
 	#resp_1, resp_2, resp_3
-	resp_names=get_resps(adopt_com_table_soup)
+	resp_names=get_resps(soup_adopt_com_table)
 
 	if resp_2!=None:
 		if resp_names[1]==None:
@@ -661,7 +666,7 @@ def get_data_prelex(soup, act_ids, act):
 				print "party_family_"+num+":", PartyFamily.objects.only("party_family").get(party=party.pk, country=fields[name].country.pk)
 
 	#transm_council
-	fields['transm_council']=get_transm_council(soup, act_ids.propos_origine)
+	fields['transm_council']=get_transm_council(soup_table_dates, act_ids.propos_origine)
 	print "transm_council:", fields['transm_council']
 
 	#nb_point_b
@@ -727,6 +732,5 @@ def get_data_prelex(soup, act_ids, act):
 		print "adopt_pc_contre:", adopt_pc.adopt_pc_contre
 		print "adopt_pc_abs:", adopt_pc.adopt_pc_abs
 
-	return fields
-	#TODO
-	#~ return fields, dgs, resp_names
+	#~ return fields
+	return fields, dgs_temp, resp_names

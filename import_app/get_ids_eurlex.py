@@ -166,6 +166,9 @@ def get_ids_eurlex(soup):
 	fields['no_celex']=get_no_celex(soup)
 	print "no_celex:", fields['no_celex']
 
+	#<div class="listNotice">
+	soup=soup.find("div", {"class": "listNotice"})
+
 	#oeil ids
 	fields['no_unique_type'], fields['no_unique_annee'], fields['no_unique_chrono']=get_nos_unique(soup)
 	print 'no_unique_type:', fields['no_unique_type']
