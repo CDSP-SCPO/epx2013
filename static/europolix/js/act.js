@@ -96,7 +96,6 @@ function reset_act_form(result, mode)
 //display message when click on save button
 function display_save_message(result)
 {
-	alert('youpi');
 	//if there is already a message class on the element, remove it
 	$('#msg').removeClass(function()
 	{

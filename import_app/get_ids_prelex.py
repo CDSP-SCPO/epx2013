@@ -52,7 +52,7 @@ def get_url_prelex_no_unique(no_unique_type, no_unique_annee, no_unique_chrono):
 	#~ url="http://ec.europa.eu/prelex/liste_resultats.cfm?CL=en&ReqId=0&DocType=NOUNIQUETYPE&DocYear=NOUNIQUEANNEE&DocNum=0NOUNIQUECHRONO"
 	url=conf.url_prelex_no_unique
 	url=url.replace("NOUNIQUETYPE", no_unique_type, 1)
-	url=url.replace("NOUNIQUEANNEE", no_unique_annee, 1)
+	url=url.replace("NOUNIQUEANNEE", str(no_unique_annee), 1)
 	url=url.replace("NOUNIQUECHRONO", no_unique_chrono, 1)
 	return url
 

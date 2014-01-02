@@ -104,7 +104,8 @@ def get_data(src, act_ids, url, act=None):
 		#~ for (key, value) in fields.items():
 			#~ setattr(act_ids.act, key, value)
 	else:
-		dg_names, resp_names=None
+		dg_names=[None]*2
+		resp_names=[None]*3
 		setattr(act_ids, "url_exists", False)
 		print "error while retrieving "+src+" url"
 

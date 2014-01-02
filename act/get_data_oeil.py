@@ -419,16 +419,24 @@ def get_dg_names(soup):
 	RETURN
 	dg_names: list of dg names [list of strings]
 	"""
+	dgs=[None]*2
 	#view-source:http://www.europarl.europa.eu/oeil/popups/ficheprocedure.do?lang=en&reference=2005/0223(COD) (2 dgs)
 	#<td class="players_committee">
 	soup=soup.find("td", {"class": "players_committee"})
 	# <p class="players_content">
 	dg_names=soup.find_all("p", {"class": "players_content"})
-	#<a href="http://epp.eurostat.ec.europa.eu/portal/page/portal/eurostat/home" title="Eurostat" target="_blank">Eurostat</a>
-	dg_names=[dg_name.find("a").get_text().strip() for dg_name in dg_names]
-	while len(dg_names)<2:
-		dg_names.append(None)
-	return dg_names
+	#<p class="players_content"><a href="http://epp.eurostat.ec.europa.eu/portal/page/portal/eurostat/home" title="Eurostat" target="_blank">Eurostat</a></p>
+	#<p class="players_content">Energy and Transport</p>
+	for index, dg_name in enumerate(dg_names):
+		try:
+			#with link
+			dgs[index]=dg_name.find("a").get_text().strip()
+		except Exception, e:
+			print "exception get_dg_names", e
+			#without link
+			dgs[index]=dg_name.get_text().strip()
+
+	return dgs
 
 
 def get_resp_names(soup):
