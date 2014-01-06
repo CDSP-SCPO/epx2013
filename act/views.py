@@ -146,6 +146,42 @@ def check_multiple_dgs(act):
 	return dgs, act
 
 
+def store_dg_resp(act, oeil_list, prelex_list, field):
+	"""
+	FUNCTION
+	store dg or resp names from oeil and prelex in a dictionary and store dgs or resps from oeil in the act object if there is none on prelex
+	PARAMETERS
+	act: instance of the data of the act [Act model instance]
+	oeil_list: list of dg or resp names from oeil [list of strings]
+	prelex_list: list of dg or resp names from prelex [list of strings]
+s	field: name of the field ("dg" or "resp") [string]
+	RETURN
+	act: instance of the data of the act (with updated dgs or resps if any) [Act model instance]
+	oeil_dic: list of dg or resp names from oeil [dictionary of strings]
+	prelex_dic: list of dg or resp names from prelex [dictionary of strings]
+	"""
+	oeil_dic={}
+	for index, field in enumerate(oeil_list):
+		index=str(index+1)
+		oeil_dic[index]=field
+	prelex_dic={}
+	for index, field in enumerate(prelex_list):
+		num=str(index+1)
+		prelex_dic[num]=field
+		if field==None and oeil_dic[num]!=None:
+			try:
+				#update the act instance with the oeil resp
+				if field=="resp":
+					setattr(act, "resp_"+num, Person.objects.get(name=oeil_dic[num]))
+				else:
+					#update the act instance with the oeil dg
+					setattr(act, "dg_"+num, DG.objects.get(dg=oeil_dic[num]))
+			except Exception, e:
+				print "except", e
+
+	return act, oeil_dic, prelex_dic
+
+
 def get_data_all(state, add_modif, act, POST, response):
 	"""
 	FUNCTION
@@ -177,6 +213,12 @@ def get_data_all(state, add_modif, act, POST, response):
 		#prelex config_cons needs eurlex, gvt_compo needs oeil
 		fields, dg_names_prelex, resp_names_prelex=get_data("prelex", act_ids["prelex"], urls["url_prelex"], act)
 		act.__dict__.update(fields)
+
+		act, response["dg_names_oeil"], response["dg_names_prelex"]=store_dg_resp(act, dg_names_oeil, dg_names_prelex, "dg")
+		act, response["resp_names_oeil"], response["resp_names_prelex"]=store_dg_resp(act, resp_names_oeil, resp_names_prelex, "resp")
+		#response["resp_names_oeil"]={"1": resp_names_oeil[0], "2": resp_names_oeil[1], "3": resp_names_oeil[2]}
+		#response["resp_names_prelex"]={"1": resp_names_prelex[0], "2": resp_names_prelex[1], "3": resp_names_prelex[2]}
+
 		#check multiple values for dgs with numbers
 		response["dg"], act=check_multiple_dgs(act)
 
@@ -189,10 +231,6 @@ def get_data_all(state, add_modif, act, POST, response):
 	response['act']=act
 	#COMMENT FOR TESTS ONLY
 	response['opals']=get_data_others(act_ids["index"], act)
-	response["dg_names_oeil"]={"1": dg_names_oeil[0], "2": dg_names_oeil[1]}
-	response["dg_names_prelex"]={"1": dg_names_prelex[0], "2": dg_names_prelex[1]}
-	response["resp_names_oeil"]={"1": resp_names_oeil[0], "2": resp_names_oeil[1], "3": resp_names_oeil[2]}
-	response["resp_names_prelex"]={"1": resp_names_prelex[0], "2": resp_names_prelex[1], "3": resp_names_prelex[2]}
 	response["party_family"]=get_party_family({"1": act.resp_1_id, "2": act.resp_2_id, "3": act.resp_3_id})
 	response['act_ids']=act_ids
 	response['form_data']=form_data
