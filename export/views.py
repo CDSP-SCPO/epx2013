@@ -204,10 +204,13 @@ def sort_acts(acts, sort_field_index, sort_direction):
 	RETURNS
 	acts: sorted acts [list of Act model instances]
 	"""
-	if sort_direction=="ascending":
-		acts.sort(key=lambda row: row[sort_field_index])
-	else:
-		acts.sort(key=lambda row: row[sort_field_index], reverse=True)
+	try:
+		if sort_direction=="ascending":
+			acts.sort(key=lambda row: row[sort_field_index])
+		else:
+			acts.sort(key=lambda row: row[sort_field_index], reverse=True)
+	except Exception, e:
+		print "exception sort acts", e
 	return acts
 
 

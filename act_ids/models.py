@@ -17,12 +17,12 @@ class ActIds(models.Model):
 	url_exists=models.BooleanField(default=True)
 	#no_celex for index file must be unique
 	no_celex=models.CharField(max_length=15, blank=True, null=True, default=None)
-	no_unique_annee=models.IntegerField(max_length=4, blank=True, null=True, default=None)
 	no_unique_type=models.CharField(max_length=4, blank=True, null=True, default=None)
+	no_unique_annee=models.IntegerField(max_length=4, blank=True, null=True, default=None)
 	no_unique_chrono=models.CharField(max_length=5, blank=True, null=True, default=None)
+	propos_origine=models.CharField(max_length=4, blank=True, null=True, default=None)
 	propos_annee=models.IntegerField(max_length=4, blank=True, null=True, default=None)
 	propos_chrono=models.CharField(max_length=7, blank=True, null=True, default=None)
-	propos_origine=models.CharField(max_length=4, blank=True, null=True, default=None)
 	dos_id=models.IntegerField(max_length=7, blank=True, null=True, default=None)
 	act=models.ForeignKey(Act)
 

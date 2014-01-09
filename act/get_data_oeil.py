@@ -451,15 +451,20 @@ def get_resp_names(soup):
 	RETURN
 	resp_names: list of resp names [list of strings]
 	"""
-	#http://www.europarl.europa.eu/oeil/popups/ficheprocedure.do?lang=en&reference=2007/0128(COD)
-	#<td class="players_rapporter_com">
-	soup=soup.find("td", {"class": "players_rapporter_com"})
-	# <p class="players_content">
-	resp_names=soup.find_all("p", {"class": "players_content"})
-	#<p class="players_content">KYPRIANOU  Markos</p>
-	resp_names=[resp_name.get_text().strip() for resp_name in resp_names]
-	while len(resp_names)<3:
-		resp_names.append(None)
+	resp_names=[None]*3
+	try:
+		#http://www.europarl.europa.eu/oeil/popups/ficheprocedure.do?lang=en&reference=2007/0128(COD)
+		#<td class="players_rapporter_com">
+		soup=soup.find("td", {"class": "players_rapporter_com"})
+		# <p class="players_content">
+		resp_names=soup.find_all("p", {"class": "players_content"})
+		#<p class="players_content">KYPRIANOU  Markos</p>
+		resp_names=[resp_name.get_text().strip() for resp_name in resp_names]
+		while len(resp_names)<3:
+			resp_names.append(None)
+	except Exception, e:
+		print "exception get_resp_names", e
+
 	return resp_names
 
 
@@ -562,7 +567,12 @@ def get_data_oeil(soup, act_ids, act=None):
 	fields['sign_pecs']=get_sign_pecs(soup_key_events, act_ids.no_unique_type)
 	print "sign_pecs:", fields['sign_pecs']
 
-	soup_dg_resp=soup_key_players.find("a", {"title": "European Commission"}).find_next("table")
+
+	try:
+		soup_dg_resp=soup_key_players.find("a", {"title": "European Commission"}).find_next("table")
+	except Exception, e:
+		print "exception soup_dg_resp", e
+		soup_dg_resp=None
 
 	#get dg names
 	dg_names=get_dg_names(soup_dg_resp)
