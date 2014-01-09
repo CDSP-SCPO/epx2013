@@ -636,8 +636,11 @@ def get_data_prelex(soup, act_ids, act):
 				if isinstance(dgs[0], unicode):
 					print dg+":", dgs[0]
 				else:
-					print dg+":", dgs[0].dg
-					print "dg_sigle_"+num+":", dgs[0].dg_sigle.dg_sigle
+					try:
+						print dg+":", dgs[0].dg
+						print "dg_sigle_"+num+":", dgs[0].dg_sigle.dg_sigle
+					except Exception, e:
+						print "pb display dgs", e
 
 
 	#resp_1, resp_2, resp_3
