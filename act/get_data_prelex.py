@@ -180,6 +180,7 @@ def save_get_dg(dg):
 	dg_instance: list of dg instance(s) [list of DG model instances]
 	"""
 	dg_instance=[]
+	many=False
 	if dg!=None:
 		#if there are two possible dgs separated by a semi-column
 		temp=dg.split(";")
@@ -194,7 +195,8 @@ def save_get_dg(dg):
 						instance=DG.objects.get(dg_nb=dg_nb)
 					except Exception, e:
 						print "many possible dgs", e
-						instance=DG.objects.filter(dg_nb=dg_nb)
+						instances=DG.objects.filter(dg_nb=dg_nb)
+						many=True
 				except Exception, e:
 					print "save_get_dgs exception", e
 					instance=None
@@ -208,7 +210,11 @@ def save_get_dg(dg):
 					#TODO
 					instance=dg
 
-			dg_instance.append(instance)
+			if many:
+				for instance in instances:
+					dg_instance.append(instance)
+			else:
+				dg_instance.append(instance)
 
 	return dg_instance
 
@@ -631,6 +637,7 @@ def get_data_prelex(soup, act_ids, act):
 					print dg+":", possible_dg.dg
 					print "dg_sigle_"+num+":", possible_dg.dg_sigle.dg_sigle
 			except Exception, e:
+				print "only one dg to display", e
 				#only one dg
 				#error: dg does not exist in db yet
 				if isinstance(dgs[0], unicode):

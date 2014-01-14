@@ -160,6 +160,7 @@ s	field: name of the field ("dg" or "resp") [string]
 	oeil_dic: list of dg or resp names from oeil [dictionary of strings]
 	prelex_dic: list of dg or resp names from prelex [dictionary of strings]
 	"""
+	print "oeil_list", oeil_list
 	oeil_dic={}
 	for index, field in enumerate(oeil_list):
 		index=str(index+1)
@@ -175,9 +176,10 @@ s	field: name of the field ("dg" or "resp") [string]
 					setattr(act, "resp_"+num, Person.objects.get(name=oeil_dic[num]))
 				else:
 					#update the act instance with the oeil dg
+					print "youpi"
 					setattr(act, "dg_"+num, DG.objects.get(dg=oeil_dic[num]))
 			except Exception, e:
-				print "except", e
+				print "except store_dg_resp", e
 
 	return act, oeil_dic, prelex_dic
 

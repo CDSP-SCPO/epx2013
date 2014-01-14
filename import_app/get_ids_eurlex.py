@@ -55,6 +55,25 @@ def get_no_celex(soup):
 	return soup.title.string.split("-")[2].strip()
 
 
+def get_chrono(chrono):
+	"""
+	FUNCTION
+	remove the 0 at the beginning of the chrono field (no_chrono for oeil or propos_chrono for prelex)
+	PARAMETERS
+	chrono: no_chrono or propos_chrono [string]
+	RETURN
+	updated no_chrono or propos_chrono [string]
+	"""
+	index_start=0
+	#we remove the 0s at the beginning
+	for character in chrono:
+		if character=="0":
+			index_start+=1
+		else:
+			break
+	return chrono[index_start:]
+
+
 def get_nos_unique(soup):
 	"""
 	FUNCTION
@@ -64,27 +83,17 @@ def get_nos_unique(soup):
 	RETURN
 	no_unique_type, no_unique_annee and no_unique_chrono variables [string, int, string]
 	"""
+	exist=True
 	try:
 		url=soup.find(text="European Parliament - Legislative observatory").find_parent().find_parent()['href']
 		#~ print "old oeil url (eurlex):", url
 		#http://www.europarl.europa.eu/oeil/FindByProcnum.do?lang=2&procnum=COD/2005/0223
-
 		url=url[url.rfind('='):][1:].split("/")
 		no_unique_type=url[0].upper()
 		#~ print 'no_unique_type (eurlex):', no_unique_type
 		no_unique_annee=url[1]
 		#~ print 'no_unique_annee (eurlex):', no_unique_annee
-		no_unique_chrono_temp=url[2]
-		#~ print "no_unique_chrono_temp (eurlex):", no_unique_chrono_temp
-		index_start=0
-		#we remove the 0s at the beginning
-		for character in no_unique_chrono_temp:
-			if character=="0":
-				index_start+=1
-			else:
-				break
-		no_unique_chrono=no_unique_chrono_temp[index_start:]
-		#~ print 'no_unique_chrono (eurlex):', no_unique_chrono
+		no_unique_chrono=url[2]
 	except:
 		try:
 			ids_oeil=soup.find(text="Procedure number:").find_next('br').next.strip()
@@ -95,22 +104,14 @@ def get_nos_unique(soup):
 			ids_oeil=ids_oeil[1].split(")")
 			no_unique_annee=ids_oeil[0]
 			#~ print 'no_unique_annee (eurlex):', no_unique_annee
-			no_unique_chrono_temp=ids_oeil[1].strip()
-			#~ print "no_unique_chrono_temp (eurlex):", no_unique_chrono_temp
-			#we remove the 0s at the beginning
-			index_start=0
-			for character in no_unique_chrono_temp:
-				if character=="0":
-					index_start+=1
-				else:
-					break
-			no_unique_chrono=no_unique_chrono_temp[index_start:]
-			#~ print 'no_unique_chrono (eurlex):', no_unique_chrono
+			no_unique_chrono=ids_oeil[1].strip()
 		except:
-			no_unique_type=None
-			no_unique_annee=None
-			no_unique_chrono=None
 			print "no oeil page (eurlex)"
+			no_unique_type, no_unique_annee, no_unique_chrono=None, None, None
+			exist=False
+
+	if exist:
+		no_unique_chrono=get_chrono(no_unique_chrono)
 
 	return no_unique_type, no_unique_annee, no_unique_chrono
 
@@ -133,20 +134,19 @@ def get_proposs(soup):
 			propos_origine="COM"
 		ids_prelex=ids_prelex[1].split("/")
 		propos_annee=ids_prelex[0]
-		propos_chrono_temp=ids_prelex[1]
-		#we remove the 0s at the beginning
-		index_start=0
-		for character in propos_chrono_temp:
-			if character=="0":
-				index_start+=1
-			else:
-				break
-		propos_chrono=propos_chrono_temp[index_start:]
-	except:
-		propos_origine=None
-		propos_annee=None
-		propos_chrono=None
-		print "no prelex page (eurlex)"
+		propos_chrono=get_chrono(ids_prelex[1])
+	except Exception, e:
+		print "no Proposal Commission", e
+		try:
+			#http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CELEX:31997D0091:EN:NOT
+			#<strong>Internal reference:</strong><br/>COM/96/0299
+			ids_prelex=soup.find(text="Internal reference:").find_next('br').next.strip().split("/")
+			propos_origine=ids_prelex[0].upper()
+			propos_annee=ids_prelex[1]
+			propos_chrono=get_chrono(ids_prelex[2])
+		except Exception, e:
+			print "no Internal reference", e
+			propos_origine, propos_annee, propos_chrono=None, None, None
 
 	return propos_origine, propos_annee, propos_chrono
 

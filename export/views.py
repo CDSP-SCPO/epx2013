@@ -225,7 +225,7 @@ def qs_to_csv_file(headers, acts, outfile_path):
 	RETURNS
 	none
 	"""
-	writer=csv.writer(open(outfile_path, 'w'))
+	writer=csv.writer(open(outfile_path, 'w'),  delimiter=';', quotechar='"', quoting=csv.QUOTE_ALL)
 
 	#write headers
 	writer.writerow(headers)
