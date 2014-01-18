@@ -1,8 +1,19 @@
 from django.contrib import admin
-from models import DGSigle, DG
+from models import Act, DGSigle, DG
 """
-administration of DGSigle and DG models
+administration of Act, DGSigle and DG models
 """
+
+class ActAdmin(admin.ModelAdmin):
+	"""
+	details the Act model administration
+	"""
+	list_display=('id', 'releve_annee', 'releve_mois', 'no_ordre',)
+	ordering=('id', 'releve_annee', 'releve_mois', 'no_ordre',)
+	search_fields=('id', 'releve_annee', 'releve_mois', 'no_ordre',)
+
+admin.site.register(Act, ActAdmin)
+
 
 class DGSigleAdmin(admin.ModelAdmin):
 	"""

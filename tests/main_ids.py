@@ -4,8 +4,8 @@ import get_ids_prelex as prelex
 
 #ids
 #eurlex
-act="32006R1921"
-#~ act="32009D0829"
+no_celex="32006R1921"
+no_celex="31997D0091"
 
 #oeil
 no_unique_annee="2005"
@@ -27,16 +27,16 @@ ids_prelexDic["propos_annee"]=propos_annee
 ids_prelexDic["propos_chrono"]=propos_chrono
 ids_prelexDic["propos_origine"]=propos_origine
 
-url_eurlex="eurlexContent.html"
+url_eurlex="eurlex_content.html"
 url_oeil="oeilContent.html"
 url_prelex="prelexContent.html"
 
 
 #PARAMETERS TO CHANGE
-ids="yes"
-#~ ids="no"
+src="file"
+src="www"
 choice="eurlex"
-choice="oeil"
+#~ choice="oeil"
 #~ choice="prelex"
 #~ choice="prelexWithOldIds"
 #~ choice="prelexWithOeilIds"
@@ -44,8 +44,8 @@ choice="oeil"
 print ""
 
 if choice=="eurlex":
-	if ids=="yes":
-		html=eurlex.get_url_content_eurlex(eurlex.get_url_eurlex(act))
+	if src=="file":
+		html=eurlex.get_url_content_eurlex(eurlex.get_url_eurlex(no_celex))
 	else:
 		html=eurlex.get_url_content_eurlex(url_eurlex)
 

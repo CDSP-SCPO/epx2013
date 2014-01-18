@@ -18,7 +18,7 @@ def check_get_ids_eurlex(no_celex):
 	fields: retrieved data from eurlex [dictionary]
 	"""
 	fields={}
-	url_eurlex=eurlex.get_url_eurlex(no_celex)
+	url_eurlex=eurlex.get_url_eurlex(no_celex, "HIS")
 	print "eurlex url", url_eurlex
 	url_eurlex_content=eurlex.get_url_content_eurlex(url_eurlex)
 	#act doesn't exist, problem on page or problem with the Internet connection

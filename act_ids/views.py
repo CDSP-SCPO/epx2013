@@ -229,7 +229,7 @@ def act_ids(request):
 								print "no matching dos_id", e
 
 					#get urls
-					data["url_eurlex"]=eurlex.get_url_eurlex(act_ids["index"].no_celex)
+					data["url_eurlex"]=eurlex.get_url_eurlex(act_ids["index"].no_celex, "HIS")
 					data["url_oeil"]=oeil.get_url_oeil(str(act_ids["index"].no_unique_type), str(act_ids["index"].no_unique_annee), str(act_ids["index"].no_unique_chrono))
 					data["url_prelex"]=act.url_prelex
 

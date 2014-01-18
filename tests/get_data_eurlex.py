@@ -5,9 +5,6 @@ get data from Eurlex (data for the statistical analysis)
 """
 import re
 from bs4 import BeautifulSoup
-from act.models import CodeSect
-from common.functions import list_reverse_enum, date_string_to_iso
-from common.db import save_fk_code_sect, save_get_object
 
 
 def get_titre_en(soup):
@@ -68,8 +65,7 @@ def get_code_sect(soup):
 		code_sects_temp=soup.find_all('br')
 
 		for i in range(len(code_sects_temp)):
-			code_sect=code_sects_temp[i].next_sibling.strip()
-			code_sects[i]=save_get_object(CodeSect,  {"code_sect": code_sect})
+			code_sects[i]=code_sects_temp[i].next_sibling.strip()
 	except Exception, e:
 		print "no code_sect_*!", e
 
@@ -80,20 +76,6 @@ def get_code_sect(soup):
 #first not NULL
 #second, third and fourth: can be null
 
-
-def save_code_agenda(code_sects):
-	"""
-	FUNCTION
-	save the code_agenda_* fk variables into the CodeSect model
-	PARAMETERS
-	code_sects: code_sect_* instances [list of CodeSect model instances]
-	RETURN
-	None
-	"""
-	#for each code_sect
-	for i in range(len(code_sects)):
-		instance=code_sects[i]
-		save_fk_code_sect(instance, "code_agenda")
 
 
 def get_rep_en(soup):
@@ -256,7 +238,7 @@ def get_date_doc(soup):
 	"""
 	#<li><b>of document: </b>18/12/2006</li>
 	try:
-		return date_string_to_iso(soup.find("b", text=re.compile("of document")).next_sibling.strip())
+		return soup.find("b", text=re.compile("of document")).next_sibling.strip()
 	except Exception, e:
 		print "no date gvt_compo!", e
 		return None
@@ -288,8 +270,6 @@ def get_data_eurlex(soup, act_ids=None, act=None):
 	#code_sect_1, code_sect_2, code_sect_3, code_sect_4
 	code_sects=get_code_sect(directory_code_soup)
 
-	#code_agenda_1-4
-	save_code_agenda(code_sects)
 
 	#print code_sect_* and code_agenda_*
 	for index in xrange(len(code_sects)):
@@ -297,8 +277,7 @@ def get_data_eurlex(soup, act_ids=None, act=None):
 		#django adds "_id" to foreign keys field names
 		data['code_sect_'+num+"_id"]=code_sects[index]
 		if code_sects[index]!=None:
-			print 'code_sect_'+num+": ", data['code_sect_'+num+"_id"].code_sect
-			print 'code_agenda_'+num+": ", data['code_sect_'+num+"_id"].code_agenda.code_agenda
+			print 'code_sect_'+num+": ", data['code_sect_'+num+"_id"]
 
 	#rep_en_1, rep_en_2, rep_en_3, rep_en_4
 	rep_ens=get_rep_en(directory_code_soup)

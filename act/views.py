@@ -216,10 +216,9 @@ def get_data_all(state, add_modif, act, POST, response):
 		fields, dg_names_prelex, resp_names_prelex=get_data("prelex", act_ids["prelex"], urls["url_prelex"], act)
 		act.__dict__.update(fields)
 
+		#store dg/resp from oeil and prelex to be displayed as text in the template
 		act, response["dg_names_oeil"], response["dg_names_prelex"]=store_dg_resp(act, dg_names_oeil, dg_names_prelex, "dg")
 		act, response["resp_names_oeil"], response["resp_names_prelex"]=store_dg_resp(act, resp_names_oeil, resp_names_prelex, "resp")
-		#response["resp_names_oeil"]={"1": resp_names_oeil[0], "2": resp_names_oeil[1], "3": resp_names_oeil[2]}
-		#response["resp_names_prelex"]={"1": resp_names_prelex[0], "2": resp_names_prelex[1], "3": resp_names_prelex[2]}
 
 		#check multiple values for dgs with numbers
 		response["dg"], act=check_multiple_dgs(act)

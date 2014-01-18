@@ -7,22 +7,18 @@ from bs4 import BeautifulSoup
 import config_file as conf
 
 
-def get_url_eurlex(no_celex, tab="ALL"):
+def get_url_eurlex(no_celex):
 	"""
 	FUNCTION
 	return the eurlex url
 	PARAMETERS
 	no_celex: no_celex variable [string]
-	tab: "ALL" used to retrieve info or "HIS" (PROCEDURE) used to retrieve ids [string]
 	RETURN
 	url: url of the eurlex page [string]
 	"""
 	#http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CELEX:32006R1921:EN:NOT
-	#~ url_eurlex="http://new.eur-lex.europa.eu/legal-content/EN/ALL/?uri=CELEX:NOCELEX"
-	#~ url_eurlex="http://new.eur-lex.europa.eu/legal-content/EN/HIS/?uri=CELEX:NOCELEX"
+	#~ url="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CELEX:NOCELEX:EN:NOT"
 	url=conf.url_eurlex
-	if tab=="HIS":
-		url=url.replace("ALL", tab, 1)
 	url=url.replace("NOCELEX", no_celex, 1)
 	return url
 

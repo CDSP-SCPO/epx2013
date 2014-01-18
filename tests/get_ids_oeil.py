@@ -1,7 +1,6 @@
 """
-get the ids from Oeil
+get the ids from oeil
 """
-
 import urllib
 import re
 from bs4 import BeautifulSoup
@@ -13,16 +12,17 @@ def get_url_oeil(no_unique_type, no_unique_annee, no_unique_chrono):
 	FUNCTION
 	return the oeil url
 	PARAMETERS
-	no_unique_annee: no_unique_annee variable
-	no_unique_chrono: no_unique_chrono variable
-	no_unique_type: no_unique_type variable
+	no_unique_annee: no_unique_annee variable [int]
+	no_unique_chrono: no_unique_chrono variable [string]
+	no_unique_type: no_unique_type variable [string]
 	RETURN
-	url of the oeil page
+	url: url of the oeil page [string]
 	"""
 	#no_unique_chrono coded on 4 digits if numbers only and 5 if final character is a letter
-	#if only digits
-	if no_unique_chrono=="":
+	#if empty
+	if no_unique_chrono in [None, ""] :
 		return None
+	#if only digits
 	if no_unique_chrono[-1].isdigit():
 		no_unique_chrono_len=4
 	else:
@@ -45,18 +45,19 @@ def get_url_content_oeil(url):
 	FUNCTION
 	check if the oeil url exists and return its content
 	PARAMETERS
-	url: oeil url
+	url: oeil url [string]
 	RETURN
-	content of the page if the url exists and false otherwise
+	url_content: content of the page if the url exists and false otherwise [BeautifulSoup object]
 	"""
+	url_content=False
 	try:
 		soup=BeautifulSoup(urllib.urlopen(url))
-		if (soup.title.string=="Procedure File: ERROR"):
-			return False
-		else:
-			return soup
+		if not (soup.title.string=="Procedure File: ERROR"):
+			url_content=soup
 	except:
-		return False
+		print "no content for oeil url"
+
+	return url_content
 
 
 def get_no_celex(soup):
@@ -64,14 +65,13 @@ def get_no_celex(soup):
 	FUNCTION
 	get act from oeil
 	PARAMETERS
-	soup: oeil url content
+	soup: oeil url content [BeautifulSoup object]
 	RETURN
-	act
+	no_celex [string]
 	"""
 	try:
 		act=soup.find("div", {"id": "final_act"}).find("a", {"class": "sumbutton"})["title"]
 		return act.split(" ")[-1]
-
 	except:
 		#~ print "numero celex PAS ok (oeil):"
 		return None
@@ -82,9 +82,9 @@ def get_nos_unique(soup):
 	FUNCTION
 	get oeil ids from oeil
 	PARAMETERS
-	soup: oeil url content
+	soup: oeil url content [BeautifulSoup object]
 	RETURN
-	oeil ids (no_unique_type, no_unique_annee, no_unique_chrono)
+	no_unique_type, no_unique_annee and no_unique_chrono variables [string, int, string]
 	"""
 	try:
 		title=soup.title.string
@@ -116,21 +116,21 @@ def get_proposs(soup):
 	FUNCTION
 	get prelex ids from oeil
 	PARAMETERS
-	soup: oeil url content
+	soup: oeil url content [BeautifulSoup object]
 	RETURN
-	prelex ids (propos_origine, propos_annee, propos_chrono)
+	propos_origine, propos_annee and propos_chrono variables [string, int, string]
 	"""
 	#3 different kinds of acts -> 3 possibilities to retrieve prelex ids
 	act_type=["Legislative proposal published", "Non-legislative basic document", "Supplementary legislative basic document", "Initial legislative proposal published"]
 	for act in act_type:
 		try:
-			prelex=soup.find(text=act).findParent().findParent().find("td", {"class": "event_column_document"}).find('a')
+			prelex=soup.find(text=act).find_parent().find_parent().find("td", {"class": "event_column_document"}).find('a')
 			#~ print "prelex (oeil):", prelex
 			ids_prelex=prelex.get_text().strip()
 			#~ print "ids_prelex (oeil):", ids_prelex
 
 			if ids_prelex=="":
-				ids_prelex=prelex.previousSibling.strip()
+				ids_prelex=prelex.previous_sibling.strip()
 
 			#~ print "prelexId (oeil):", ids_prelex
 			ids_prelex=ids_prelex.split('(')
@@ -176,9 +176,9 @@ def get_ids_oeil(soup):
 	FUNCTION
 	get all the ids from the oeil url
 	PARAMETERS
-	soup: oeil url content
+	soup: oeil url content [BeautifulSoup object]
 	RETURN
-	dictionary of retrieved data from oeil
+	fields: retrieved data from oeil [dictionary]
 	"""
 	fields={}
 

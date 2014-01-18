@@ -1,7 +1,6 @@
 """
 get the ids from Prelex
 """
-
 import urllib
 import re
 from bs4 import BeautifulSoup
@@ -11,32 +10,33 @@ import config_file as conf
 def get_url_prelex_propos(propos_origine, propos_annee, propos_chrono):
 	"""
 	FUNCTION
-	return the old prelex url
+	return the prelex url (with propos ids)
 	PARAMETERS
-	propos_origine: propos_origine variable
-	propos_annee: propos_annee variable
-	propos_chrono: propos_chrono variable
+	propos_origine: propos_origine variable [string]
+	propos_annee: propos_annee variable [int]
+	propos_chrono: propos_chrono variable [string]
 	RETURN
-	url of the old prelex page
+	url: prelex url [string]
 	"""
 	#http://prelex.europa.eu/liste_resultats.cfm?ReqId=0&CL=en&DocType=COM&DocYear=2005&DocNum=566
 	#~ url="http://prelex.europa.eu/liste_resultats.cfm?ReqId=0&CL=en&DocType=PROPOSORIGINE&DocYear=PROPOSANNEE&DocNum=PROPOSCHRONO"
 	url=conf.url_prelex_propos
 	url=url.replace("PROPOSORIGINE", propos_origine, 1)
-	url=url.replace("PROPOSANNEE", propos_annee, 1)
+	url=url.replace("PROPOSANNEE", str(propos_annee), 1)
 	url=url.replace("PROPOSCHRONO", propos_chrono, 1)
 	return url
-	
+
+
 def get_url_prelex_no_unique(no_unique_type, no_unique_annee, no_unique_chrono):
 	"""
 	FUNCTION
-	return the old prelex url with the oeils ids (USEFUL if propos_chrono contains a dash)
+	return the prelex url (with oeil ids) (USEFUL if propos_chrono contains a dash)
 	PARAMETERS
-	propos_origine: propos_origine variable
-	propos_annee: propos_annee variable
-	propos_chrono: propos_chrono variable
+	propos_origine: propos_origine variable [string]
+	propos_annee: propos_annee variable [int]
+	propos_chrono: propos_chrono variable [string]
 	RETURN
-	url of the old prelex page
+	url: prelex url [string]
 	"""
 	#no_unique_chrono coded on 4 digits if numbers only and 5 if final character is a letter
 	#propos_chrono coded on 4 digits
@@ -44,31 +44,31 @@ def get_url_prelex_no_unique(no_unique_type, no_unique_annee, no_unique_chrono):
 		no_unique_chrono_len=4
 	else:
 		no_unique_chrono_len=5
-	
+
 	while len(no_unique_chrono)!=no_unique_chrono_len:
 		no_unique_chrono="0"+str(no_unique_chrono)
-		
+
 	#http://ec.europa.eu/prelex/liste_resultats.cfm?CL=en&ReqId=0&DocType=COD&DocYear=2005&DocNum=0223
 	#~ url="http://ec.europa.eu/prelex/liste_resultats.cfm?CL=en&ReqId=0&DocType=NOUNIQUETYPE&DocYear=NOUNIQUEANNEE&DocNum=0NOUNIQUECHRONO"
 	url=conf.url_prelex_no_unique
 	url=url.replace("NOUNIQUETYPE", no_unique_type, 1)
-	url=url.replace("NOUNIQUEANNEE", no_unique_annee, 1)
+	url=url.replace("NOUNIQUEANNEE", str(no_unique_annee), 1)
 	url=url.replace("NOUNIQUECHRONO", no_unique_chrono, 1)
 	return url
 
 def get_url_prelex(dos_id):
 	"""
 	FUNCTION
-	return the prelex url (USEFUL if propos_chrono contains a dash and there is no no_unique)
+	return the prelex url (with dos_id) (USEFUL if propos_chrono contains a dash and there is no no_unique)
 	PARAMETERS
-	dos_id: dos_id variable
+	dos_id: dos_id variable [int]
 	RETURN
-	url of the prelex page
+	url: prelex url [string]
 	"""
 	#http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=en&DosId=193517
 	#~ url="http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=en&DosId=DOSSIERID"
 	url=conf.url_prelex
-	url=url.replace("DOSSIERID", dos_id, 1)
+	url=url.replace("DOSSIERID", str(dos_id), 1)
 	return url
 
 
@@ -77,47 +77,52 @@ def get_url_content_prelex(url):
 	FUNCTION
 	check if the prelex url exists and return its content
 	PARAMETERS
-	url: prelex url
+	url: prelex url [string]
 	RETURN
-	content of the page if the url exists and false otherwise
+	content of the page if the url exists and false otherwise [BeautifulSoup object]
 	"""
+	url_content=False
 	try:
 		soup=BeautifulSoup(urllib.urlopen(url))
-		if(soup.find(text='This page does not exists')):
-			return False
-		else:
-			return soup
+		if not (soup.find(text='This page does not exists') or soup.find(text=re.compile('The document is not available in PreLex'))):
+			url_content=soup
 	except:
-		return False
+		print "no url content for prelex"
+
+	return url_content
 
 
-def get_no_celex(soup):
+def get_no_celex(soup, no_celex):
 	"""
 	FUNCTION
-	get nos_celex from prelex
+	get no_celex from prelex
 	PARAMETERS
-	soup: prelex url content
+	soup: prelex url content [BeautifulSoup object]
 	RETURN
-	nos_celex
+	no_celex_p: no_celex if found on prelex, None otherwise [string]
 	"""
+	no_celex_p=None
 	try:
-		urls_eurlex=[text.get('href') for text in soup.findAll('a', {"href": re.compile("^(.)*uri=CELEX:[0-9](195[789]|19[6-9][0-9]|20[0-1][0-9])[dflrDFLR][0-9]{4}(\(01\)|R\(01\))?")})]
-		nos_celex=set()
+		urls_eurlex=[text.get('href') for text in soup.find_all('a', {"href": re.compile("^(.)*uri=CELEX:[0-9](195[789]|19[6-9][0-9]|20[0-1][0-9])([dflryDFLRY]|PC)[0-9]{4}(\(0[1-9]\)|R\(0[1-9]\))?")})]
 		for url_eurlex in urls_eurlex:
-			nos_celex.add(url_eurlex.split(":")[2])
-		return nos_celex
+			#no_celex found!
+			if url_eurlex.split(":")[2]==no_celex:
+				no_celex_p=no_celex
+				break
 	except:
 		print "no eurlex page (prelex)"
-		return None
+
+	return no_celex_p
+
 
 def get_nos_unique(soup):
 	"""
 	FUNCTION
 	get oeil ids from prelex
 	PARAMETERS
-	soup: prelex url content
+	soup: prelex url content [BeautifulSoup object]
 	RETURN
-	oeil ids (no_unique_type, no_unique_annee, no_unique_chrono)
+	no_unique_type, no_unique_annee and no_unique_chrono variables [string, int, string]
 	"""
 	try:
 		ids_oeil=soup.get_text()
@@ -149,9 +154,9 @@ def get_dos_id(soup):
 	FUNCTION
 	get prelex dos_id from prelex
 	PARAMETERS
-	soup: prelex url content
+	soup: prelex url content [BeautifulSoup object]
 	RETURN
-	dos_id
+	dos_id [int]
 	"""
 	try:
 		dos_id=soup.find('a', {"href": re.compile("DosId=")})['href']
@@ -166,9 +171,9 @@ def get_proposs(soup):
 	FUNCTION
 	get prelex ids from prelex
 	PARAMETERS
-	soup: prelex url content
+	soup: prelex url content [BeautifulSoup object]
 	RETURN
-	prelex ids (propos_origine, propos_annee, propos_chrono)
+	propos_origine, propos_annee and propos_chrono variables [string, int, string]
 	"""
 	try:
 		ids_prelex=soup.get_text()
@@ -188,27 +193,28 @@ def get_proposs(soup):
 				break
 		propos_chrono=propos_chrono_temp[index_start:]
 		return propos_origine, propos_annee, propos_chrono
-		
+
 	except:
 		return None, None, None
 
 
-def get_ids_prelex(soup):
+def get_ids_prelex(soup, no_celex):
 	"""
 	FUNCTION
 	get all the ids from the prelex url
 	PARAMETERS
-	soup: prelex url content
+	soup: prelex url content [BeautifulSoup object]
+	no_celex: no_celex variable [string]
 	RETURN
-	dictionary of retrieved data from prelex
+	fields: retrieved data from prelex [dictionary]
 	"""
 	fields={}
-	
-	#eurlex id
-	fields['nos_celex_p']=get_no_celex(soup)
-	print "fields['nos_celex_p']:", fields['nos_celex_p']
 
-	ids_oeil_prelex=soup.findAll('font', {'size': "-1"})
+	#eurlex id
+	fields['no_celex']=get_no_celex(soup, no_celex)
+	print "fields['no_celex']:", fields['no_celex']
+
+	ids_oeil_prelex=soup.find_all('font', {'size': "-1"})
 
 	#if there is no error on the page
 	if ids_oeil_prelex!=[]:
@@ -217,11 +223,11 @@ def get_ids_prelex(soup):
 		print "no_unique_type:", fields['no_unique_type']
 		print "no_unique_annee:", fields['no_unique_annee']
 		print "no_unique_chrono:", fields['no_unique_chrono']
-	
+
 		#prelex dos_id
 		fields['dos_id']=get_dos_id(soup)
 		print "dos_id:", fields['dos_id']
-		
+
 		#prelex ids
 		fields['propos_origine'], fields['propos_annee'], fields['propos_chrono']=get_proposs(ids_oeil_prelex[0])
 		print "propos_origine:", fields['propos_origine']
@@ -230,13 +236,6 @@ def get_ids_prelex(soup):
 	else:
 		#if problems on page (just beginning with titles but nothing about the act)
 		print "problem on page (prelex)"
-		fields['no_unique_type']=None
-		fields['no_unique_annee']=None
-		fields['no_unique_chrono']=None
-		fields['dos_id']=None
-		fields['propos_origine']=None
-		fields['propos_annee']=None
-		fields['propos_chrono']=None
 		fields['url_exists']=False
 
 	return fields
