@@ -5,12 +5,12 @@ act_ids model administration
 """
 
 class ActAdmin(admin.ModelAdmin):
-	"""
-	details the Act model administration
-	"""
-	list_display=('no_celex', 'no_unique_annee', 'no_unique_chrono', 'no_unique_type')
-	list_filter=('no_celex', 'no_unique_annee', 'no_unique_chrono', 'no_unique_type')
-	ordering=('no_celex', 'no_unique_annee', 'no_unique_chrono', 'no_unique_type')
-	search_fields=('no_celex', 'no_unique_annee', 'no_unique_chrono', 'no_unique_type')
+    """
+    details the Act model administration
+    """
+    list_display=('src', 'no_celex', 'act', 'no_unique_annee', 'no_unique_chrono', 'no_unique_type')
+    list_filter=('src', 'no_celex')
+    ordering=('src', 'no_celex')
+    search_fields=('src', 'no_celex')
 
 admin.site.register(ActIds, ActAdmin)

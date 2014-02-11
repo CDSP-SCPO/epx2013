@@ -28,15 +28,15 @@ ids_prelexDic["propos_chrono"]=propos_chrono
 ids_prelexDic["propos_origine"]=propos_origine
 
 url_eurlex="eurlex_content.html"
-url_oeil="oeilContent.html"
-url_prelex="prelexContent.html"
+url_oeil="oeil_content.html"
+url_prelex="prelex_content.html"
 
 
 #PARAMETERS TO CHANGE
 src="file"
-src="www"
+#~ src="www"
 choice="eurlex"
-#~ choice="oeil"
+choice="oeil"
 #~ choice="prelex"
 #~ choice="prelexWithOldIds"
 #~ choice="prelexWithOeilIds"
@@ -44,33 +44,33 @@ choice="eurlex"
 print ""
 
 if choice=="eurlex":
-	if src=="file":
-		html=eurlex.get_url_content_eurlex(eurlex.get_url_eurlex(no_celex))
-	else:
-		html=eurlex.get_url_content_eurlex(url_eurlex)
+    if src=="www":
+        html=eurlex.get_url_content_eurlex(eurlex.get_url_eurlex(no_celex))
+    else:
+        html=eurlex.get_url_content_eurlex(url_eurlex)
 
-	eurlex.get_ids_eurlex(html)
+    eurlex.get_ids_eurlex(html)
 
 elif choice=="oeil":
-	if ids=="yes":
-		html=oeil.get_url_content_oeil(oeil.get_url_oeil(no_unique_type, no_unique_annee, no_unique_chrono))
-	else:
-		html=oeil.get_url_content_oeil(url_oeil)
+    if src=="www":
+        html=oeil.get_url_content_oeil(oeil.get_url_oeil(no_unique_type, no_unique_annee, no_unique_chrono))
+    else:
+        html=oeil.get_url_content_oeil(url_oeil)
 
-	oeil.get_ids_oeil(html)
+    oeil.get_ids_oeil(html)
 
 else:
-	if ids=="yes":
-		if choice=="prelexWithOldIds":
-			url_prelex=prelex.get_url_prelex_propos(ids_prelexDic['propos_origine'], ids_prelexDic['propos_annee'], ids_prelexDic['propos_chrono'])
-		elif choice=="prelexWithOeilIds":
-			url_prelex=prelex.get_url_prelex_no_unique(no_unique_type, no_unique_annee, no_unique_chrono)
-			print "url_prelex", url_prelex
-		else:
-			url_prelex=prelex.get_url_prelex(ids_prelexDic['dos_id'])
+    if src=="www":
+        if choice=="prelexWithOldIds":
+            url_prelex=prelex.get_url_prelex_propos(ids_prelexDic['propos_origine'], ids_prelexDic['propos_annee'], ids_prelexDic['propos_chrono'])
+        elif choice=="prelexWithOeilIds":
+            url_prelex=prelex.get_url_prelex_no_unique(no_unique_type, no_unique_annee, no_unique_chrono)
+            print "url_prelex", url_prelex
+        else:
+            url_prelex=prelex.get_url_prelex(ids_prelexDic['dos_id'])
 
-	html=prelex.get_url_content_prelex(url_prelex)
-	prelex.get_ids_prelex(html)
+    html=prelex.get_url_content_prelex(url_prelex)
+    prelex.get_ids_prelex(html)
 
 
 print ""
