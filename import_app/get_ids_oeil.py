@@ -70,11 +70,21 @@ def get_no_celex(soup):
     no_celex [string]
     """
     try:
-        act=soup.find("div", {"id": "final_act"}).find("a")["href"]
-        index=act.rfind("=")
-        return act[index+1:].strip()
-    except:
-        #~ print "numero celex PAS ok (oeil):"
+        #http://www.europarl.europa.eu/oeil/popups/ficheprocedure.do?lang=en&reference=2005/0223(COD)
+        act=soup.find("div", {"id": "final_act"}).find("a", {"class": "sumbutton"})["title"]
+        return act.split(" ")[-1]
+    except Exception, e:
+        #~ print "get_no_celex exception", e
+        try:
+            #http://www.europarl.europa.eu/oeil/popups/ficheprocedure.do?lang=en&reference=1997/0309(SYN)
+            act=soup.find("div", {"id": "final_act"}).find("a")["href"]
+            index=act.rfind("=")
+            return act[index+1:].strip()
+        except Exception, e:
+            #~ print "get_no_celex exception 2", e
+            return None
+    except Exception, e:
+        #~ print "get_no_celex exception 3", e
         return None
 
 
