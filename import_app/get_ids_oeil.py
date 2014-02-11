@@ -82,10 +82,13 @@ def get_no_celex(soup):
             return act[index+1:].strip()
         except Exception, e:
             #~ print "get_no_celex exception 2", e
-            return None
-    except Exception, e:
-        #~ print "get_no_celex exception 3", e
-        return None
+            try:
+                #http://www.europarl.europa.eu/oeil/popups/ficheprocedure.do?lang=en&reference=1997/0221(SYN)
+                act=soup.find(text="Implementing legislative act").find_next("td").find("a").get_text()
+                return act.strip()
+            except Exception, e:
+                #~ print "get_no_celex exception 3", e
+                return None
 
 
 def get_nos_unique(soup):
