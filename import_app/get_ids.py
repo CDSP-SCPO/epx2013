@@ -58,6 +58,15 @@ def check_get_ids_oeil(no_unique_type, no_unique_annee, no_unique_chrono):
             fields['url_exists']=True
         else:
             print "oeil url does not exist!!"
+    else:
+        #set all the ids to None (in case they were first filled with a value by mistake)
+        fields['no_celex']=None
+        fields['no_unique_type']=None
+        fields['no_unique_annee']=None
+        fields['no_unique_chrono']=None
+        fields['propos_origine']=None
+        fields['propos_annee']=None
+        fields['propos_chrono']=None
 
     return fields
 
