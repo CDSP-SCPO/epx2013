@@ -375,6 +375,47 @@
 <br />
 
 
+<div class="row-fluid"><h4>Ministers' attendance:</h4></div>
+<br />
+
+<!-- Ministers' attendance validation table -->
+<table id="min_attend_table" class="table table-bordered table-hover table-condensed">
+    <tr>
+        <td class="first_column table_column_title">{{ display_name.min_attend }}</td>
+         <td class="second_column">
+
+            <div class="fieldWrapper min_attend_table_div">
+                {% if min_attends %}
+<!--
+                    {{ min_attends.items }}
+-->
+                     <table id="min_attend" class="table table-condensed">
+                        <!-- column names -->
+                        <tr>
+                            <td class="table_column_title">{{ display_name.country }}</td>
+                            <td class="table_column_title">{{ display_name.ind_status }}</td>
+                        </tr>
+
+                        <!-- display all the countries and ind_status for the act) -->
+                        {% for country, ind_status in min_attends.items %}
+                            <tr>
+                                 <!-- display country -->
+                                <td>{{ country }}</td>
+                                <!-- display ind_status -->
+                                <td class="second_column_others">{{ ind_status }}</td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                {% else %}
+                    <span class="empty">Sorry, no match.</span>
+                {% endif %}
+            </div>
+        </td>
+    </tr>
+</table>
+
+<br />
+
 <div class="row-fluid"><h4>Opal:</h4></div>
 <br />
 

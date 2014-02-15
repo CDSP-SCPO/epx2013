@@ -21,10 +21,10 @@ var_name["code_sect"]="CodeSect*"
 var_name["code_agenda"]="CodeAgenda*"
 var_name["code_agenda_"]="CodeAgenda0"
 for index in xrange(1,5):
-	num=str(index)
-	var_name["code_sect_"+num]="CodeSect0"+num
-	var_name["code_agenda_"+num]="CodeAgenda0"+num
-	var_name["rep_en_"+num]="RepEn"+num
+    num=str(index)
+    var_name["code_sect_"+num]="CodeSect0"+num
+    var_name["code_agenda_"+num]="CodeAgenda0"+num
+    var_name["rep_en_"+num]="RepEn"+num
 var_name["type_acte"]="TypeActe"
 var_name["base_j"]="BaseJuridique"
 
@@ -35,18 +35,18 @@ var_name["com_amdt_adopt"]="EPComAndtAdopt"
 var_name["amdt_tabled"]="EPAmdtTabled"
 var_name["amdt_adopt"]="EPAmdtAdopt"
 for index in xrange(1,3):
-	num=str(index)
-	var_name["votes_for_"+num]="EPVotesFor"+num
-	var_name["votes_agst_"+num]="EPVotesAgst"+num
-	var_name["votes_abs_"+num]="EPVotesAbs"+num
+    num=str(index)
+    var_name["votes_for_"+num]="EPVotesFor"+num
+    var_name["votes_agst_"+num]="EPVotesAgst"+num
+    var_name["votes_abs_"+num]="EPVotesAbs"+num
 var_name["rapp"]="Rapporteur*"
 var_name["rapp_party_"]="GroupePolitiqueRapporteur"
 var_name["rapp_country_"]="EtatMbRapport"
 for index in xrange(1,6):
-	num=str(index)
-	var_name["rapp_party_"+num]="GroupePolitiqueRapporteur"+num
-	var_name["rapp_"+num]="RapporteurPE"+num
-	var_name["rapp_country_"+num]="EtatMbRapport"+num
+    num=str(index)
+    var_name["rapp_party_"+num]="GroupePolitiqueRapporteur"+num
+    var_name["rapp_"+num]="RapporteurPE"+num
+    var_name["rapp_country_"+num]="EtatMbRapport"+num
 var_name["modif_propos"]="ModifPropos"
 var_name["nb_lectures"]="NombreLectures"
 var_name["sign_pecs"]="SignPECS"
@@ -59,9 +59,9 @@ var_name["dg_sigle_"]="SiglesDG"
 var_name["dg_sigle"]="SiglesDG*"
 var_name["dg_nb"]="ChiffresDG*"
 for index in xrange(1,3):
-	num=str(index)
-	var_name["dg_"+num]="DGProposition"+num
-	var_name["dg_sigle_"+num]="SiglesDG"+num
+    num=str(index)
+    var_name["dg_"+num]="DGProposition"+num
+    var_name["dg_sigle_"+num]="SiglesDG"+num
 var_name["resp"]="RespPropos*"
 var_name["name"]=var_name["resp"]
 var_name["resp_country"]="NationResp*"
@@ -71,11 +71,11 @@ var_name["resp_party_"]="NationalPartyResp"
 var_name["resp_party_family"]="PartyFamilyResp*"
 var_name["resp_party_family_"]="PartyFamilyResp"
 for index in xrange(1,4):
-	num=str(index)
-	var_name["resp_"+num]="RespPropos"+num
-	var_name["resp_country_"+num]="NationResp"+num
-	var_name["resp_party_"+num]="NationalPartyResp"+num
-	var_name["resp_party_family_"+num]="PartyFamilyResp"+num
+    num=str(index)
+    var_name["resp_"+num]="RespPropos"+num
+    var_name["resp_country_"+num]="NationResp"+num
+    var_name["resp_party_"+num]="NationalPartyResp"+num
+    var_name["resp_party_family_"+num]="PartyFamilyResp"+num
 var_name["transm_council"]="TransmissionCouncil"
 var_name["cons_b"]="ConsB"
 var_name["nb_point_b"]="NbPointB"
@@ -89,13 +89,13 @@ var_name["chgt_base_j"]="ChgtBaseJ"
 var_name["duree_adopt_trans"]="DureeAdoptionTrans"
 names={"proc": "Procedure", "tot": "Totale"}
 for name in names:
-	var_name["duree_"+name+"_depuis_prop_com"]="Duree"+names[name]+"DepuisPropCom"
-	var_name["duree_"+name+"_depuis_trans_cons"]="Duree"+names[name]+"DepuisTransCons"
+    var_name["duree_"+name+"_depuis_prop_com"]="Duree"+names[name]+"DepuisPropCom"
+    var_name["duree_"+name+"_depuis_trans_cons"]="Duree"+names[name]+"DepuisTransCons"
 var_name["adopt_cs_regle_vote"]="AdoptCSRegleVote"
 var_name["vote_public"]="VotePublic"
 for name in ["cs", "pc", "ap"]:
-	var_name["adopt_"+name+"_contre"]="Adopt"+name.upper()+"Contre"
-	var_name["adopt_"+name+"_abs"]="Adopt"+name.upper()+"Abs"
+    var_name["adopt_"+name+"_contre"]="Adopt"+name.upper()+"Contre"
+    var_name["adopt_"+name+"_abs"]="Adopt"+name.upper()+"Abs"
 var_name["dde_em"]="DdeEM"
 var_name["split_propos"]="ProposSplittee"
 var_name["proc_ecrite"]="ProcedureEcrite"
@@ -115,3 +115,13 @@ var_name["case_nb"]="NPCaseNumber"
 var_name["np"]="NP"
 var_name["act_type"]="NPActivityType"
 var_name["act_date"]="NPActivityDate"
+
+#MINISTERS' ATTENDANCE
+var_name["min_attend"]="MinistersAttendance"
+var_name["inc"]="Inc"
+var_name["ind_status"]="IndStatus"
+var_name["verbatim"]="Verbatim"
+#export file
+var_name["country_min_attend"]="MinAttendCountry"
+var_name["ind_status_min_attend"]="MinAttendIndStatus"
+var_name["verbatim_min_attend"]="MinAttendVerbatim"

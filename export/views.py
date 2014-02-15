@@ -8,7 +8,7 @@ from django.template import RequestContext
 from export.forms import Export
 #data to export coming from the two main models ActIds and Act
 from act_ids.models import ActIds
-from act.models import Act, PartyFamily, NP
+from act.models import Act, PartyFamily, NP, MinAttend
 #for the export
 import os, tempfile, zipfile
 from django.core.servers.basehttp import FileWrapper
@@ -26,283 +26,300 @@ from django.http import HttpResponse
 
 
 def get_headers(excl_fields_act_ids, excl_fields_act):
-	"""
-	FUNCTION
-	get the headers of the fields to export (csv file)
-	PARAMETERS
-	excl_fields_act_ids: fields not to be exported (ActIds) [list of strings]
-	excl_fields_act:  fields not to be exported (Act) [list of strings]
-	RETURNS
-	headers: name of the fields to be saved in the csv file [list of strings]
-	"""
-	headers=[]
-	#ActIds
-	for field in ActIds()._meta.fields:
-		if field.name not in excl_fields_act_ids:
-			headers.append(var_name_ids.var_name[field.name])
+    """
+    FUNCTION
+    get the headers of the fields to export (csv file)
+    PARAMETERS
+    excl_fields_act_ids: fields not to be exported (ActIds) [list of strings]
+    excl_fields_act:  fields not to be exported (Act) [list of strings]
+    RETURNS
+    headers: name of the fields to be saved in the csv file [list of strings]
+    """
+    headers=[]
+    #ActIds
+    for field in ActIds()._meta.fields:
+        if field.name not in excl_fields_act_ids:
+            headers.append(var_name_ids.var_name[field.name])
 
-	#Act
-	for field in Act()._meta.fields:
-		if field.name not in excl_fields_act:
-			headers.append(var_name_data.var_name[field.name])
-			#CodeSect and related
-			if "code_sect_" in field.name:
-				index=field.name[-1]
-				headers.append(var_name_data.var_name["code_agenda_"+index])
-			#Rapporteurs (Person) and related (oeil)
-			elif "rapp_" in field.name:
-				index=field.name[-1]
-				headers.append(var_name_data.var_name["rapp_country_"+index])
-				headers.append(var_name_data.var_name["rapp_party_"+index])
-			#Responsibles (Person) and related (prelex)
-			elif "resp_" in field.name:
-				index=field.name[-1]
-				headers.append(var_name_data.var_name["resp_country_"+index])
-				headers.append(var_name_data.var_name["resp_party_"+index])
-				headers.append(var_name_data.var_name["resp_party_family_"+index])
-			#DG and related
-			elif "dg_" in field.name:
-				index=field.name[-1]
-				headers.append(var_name_data.var_name["dg_sigle_"+index])
+    #Act
+    for field in Act()._meta.fields:
+        if field.name not in excl_fields_act:
+            headers.append(var_name_data.var_name[field.name])
+            #CodeSect and related
+            if "code_sect_" in field.name:
+                index=field.name[-1]
+                headers.append(var_name_data.var_name["code_agenda_"+index])
+            #Rapporteurs (Person) and related (oeil)
+            elif "rapp_" in field.name:
+                index=field.name[-1]
+                headers.append(var_name_data.var_name["rapp_country_"+index])
+                headers.append(var_name_data.var_name["rapp_party_"+index])
+            #Responsibles (Person) and related (prelex)
+            elif "resp_" in field.name:
+                index=field.name[-1]
+                headers.append(var_name_data.var_name["resp_country_"+index])
+                headers.append(var_name_data.var_name["resp_party_"+index])
+                headers.append(var_name_data.var_name["resp_party_family_"+index])
+            #DG and related
+            elif "dg_" in field.name:
+                index=field.name[-1]
+                headers.append(var_name_data.var_name["dg_sigle_"+index])
 
-	#Act many to many fields
-	for field in Act()._meta.many_to_many:
-		if field.name not in excl_fields_act:
-			#GvtCompo: country, party and party_family variable
-			if "gvt_compo"==field.name:
-				headers.append(var_name_data.var_name[field.name+"_country"])
-				headers.append(var_name_data.var_name[field.name+"_party"])
-				headers.append(var_name_data.var_name[field.name+"_party_family"])
-			else:
-				headers.append(var_name_data.var_name[field.name])
+    #Act many to many fields
+    for field in Act()._meta.many_to_many:
+        if field.name not in excl_fields_act:
+            #GvtCompo: country, party and party_family variable
+            if "gvt_compo"==field.name:
+                headers.append(var_name_data.var_name[field.name+"_country"])
+                headers.append(var_name_data.var_name[field.name+"_party"])
+                headers.append(var_name_data.var_name[field.name+"_party_family"])
+            else:
+                #AdoptPC and AdoptCS variables
+                headers.append(var_name_data.var_name[field.name])
 
-	#NP (opal)
-	for field in NP()._meta.fields:
-		if field.name!="act":
-			headers.append(var_name_data.var_name[field.name])
+    #NP (opal)
+    for field in NP()._meta.fields:
+        if field.name!="act":
+            headers.append(var_name_data.var_name[field.name])
 
-	return headers
+    #Ministers' attendance fields
+    headers.append(var_name_data.var_name["country_min_attend"])
+    headers.append(var_name_data.var_name["verbatim_min_attend"])
+    headers.append(var_name_data.var_name["ind_status_min_attend"])
+
+    return headers
 
 
 
 def get_validated_acts(excl_fields_act_ids, excl_fields_act):
-	"""
-	FUNCTION
-	return all the validated acts of the model
-	PARAMETERS
-	excl_fields_act_ids: fields not to be exported (ActIds) [list of strings]
-	excl_fields_act: fields not to be exported (Act) [list of strings]
-	RETURNS
-	acts: validated acts and relative data [list of Act model instances]
-	"""
-	qs=Act.objects.filter(validated=2)
-	#list of acts
-	acts=[]
+    """
+    FUNCTION
+    return all the validated acts of the model
+    PARAMETERS
+    excl_fields_act_ids: fields not to be exported (ActIds) [list of strings]
+    excl_fields_act: fields not to be exported (Act) [list of strings]
+    RETURNS
+    acts: validated acts and relative data [list of Act model instances]
+    """
+    qs=Act.objects.filter(validated=2)
+    #list of acts
+    acts=[]
 
-	for act in qs.iterator():
-		#list of fields for one act
-		fields=[]
-		act_ids=ActIds.objects.get(act=act, src="index")
+    for act in qs.iterator():
+        #list of fields for one act
+        fields=[]
+        act_ids=ActIds.objects.get(act=act, src="index")
 
-		#ActIds
-		for field in ActIds()._meta.fields:
-			if field.name not in excl_fields_act_ids:
-					fields.append(getattr(act_ids, field.name))
+        #ActIds
+        for field in ActIds()._meta.fields:
+            if field.name not in excl_fields_act_ids:
+                    fields.append(getattr(act_ids, field.name))
 
-		#Act
-		for field in Act()._meta.fields:
-			if field.name not in excl_fields_act:
-				#CodeSect and related
-				if "code_sect_" in field.name:
-					temp=getattr(act, field.name)
-					if temp!=None:
-						fields.append(temp.code_sect)
-						fields.append(temp.code_agenda.code_agenda)
-					else:
-						fields.extend([None, None])
-				#Rapporteurs (Person) and related (oeil) or Responsibles (Person) and related (prelex)
-				elif "rapp_" in field.name or "resp_" in field.name:
-					temp=getattr(act, field.name)
-					if temp!=None:
-						fields.append(temp.name)
-						country=temp.country
-						party=temp.party
-						fields.append(country.country_code)
-						fields.append(party.party)
-						if "resp_" in field.name:
-							#party_family
-							fields.append(PartyFamily.objects.get(party=party, country=country).party_family)
-					else:
-						if "resp_" in field.name:
-							temp=[None]*4
-						else:
-							temp=[None]*3
-						fields.extend(temp)
-				#DG and related
-				elif "dg_" in field.name:
-					temp=getattr(act, field.name)
-					if temp!=None:
-						fields.append(temp.dg)
-						fields.append(temp.dg_sigle.dg_sigle)
-					else:
-						fields.extend([None, None])
-				else:
-					#for all the other non fk fields, get its value
-					fields.append(getattr(act, field.name))
+        #Act
+        for field in Act()._meta.fields:
+            if field.name not in excl_fields_act:
+                #CodeSect and related
+                if "code_sect_" in field.name:
+                    temp=getattr(act, field.name)
+                    if temp!=None:
+                        fields.append(temp.code_sect)
+                        fields.append(temp.code_agenda.code_agenda)
+                    else:
+                        fields.extend([None, None])
+                #Rapporteurs (Person) and related (oeil) or Responsibles (Person) and related (prelex)
+                elif "rapp_" in field.name or "resp_" in field.name:
+                    temp=getattr(act, field.name)
+                    if temp!=None:
+                        fields.append(temp.name)
+                        country=temp.country
+                        party=temp.party
+                        fields.append(country.country_code)
+                        fields.append(party.party)
+                        if "resp_" in field.name:
+                            #party_family
+                            fields.append(PartyFamily.objects.get(party=party, country=country).party_family)
+                    else:
+                        if "resp_" in field.name:
+                            temp=[None]*4
+                        else:
+                            temp=[None]*3
+                        fields.extend(temp)
+                #DG and related
+                elif "dg_" in field.name:
+                    temp=getattr(act, field.name)
+                    if temp!=None:
+                        fields.append(temp.dg)
+                        fields.append(temp.dg_sigle.dg_sigle)
+                    else:
+                        fields.extend([None, None])
+                else:
+                    #for all the other non fk fields, get its value
+                    fields.append(getattr(act, field.name))
 
-		#Act many to many fields
-		for field in Act()._meta.many_to_many:
-			#GvtCompo
-			if "gvt_compo"==field.name:
-				gvt_compos_country=gvt_compos_party=gvt_compos_party_family=""
-				#for each country
-				for gvt_compo in getattr(act, field.name).all():
-					country=gvt_compo.country
-					#for each party, add a "row" for each variable (country, party, party family)
-					for party in gvt_compo.party.all():
-						gvt_compos_country+=country.country_code+"; "
-						gvt_compos_party+=party.party+"; "
-						gvt_compos_party_family+=PartyFamily.objects.get(country=country, party=party).party_family+"; "
-				#delete last "; "
-				fields.append(gvt_compos_country[:-2])
-				fields.append(gvt_compos_party[:-2])
-				fields.append(gvt_compos_party_family[:-2])
-			#adopt_cs_contre, adopt_cs_abs, adopt_pc_contre, adopt_pc_abs
-			else:
-				countries=""
-				for country in getattr(act, field.name).all():
-					countries+=country.country_code+"; "
-				fields.append(countries[:-2])
+        #Act many to many fields
+        for field in Act()._meta.many_to_many:
+            #GvtCompo
+            if "gvt_compo"==field.name:
+                gvt_compos_country=gvt_compos_party=gvt_compos_party_family=""
+                #for each country
+                for gvt_compo in getattr(act, field.name).all():
+                    country=gvt_compo.country
+                    #for each party, add a "row" for each variable (country, party, party family)
+                    for party in gvt_compo.party.all():
+                        gvt_compos_country+=country.country_code+"; "
+                        gvt_compos_party+=party.party+"; "
+                        gvt_compos_party_family+=PartyFamily.objects.get(country=country, party=party).party_family+"; "
+                #delete last "; "
+                fields.append(gvt_compos_country[:-2])
+                fields.append(gvt_compos_party[:-2])
+                fields.append(gvt_compos_party_family[:-2])
+            #adopt_cs_contre, adopt_cs_abs, adopt_pc_contre, adopt_pc_abs
+            else:
+                countries=""
+                for country in getattr(act, field.name).all():
+                    countries+=country.country_code+"; "
+                fields.append(countries[:-2])
 
-		#Opal
-		np_instances=NP.objects.filter(act=act)
-		np_vars={"case_nb":"", "np":"", "act_type":"", "act_date":""}
-		for np_instance in np_instances:
-			for np_var in np_vars:
-				if np_var=="np":
-					inst=getattr(np_instance, np_var)
-					inst=inst.country_code
-				else:
-					inst=getattr(np_instance, np_var)
-				np_vars[np_var]+=str(inst)+"; "
-		for np_var in np_vars:
-			fields.append(np_vars[np_var][:-2])
+        #Opal
+        np_instances=NP.objects.filter(act=act)
+        np_vars={"case_nb":"", "np":"", "act_type":"", "act_date":""}
+        for np_instance in np_instances:
+            for np_var in np_vars:
+                if np_var=="np":
+                    inst=getattr(np_instance, np_var)
+                    inst=inst.country_code
+                else:
+                    inst=getattr(np_instance, np_var)
+                np_vars[np_var]+=str(inst)+"; "
+        for np_var in np_vars:
+            fields.append(np_vars[np_var][:-2])
 
-		acts.append(fields)
+         #Ministers' attendance fields
+        instances=MinAttend.objects.filter(act=act)
+        temp_fields={"country": "", "ind_status": "", "verbatim": ""}
+        for instance in instances:
+            temp_fields["country"]+=instance.country.country_code+"; "
+            temp_fields["verbatim"]+=instance.verbatim+"; "
+            temp_fields["ind_status"]+=instance.ind_status+"; "
+        for temp_field in temp_fields:
+            fields.append(temp_fields[temp_field][:-2])
 
-	return acts
+
+        acts.append(fields)
+
+    return acts
 
 
 def sort_acts(acts, sort_field_index, sort_direction):
-	"""
-	FUNCTION
-	sorts a query set according to a sorting field and sort direction
-	PARAMETERS
-	acts: acts to sort [list of model instances]
-	sort_field_index: index of the field to use for the sort [int]
-	sort_direction: direction of the sort (ascending or descending) [string]
-	RETURNS
-	acts: sorted acts [list of Act model instances]
-	"""
-	try:
-		if sort_direction=="ascending":
-			acts.sort(key=lambda row: row[sort_field_index])
-		else:
-			acts.sort(key=lambda row: row[sort_field_index], reverse=True)
-	except Exception, e:
-		print "exception sort acts", e
-	return acts
+    """
+    FUNCTION
+    sorts a query set according to a sorting field and sort direction
+    PARAMETERS
+    acts: acts to sort [list of model instances]
+    sort_field_index: index of the field to use for the sort [int]
+    sort_direction: direction of the sort (ascending or descending) [string]
+    RETURNS
+    acts: sorted acts [list of Act model instances]
+    """
+    try:
+        if sort_direction=="ascending":
+            acts.sort(key=lambda row: row[sort_field_index])
+        else:
+            acts.sort(key=lambda row: row[sort_field_index], reverse=True)
+    except Exception, e:
+        print "exception sort acts", e
+    return acts
 
 
 def qs_to_csv_file(headers, acts, outfile_path):
-	"""
-	FUNCTION
-	saves a query set in a csv file on the server
-	PARAMETERS
-	headers: list of headers [list of strings]
-	acts: list of acts [list of Act model instances]
-	outfile_path: path of the file to save [string]
-	RETURNS
-	none
-	"""
-	writer=csv.writer(open(outfile_path, 'w'),  delimiter=';', quotechar='"', quoting=csv.QUOTE_ALL)
+    """
+    FUNCTION
+    saves a query set in a csv file on the server
+    PARAMETERS
+    headers: list of headers [list of strings]
+    acts: list of acts [list of Act model instances]
+    outfile_path: path of the file to save [string]
+    RETURNS
+    none
+    """
+    writer=csv.writer(open(outfile_path, 'w'),  delimiter=';', quotechar='"', quoting=csv.QUOTE_ALL)
 
-	#write headers
-	writer.writerow(headers)
+    #write headers
+    writer.writerow(headers)
 
-	#write every acts in the db
-	for act in acts:
-		writer.writerow(act)
+    #write every acts in the db
+    for act in acts:
+        writer.writerow(act)
 
 
 def send_file(request, file_server, file_client):
-	"""
-	FUNCTION
-	downloads a file from the server
-	PARAMETERS
-	request: html request [HttpRequest object]
-	file_server: name of the file on the server side [string]
-	file_client: name of the file on the client side [string]
-	RETURNS
-	response: html response [HttpResponse object]
-	SRC
-	http://stackoverflow.com/questions/1930983/django-download-csv-file-using-a-link
-	"""
-	wrapper     =FileWrapper(open(file_server))
-	content_type=mimetypes.guess_type(file_server)[0]
-	response    =HttpResponse(wrapper,content_type=content_type)
-	response['Content-Length']     =os.path.getsize(file_server)
-	response['Content-Disposition']="attachment; filename=%s"%file_client
-	return response
+    """
+    FUNCTION
+    downloads a file from the server
+    PARAMETERS
+    request: html request [HttpRequest object]
+    file_server: name of the file on the server side [string]
+    file_client: name of the file on the client side [string]
+    RETURNS
+    response: html response [HttpResponse object]
+    SRC
+    http://stackoverflow.com/questions/1930983/django-download-csv-file-using-a-link
+    """
+    wrapper     =FileWrapper(open(file_server))
+    content_type=mimetypes.guess_type(file_server)[0]
+    response    =HttpResponse(wrapper,content_type=content_type)
+    response['Content-Length']     =os.path.getsize(file_server)
+    response['Content-Disposition']="attachment; filename=%s"%file_client
+    return response
 
 
 @login_required
 def export(request):
-	"""
-	VIEW
-	displays the export page -> export all the acts in the db regarding the sorting variable
-	TEMPLATES
-	export/index.html
-	"""
-	response={}
-	if request.method=='POST':
-		form=Export(request.POST)
-		if form.is_valid():
-			#for key, value in request.POST.iteritems():
-			sort_field=request.POST['sort_fields']
-			sort_direction=request.POST['sort_direction']
-			dir_server=settings.MEDIA_ROOT+"/export/"
-			file_name="acts.csv"
-			#if a file with the same name already exists, we delete it
-			if os.path.exists(dir_server+file_name):
-				os.remove(dir_server+file_name)
-			#get the headers
-			excl_fields_act_ids=["id", 'src', "url_exists", 'act']
-			excl_fields_act=["id",  'date_doc', "url_prelex", "notes", "validated"]
-			headers=get_headers(excl_fields_act_ids, excl_fields_act)
-			#fetch every acts in the db
-			acts=get_validated_acts(excl_fields_act_ids, excl_fields_act)
-			sort_field_index=headers.index(var_name_data.var_name[sort_field])
-			#sort the acts
-			acts=sort_acts(acts, sort_field_index, sort_direction)
-			#save into csv file
-			qs_to_csv_file(headers, acts, dir_server+file_name)
-			print "csv export"
-			return send_file(request, dir_server+file_name, file_name)
-		else:
-			if 'iframe' in request.POST:
-				response['form_errors']= dict([(k, form.error_class.as_text(v)) for k, v in form.errors.items()])
-				return HttpResponse(simplejson.dumps(response), mimetype="application/json")
-			else:
-				response['form']=form
-	#GET
-	else:
-		#fill the hidden input field with the number of acts to export
-		response["acts_nb"]=Act.objects.filter(validated=2).count()
+    """
+    VIEW
+    displays the export page -> export all the acts in the db regarding the sorting variable
+    TEMPLATES
+    export/index.html
+    """
+    response={}
+    if request.method=='POST':
+        form=Export(request.POST)
+        if form.is_valid():
+            #for key, value in request.POST.iteritems():
+            sort_field=request.POST['sort_fields']
+            sort_direction=request.POST['sort_direction']
+            dir_server=settings.MEDIA_ROOT+"/export/"
+            file_name="acts.csv"
+            #if a file with the same name already exists, we delete it
+            if os.path.exists(dir_server+file_name):
+                os.remove(dir_server+file_name)
+            #get the headers
+            excl_fields_act_ids=["id", 'src', "url_exists", 'act']
+            excl_fields_act=["id",  'date_doc', "url_prelex", "notes", "validated"]
+            headers=get_headers(excl_fields_act_ids, excl_fields_act)
+            #fetch every acts in the db
+            acts=get_validated_acts(excl_fields_act_ids, excl_fields_act)
+            sort_field_index=headers.index(var_name_data.var_name[sort_field])
+            #sort the acts
+            acts=sort_acts(acts, sort_field_index, sort_direction)
+            #save into csv file
+            qs_to_csv_file(headers, acts, dir_server+file_name)
+            print "csv export"
+            return send_file(request, dir_server+file_name, file_name)
+        else:
+            if 'iframe' in request.POST:
+                response['form_errors']= dict([(k, form.error_class.as_text(v)) for k, v in form.errors.items()])
+                return HttpResponse(simplejson.dumps(response), mimetype="application/json")
+            else:
+                response['form']=form
+    #GET
+    else:
+        #fill the hidden input field with the number of acts to export
+        response["acts_nb"]=Act.objects.filter(validated=2).count()
 
-	#unbound forms
-	if "form" not in response:
-		response['form']=Export()
+    #unbound forms
+    if "form" not in response:
+        response['form']=Export()
 
-	#displays the page (GET) or POST if javascript disabled
-	return render_to_response('export/index.html', response, context_instance=RequestContext(request))
+    #displays the page (GET) or POST if javascript disabled
+    return render_to_response('export/index.html', response, context_instance=RequestContext(request))
