@@ -53,9 +53,12 @@ class Person(models.Model):
     """
     #src="rapp" or "resp"
     src=models.CharField(max_length=4, db_index=True)
-    name=models.CharField(max_length=50, unique=True)
+    name=models.CharField(max_length=50)
     country=models.ForeignKey(Country, blank=True, null=True, default=None)
     party=models.ForeignKey(Party, blank=True, null=True, default=None)
+
+    class Meta:
+        unique_together=(("src", "name"), )
 
     def __unicode__(self):
         return u"%s" % self.name

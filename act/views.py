@@ -221,6 +221,7 @@ def get_data_all(state, add_modif, act, POST, response):
         act.__dict__.update(get_data("eurlex", act_ids["eurlex"], urls["url_eurlex"], act)[0])
         fields, dg_names_oeil, resp_names_oeil=get_data("oeil", act_ids["oeil"], urls["url_oeil"], act)
         act.__dict__.update(fields)
+
         #~ #prelex config_cons needs eurlex, gvt_compo needs oeil
         fields, dg_names_prelex, resp_names_prelex=get_data("prelex", act_ids["prelex"], urls["url_prelex"], act)
         act.__dict__.update(fields)
