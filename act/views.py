@@ -221,19 +221,22 @@ def get_data_all(state, add_modif, act, POST, response):
         act.__dict__.update(get_data("eurlex", act_ids["eurlex"], urls["url_eurlex"], act)[0])
         fields, dg_names_oeil, resp_names_oeil=get_data("oeil", act_ids["oeil"], urls["url_oeil"], act)
         act.__dict__.update(fields)
-        #prelex config_cons needs eurlex, gvt_compo needs oeil
+        #~ #prelex config_cons needs eurlex, gvt_compo needs oeil
         fields, dg_names_prelex, resp_names_prelex=get_data("prelex", act_ids["prelex"], urls["url_prelex"], act)
         act.__dict__.update(fields)
-
-        #store dg/resp from oeil and prelex to be displayed as text in the template
+#~
+        #~ #store dg/resp from oeil and prelex to be displayed as text in the template
         act, response["dg_names_oeil"], response["dg_names_prelex"]=store_dg_resp(act, dg_names_oeil, dg_names_prelex, "dg")
         act, response["resp_names_oeil"], response["resp_names_prelex"]=store_dg_resp(act, resp_names_oeil, resp_names_prelex, "resp")
-
-        #check multiple values for dgs with numbers
+#~
+        #~ #check multiple values for dgs with numbers
         response["dg"], act=check_multiple_dgs(act)
 
     if "add_act" in POST or "modif_act" in POST:
-        form_data=ActForm(instance=act)
+        if "add_act" in POST:
+            form_data=ActForm(instance=act, initial={"releve_mois_init": act.releve_mois})
+        else:
+            form_data=ActForm(instance=act)
     else:
         form_data=ActForm(POST, instance=act)
 
