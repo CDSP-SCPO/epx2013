@@ -41,7 +41,8 @@ def get_urls(act_ids, url_prelex, dos_id):
     urls: urls of eurlex, oeil and prelex [dictionary of strings]
     """
     urls={}
-    urls["url_eurlex"]=get_url_eurlex(act_ids.no_celex)
+    #["data" variables url to retrieve all the variables, "ids" variables url to retrieve the directory code variables (code_sect and rep_en variables)]
+    urls["url_eurlex"]=[get_url_eurlex(act_ids.no_celex), get_url_eurlex(act_ids.no_celex, "HIS")]
     urls["url_oeil"]=get_url_oeil(str(act_ids.no_unique_type), str(act_ids.no_unique_annee), str(act_ids.no_unique_chrono))
     #for ids retrieval, if split proposition (ProposChrono has a dash)-> oeil ids to construct url
     #for data retrieval, if split proposition (ProposChrono has a dash)-> dos_id to construct url
@@ -93,21 +94,30 @@ def get_data(src, act_ids, url, act=None):
     resp_names: list of resp names [list of strings]
     """
     fields={}
-    url_content=eval("get_url_content_"+src)(url)
-    #act doesn't exist, problem on page or problem with the Internet connection
-    if url_content!=False:
-        #set the url_exists attribute of the given source to True
-        setattr(act_ids, "url_exists", True)
-        #call the corresponding function to retrieve the data and pass it to an object
-        fields, dg_names, resp_names=eval("get_data_"+src)(url_content, act_ids, act)
-        #store dictionary data variables into the model object
-        #~ for (key, value) in fields.items():
-            #~ setattr(act_ids.act, key, value)
+    dg_names=[None]*2
+    resp_names=[None]*3
+
+    if src=="eurlex":
+        url_content=[eval("get_url_content_"+src)(url[0]), eval("get_url_content_"+src)(url[1])]
+        if url_content[0]!=False:
+             setattr(act_ids, "url_exists", True)
+             fields=eval("get_data_"+src)(url_content)
+        else:
+            setattr(act_ids, "url_exists", False)
+            print "error while retrieving "+src+" url"
+
     else:
-        dg_names=[None]*2
-        resp_names=[None]*3
-        setattr(act_ids, "url_exists", False)
-        print "error while retrieving "+src+" url"
+        #oeil and eurlex
+        url_content=eval("get_url_content_"+src)(url)
+        #act doesn't exist, problem on page or problem with the Internet connection
+        if url_content!=False:
+            #set the url_exists attribute of the given source to True
+            setattr(act_ids, "url_exists", True)
+            #call the corresponding function to retrieve the data and pass it to an object
+            fields, dg_names, resp_names=eval("get_data_"+src)(url_content, act_ids, act)
+        else:
+            setattr(act_ids, "url_exists", False)
+            print "error while retrieving "+src+" url"
 
     #actualization url exist attribute
     act_ids.save()

@@ -1,5 +1,5 @@
 # CONFIGURATION FILE
-# EDIT the CONTENT of the variables if needed
+# You can EDIT the CONTENT of the variables if needed
 # DO NOT MODIFY any variable NAME or REMOVE any VARIABLE.
 
 #eurlex url

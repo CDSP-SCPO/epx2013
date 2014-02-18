@@ -10,191 +10,240 @@ from common.functions import list_reverse_enum, date_string_to_iso
 from common.db import save_fk_code_sect, save_get_object
 
 
-def get_titre_en(soup):
-	"""
-	FUNCTION
-	get the titre_en variable from the eurlex url
-	PARAMETERS
-	soup: eurlex url content [BeautifulSoup object]
-	RETURN
-	titre_en [string]
-	"""
-	try:
-		# <div class="tabContent noStrong" style="padding:6px 30px 6px 13px;"><strong>Regulation (EC) No 1921/2006 of the... </strong>
-		return soup.find("div", {"class": "noStrong"}).find("strong").get_text().strip()
-	except:
-		print "no titre_en!"
-		return None
+#All the fields are extracted from the "ALL" tab except the directory code section (code_sect and rep_en variables): for some acts, the variables are extracted from the "Procedure" tab, for others they are extracted from the "ALL" tab.
 
-#right under "Title and reference"
+
+def get_titre_en(soup):
+    """
+    FUNCTION
+    get the titre_en variable from the eurlex url
+    PARAMETERS
+    soup: eurlex url content [BeautifulSoup object]
+    RETURN
+    titre_en [string]
+    """
+    try:
+        # <div class="tabContent noStrong" style="padding:6px 30px 6px 13px;"><strong>Regulation (EC) No 1921/2006 of the... </strong>
+        return soup.find("div", {"class": "noStrong"}).find("strong").get_text().strip()
+    except:
+        print "no titre_en!"
+        return None
+
+#at the top, below "Procedure"
 #not NULL
 
 
-def get_directory_code(soup):
-	"""
-	FUNCTION
-	get the html code of the directory code part from the eurlex url
-	PARAMETERS
-	soup: eurlex url content [BeautifulSoup object]
-	RETURN
-	directory code part  [BeautifulSoup object]
-	"""
-	#<li><b>Directory code: </b>
-    #<br/>05.07.00.00 <a href="./../../../search.html?type=advanced&amp;CC_1_CODED=05">Freedom of movement for workers and social policy</a> / <a href="./../../../search.html?type=advanced&amp;CC_2_CODED=0507">Statistics</a>
-    #<br/>05.20.20.20 <a href="./../../../search.html?type=advanced&amp;CC_1_CODED=05">Freedom of movement for workers and social policy</a> / <a href="./../../../search.html?type=advanced&amp;CC_2_CODED=0520">Social policy</a> / <a href="./../../../search.html?type=advanced&amp;CC_3_CODED=052020">Working conditions</a> / <a href="./../../../search.html?type=advanced&amp;CC_4_CODED=05202020">Wages, income and working hours</a>
-    #</li>
-	try:
-		return soup.find(text=re.compile("Directory code:")).find_parent("li")
-	except:
-		print "no directory code section!"
-		return None
+def get_directory_code(soup_all, soup_his):
+    """
+    FUNCTION
+    get the html code of the directory code part from the eurlex url
+    PARAMETERS
+    soup_all: eurlex url content from the all tab [BeautifulSoup object]
+    soup_his: eurlex url content from the his tab [BeautifulSoup object]
+    RETURN
+    directory code part  [BeautifulSoup object]
+    tab: tab where the directory code variables can be found [string]
+    """
+    #from the ALL tab
+    #32010R0023
+    #~ <li>
+       #~ <b>Directory code: </b>
+       #~ <br/>11.30.60.00 <a href="./../../../search.html?type=advanced&amp;CC_1_CODED=11">External relations</a> / <a href="./../../../search.html?type=advanced&amp;CC_2_CODED=1130">Multilateral relations</a> / <a href="./../../../search.html?type=advanced&amp;CC_3_CODED=113060">Multilateral cooperation for protection of the environment, wild fauna and flora and natural resources</a>
+       #~ <br/>15.07.00.00 <a href="./../../../search.html?type=advanced&amp;CC_1_CODED=15">Environment, consumers and health protection</a> / <a href="./../../../search.html?type=advanced&amp;CC_2_CODED=1507">Statistics</a>
+       #~ <br/>15.10.20.30 <a href="./../../../search.html?type=advanced&amp;CC_1_CODED=15">Environment, consumers and health protection</a> / <a href="./../../../search.html?type=advanced&amp;CC_2_CODED=1510">Environment</a> / <a href="./../../../search.html?type=advanced&amp;CC_3_CODED=151020">Pollution and nuisances</a> / <a href="./../../../search.html?type=advanced&amp;CC_4_CODED=15102030">Monitoring of atmospheric pollution</a>
+       #~ <br/>15.10.40.00 <a href="./../../../search.html?type=advanced&amp;CC_1_CODED=15">Environment, consumers and health protection</a> / <a href="./../../../search.html?type=advanced&amp;CC_2_CODED=1510">Environment</a> / <a href="./../../../search.html?type=advanced&amp;CC_3_CODED=151040">International cooperation</a>
+    #~ </li>
 
 
-def get_code_sect(soup):
-	"""
-	FUNCTION
-	get the CodeSect1-4 variables from the eurlex url
-	PARAMETERS
-	soup: eurlex url content  [BeautifulSoup object]
-	RETURN
-	code_sects: code_sect_* variables [list of CodeSect model instances]
-	"""
-	code_sects=[None for i in range(4)]
-	#<li><b>Directory code: </b>
-    #<br/>05.07.00.00 <a href="./../../../search.html?type=advanced&amp;CC_1_CODED=05">Freedom of movement for workers and social policy</a> / <a href="./../../../search.html?type=advanced&amp;CC_2_CODED=0507">Statistics</a>
-    #<br/>05.20.20.20 <a href="./../../../search.html?type=advanced&amp;CC_1_CODED=05">Freedom of movement for workers and social policy</a> / <a href="./../../../search.html?type=advanced&amp;CC_2_CODED=0520">Social policy</a> / <a href="./../../../search.html?type=advanced&amp;CC_3_CODED=052020">Working conditions</a> / <a href="./../../../search.html?type=advanced&amp;CC_4_CODED=05202020">Wages, income and working hours</a>
-    #</li>
-	try:
-		code_sects_temp=soup.find_all('br')
+    # from the HIS tab
+    #~ 32010R0023
+    #~ <tr>
+        #~ <th>Directory code:</th>
+        #~ <td id="directoryCodeProc">
+            #~ <a id="directoryCodeHistProcHref" href="javascript:;" onclick="toggleHistoricalElements(this,'directoryCodeProc');" class="onlyJsInline" style="float:right;margin-top:3px;"><img src="./../../../images/box-maximize.png" alt="+"></a>
+            #~
+            #~ <span>15.10.40.00
+                #~ <a xmlns="http://www.w3.org/1999/xhtml" href="./../../../search.html?type=advanced&amp;LP_CC_1_CODED=15">Environment,     consumers and health protection</a> / <a xmlns="http://www.w3.org/1999/xhtml" href= "./../../../search.html?type=advanced&amp;LP_CC_2_CODED=1510">Environment</a> /
+                #~ <a xmlns="http://www.w3.org/1999/xhtml" href="./../../../search.html?type=advanced&amp;LP_CC_3_CODED=151040">International cooperation</a>
+            #~ </span>
+            #~ <br style="display:block;">
+            #~
+            #~ <span class="hideInJsInline" id="expElement_directory2">11.30.60.00
+                #~ <a xmlns="http://www.w3.org/1999/xhtml" href="./../../../search.html?type=advanced&amp;LP_CC_1_CODED=11">External relations</a> / <a xmlns="http://www.w3.org/1999/xhtml" href="./../../../search.html?type=advanced&amp;LP_CC_2_CODED=1130">Multilateral relations</a> / <a xmlns="http://www.w3.org/1999/xhtml" href="./../../../search.html?type=advanced&amp;LP_CC_3_CODED=113060">Multilateral cooperation for protection of the environment, wild fauna and flora and natural resources</a>
+            #~ </span>
+            #~ <br style="display:block;">
+            #~
+            #~ <span class="hideInJsInline" id="expElement_directory3">15.10.20.30
+                #~ <a xmlns="http://www.w3.org/1999/xhtml" href="./../../../search.html?type=advanced&amp;LP_CC_1_CODED=15">Environment, consumers and health protection</a> / <a xmlns="http://www.w3.org/1999/xhtml" href="./../../../search.html?type=advanced&amp;LP_CC_2_CODED=1510">Environment</a> / <a xmlns="http://www.w3.org/1999/xhtml" href="./../../../search.html?type=advanced&amp;LP_CC_3_CODED=151020">Pollution and nuisances</a> / <a xmlns="http://www.w3.org/1999/xhtml" href="./../../../search.html?type=advanced&amp;LP_CC_4_CODED=15102030">Monitoring of atmospheric pollution</a>
+            #~ </span>
+        #~ </td>
+     #~ </tr>
+    tab="ALL"
+    try:
+        #extraction from the ALL tab
+        return soup_all.find(text=re.compile("Directory code:")).find_parent("li"), tab
+    except Exception, e :
+        print "exception, get_directory_code", e
+        try:
+             #extraction from the HIS tab
+            return soup_his.find("td", {"id": "directoryCodeProc"}).find_all("span"), "HIS"
+        except Exception, e :
+            print "exception, get_directory_code 2", e
 
-		for i in range(len(code_sects_temp)):
-			code_sect=code_sects_temp[i].next_sibling.strip()
-			code_sects[i]=save_get_object(CodeSect,  {"code_sect": code_sect})
-	except Exception, e:
-		print "no code_sect_*!", e
+    return None, tab
 
-	return code_sects
 
-#first, second, third and fourth code under "Directory code:"
+def get_code_sect(directory_code, tab="ALL"):
+    """
+    FUNCTION
+    get the CodeSect1-4 variables from the eurlex url
+    PARAMETERS
+    directory_code: html source of each directory code [list of BeautifulSoup objects]
+    tab: which tab is used to retrieve the variable? [string]
+    RETURN
+    code_sects: code_sect_* variables [list of CodeSect model instances]
+    """
+    code_sects=[None for i in range(4)]
+    try:
+        if tab=="ALL":
+            code_sects_temp=directory_code.find_all('br')
+            for i in range(len(code_sects_temp)):
+                code_sect=code_sects_temp[i].next_sibling.strip()
+                code_sects[i]=save_get_object(CodeSect,  {"code_sect": code_sect})
+
+        elif tab=="HIS":
+            for i in range(len(directory_code)):
+                code_sect=directory_code[i].find(text=True).strip()
+                code_sects[i]=save_get_object(CodeSect,  {"code_sect": code_sect})
+    except Exception, e:
+        print "no code_sect_*!", e
+
+    return code_sects
+
+#first, second, third and fourth code next to "Directory code:"
 #8 chiffres sous cette forme : 12.34.56.78
 #first not NULL
 #second, third and fourth: can be null
 
 
-def save_code_agenda(code_sects):
-	"""
-	FUNCTION
-	save the code_agenda_* fk variables into the CodeSect model
-	PARAMETERS
-	code_sects: code_sect_* instances [list of CodeSect model instances]
-	RETURN
-	None
-	"""
-	#for each code_sect
-	for i in range(len(code_sects)):
-		instance=code_sects[i]
-		save_fk_code_sect(instance, "code_agenda")
 
+def get_rep_en(directory_code, tab="ALL"):
+    """
+    FUNCTION
+    get the rep_en_1, rep_en_2, rep_en_3 and rep_en_4 variables from the eurlex url
+    PARAMETERS
+    directory_code: html source of each directory code [list of BeautifulSoup objects]
+    tab: which tab is used to retrieve the variable? [string]
+    RETURN
+    rep_ens: rep_en_* variab1es [list of strings]
+    """
+    rep_ens=["" for i in range(4)]
 
-def get_rep_en(soup):
-	"""
-	FUNCTION
-	get the rep_en_1, rep_en_2, rep_en_3 and rep_en_4 variables from the eurlex url
-	PARAMETERS
-	soup: eurlex url content [BeautifulSoup object]
-	RETURN
-	rep_ens: rep_en_* variab1es [list of strings]
-	"""
-	rep_ens=["" for i in range(4)]
-	#31999R0530
-	#<li><b>Directory code: </b>
-    #<br/>05.07.00.00 <a href="./../../../search.html?type=advanced&amp;CC_1_CODED=05">Freedom of movement for workers and social policy</a> / <a href="./../../../search.html?type=advanced&amp;CC_2_CODED=0507">Statistics</a>
-    #<br/>05.20.20.20 <a href="./../../../search.html?type=advanced&amp;CC_1_CODED=05">Freedom of movement for workers and social policy</a> / <a href="./../../../search.html?type=advanced&amp;CC_2_CODED=0520">Social policy</a> / <a href="./../../../search.html?type=advanced&amp;CC_3_CODED=052020">Working conditions</a> / <a href="./../../../search.html?type=advanced&amp;CC_4_CODED=05202020">Wages, income and working hours</a>
-    #</li>
+    try:
+        if tab=="ALL":
+            links=directory_code.find_all('a')
+            delimitors=[]
+            #find where 2 variables get separated
+            for link in links:
+                if link.next_sibling.strip()!="/":
+                    delimitors.append(links.index(link)+1)
 
-	try:
-		links=soup.find_all('a')
-		delimitors=[]
-		#find where 2 variables get separated
-		for link in links:
-			if link.next_sibling.strip()!="/":
-				delimitors.append(links.index(link)+1)
+            #repEn1
+            for i in range(delimitors[0]):
+                rep_ens[0]+=links[i].get_text()+"; "
 
-		#repEn1
-		for i in range(delimitors[0]):
-			rep_ens[0]+=links[i].get_text()+"; "
+            #repEn2
+            for i in range(delimitors[0], delimitors[1]):
+                rep_ens[1]+=links[i].get_text()+"; "
 
-		#repEn2
-		for i in range(delimitors[0], delimitors[1]):
-			rep_ens[1]+=links[i].get_text()+"; "
+            #repEn3
+            for i in range(delimitors[1], delimitors[2]):
+                rep_ens[2]+=links[i].get_text()+"; "
 
-		#repEn3
-		for i in range(delimitors[1], delimitors[2]):
-			rep_ens[2]+=links[i].get_text()+"; "
+            #repEn4
+            for i in range(delimitors[2], len(links)):
+                rep_ens[3]+=links[i].get_text()+"; "
 
-		#repEn4
-		for i in range(delimitors[2], len(links)):
-			rep_ens[3]+=links[i].get_text()+"; "
-	except:
-		print "less than four rep_en_*"
+        elif tab=="HIS":
+            for i in range(len(directory_code)):
+                links=directory_code[i].find_all("a")
+                for link in links:
+                    rep_ens[i]+=link.get_text()+"; "
+    except:
+        print "less than four rep_en_*"
 
-	#remove trailing "; "
-	for i in range(len(rep_ens)):
-		rep_ens[i]=rep_ens[i][:-2]
+    #remove trailing "; "
+    for i in range(len(rep_ens)):
+        rep_ens[i]=rep_ens[i][:-2]
 
-	return rep_ens
+    return rep_ens
 
-#texts in front of the code_sect_1, code_sect_2, code_sect_3 and code_sect_4 variables (under "Directory code:")
+#texts in front of the code_sect_1, code_sect_2, code_sect_3 and code_sect_4 variables (n "Directory code:")
 #rep_en_1 not NULL
 #rep_en_2, rep_en_3, rep_en_4 can be Null
 
 
+def save_code_agenda(code_sects):
+    """
+    FUNCTION
+    save the code_agenda_* fk variables into the CodeSect model
+    PARAMETERS
+    code_sects: code_sect_* instances [list of CodeSect model instances]
+    RETURN
+    None
+    """
+    #for each code_sect
+    for i in range(len(code_sects)):
+        instance=code_sects[i]
+        save_fk_code_sect(instance, "code_agenda")
+
+
 def get_type_acte(soup):
-	"""
-	FUNCTION
-	get the type_acte variable from the eurlex url
-	PARAMETERS
-	soup: eurlex url content [BeautifulSoup object]
-	RETURN
-	type_acte [string]
-	"""
-	#<div class="boxTitle">Miscellaneous information...
-	#<div class="tabContent">
-	#<li><b>Author: </b>European Parliament, Council of the European Union</li>
-	#<li><b>Form: </b>Regulation</li>
+    """
+    FUNCTION
+    get the type_acte variable from the eurlex url
+    PARAMETERS
+    soup: eurlex url content [BeautifulSoup object]
+    RETURN
+    type_acte [string]
+    """
+    #<div class="boxTitle">Miscellaneous information...
+    #<div class="tabContent">
+    #<li><b>Author: </b>European Parliament, Council of the European Union</li>
+    #<li><b>Form: </b>Regulation</li>
 
-	try:
-		misc=soup.find(text=re.compile("Miscellaneous information")).find_parent().find_next("div", {"class": "tabContent"})
-		#author part
-		author=misc.find("b", text=re.compile("Author:")).next_sibling.strip().lower()
-		#form part
-		form=misc.find("b", text=re.compile("Form:")).next_sibling.strip().lower()
+    try:
+        misc=soup.find(text=re.compile("Miscellaneous information")).find_parent().find_next("div", {"class": "tabContent"})
+        #author part
+        author=misc.find("b", text=re.compile("Author:")).next_sibling.strip().lower()
+        #form part
+        form=misc.find("b", text=re.compile("Form:")).next_sibling.strip().lower()
 
-		#return acronyms
-		author_code=""
-		if "european parliament" not in author:
-			author_code="CS "
-		#decision
-		if "decision" in form:
-			#framework decision
-			if "framework" in form:
-				return author_code+"DEC CAD"
-			if "addressee" in form:
-				if "without" in form:
-					return author_code+"DEC W/O ADD"
-				return author_code+"DEC W/ ADD"
-			return author_code+"DEC"
-		#directive
-		if form=="directive":
-			return author_code+"DVE"
-		#regulation
-		if form=="regulation":
-			return author_code+"REG"
+        #return acronyms
+        author_code=""
+        if "european parliament" not in author:
+            author_code="CS "
+        #decision
+        if "decision" in form:
+            #framework decision
+            if "framework" in form:
+                return author_code+"DEC CAD"
+            if "addressee" in form:
+                if "without" in form:
+                    return author_code+"DEC W/O ADD"
+                return author_code+"DEC W/ ADD"
+            return author_code+"DEC"
+        #directive
+        if form=="directive":
+            return author_code+"DVE"
+        #regulation
+        if form=="regulation":
+            return author_code+"REG"
 
-		return author+" "+form
-	except:
-		print "no type_acte!"
-		return None
+        return author+" "+form
+    except:
+        print "no type_acte!"
+        return None
 
 #act type under Miscellaneous data->Author and Miscellaneous data->Form
 #not NULL
@@ -202,31 +251,31 @@ def get_type_acte(soup):
 
 
 def get_base_j(soup):
-	"""
-	FUNCTION
-	get the base_j variable from the eurlex url
-	PARAMETERS
-	soup: eurlex url content [BeautifulSoup object]
-	RETURN
-	base_j [string]
-	"""
-	#~ <li><b>Legal basis: </b>
+    """
+    FUNCTION
+    get the base_j variable from the eurlex url
+    PARAMETERS
+    soup: eurlex url content [BeautifulSoup object]
+    RETURN
+    base_j [string]
+    """
+    #~ <li><b>Legal basis: </b>
     #~ <br/>
     #~ <a href="./../../../legal-content/EN/AUTO/?uri=CELEX:12002E251">12002E251</a>
     #~ <br/>
     #~ <a href="./../../../legal-content/EN/AUTO/?uri=CELEX:12002E285">12002E285</a> - P1 </li>
-	try:
-		#http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CELEX:32002L0090:EN:NOT
-		li=soup.find_next("b", text=re.compile("Legal basis:")).find_parent('li')
-		legal_bases=li.find_all('a')
-		var=""
-		for legal_base in legal_bases:
-			var+=legal_base.get_text().strip()+legal_base.next_sibling.strip()+"; "
+    try:
+        #http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CELEX:32002L0090:EN:NOT
+        li=soup.find_next("b", text=re.compile("Legal basis:")).find_parent('li')
+        legal_bases=li.find_all('a')
+        var=""
+        for legal_base in legal_bases:
+            var+=legal_base.get_text().strip()+legal_base.next_sibling.strip()+"; "
 
-		return var[:-2]
-	except:
-		print "no base_j!"
-		return None
+        return var[:-2]
+    except:
+        print "no base_j!"
+        return None
 
 #under "Legal basis:"
 #not null
@@ -237,86 +286,87 @@ def get_base_j(soup):
 #~ 4/ 3 or 4 figures
 #~ 5/éventuellement tiret puis au choix:
 #~ (
-	#~ - "A": followed by figures
-	#~ - "P": followed by figures
-	#~ - "FR": followed by figures
-	#~ - "L": followed by figures
-	#~ - "PT": followed by (one figure or one caps letter or one roman figure) and one parenthesis and/or one caps letter and one parenthesis and/or figures and sometimes one parenthesis
+    #~ - "A": followed by figures
+    #~ - "P": followed by figures
+    #~ - "FR": followed by figures
+    #~ - "L": followed by figures
+    #~ - "PT": followed by (one figure or one caps letter or one roman figure) and one parenthesis and/or one caps letter and one parenthesis and/or figures and sometimes one parenthesis
 #~ ) -> can be repeated
 
 
 def get_date_doc(soup):
-	"""
-	FUNCTION
-	get the date of the act (used for gvt_compo when ProposOrigine="EM", "CONS", "BCE", "CJUE") from the eurlex url
-	PARAMETERS
-	soup: eurlex url content [BeautifulSoup object]
-	RETURN
-	titre_en [string]
-	"""
-	#<li><b>of document: </b>18/12/2006</li>
-	try:
-		return date_string_to_iso(soup.find("b", text=re.compile("of document")).next_sibling.strip())
-	except Exception, e:
-		print "no date gvt_compo!", e
-		return None
+    """
+    FUNCTION
+    get the date of the act (used for gvt_compo when ProposOrigine="EM", "CONS", "BCE", "CJUE") from the eurlex url
+    PARAMETERS
+    soup: eurlex url content [BeautifulSoup object]
+    RETURN
+    titre_en [string]
+    """
+    #<li><b>of document: </b>18/12/2006</li>
+    try:
+        return date_string_to_iso(soup.find("b", text=re.compile("of document")).next_sibling.strip())
+    except Exception, e:
+        print "no date gvt_compo!", e
+        return None
 
 #under "Dates"... "of document"
 #not NULL
 
 
-def get_data_eurlex(soup, act_ids=None, act=None):
-	"""
-	FUNCTION
-	get all data from the eurlex url
-	PARAMETERS
-	soup: eurlex url content [BeautifulSoup object]
-	RETURN
-	data: retrieved data from eurlex [dictionary]
-	"""
-	data={}
+def get_data_eurlex(soups):
+    """
+    FUNCTION
+    get all data from the eurlex url
+    PARAMETERS
+    soups: eurlex url content from the all and his tab [list of BeautifulSoup objects]
+    RETURN
+    data: retrieved data from eurlex [dictionary]
+    """
+    data={}
 
-	#<div id="content">
-	soup=soup.find("div", {"id": "content"})
+    #<div id="content">
+    soup=soups[0].find("div", {"id": "content"})
 
-	#titre_en
-	data['titre_en']=get_titre_en(soup)
-	print "titre_en:", data['titre_en']
+    #titre_en
+    data['titre_en']=get_titre_en(soup)
+    print "titre_en:", data['titre_en']
 
-	directory_code_soup=get_directory_code(soup)
+    #all and his url
+    directory_code_soup, tab=get_directory_code(soup, soups[1])
 
-	#code_sect_1, code_sect_2, code_sect_3, code_sect_4
-	code_sects=get_code_sect(directory_code_soup)
+    #code_sect_1, code_sect_2, code_sect_3, code_sect_4
+    code_sects=get_code_sect(directory_code_soup, tab)
 
-	#code_agenda_1-4
-	save_code_agenda(code_sects)
+    #code_agenda_1-4
+    save_code_agenda(code_sects)
 
-	#print code_sect_* and code_agenda_*
-	for index in xrange(len(code_sects)):
-		num=str(index+1)
-		#django adds "_id" to foreign keys field names
-		data['code_sect_'+num+"_id"]=code_sects[index]
-		if code_sects[index]!=None:
-			print 'code_sect_'+num+": ", data['code_sect_'+num+"_id"].code_sect
-			print 'code_agenda_'+num+": ", data['code_sect_'+num+"_id"].code_agenda.code_agenda
+    #print code_sect_* and code_agenda_*
+    for index in xrange(len(code_sects)):
+        num=str(index+1)
+        #django adds "_id" to foreign keys field names
+        data['code_sect_'+num+"_id"]=code_sects[index]
+        if code_sects[index]!=None:
+            print 'code_sect_'+num+": ", data['code_sect_'+num+"_id"].code_sect
+            print 'code_agenda_'+num+": ", data['code_sect_'+num+"_id"].code_agenda.code_agenda
 
-	#rep_en_1, rep_en_2, rep_en_3, rep_en_4
-	rep_ens=get_rep_en(directory_code_soup)
-	for index in xrange(len(rep_ens)):
-		num=str(index+1)
-		data['rep_en_'+num]=rep_ens[index]
-		print 'rep_en_'+num+": ", data['rep_en_'+num]
+    #rep_en_1, rep_en_2, rep_en_3, rep_en_4
+    rep_ens=get_rep_en(directory_code_soup, tab)
+    for index in xrange(len(rep_ens)):
+        num=str(index+1)
+        data['rep_en_'+num]=rep_ens[index]
+        print 'rep_en_'+num+": ", data['rep_en_'+num]
 
-	#type_acte
-	data['type_acte']=get_type_acte(soup)
-	print "type_acte:", data['type_acte']
+    #type_acte
+    data['type_acte']=get_type_acte(soup)
+    print "type_acte:", data['type_acte']
 
-	#base_j
-	data['base_j']=get_base_j(soup)
-	print "base_j:", data['base_j']
+    #base_j
+    data['base_j']=get_base_j(soup)
+    print "base_j:", data['base_j']
 
-	#date_doc
-	data['date_doc']=get_date_doc(soup)
-	print "date_doc:", data['date_doc']
+    #date_doc
+    data['date_doc']=get_date_doc(soup)
+    print "date_doc:", data['date_doc']
 
-	return data, None, None
+    return data
