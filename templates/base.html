@@ -18,102 +18,103 @@ contains the template of each webpage: doctype, left menu, right content templat
 <link rel="stylesheet" href="{{STATIC_URL}}europolix/css/css_europolix.css?{% now 'U' %}" />
 <!-- jquery -->
 <script type="text/javascript" src="{{ STATIC_URL }}jquery.min.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}jQueryRotate.min.js"></script>
 </head>
 <body>
 
 <div class="container-fluid">
-	<!-- header -->
-	<div id="header" class="row-fluid">
-		<!-- images -->
-		<header class="page-header">
-			<div class="span4 header_row">
-				<a href="http://www.sciencespo.fr/" target="_blank"><img id="size_sp" class="header_elements" src="{{STATIC_URL}}europolix/img/sciencesPo.png"></a>
-				&nbsp;
-				<a href="http://www.cee.sciences-po.fr/" target="_blank"><img id="size_cee" class="header_elements" src="{{STATIC_URL}}europolix/img/CEE.png"></a>
-			</div>
+    <!-- header -->
+    <div id="header" class="row-fluid">
+        <!-- images -->
+        <header class="page-header">
+            <div class="span4 header_row">
+                <a href="http://www.sciencespo.fr/" target="_blank"><img id="size_sp" class="header_elements" src="{{STATIC_URL}}europolix/img/sciencesPo.png"></a>
+                &nbsp;
+                <a href="http://www.cee.sciences-po.fr/" target="_blank"><img id="size_cee" class="header_elements" src="{{STATIC_URL}}europolix/img/CEE.png"></a>
+            </div>
 
-			<div class="span4 header_row">
-				<a href="{% url homepage %}"><h1 class="header_elements">Europolix project</h1></a>
-			</div>
+            <div class="span4 header_row">
+                <a href="{% url homepage %}"><h1 class="header_elements">Europolix project</h1></a>
+            </div>
 
-			<div class="span4 header_row">
-				<a href="http://www.europarl.europa.eu/" target="_blank"><img id="size_o" class="header_elements" src="{{STATIC_URL}}europolix/img/oeil.png"></a>
-				&nbsp;
-				<a href="http://new.eur-lex.europa.eu/" target="_blank"><img id="size_e" class="header_elements" src="{{STATIC_URL}}europolix/img/eurlex.png"></a>
-				&nbsp;
-				<a href="http://ec.europa.eu/" target="_blank"><img id="size_p" class="header_elements" src="{{STATIC_URL}}europolix/img/prelex.png"></a>
-			</div>
-		</header>
-	</div>
+            <div class="span4 header_row">
+                <a href="http://www.europarl.europa.eu/" target="_blank"><img id="size_o" class="header_elements" src="{{STATIC_URL}}europolix/img/oeil.png"></a>
+                &nbsp;
+                <a href="http://new.eur-lex.europa.eu/" target="_blank"><img id="size_e" class="header_elements" src="{{STATIC_URL}}europolix/img/eurlex.png"></a>
+                &nbsp;
+                <a href="http://ec.europa.eu/" target="_blank"><img id="size_p" class="header_elements" src="{{STATIC_URL}}europolix/img/prelex.png"></a>
+            </div>
+        </header>
+    </div>
 
-	<div id="whole_sidebar_and_content" class="row-fluid">
-		<!-- display a message when a page loads in the background -->
-		<div id="loading_div" class="row-fluid">
-			<span id="loading"></span>
-		</div>
+    <div id="whole_sidebar_and_content" class="row-fluid">
+        <!-- display a message when a page loads in the background -->
+        <div id="loading_div" class="row-fluid">
+            <span id="loading"></span>
+        </div>
 
-		<!-- Sidebar -->
-		<div class="row-fluid">
-			<div id="sidebar_and_content" class="span3">
-				<div id="sidebar">
+        <!-- Sidebar -->
+        <div class="row-fluid">
+            <div id="sidebar_and_content" class="span3">
+                <div id="sidebar">
 
-					<div class="row-fluid">
-						<div class="span12 first_row">
-							<!--  Welcome username -->
-							<span id="welcome_user">
-								{% if user.username == "" %}
-									Welcome visitor!
-								{% else %}
-									Welcome {{ user.username }}!
-								{% endif %}
-							</span>
-						</div>
-					</div>
+                    <div class="row-fluid">
+                        <div class="span12 first_row">
+                            <!--  Welcome username -->
+                            <span id="welcome_user">
+                                {% if user.username == "" %}
+                                    Welcome visitor!
+                                {% else %}
+                                    Welcome {{ user.username }}!
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
 
-					<div class="row-fluid">
-						<div id="menu" class="span12">
-							<!-- vertical left-side menu -->
-							<ul class="nav nav-list menu">
-								<li>
-									<a id="first_child" href="{% url login %}" class="internal_link">
-										{% if user.username == "" %}
-											Log in
-										{% else %}
-											Log out
-										{% endif %}
-										<i class="icon-chevron-right"></i>
-									</a>
-								</li>
-								<li><a href="{% url import %}" class="internal_link">CSV import<i class="icon-chevron-right"></i></a></li>
-								<li><a href="{% url act_ids %}" class="internal_link">Act ids validation<i class="icon-chevron-right"></i></a></li>
-								<li><a href="{% url act %}" class="internal_link">Act data validation<i class="icon-chevron-right"></i></a></li>
-								<li><a href="{% url export %}" class="internal_link">CSV export<i class="icon-chevron-right"></i></a></li>
-								<li><a id="last_child" href="{% url admin:index %}">Administration<i class="icon-chevron-right"></i></a></li>
-							</ul>
-						</div>
-					</div>
-				</div>
-			</div>
+                    <div class="row-fluid">
+                        <div id="menu" class="span12">
+                            <!-- vertical left-side menu -->
+                            <ul class="nav nav-list menu">
+                                <li>
+                                    <a id="first_child" href="{% url login %}" class="internal_link">
+                                        {% if user.username == "" %}
+                                            Log in
+                                        {% else %}
+                                            Log out
+                                        {% endif %}
+                                        <i class="icon-chevron-right"></i>
+                                    </a>
+                                </li>
+                                <li><a href="{% url import %}" class="internal_link">CSV import<i class="icon-chevron-right"></i></a></li>
+                                <li><a href="{% url act_ids %}" class="internal_link">Act ids validation<i class="icon-chevron-right"></i></a></li>
+                                <li><a href="{% url act %}" class="internal_link">Act data validation<i class="icon-chevron-right"></i></a></li>
+                                <li><a href="{% url export %}" class="internal_link">CSV export<i class="icon-chevron-right"></i></a></li>
+                                <li><a id="last_child" href="{% url admin:index %}">Administration<i class="icon-chevron-right"></i></a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-			<!--Body content-->
-			<div id="whole_content" class="span9">
+            <!--Body content-->
+            <div id="whole_content" class="span9">
 
-				<div class="row-fluid">
-					<div class="span12 first_row">
-						<!-- title of the page -->
-						<h3 id="title_base">{% block contentTitle %}{% endblock %}</h3>
-					</div>
-				</div>
+                <div class="row-fluid">
+                    <div class="span12 first_row">
+                        <!-- title of the page -->
+                        <h3 id="title_base">{% block contentTitle %}{% endblock %}</h3>
+                    </div>
+                </div>
 
-				<div class="row-fluid">
-					<div class="span12">
-						<!-- right-side content -->
-						<div id="content_base">{% block content %}{% endblock %}</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
+                <div class="row-fluid">
+                    <div class="span12">
+                        <!-- right-side content -->
+                        <div id="content_base">{% block content %}{% endblock %}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 

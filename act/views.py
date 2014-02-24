@@ -19,7 +19,7 @@ from import_app.get_ids_prelex import get_url_prelex, get_url_content_prelex
 #retrieve data
 from get_data_eurlex import get_data_eurlex
 from get_data_oeil import get_data_oeil
-from get_data_prelex import get_data_prelex
+from get_data_prelex import get_data_prelex, get_date_diff
 from get_data_others import get_data_others
 #redirect to login page if not logged
 from django.contrib.auth.decorators import login_required
@@ -455,4 +455,54 @@ def update_dg(request):
         print "dg_sigle", response["dg_sigle"]
     else:
         response["dg_sigle"]=None
+    return HttpResponse(simplejson.dumps(response), mimetype="application/json")
+
+
+
+def update_durations(request):
+    """
+    VIEW
+    update the duration fields (DureeAdoptionTrans, DureeProcedureDepuisPropCom, DureeProcedureDepuisTransCons, DureeTotaleDepuisPropCom and DureeTotaleDepuisTransCons)
+    TEMPLATES
+    None (Ajax only)
+    """
+    response={}
+    response['duree_adopt_trans']=response['duree_proc_depuis_prop_com']=response['duree_proc_depuis_trans_cons']=response['duree_tot_depuis_prop_com']=response['duree_tot_depuis_trans_cons']=[None]*5
+    duree_adopt_trans=request.POST["duree_adopt_trans"]
+    duree_proc_depuis_prop_com=request.POST["duree_proc_depuis_prop_com"]
+    duree_proc_depuis_trans_cons=request.POST["duree_proc_depuis_trans_cons"]
+    duree_tot_depuis_prop_com=request.POST["duree_tot_depuis_prop_com"]
+    duree_tot_depuis_trans_cons=request.POST["duree_tot_depuis_trans_cons"]
+    transm_council=request.POST["transm_council"]
+    adopt_propos_origine=request.POST["adopt_propos_origine"]
+    adopt_conseil=request.POST["adopt_conseil"]
+    sign_pecs=request.POST["sign_pecs"]
+
+
+    #duree_adopt_trans
+    response['duree_adopt_trans']=get_date_diff(transm_council, adopt_propos_origine)
+    print "duree_adopt_trans:", response['duree_adopt_trans']
+
+    #duree_proc_depuis_prop_com
+    response['duree_proc_depuis_prop_com']=get_date_diff(adopt_conseil, adopt_propos_origine)
+    print "duree_proc_depuis_prop_com:", response['duree_proc_depuis_prop_com']
+
+    #duree_proc_depuis_trans_cons
+    response['duree_proc_depuis_trans_cons']=get_date_diff(adopt_conseil, transm_council)
+    print "duree_proc_depuis_trans_cons:", response['duree_proc_depuis_trans_cons']
+
+    #duree_tot_depuis_prop_com
+    response['duree_tot_depuis_prop_com']=get_date_diff(sign_pecs, adopt_propos_origine)
+    #if no sign_pecs
+    if response['duree_tot_depuis_prop_com']==None:
+        response['duree_tot_depuis_prop_com']=response['duree_proc_depuis_prop_com']
+    print "duree_tot_depuis_prop_com:", response['duree_tot_depuis_prop_com']
+
+    #duree_tot_depuis_trans_cons
+    response['duree_tot_depuis_trans_cons']=get_date_diff(sign_pecs, transm_council)
+    #if no sign_pecs
+    if response['duree_tot_depuis_trans_cons']==None:
+        response['duree_tot_depuis_trans_cons']=response['duree_proc_depuis_trans_cons']
+    print "duree_tot_depuis_trans_cons:", response['duree_tot_depuis_trans_cons']
+
     return HttpResponse(simplejson.dumps(response), mimetype="application/json")

@@ -201,6 +201,8 @@
 
     <!-- link view to update dg data -->
     <div id="dg" style="display:none">{% url update_dg %}</div>
+    <!-- url of the view to update duration fields -->
+    <div id="url_view_durations" style="display:none">{% url update_durations %}</div>
     <!-- link view to add a dg -->
     <div id="link_add_dg" style="display:none">{% url form_add field='dg' %}</div>
     <!-- link view to add a resp -->
@@ -255,8 +257,9 @@
                             {% endif %}
                         {% endif %}
 
-                        <div class="row-fluid" style="position: relative">
+                        <div class="row-fluid {% if field.name == 'adopt_conseil' %}reload{% endif %}" style="position: relative">
                             {{ field }}
+                            {% if field.name == 'adopt_conseil' %}<img id="update_durations" src="{{STATIC_URL}}europolix/img/reload.png" class="reload_img" alt="update duration fields" title="update duration fields">{% endif %}
 
                             <!-- dg_1, dg_2 -->
                             {% if field.name|slice:":3" == 'dg_' %}
@@ -303,7 +306,7 @@
     {% for field in form_data %}
         {% if field.name in vars_prelex_2 %}
 
-            <!-- congig_cons -->
+            <!-- display config_cons after chgt_base_j -->
             {% if field.name == "chgt_base_j" %}
                 <tr>
                     <td class="first_column table_column_title">{{ display_name.config_cons }}</td>

@@ -65,10 +65,26 @@
     width: 77%;
 }
 
+/* length of eurlex, oeil and prelex input fields (except for fields with a reload button) */
 .second_column input[type="text"]
 {
     width: 99%;
 }
+
+/* length of eurlex, oeil and prelex input fields with a reload button */
+.reload input[type="text"]
+{
+    float: left;
+    width: 95%;
+    margin-right: 0.5%;
+}
+
+/* reload image on the right side of the field*/
+.reload_img
+{
+    width: 23px;
+}
+
 
 /*display person related fields*/
 #eurlex_table select, #oeil_table select, .prelex_table select, .update_fields, .update_btn
