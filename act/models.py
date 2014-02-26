@@ -159,7 +159,7 @@ class Act(models.Model):
     council_path=models.CharField(max_length=200, blank=True, null=True, default=None)
 
     #EURLEX
-    titre_en=models.CharField(max_length=600, blank=True, null=True, default=None)
+    titre_en=models.CharField(max_length=1000, blank=True, null=True, default=None)
     code_sect_1=models.ForeignKey(CodeSect, related_name='code_sect_1', blank=True, null=True, default=None)
     code_sect_2=models.ForeignKey(CodeSect, related_name='code_sect_2', blank=True, null=True, default=None)
     code_sect_3=models.ForeignKey(CodeSect, related_name='code_sect_3', blank=True, null=True, default=None)

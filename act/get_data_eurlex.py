@@ -213,11 +213,13 @@ def get_type_acte(soup):
     #<li><b>Form: </b>Regulation</li>
 
     try:
-        misc=soup.find(text=re.compile("Miscellaneous information")).find_parent().find_next("div", {"class": "tabContent"})
+        misc=soup.find(text=re.compile("Miscellaneous information")).find_next("div", {"class": "tabContent"}).find("ul")
         #author part
-        author=misc.find("b", text=re.compile("Author:")).next_sibling.strip().lower()
+        author=misc.find("li", text=re.compile("Author:")).get_text().split(":",1)[1].strip().lower()
+        print "author", author
         #form part
-        form=misc.find("b", text=re.compile("Form:")).next_sibling.strip().lower()
+        form=misc.find("li", text=re.compile("Form:")).get_text().split(":",1)[1].strip().lower()
+        print "form", form
 
         #return acronyms
         author_code=""
@@ -241,8 +243,8 @@ def get_type_acte(soup):
             return author_code+"REG"
 
         return author+" "+form
-    except:
-        print "no type_acte!"
+    except Exception, e:
+        print "no type_acte!", e
         return None
 
 #act type under Miscellaneous data->Author and Miscellaneous data->Form
@@ -266,15 +268,16 @@ def get_base_j(soup):
     #~ <a href="./../../../legal-content/EN/AUTO/?uri=CELEX:12002E285">12002E285</a> - P1 </li>
     try:
         #http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CELEX:32002L0090:EN:NOT
-        li=soup.find_next("b", text=re.compile("Legal basis:")).find_parent('li')
+        li=soup.find(text=re.compile("Legal basis:")).find_parent()
+        print "li", li
         legal_bases=li.find_all('a')
         var=""
         for legal_base in legal_bases:
             var+=legal_base.get_text().strip()+legal_base.next_sibling.strip()+"; "
 
         return var[:-2]
-    except:
-        print "no base_j!"
+    except Exception, e:
+        print "no base_j!", e
         return None
 
 #under "Legal basis:"
