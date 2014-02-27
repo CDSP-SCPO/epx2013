@@ -244,6 +244,9 @@ def qs_to_csv_file(headers, acts, outfile_path):
     """
     writer=csv.writer(open(outfile_path, 'w'),  delimiter=';', quotechar='"', quoting=csv.QUOTE_ALL)
 
+    #force utf-8 for excel
+    writer.writerow("\uFEFF")
+
     #write headers
     writer.writerow(headers)
 

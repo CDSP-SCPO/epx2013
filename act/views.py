@@ -1,7 +1,7 @@
 #-*- coding: utf-8 -*-
 from act_ids.forms import ActIdsForm
 from act.forms import ActForm, Add, Modif
-from act.models import Act, DG, Person, NP, PartyFamily, Country, CodeSect
+from act.models import Act, DG, Person, NP, PartyFamily, Country, CodeSect, History
 from import_app.models import ImportNP
 from common.db import get_act_ids
 #get the add_modif fct
@@ -259,7 +259,7 @@ def get_data_all(state, add_modif, act, POST, response):
     return response
 
 
-def save_act(act, request, response):
+def save_act(act, request, response, add_modif):
     """
     FUNCTION
     get the data of an act
@@ -267,6 +267,7 @@ def save_act(act, request, response):
     act: instance of the data of the act [model instance]
     request: request object [HttpRequest object]
     response: dictionary containing all the variables to be displayed in th html form [dictionary]
+    add_modif: same than mode but return None if the add or modif form is not valid [string]
     RETURN
     response: update of the dictionary containing all the variables to be displayed in th html form [dictionary]
     state: saved or ongoing (if errors) [string]
@@ -282,6 +283,8 @@ def save_act(act, request, response):
         state="saved"
         response["msg"]="The act " + str(act) + " has been validated!"
         response["msg_class"]="success_msg"
+        #save in history
+        History.objects.create(action=add_modif, form="data", act=act, user=request.user)
     else:
         print "form_data not valid", form_data.errors
         if request.is_ajax():
@@ -348,7 +351,7 @@ def act(request):
             if add_modif!=None:
                 #saves the act
                 if 'save_act' in request.POST:
-                    response, state=save_act(act, request, response)
+                    response, state=save_act(act, request, response, add_modif)
 
                 #update person variables if the form is not saved
                 if state!="saved":
