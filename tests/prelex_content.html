@@ -24,10 +24,10 @@
 
 
 
-	<html>
-	<head>
+    <html>
+    <head>
 
-		<title>PreLex -  result of search</title>
+        <title>PreLex -  result of search</title>
 
 
 
@@ -57,200 +57,200 @@
 
 
 
-		<LINK REL="stylesheet" HREF="http://ec.europa.eu/prelex/include/layout/apc_style.css" TYPE="text/css">
+        <LINK REL="stylesheet" HREF="http://ec.europa.eu/prelex/include/layout/apc_style.css" TYPE="text/css">
 
-		<LINK REL="stylesheet" HREF="http://ec.europa.eu/prelex/include/layout/databulle_style.css" TYPE="text/css">
+        <LINK REL="stylesheet" HREF="http://ec.europa.eu/prelex/include/layout/infobulle_style.css" TYPE="text/css">
 
-			<LINK REL="stylesheet" HREF="http://ec.europa.eu/stylesheets/commission.css" TYPE="text/css">
+            <LINK REL="stylesheet" HREF="http://ec.europa.eu/stylesheets/commission.css" TYPE="text/css">
 
-		<link rel="stylesheet" type="text/css" href="http://ec.europa.eu/prelex/include/layout/prelex_screen.css">
-	</head>
+        <link rel="stylesheet" type="text/css" href="http://ec.europa.eu/prelex/include/layout/prelex_screen.css">
+    </head>
 
-	<body onLoad="ResetShortcuts()">
+    <body onLoad="ResetShortcuts()">
 
 
 
 <script Language="JavaScript">
 
-	function isimgact(imgname, imgvar)
+    function isimgact(imgname, imgvar)
 {
         if(document.images)
         {
-                document.images[imgname].src=eval( "isimages." + imgvar + ".src");
+                document.images[imgname].src = eval( "isimages." + imgvar + ".src");
         }
 }
 
-isimages=new Object();
+isimages = new Object();
 
 
 
-	isimages.btn_nav_pinoff=new Image();
-isimages.btn_nav_pinoff.src='images/btn_pin.gif';
-isimages.btn_nav_pinon=new Image();
-isimages.btn_nav_pinon.src='images/btn_pinon.gif';
+    isimages.btn_nav_pinoff = new Image();
+isimages.btn_nav_pinoff.src = 'images/btn_pin.gif';
+isimages.btn_nav_pinon = new Image();
+isimages.btn_nav_pinon.src = 'images/btn_pinon.gif';
 
 
 
-	isimages.btn_doc_pinoff=new Image();
-isimages.btn_doc_pinoff.src='images/doc_pin.gif';
-isimages.btn_doc_pinon=new Image();
-isimages.btn_doc_pinon.src='images/doc_pinon.gif';
+    isimages.btn_doc_pinoff = new Image();
+isimages.btn_doc_pinoff.src = 'images/doc_pin.gif';
+isimages.btn_doc_pinon = new Image();
+isimages.btn_doc_pinon.src = 'images/doc_pinon.gif';
 
 
 
 
 
-definirObj("laBulle","","dataBulle")
+definirObj("laBulle","","infoBulle")
 cacherObj("laBulle")
 var flagpos=false
 if(document.layers){
-	document.captureEvents(Event.MOUSEMOVE)
+    document.captureEvents(Event.MOUSEMOVE)
 }
-document.onmousemove=bougedata
+document.onmousemove=bougeinfo
 
 
 
-function bougedata(e){
-	if(flagpos){
-		positionnerObj("laBulle",xSouris(e)-(xSouris(e)/document.body.clientWidth )*200,ySouris(e)+16)
-	}
-}
-
-function visiondata(titB,corB,notB) {
-	flagpos=true
-	msg	="<TABLE width=200><TR><TD class=cadreBulle><TABLE cellspacing=0 width=100%><TR>"
-		+((titB!=null)?("<tr width=100%><td width=100% class=titreBulle>"+titB+"</td></tr>"):(""))
-		+((corB!=null)?("<tr width=100%><td width=100% class=corpsBulle>"+corB+"</td></tr>"):(""))
-		+((notB!=null)?("<tr width=100%><td width=100% class=notaBulle>"+notB+"</td></tr>"):(""))
-		+"</TABLE></TD></TR></TABLE>"
-	redefinirObj("laBulle",msg)
-	voirObj("laBulle")
+function bougeinfo(e){
+    if(flagpos){
+        positionnerObj("laBulle",xSouris(e)-(xSouris(e)/document.body.clientWidth )*200,ySouris(e)+16)
+    }
 }
 
-function cachedata(){
-	flagpos=false;
-	cacherObj("laBulle");
-	positionnerObj("laBulle",8,8);
+function visioninfo(titB,corB,notB) {
+    flagpos=true
+    msg ="<TABLE width=200><TR><TD class=cadreBulle><TABLE cellspacing=0 width=100%><TR>"
+        +((titB!=null)?("<tr width=100%><td width=100% class=titreBulle>"+titB+"</td></tr>"):(""))
+        +((corB!=null)?("<tr width=100%><td width=100% class=corpsBulle>"+corB+"</td></tr>"):(""))
+        +((notB!=null)?("<tr width=100%><td width=100% class=notaBulle>"+notB+"</td></tr>"):(""))
+        +"</TABLE></TD></TR></TABLE>"
+    redefinirObj("laBulle",msg)
+    voirObj("laBulle")
+}
+
+function cacheinfo(){
+    flagpos=false;
+    cacherObj("laBulle");
+    positionnerObj("laBulle",8,8);
 }
 
 function definirObj(nom,ceci,classe,gauche,haut){
-	document.write("<div id='"+nom+"' "+((classe!=null)?("class="+classe):(""))+" >"+ceci+"</div>")
-	if(gauche!=null&&haut!=null){
-		positionnerObj(nom,gauche,haut)
-	}
+    document.write("<div id='"+nom+"' "+((classe!=null)?("class="+classe):(""))+" >"+ceci+"</div>")
+    if(gauche!=null&&haut!=null){
+        positionnerObj(nom,gauche,haut)
+    }
 }
 
 function redefinirObj(nom,ceci){
-	if(document.all){
-		document.all(nom).innerHTML=ceci
-	} else if(document.getElementById){
-		document.getElementById(nom).innerHTML=ceci
-	} else if(document.layers){
-		doc=document.layers[nom];
-		doc.document.write(ceci);
-		doc.document.close()
-	}
+    if(document.all){
+        document.all(nom).innerHTML=ceci
+    } else if(document.getElementById){
+        document.getElementById(nom).innerHTML=ceci
+    } else if(document.layers){
+        doc=document.layers[nom];
+        doc.document.write(ceci);
+        doc.document.close()
+    }
 }
 
 function positionnerObj(nom,gauche,haut){
-	if(document.all){
-		document.all(nom).style.left=gauche;
-		document.all(nom).style.top=haut
-	} else if(document.getElementById){
-		document.getElementById(nom).style.left=gauche+"px";
-		document.getElementById(nom).style.top=haut+"px"
-	} else if(document.layers){
-		document.layers[nom].left=gauche;
-		document.layers[nom].top=haut
-	}
+    if(document.all){
+        document.all(nom).style.left=gauche;
+        document.all(nom).style.top=haut
+    } else if(document.getElementById){
+        document.getElementById(nom).style.left=gauche+"px";
+        document.getElementById(nom).style.top=haut+"px"
+    } else if(document.layers){
+        document.layers[nom].left=gauche;
+        document.layers[nom].top=haut
+    }
 }
 
 function cacherObj(nom){
-	if(document.all){
-		document.all(nom).style.visibility="hidden"
-	} else if(document.getElementById){
-		document.getElementById(nom).style.visibility="hidden"
-	}
-	else if(document.layers){
-		document.layers[nom].visibility="hide"
-	}
+    if(document.all){
+        document.all(nom).style.visibility="hidden"
+    } else if(document.getElementById){
+        document.getElementById(nom).style.visibility="hidden"
+    }
+    else if(document.layers){
+        document.layers[nom].visibility="hide"
+    }
 }
 
 function voirObj(nom){
-	if(document.all){
-		document.all(nom).style.visibility="visible"
-	} else if(document.getElementById){
-		document.getElementById(nom).style.visibility="visible"
-	} else if(document.layers){
-		document.layers[nom].visibility="show"
-	}
-	positionnerObj("laBulle",xSouris(nom)-(xSouris(nom)/document.body.clientWidth )*200,ySouris(nom)+16)
+    if(document.all){
+        document.all(nom).style.visibility="visible"
+    } else if(document.getElementById){
+        document.getElementById(nom).style.visibility="visible"
+    } else if(document.layers){
+        document.layers[nom].visibility="show"
+    }
+    positionnerObj("laBulle",xSouris(nom)-(xSouris(nom)/document.body.clientWidth )*200,ySouris(nom)+16)
 }
 
 function xSouris(e){
-	if(document.all){
-		return(document.body.scrollLeft+event.clientX)
-	} else if(document.getElementById){
-		return(window.pageXOffset+e.clientX)
-	}
-	else if(document.layers){
-		return(e.pageX)
-	}
+    if(document.all){
+        return(document.body.scrollLeft+event.clientX)
+    } else if(document.getElementById){
+        return(window.pageXOffset+e.clientX)
+    }
+    else if(document.layers){
+        return(e.pageX)
+    }
 }
 
 function ySouris(e){
-	if(document.all){
-		return(document.body.scrollTop+event.clientY)
-	} else if(document.getElementById){
-		return(window.pageYOffset+e.clientY)
-	} else if(document.layers){
-		return(e.pageY)
-	}
+    if(document.all){
+        return(document.body.scrollTop+event.clientY)
+    } else if(document.getElementById){
+        return(window.pageYOffset+e.clientY)
+    } else if(document.layers){
+        return(e.pageY)
+    }
 }
 
 function toggleview(nom,imag) {
-	if(document.all){
-		viewstat=document.all(nom).style.visibility;
-	} else if(document.getElementById){
-		viewstat=document.getElementById(nom).style.visibility;
-	} else if(document.layers){
-		viewstat=document.layers[nom].visibility;
-		if (viewstat=="hide") {
-			viewstat="hidden";
-		} else {
-			viewstat="visible";
-		}
-	}
-	if(viewstat!="hidden") {
-		cacherObj(nom);
-		viewstat="FALSE";
-		document.images[imag].src="images/arrowup_small.gif";
-	} else {
-		voirObj(nom);
-		viewstat="TRUE";
-		document.images[imag].src="images/arrowdown_small.gif";
-	}
+    if(document.all){
+        viewstat=document.all(nom).style.visibility;
+    } else if(document.getElementById){
+        viewstat=document.getElementById(nom).style.visibility;
+    } else if(document.layers){
+        viewstat=document.layers[nom].visibility;
+        if (viewstat=="hide") {
+            viewstat="hidden";
+        } else {
+            viewstat="visible";
+        }
+    }
+    if(viewstat!="hidden") {
+        cacherObj(nom);
+        viewstat="FALSE";
+        document.images[imag].src="images/arrowup_small.gif";
+    } else {
+        voirObj(nom);
+        viewstat="TRUE";
+        document.images[imag].src="images/arrowdown_small.gif";
+    }
 }
 
-	function ResetShortcuts()
+    function ResetShortcuts()
 {
-for (var i=0; i < document.LangForm.Language.length; i++) {
-if (document.LangForm.Language.options[i].defaultSelected==true){
+for (var i = 0; i < document.LangForm.Language.length; i++) {
+if (document.LangForm.Language.options[i].defaultSelected == true){
 document.LangForm.Language.options[i].selected=true
 }
 }
 }
 function JumpMenu(item)
 {
-document.location=item;
+document.location= item;
 }
 
 
-	function isimgact2(imgname, imgvar)
+    function isimgact2(imgname, imgvar)
 {
         if(document.images)
         {
-                document.images[imgname].src=imgvar;
+                document.images[imgname].src = imgvar;
         }
 }
 
@@ -260,52 +260,52 @@ document.location=item;
 
 
 
-	<a name="top"></a>
-	<form name="LangForm" method="post" action="">
-	<!-- LEGAL NOTICE SECTION -->
+    <a name="top"></a>
+    <form name="LangForm" method="post" action="">
+    <!-- LEGAL NOTICE SECTION -->
 
 
 
     <!-- DO NOT REMOVE THIS COMMENT -->
 <!-- DO NOT REMOVE THIS COMMENT -->
 
-	<div id="header">
+    <div id="header">
 
-		<div id="top-gradient"></div>
-		<link rel="icon" type="image/x-icon" href="http://ec.europa.eu/prelex/faviconLaw.ico" />
+        <div id="top-gradient"></div>
+        <link rel="icon" type="image/x-icon" href="http://ec.europa.eu/prelex/faviconLaw.ico" />
 <LINK REL="SHORTCUT ICON" HREF="http://ec.europa.eu/prelex/faviconLaw.ico">
 <div id="europa-text">
-	This site is a part of<span id="europa-logo"><a href="http://europa.eu/" title="Gateway to the European Union"><img src="http://ec.europa.eu/prelex/images/blank.png" style="border: 0pt none ;" width="62px" height="25px"></a></span>
+    This site is a part of<span id="europa-logo"><a href="http://europa.eu/" title="Gateway to the European Union"><img src="http://ec.europa.eu/prelex/images/blank.png" style="border: 0pt none ;" width="62px" height="25px"></a></span>
 </div>
 <div id="top-menu">
-	<ul id="item">
-		<li class="top"><a href="http://publications.europa.eu/">Publications Office</a> <img src="http://ec.europa.eu/prelex/images/drop.png"></li>
-		<li class="item"><a href="http://publications.europa.eu/">Publications Office</a></li>
-		<li class="item"><a href="http://bookshop.europa.eu/">EU Bookshop</a></li>
-		<li class="item"><a href="http://eur-lex.europa.eu/">Eur-Lex</a></li>
-		<li class="item"><a href="http://n-lex.europa.eu/">N-Lex</a></li>
-		<li class="item"><a href="http://eurovoc.europa.eu/">Eurovoc</a></li>
-		<li class="item"><a href="http://whoiswho.europa.eu/">EU Whoiswho</a></li>
-		<li class="item"><a href="http://cordis.europa.eu/">Cordis</a></li>
-	</ul>
-	<ul id="item"><li class="top">|</li></ul>
-	<ul id="item">
-		<li class="top"><a href="https://ec.europa.eu/prelex/fmb/contact.cfm?CL=en">Contact</a></li>
-	</ul>
-	<ul id="item"><li class="top">|</li></ul>
-	<ul id="item">
-		<li class="top"><a href="http://europa.eu/gendata/query/search_en.html">Search&nbsp;EUROPA</a></li>
-	</ul>
-	<ul id="item"><li class="top">|</li></ul>
-	<ul id="item">
-		<li class="top"><a href="http://ec.europa.eu/prelex/legalnotice.cfm?CL=en">Legal Notice</a></li>
-	</ul>
+    <ul id="item">
+        <li class="top"><a href="http://publications.europa.eu/">Publications Office</a> <img src="http://ec.europa.eu/prelex/images/drop.png"></li>
+        <li class="item"><a href="http://publications.europa.eu/">Publications Office</a></li>
+        <li class="item"><a href="http://bookshop.europa.eu/">EU Bookshop</a></li>
+        <li class="item"><a href="http://eur-lex.europa.eu/">Eur-Lex</a></li>
+        <li class="item"><a href="http://n-lex.europa.eu/">N-Lex</a></li>
+        <li class="item"><a href="http://eurovoc.europa.eu/">Eurovoc</a></li>
+        <li class="item"><a href="http://whoiswho.europa.eu/">EU Whoiswho</a></li>
+        <li class="item"><a href="http://cordis.europa.eu/">Cordis</a></li>
+    </ul>
+    <ul id="item"><li class="top">|</li></ul>
+    <ul id="item">
+        <li class="top"><a href="https://ec.europa.eu/prelex/fmb/contact.cfm?CL=en">Contact</a></li>
+    </ul>
+    <ul id="item"><li class="top">|</li></ul>
+    <ul id="item">
+        <li class="top"><a href="http://europa.eu/geninfo/query/search_en.html">Search&nbsp;EUROPA</a></li>
+    </ul>
+    <ul id="item"><li class="top">|</li></ul>
+    <ul id="item">
+        <li class="top"><a href="http://ec.europa.eu/prelex/legalnotice.cfm?CL=en">Legal Notice</a></li>
+    </ul>
 </div><!-- Top // -->
 <img src="http://ec.europa.eu/prelex/images/prelex_logo.png" id="logo"><div id="po-link"><a href="http://ec.europa.eu/prelex/apcnet.cfm?CL=en" title="prelex"></a></div>
 <div id="subtitle">Monitoring of the decision-making process between institutions</div>
 
-		<div id="langbox">
-		  <!-- LANGUAGE DROP-DOWN SECTION -->
+        <div id="langbox">
+          <!-- LANGUAGE DROP-DOWN SECTION -->
 
 
 <noscript id="langsel_noscript">
@@ -327,7 +327,7 @@ document.location=item;
 
 
 
-	          <a href="http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=bg&DosId=193517" id="lsns_bg" class="language" lang="bg" title="български">bg</a>
+              <a href="http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=bg&DosId=199807" id="lsns_bg" class="language" lang="bg" title="български">bg</a>
 
 
 
@@ -336,7 +336,7 @@ document.location=item;
 
 
 
-	          <a href="http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=es&DosId=193517" id="lsns_es" class="language" lang="es" title="castellano">es</a>
+              <a href="http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=es&DosId=199807" id="lsns_es" class="language" lang="es" title="castellano">es</a>
 
 
 
@@ -345,7 +345,7 @@ document.location=item;
 
 
 
-	          <a href="http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=cs&DosId=193517" id="lsns_cs" class="language" lang="cs" title="čeština">cs</a>
+              <a href="http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=cs&DosId=199807" id="lsns_cs" class="language" lang="cs" title="čeština">cs</a>
 
 
 
@@ -354,7 +354,7 @@ document.location=item;
 
 
 
-	          <a href="http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=da&DosId=193517" id="lsns_da" class="language" lang="da" title="dansk">da</a>
+              <a href="http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=da&DosId=199807" id="lsns_da" class="language" lang="da" title="dansk">da</a>
 
 
 
@@ -363,7 +363,7 @@ document.location=item;
 
 
 
-	          <a href="http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=de&DosId=193517" id="lsns_de" class="language" lang="de" title="deutsch">de</a>
+              <a href="http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=de&DosId=199807" id="lsns_de" class="language" lang="de" title="deutsch">de</a>
 
 
 
@@ -372,7 +372,7 @@ document.location=item;
 
 
 
-	          <a href="http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=et&DosId=193517" id="lsns_et" class="language" lang="et" title="eesti keel">et</a>
+              <a href="http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=et&DosId=199807" id="lsns_et" class="language" lang="et" title="eesti keel">et</a>
 
 
 
@@ -381,7 +381,7 @@ document.location=item;
 
 
 
-	          <a href="http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=el&DosId=193517" id="lsns_el" class="language" lang="el" title="ελληνικά">el</a>
+              <a href="http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=el&DosId=199807" id="lsns_el" class="language" lang="el" title="ελληνικά">el</a>
 
 
 
@@ -390,7 +390,7 @@ document.location=item;
 
 
 
-			<span class="languagenolink" lang="en" title="english">en</span>
+            <span class="languagenolink" lang="en" title="english">en</span>
 
 
 
@@ -399,7 +399,7 @@ document.location=item;
 
 
 
-	          <a href="http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=fr&DosId=193517" id="lsns_fr" class="language" lang="fr" title="français">fr</a>
+              <a href="http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=fr&DosId=199807" id="lsns_fr" class="language" lang="fr" title="français">fr</a>
 
 
 
@@ -408,7 +408,7 @@ document.location=item;
 
 
 
-	          <a href="http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=ga&DosId=193517" id="lsns_ga" class="language" lang="ga" title="gaeilge">ga</a>
+              <a href="http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=ga&DosId=199807" id="lsns_ga" class="language" lang="ga" title="gaeilge">ga</a>
 
 
 
@@ -417,7 +417,7 @@ document.location=item;
 
 
 
-	          <a href="http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=it&DosId=193517" id="lsns_it" class="language" lang="it" title="italiano">it</a>
+              <a href="http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=it&DosId=199807" id="lsns_it" class="language" lang="it" title="italiano">it</a>
 
 
 
@@ -426,7 +426,7 @@ document.location=item;
 
 
 
-	          <a href="http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=lv&DosId=193517" id="lsns_lv" class="language" lang="lv" title="latviešu valoda">lv</a>
+              <a href="http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=lv&DosId=199807" id="lsns_lv" class="language" lang="lv" title="latviešu valoda">lv</a>
 
 
 
@@ -435,7 +435,7 @@ document.location=item;
 
 
 
-	          <a href="http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=lt&DosId=193517" id="lsns_lt" class="language" lang="lt" title="lietuvių kalba">lt</a>
+              <a href="http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=lt&DosId=199807" id="lsns_lt" class="language" lang="lt" title="lietuvių kalba">lt</a>
 
 
 
@@ -444,7 +444,7 @@ document.location=item;
 
 
 
-	          <a href="http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=hu&DosId=193517" id="lsns_hu" class="language" lang="hu" title="magyar">hu</a>
+              <a href="http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=hu&DosId=199807" id="lsns_hu" class="language" lang="hu" title="magyar">hu</a>
 
 
 
@@ -453,7 +453,7 @@ document.location=item;
 
 
 
-	          <a href="http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=mt&DosId=193517" id="lsns_mt" class="language" lang="mt" title="malti">mt</a>
+              <a href="http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=mt&DosId=199807" id="lsns_mt" class="language" lang="mt" title="malti">mt</a>
 
 
 
@@ -462,7 +462,7 @@ document.location=item;
 
 
 
-	          <a href="http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=nl&DosId=193517" id="lsns_nl" class="language" lang="nl" title="nederlands">nl</a>
+              <a href="http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=nl&DosId=199807" id="lsns_nl" class="language" lang="nl" title="nederlands">nl</a>
 
 
 
@@ -471,7 +471,7 @@ document.location=item;
 
 
 
-	          <a href="http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=pl&DosId=193517" id="lsns_pl" class="language" lang="pl" title="polski">pl</a>
+              <a href="http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=pl&DosId=199807" id="lsns_pl" class="language" lang="pl" title="polski">pl</a>
 
 
 
@@ -480,7 +480,7 @@ document.location=item;
 
 
 
-	          <a href="http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=pt&DosId=193517" id="lsns_pt" class="language" lang="pt" title="português">pt</a>
+              <a href="http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=pt&DosId=199807" id="lsns_pt" class="language" lang="pt" title="português">pt</a>
 
 
 
@@ -489,7 +489,7 @@ document.location=item;
 
 
 
-	          <a href="http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=ro&DosId=193517" id="lsns_ro" class="language" lang="ro" title="român">ro</a>
+              <a href="http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=ro&DosId=199807" id="lsns_ro" class="language" lang="ro" title="român">ro</a>
 
 
 
@@ -498,7 +498,7 @@ document.location=item;
 
 
 
-	          <a href="http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=sk&DosId=193517" id="lsns_sk" class="language" lang="sk" title="slovenčina">sk</a>
+              <a href="http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=sk&DosId=199807" id="lsns_sk" class="language" lang="sk" title="slovenčina">sk</a>
 
 
 
@@ -507,7 +507,7 @@ document.location=item;
 
 
 
-	          <a href="http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=sl&DosId=193517" id="lsns_sl" class="language" lang="sl" title="slovenščina">sl</a>
+              <a href="http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=sl&DosId=199807" id="lsns_sl" class="language" lang="sl" title="slovenščina">sl</a>
 
 
 
@@ -516,7 +516,7 @@ document.location=item;
 
 
 
-	          <a href="http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=fi&DosId=193517" id="lsns_fi" class="language" lang="fi" title="suomi">fi</a>
+              <a href="http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=fi&DosId=199807" id="lsns_fi" class="language" lang="fi" title="suomi">fi</a>
 
 
 
@@ -525,7 +525,7 @@ document.location=item;
 
 
 
-	          <a href="http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=sv&DosId=193517" id="lsns_sv" class="language" lang="sv" title="svenska">sv</a>
+              <a href="http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=sv&DosId=199807" id="lsns_sv" class="language" lang="sv" title="svenska">sv</a>
 
 
 
@@ -534,7 +534,7 @@ document.location=item;
 <!-- ALTERNATIVE FOR JAVASCRIPT-ENABLED BROWSER -->
 
 <script type="text/javascript" language="JavaScript" >
-	document.write('<select name="Language" onChange="JumpMenu(this.options[this.selectedIndex].value)"; return true;>');
+    document.write('<select name="Language" onChange="JumpMenu(this.options[this.selectedIndex].value)"; return true;>');
 
 
 
@@ -544,7 +544,7 @@ document.location=item;
 
 
 
-	        	document.write('<option value="detail_dossier_real.cfm?CL=bg&DosId=193517">Български (bg)<\/option>');
+                document.write('<option value="detail_dossier_real.cfm?CL=bg&DosId=199807">Български (bg)<\/option>');
 
 
 
@@ -556,7 +556,7 @@ document.location=item;
 
 
 
-	        	document.write('<option value="detail_dossier_real.cfm?CL=es&DosId=193517">Castellano (es)<\/option>');
+                document.write('<option value="detail_dossier_real.cfm?CL=es&DosId=199807">Castellano (es)<\/option>');
 
 
 
@@ -568,7 +568,7 @@ document.location=item;
 
 
 
-	        	document.write('<option value="detail_dossier_real.cfm?CL=cs&DosId=193517">Čeština (cs)<\/option>');
+                document.write('<option value="detail_dossier_real.cfm?CL=cs&DosId=199807">Čeština (cs)<\/option>');
 
 
 
@@ -580,7 +580,7 @@ document.location=item;
 
 
 
-	        	document.write('<option value="detail_dossier_real.cfm?CL=da&DosId=193517">Dansk (da)<\/option>');
+                document.write('<option value="detail_dossier_real.cfm?CL=da&DosId=199807">Dansk (da)<\/option>');
 
 
 
@@ -592,7 +592,7 @@ document.location=item;
 
 
 
-	        	document.write('<option value="detail_dossier_real.cfm?CL=de&DosId=193517">Deutsch (de)<\/option>');
+                document.write('<option value="detail_dossier_real.cfm?CL=de&DosId=199807">Deutsch (de)<\/option>');
 
 
 
@@ -604,7 +604,7 @@ document.location=item;
 
 
 
-	        	document.write('<option value="detail_dossier_real.cfm?CL=et&DosId=193517">Eesti keel (et)<\/option>');
+                document.write('<option value="detail_dossier_real.cfm?CL=et&DosId=199807">Eesti keel (et)<\/option>');
 
 
 
@@ -616,7 +616,7 @@ document.location=item;
 
 
 
-	        	document.write('<option value="detail_dossier_real.cfm?CL=el&DosId=193517">Ελληνικά (el)<\/option>');
+                document.write('<option value="detail_dossier_real.cfm?CL=el&DosId=199807">Ελληνικά (el)<\/option>');
 
 
 
@@ -628,7 +628,7 @@ document.location=item;
 
 
 
-	        	document.write('<option value="detail_dossier_real.cfm?CL=en&DosId=193517" selected>English (en)<\/option>');
+                document.write('<option value="detail_dossier_real.cfm?CL=en&DosId=199807" selected>English (en)<\/option>');
 
 
 
@@ -640,7 +640,7 @@ document.location=item;
 
 
 
-	        	document.write('<option value="detail_dossier_real.cfm?CL=fr&DosId=193517">Français (fr)<\/option>');
+                document.write('<option value="detail_dossier_real.cfm?CL=fr&DosId=199807">Français (fr)<\/option>');
 
 
 
@@ -652,7 +652,7 @@ document.location=item;
 
 
 
-	        	document.write('<option value="detail_dossier_real.cfm?CL=ga&DosId=193517">Gaeilge (ga)<\/option>');
+                document.write('<option value="detail_dossier_real.cfm?CL=ga&DosId=199807">Gaeilge (ga)<\/option>');
 
 
 
@@ -664,7 +664,7 @@ document.location=item;
 
 
 
-	        	document.write('<option value="detail_dossier_real.cfm?CL=it&DosId=193517">Italiano (it)<\/option>');
+                document.write('<option value="detail_dossier_real.cfm?CL=it&DosId=199807">Italiano (it)<\/option>');
 
 
 
@@ -676,7 +676,7 @@ document.location=item;
 
 
 
-	        	document.write('<option value="detail_dossier_real.cfm?CL=lv&DosId=193517">Latviešu valoda (lv)<\/option>');
+                document.write('<option value="detail_dossier_real.cfm?CL=lv&DosId=199807">Latviešu valoda (lv)<\/option>');
 
 
 
@@ -688,7 +688,7 @@ document.location=item;
 
 
 
-	        	document.write('<option value="detail_dossier_real.cfm?CL=lt&DosId=193517">Lietuvių kalba (lt)<\/option>');
+                document.write('<option value="detail_dossier_real.cfm?CL=lt&DosId=199807">Lietuvių kalba (lt)<\/option>');
 
 
 
@@ -700,7 +700,7 @@ document.location=item;
 
 
 
-	        	document.write('<option value="detail_dossier_real.cfm?CL=hu&DosId=193517">Magyar (hu)<\/option>');
+                document.write('<option value="detail_dossier_real.cfm?CL=hu&DosId=199807">Magyar (hu)<\/option>');
 
 
 
@@ -712,7 +712,7 @@ document.location=item;
 
 
 
-	        	document.write('<option value="detail_dossier_real.cfm?CL=mt&DosId=193517">Malti (mt)<\/option>');
+                document.write('<option value="detail_dossier_real.cfm?CL=mt&DosId=199807">Malti (mt)<\/option>');
 
 
 
@@ -724,7 +724,7 @@ document.location=item;
 
 
 
-	        	document.write('<option value="detail_dossier_real.cfm?CL=nl&DosId=193517">Nederlands (nl)<\/option>');
+                document.write('<option value="detail_dossier_real.cfm?CL=nl&DosId=199807">Nederlands (nl)<\/option>');
 
 
 
@@ -736,7 +736,7 @@ document.location=item;
 
 
 
-	        	document.write('<option value="detail_dossier_real.cfm?CL=pl&DosId=193517">Polski (pl)<\/option>');
+                document.write('<option value="detail_dossier_real.cfm?CL=pl&DosId=199807">Polski (pl)<\/option>');
 
 
 
@@ -748,7 +748,7 @@ document.location=item;
 
 
 
-	        	document.write('<option value="detail_dossier_real.cfm?CL=pt&DosId=193517">Português (pt)<\/option>');
+                document.write('<option value="detail_dossier_real.cfm?CL=pt&DosId=199807">Português (pt)<\/option>');
 
 
 
@@ -760,7 +760,7 @@ document.location=item;
 
 
 
-	        	document.write('<option value="detail_dossier_real.cfm?CL=ro&DosId=193517">Român (ro)<\/option>');
+                document.write('<option value="detail_dossier_real.cfm?CL=ro&DosId=199807">Român (ro)<\/option>');
 
 
 
@@ -772,7 +772,7 @@ document.location=item;
 
 
 
-	        	document.write('<option value="detail_dossier_real.cfm?CL=sk&DosId=193517">Slovenčina (sk)<\/option>');
+                document.write('<option value="detail_dossier_real.cfm?CL=sk&DosId=199807">Slovenčina (sk)<\/option>');
 
 
 
@@ -784,7 +784,7 @@ document.location=item;
 
 
 
-	        	document.write('<option value="detail_dossier_real.cfm?CL=sl&DosId=193517">Slovenščina (sl)<\/option>');
+                document.write('<option value="detail_dossier_real.cfm?CL=sl&DosId=199807">Slovenščina (sl)<\/option>');
 
 
 
@@ -796,7 +796,7 @@ document.location=item;
 
 
 
-	        	document.write('<option value="detail_dossier_real.cfm?CL=fi&DosId=193517">Suomi (fi)<\/option>');
+                document.write('<option value="detail_dossier_real.cfm?CL=fi&DosId=199807">Suomi (fi)<\/option>');
 
 
 
@@ -808,29 +808,29 @@ document.location=item;
 
 
 
-	        	document.write('<option value="detail_dossier_real.cfm?CL=sv&DosId=193517">Svenska (sv)<\/option>');
+                document.write('<option value="detail_dossier_real.cfm?CL=sv&DosId=199807">Svenska (sv)<\/option>');
 
 
 
-	document.write('<\/select>');
+    document.write('<\/select>');
 </script>
 
 <!-- END OF LANGUAGE DROP-DOWN SECTION -->
 
-		</div><!-- Language // -->
+        </div><!-- Language // -->
 
-		<div id="breadcrumbs">
+        <div id="breadcrumbs">
 
-		<a href="http://ec.europa.eu/index_en.htm">The European Commission</a>
-				&gt;
-				PreLex
+        <a href="http://ec.europa.eu/index_en.htm">The European Commission</a>
+                &gt;
+                PreLex
 
-		</div><!-- breadcrumbs // -->
-	</div><!-- Header // -->
+        </div><!-- breadcrumbs // -->
+    </div><!-- Header // -->
 
-	<!-- PAGE PATH -->
-	<div align="left">
-		<!-- OTHER TOOLS -->
+    <!-- PAGE PATH -->
+    <div align="left">
+        <!-- OTHER TOOLS -->
 
 
 
@@ -843,39 +843,39 @@ document.location=item;
 
 
 
-	<script language="JavaScript1.2">
-	/* opens window manual */
-	function OpenWin_manual(pageurl)
-	{
-	  var params='toolbar=no,location=no,menubar=no,directories=no,status=no,'
-	             + 'scrollbars=no,resizable=yes,copyhistory=no,'
-		         + 'width=600,height=300';
-	  intLeft=screen.width/2 - 300;
-	  params=params + ',RIGHT=' + intLeft;
-	  f=window.open(pageurl,'manual',params);
-	  f.focus();
-	}
-	</script>
+    <script language="JavaScript1.2">
+    /* opens window manual */
+    function OpenWin_manual(pageurl)
+    {
+      var params ='toolbar=no,location=no,menubar=no,directories=no,status=no,'
+                 + 'scrollbars=no,resizable=yes,copyhistory=no,'
+                 + 'width=600,height=300';
+      intLeft = screen.width/2 - 300;
+      params = params + ',RIGHT=' + intLeft;
+      f = window.open(pageurl,'manual',params);
+      f.focus();
+    }
+    </script>
 
 
 
-				&nbsp;
+                &nbsp;
 
-   			    <a href="http://ec.europa.eu/prelex/apcnet.cfm?CL=en" id="tl_simplesearch" class="toolslinks" target="_parent">PreLex home page</a>
-				&nbsp;|&nbsp;
-				<span class="bottom-navigation">
-					<strong>Search</strong>
-				</span>
-				<span class="backgroundtoolslinks">
-					&gt;
-	   			    <a href="http://ec.europa.eu/prelex/rech_simple.cfm?CL=en" id="tl_simplesearch" class="toolslinks" target="_parent">Standard</a>
-					&gt;
-	   			    <a href="http://ec.europa.eu/prelex/rech_avancee.cfm?CL=en" id="tl_advancedsearch" class="toolslinks" target="_parent">Advanced</a>
+                <a href="http://ec.europa.eu/prelex/apcnet.cfm?CL=en" id="tl_simplesearch" class="toolslinks" target="_parent">PreLex home page</a>
+                &nbsp;|&nbsp;
+                <span class="bottom-navigation">
+                    <strong>Search</strong>
+                </span>
+                <span class="backgroundtoolslinks">
+                    &gt;
+                    <a href="http://ec.europa.eu/prelex/rech_simple.cfm?CL=en" id="tl_simplesearch" class="toolslinks" target="_parent">Standard</a>
+                    &gt;
+                    <a href="http://ec.europa.eu/prelex/rech_avancee.cfm?CL=en" id="tl_advancedsearch" class="toolslinks" target="_parent">Advanced</a>
 
-					&nbsp;|&nbsp;
-				</span>
+                    &nbsp;|&nbsp;
+                </span>
 
-				<span class="backgroundtoolslinks">
+                <span class="backgroundtoolslinks">
 
 
 
@@ -938,7 +938,7 @@ document.location=item;
 
 
 
-		<a href="#" class="toolslinks" onClick="OpenWin_manual('ct/sgv_manual_dsp_main.cfm?manualcat_id=prelex&cl=en')" id="tl_legissearch">
+        <a href="#" class="toolslinks" onClick="OpenWin_manual('ct/sgv_manual_dsp_main.cfm?manualcat_id=prelex&cl=en')" id="tl_legissearch">
 
 
 
@@ -1009,7 +1009,7 @@ Description of the database
 
 
 
-	</a>
+    </a>
 
 
 
@@ -1018,24 +1018,24 @@ Description of the database
 
 
 
-					&nbsp;|&nbsp;
-				</span>
-				<span class="backgroundtoolslinks">
+                    &nbsp;|&nbsp;
+                </span>
+                <span class="backgroundtoolslinks">
 
 
-	   			    <a href="http://eur-lex.europa.eu/en/droit_communautaire/droit_communautaire.htm " id="tl_instit" class="toolslinks" target="_parent">Players</a>
+                    <a href="http://eur-lex.europa.eu/en/droit_communautaire/droit_communautaire.htm " id="tl_instit" class="toolslinks" target="_parent">Players</a>
 
-				</span>
-
-
-
+                </span>
 
 
 
-	</div>
-	</form>
 
-	<!-- CONTENT OF THE PAGE -->
+
+
+    </div>
+    </form>
+
+    <!-- CONTENT OF THE PAGE -->
 
 
 
@@ -1068,12 +1068,12 @@ Description of the database
 
 
 <table width="95%" align="center" border="0" cellpadding="0" cellspacing="0">
-	<tr>
-		<td>
+    <tr>
+        <td>
 
-			<table border="0" cellpadding="0" cellspacing="0" >
-				<tr>
-					<td valign="top">
+            <table border="0" cellpadding="0" cellspacing="0" >
+                <tr>
+                    <td valign="top">
 
 
 
@@ -1125,34 +1125,20 @@ Description of the database
 
 
 <table border="0" cellpadding="0" cellspacing="0">
-	<tr>
+    <tr>
 
 
 
-			<td colspan="3" height="6" bgcolor="#C0C0FF" width="140"><img src="http://ec.europa.eu/prelex/images/topall.gif" border="0" height="6" width="140"></td>
-
-
-
-
-			<td colspan="3" height="6" bgcolor="#C0C0C0" width="140"><img src="http://ec.europa.eu/prelex/images/topall.gif" border="0" height="6" width="140"></td>
-
-
-	</tr>
-	<tr>
+            <td colspan="3" height="6" bgcolor="#C0C0FF" width="140"><img src="http://ec.europa.eu/prelex/images/topall.gif" border="0" height="6" width="140"></td>
 
 
 
 
+            <td colspan="3" height="6" bgcolor="#C0C0C0" width="140"><img src="http://ec.europa.eu/prelex/images/topall.gif" border="0" height="6" width="140"></td>
 
 
-
-
-
-			<td width="1" height="16"><img src="http://ec.europa.eu/prelex/images/topleft.gif" border="0" width="1" height="16"></td>
-
-				<td bgcolor="#C0C0FF" width="138" height="16" align="center"><div class="tab">Detail</div></td>
-
-			<td width="1" height="16"><img src="http://ec.europa.eu/prelex/images/topright.gif" border="0" width="1" height="16"></td>
+    </tr>
+    <tr>
 
 
 
@@ -1162,43 +1148,57 @@ Description of the database
 
 
 
+            <td width="1" height="16"><img src="http://ec.europa.eu/prelex/images/topleft.gif" border="0" width="1" height="16"></td>
 
-			<td width="1" height="16"><img src="http://ec.europa.eu/prelex/images/topleft.gif" border="0" width="1" height="16"></td>
+                <td bgcolor="#C0C0FF" width="138" height="16" align="center"><div class="tab">Detail</div></td>
 
-				<td bgcolor="#C0C0C0" width="138" height="16" align="center"><a href="http://ec.europa.eu/prelex/detail_dossier_print.cfm?CL=en&DosID=193517" class="tab">Print</a></td>
-
-			<td width="1" height="16"><img src="http://ec.europa.eu/prelex/images/topright.gif" border="0" width="1" height="16"></td>
-
-
-	</tr>
-	<tr>
-
-
-
-
-				<td colspan="3" width="140" height="1" bgcolor="#C0C0FF"></td>
+            <td width="1" height="16"><img src="http://ec.europa.eu/prelex/images/topright.gif" border="0" width="1" height="16"></td>
 
 
 
 
 
-				<td colspan="3" width="#TabWidth#" height="1" bgcolor="#A0A0A0"></td>
 
 
-	</tr>
+
+
+
+            <td width="1" height="16"><img src="http://ec.europa.eu/prelex/images/topleft.gif" border="0" width="1" height="16"></td>
+
+                <td bgcolor="#C0C0C0" width="138" height="16" align="center"><a href="http://ec.europa.eu/prelex/detail_dossier_print.cfm?CL=en&DosID=199807" class="tab">Print</a></td>
+
+            <td width="1" height="16"><img src="http://ec.europa.eu/prelex/images/topright.gif" border="0" width="1" height="16"></td>
+
+
+    </tr>
+    <tr>
+
+
+
+
+                <td colspan="3" width="140" height="1" bgcolor="#C0C0FF"></td>
+
+
+
+
+
+                <td colspan="3" width="#TabWidth#" height="1" bgcolor="#A0A0A0"></td>
+
+
+    </tr>
 </table>
 
 
 
 
 </td>
-				</tr>
-			</table>
-		</td>
-	</tr>
+                </tr>
+            </table>
+        </td>
+    </tr>
 
-	<tr>
-		<td>
+    <tr>
+        <td>
 
 
 
@@ -1209,39 +1209,39 @@ Description of the database
 
 
 <table BORDER="0" WIDTH="100%" bgcolor="#C0C0FF">
-	<tr>
-	<td>
-	    <table CELLPADDING=2 WIDTH="100%" Border="0">
-			<tr>
-				<td ALIGN=LEFT VALIGN=TOP WIDTH="50%">
-					<b><font face="Arial"><font size=-1>COM&nbsp;(2005)&nbsp;566</font></font></b>
-				</td>
-				<td ALIGN=LEFT VALIGN=TOP WIDTH="50%">
+    <tr>
+    <td>
+        <table CELLPADDING=2 WIDTH="100%" Border="0">
+            <tr>
+                <td ALIGN=LEFT VALIGN=TOP WIDTH="50%">
+                    <b><font face="Arial"><font size=-1>COM&nbsp;(2010)&nbsp;611</font></font></b>
+                </td>
+                <td ALIGN=LEFT VALIGN=TOP WIDTH="50%">
 
 
 
-					<b><font face="Arial"><font size=-1>2005/0223/COD</font></font></b>
-				</td>
-				<td ALIGN=RIGHT VALIGN=TOP>
-				</td>
-			</tr>
-			<tr>
-				<td ALIGN=LEFT VALIGN=TOP COLSPAN="3" WIDTH="100%">
+                    <b><font face="Arial"><font size=-1>2010/0303/COD</font></font></b>
+                </td>
+                <td ALIGN=RIGHT VALIGN=TOP>
+                </td>
+            </tr>
+            <tr>
+                <td ALIGN=LEFT VALIGN=TOP COLSPAN="3" WIDTH="100%">
 
-					<font face="Arial"><font size=-2>Proposal for a REGULATION OF THE EUROPEAN PARLIAMENT AND OF THE COUNCIL on the submission of data on landings of fishery products in Member States</font></font>
+                    <font face="Arial"><font size=-2>Proposal for a REGULATION (EU) […/….] OF THE EUROPEAN PARLIAMENT AND OF THE COUNCIL amending Regulation (EC) No 1406/2002 establishing a European Maritime Safety Agency</font></font>
 
-				</td>
-			</tr>
+                </td>
+            </tr>
 
 
 
-					<tr><td ALIGN="RIGHT" VALIGN="TOP" COLSPAN="3" WIDTH="100%">
+                    <tr><td ALIGN="RIGHT" VALIGN="TOP" COLSPAN="3" WIDTH="100%">
 
 
 
 
 
-					</td></tr>
+                    </td></tr>
 
 
 
@@ -1253,12 +1253,13 @@ Description of the database
 
 
 
-					<tr><td ALIGN="RIGHT" VALIGN="TOP" COLSPAN="3" WIDTH="100%">
+                    <tr><td ALIGN="RIGHT" VALIGN="TOP" COLSPAN="3" WIDTH="100%">
 
 
 
 
 
+                    </td></tr>
 
 
 
@@ -1271,34 +1272,33 @@ Description of the database
 
 
 
-					</td></tr>
 
 
 
-					<tr><td ALIGN="RIGHT" VALIGN="TOP" COLSPAN="3" WIDTH="100%">
 
 
 
 
+                    <tr><td ALIGN="RIGHT" VALIGN="TOP" COLSPAN="3" WIDTH="100%">
 
-					</td></tr>
 
 
 
 
+                    </td></tr>
 
 
 
+                    <tr><td ALIGN="RIGHT" VALIGN="TOP" COLSPAN="3" WIDTH="100%">
 
 
 
 
-					<tr><td ALIGN="RIGHT" VALIGN="TOP" COLSPAN="3" WIDTH="100%">
+                            <font face="Arial"><font size=-2><strong>Community legislation in force</strong></font></font>
 
 
 
 
-							<font face="Arial"><font size=-2><strong>Community legislation in force</strong></font></font>
 
 
 
@@ -1334,31 +1334,27 @@ Description of the database
 
 
 
+    <a href="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CELEX:32013R0100:EN:NOT" ONMOUSEOUT="isimgact2( 'doc_pin_25', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_25', 'images/doc_pinon.gif')"><img SRC="http://ec.europa.eu/prelex/images/doc_pin.gif" BORDER=0 height=15 width=15  NAME="doc_pin_25" ALT="Document Celex"></a>
+    &nbsp;
+    <a href="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CELEX:32013R0100:EN:NOT" ONMOUSEOUT="isimgact2( 'doc_pin_25', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_25', 'images/doc_pinon.gif')">
 
+        <font face="Arial"><font size=-2>32013R0100</font></font>
 
+    </a>
 
 
-	<a href="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CELEX:32006R1921:EN:NOT" ONMOUSEOUT="isimgact2( 'doc_pin_30', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_30', 'images/doc_pinon.gif')"><img SRC="http://ec.europa.eu/prelex/images/doc_pin.gif" BORDER=0 height=15 width=15  NAME="doc_pin_30" ALT="Document Celex"></a>
-	&nbsp;
-	<a href="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CELEX:32006R1921:EN:NOT" ONMOUSEOUT="isimgact2( 'doc_pin_30', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_30', 'images/doc_pinon.gif')">
 
-		<font face="Arial"><font size=-2>32006R1921</font></font>
 
-	</a>
 
 
+                    </td></tr>
 
 
 
 
-					</td></tr>
-
-
-
-
-		</table>
-	</td>
-	</tr>
+        </table>
+    </td>
+    </tr>
 </table>
 
 
@@ -4399,12 +4395,1753 @@ Description of the database
 
 
 
-	<table width="100%">
-		<tr>
-			<td width="100%"><table border="0" cellpadding="0" cellspacing="0" width="100%"><tr><td width="100%" background="images/background_blue2.gif"><font face="Arial,Helvetica" size="-2">European Commission</font></td><td background="images/background_blue1.gif" valign="center" align="left"><a href="#374673" onMouseOver="visiondata('Adoption by Commission','11-11-2005','<img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> ')" onMouseOut="cachedata()"><img src="http://ec.europa.eu/prelex/images/bullet_blue1.gif" border="0" align="middle" width="8"></a><img src="http://ec.europa.eu/prelex/images/clearpixel.gif" width="257" height="16" border="0" align="middle"><a href="#378807" onMouseOver="visiondata('Commission position on EP amendments on 1st reading','15-06-2006','')" onMouseOut="cachedata()"><img src="http://ec.europa.eu/prelex/images/bullet_blue1.gif" border="0" align="middle" width="8"></a><img src="http://ec.europa.eu/prelex/images/clearpixel.gif" width="177" height="16" border="0" align="middle"><a href="#381792" onMouseOver="visiondata('Adopt. declaration comn posit.','14-11-2006','<img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> ')" onMouseOut="cachedata()"><img src="http://ec.europa.eu/prelex/images/bullet_blue1.gif" border="0" align="middle" width="8"></a></td><td></td></tr><tr><td width="100%" background="images/background_purple2.gif"><font face="Arial,Helvetica" size="-2">European Parliament</font></td><td background="images/background_purple1.gif" valign="center" align="left"><img src="http://ec.europa.eu/prelex/images/clearpixel.gif" width="264" height="16" border="0" align="middle"><a href="#378646" onMouseOver="visiondata('EP opinion 1st rdg','15-06-2006','<img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> ')" onMouseOut="cachedata()"><img src="http://ec.europa.eu/prelex/images/bullet_blue1.gif" border="0" align="middle" width="8"></a><img src="http://ec.europa.eu/prelex/images/clearpixel.gif" width="181" height="16" border="0" align="middle"><a href="#381963" onMouseOver="visiondata('EP receipt of common position','16-11-2006','')" onMouseOut="cachedata()"><img src="http://ec.europa.eu/prelex/images/bullet_blue1.gif" border="0" align="middle" width="8"></a><img src="http://ec.europa.eu/prelex/images/clearpixel.gif" width="24" height="16" border="0" align="middle"><a href="#382451" onMouseOver="visiondata('EP opinion 2nd rdg','12-12-2006','<img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> ')" onMouseOut="cachedata()"><img src="http://ec.europa.eu/prelex/images/bullet_blue1.gif" border="0" align="middle" width="8"></a><a href="#383234" onMouseOver="visiondata('Signature by EP and Council','18-12-2006','<img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> ')" onMouseOut="cachedata()"><img src="http://ec.europa.eu/prelex/images/bullet_blue1.gif" border="0" align="middle" width="8"></a></td><td></td></tr><tr><td width="100%" background="images/background_green2.gif"><font face="Arial,Helvetica" size="-2">Council</font></td><td background="images/background_green1.gif" valign="center" align="left"><img src="http://ec.europa.eu/prelex/images/clearpixel.gif" width="450" height="16" border="0" align="middle"><a href="#381830" onMouseOver="visiondata('Adoption common position','14-11-2006','<img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> ')" onMouseOut="cachedata()"><img src="http://ec.europa.eu/prelex/images/bullet_blue1.gif" border="0" align="middle" width="8"></a><img src="http://ec.europa.eu/prelex/images/clearpixel.gif" width="34" height="16" border="0" align="middle"><a href="#383234" onMouseOver="visiondata('Signature by EP and Council','18-12-2006','<img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> ')" onMouseOut="cachedata()"><img src="http://ec.europa.eu/prelex/images/bullet_blue1.gif" border="0" align="middle" width="8"></a></td><td></td></tr><tr><td width="" background="#000000"></td><td height="8"><img src="http://ec.europa.eu/prelex/images/background_grey2.gif" width="25" height="8" border="0" alt="11-2005"><img src="http://ec.europa.eu/prelex/images/background_grey1.gif" width="39" height="8" border="0" alt="12-2005"><img src="http://ec.europa.eu/prelex/images/background_grey2.gif" width="38" height="8" border="0" alt="01-2006"><img src="http://ec.europa.eu/prelex/images/background_grey1.gif" width="35" height="8" border="0" alt="02-2006"><img src="http://ec.europa.eu/prelex/images/background_grey2.gif" width="39" height="8" border="0" alt="03-2006"><img src="http://ec.europa.eu/prelex/images/background_grey1.gif" width="37" height="8" border="0" alt="04-2006"><img src="http://ec.europa.eu/prelex/images/background_grey2.gif" width="39" height="8" border="0" alt="05-2006"><img src="http://ec.europa.eu/prelex/images/background_grey1.gif" width="37" height="8" border="0" alt="06-2006"><img src="http://ec.europa.eu/prelex/images/background_grey2.gif" width="39" height="8" border="0" alt="07-2006"><img src="http://ec.europa.eu/prelex/images/background_grey1.gif" width="38" height="8" border="0" alt="08-2006"><img src="http://ec.europa.eu/prelex/images/background_grey2.gif" width="37" height="8" border="0" alt="09-2006"><img src="http://ec.europa.eu/prelex/images/background_grey1.gif" width="39" height="8" border="0" alt="10-2006"><img src="http://ec.europa.eu/prelex/images/background_grey2.gif" width="37" height="8" border="0" alt="11-2006"><img src="http://ec.europa.eu/prelex/images/background_grey1.gif" width="21" height="8" border="0" alt="12-2006"></td><td><img src="http://ec.europa.eu/prelex/images/arrowright1.gif" width="16" height="8" border="0"></td></tr><tr><td></td><td><table width="100%" border="0" cellspacing="0" cellpadding="0"><td align="left" width="20%"><font face="Arial,Helvetica" size="-2">^<br>11-11-2005</font></td><td align="center" width="20%"><font face="Arial,Helvetica" size="-2">^<br>03-2006</font></td><td align="center" width="20%"><font face="Arial,Helvetica" size="-2">^<br>05-2006</font></td><td align="center" width="20%"><font face="Arial,Helvetica" size="-2">^<br>08-2006</font></td><td align="right" width="20%"><font face="Arial,Helvetica" size="-2">^<br>18-12-2006</font></td></table></td></tr></table></td>
 
-		</tr>
-	</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <table width="100%">
+        <tr>
+            <td width="100%"><table border="0" cellpadding="0" cellspacing="0" width="100%"><tr><td width="100%" background="images/background_blue2.gif"><font face="Arial,Helvetica" size="-2">European Commission</font></td><td background="images/background_blue1.gif" valign="center" align="left"><a href="#407754" onMouseOver="visioninfo('Adoption by Commission','28-10-2010','<img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> ')" onMouseOut="cacheinfo()"><img src="http://ec.europa.eu/prelex/images/bullet_blue1.gif" border="0" align="middle" width="8"></a><a href="#407756" onMouseOver="visioninfo('Supplement','28-10-2010','<img src=images/doc_pin.gif border=0> ')" onMouseOut="cacheinfo()"><img src="http://ec.europa.eu/prelex/images/bullet_blue1.gif" border="0" align="middle" width="8"></a><a href="#407755" onMouseOver="visioninfo('Supplement','28-10-2010','<img src=images/doc_pin.gif border=0> ')" onMouseOut="cacheinfo()"><img src="http://ec.europa.eu/prelex/images/bullet_blue1.gif" border="0" align="middle" width="8"></a></td><td></td></tr><tr><td width="100%" background="images/background_purple2.gif"><font face="Arial,Helvetica" size="-2">European Parliament</font></td><td background="images/background_purple1.gif" valign="center" align="left"><img src="http://ec.europa.eu/prelex/images/clearpixel.gif" width="250" height="16" border="0" align="middle"><a href="#415003" onMouseOver="visioninfo('EP opinion 1st rdg','15-12-2011','<img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> ')" onMouseOut="cacheinfo()"><img src="http://ec.europa.eu/prelex/images/bullet_blue1.gif" border="0" align="middle" width="8"></a><img src="http://ec.europa.eu/prelex/images/clearpixel.gif" width="213" height="16" border="0" align="middle"><a href="#420662" onMouseOver="visioninfo('EP opinion 2nd rdg','11-12-2012','<img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> ')" onMouseOut="cacheinfo()"><img src="http://ec.europa.eu/prelex/images/bullet_blue1.gif" border="0" align="middle" width="8"></a><img src="http://ec.europa.eu/prelex/images/clearpixel.gif" width="13" height="16" border="0" align="middle"><a href="#421462" onMouseOver="visioninfo('Signature by EP and Council','15-01-2013','<img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> ')" onMouseOut="cacheinfo()"><img src="http://ec.europa.eu/prelex/images/bullet_blue1.gif" border="0" align="middle" width="8"></a></td><td></td></tr><tr><td width="100%" background="images/background_green2.gif"><font face="Arial,Helvetica" size="-2">Council</font></td><td background="images/background_green1.gif" valign="center" align="left"><img src="http://ec.europa.eu/prelex/images/clearpixel.gif" width="93" height="16" border="0" align="middle"><a href="#410306" onMouseOver="visioninfo('Discussions at Council','31-03-2011','<img src=images/doc_pin.gif border=0> ')" onMouseOut="cacheinfo()"><img src="http://ec.europa.eu/prelex/images/bullet_blue1.gif" border="0" align="middle" width="8"></a><img src="http://ec.europa.eu/prelex/images/clearpixel.gif" width="39" height="16" border="0" align="middle"><a href="#411569" onMouseOver="visioninfo('Discussions at Council','16-06-2011','<img src=images/doc_pin.gif border=0> ')" onMouseOut="cacheinfo()"><img src="http://ec.europa.eu/prelex/images/bullet_blue1.gif" border="0" align="middle" width="8"></a><img src="http://ec.europa.eu/prelex/images/clearpixel.gif" width="344" height="16" border="0" align="middle"><a href="#421462" onMouseOver="visioninfo('Signature by EP and Council','15-01-2013','<img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> ')" onMouseOut="cacheinfo()"><img src="http://ec.europa.eu/prelex/images/bullet_blue1.gif" border="0" align="middle" width="8"></a></td><td></td></tr><tr><td width="100%" background="images/background_red2.gif"><font face="Arial,Helvetica" size="-2">European Economic and Social Committee</font></td><td background="images/background_red1.gif" valign="center" align="left"><img src="http://ec.europa.eu/prelex/images/clearpixel.gif" width="67" height="16" border="0" align="middle"><a href="#409759" onMouseOver="visioninfo('EESC opinion','16-02-2011','<img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> <img src=images/doc_pin.gif border=0> ')" onMouseOut="cacheinfo()"><img src="http://ec.europa.eu/prelex/images/bullet_blue1.gif" border="0" align="middle" width="8"></a></td><td></td></tr><tr><td width="" background="#000000"></td><td height="8"><img src="http://ec.europa.eu/prelex/images/background_grey1.gif" width="3" height="8" border="0" alt="10-2010"><img src="http://ec.europa.eu/prelex/images/background_grey2.gif" width="18" height="8" border="0" alt="11-2010"><img src="http://ec.europa.eu/prelex/images/background_grey1.gif" width="20" height="8" border="0" alt="12-2010"><img src="http://ec.europa.eu/prelex/images/background_grey2.gif" width="19" height="8" border="0" alt="01-2011"><img src="http://ec.europa.eu/prelex/images/background_grey1.gif" width="17" height="8" border="0" alt="02-2011"><img src="http://ec.europa.eu/prelex/images/background_grey2.gif" width="19" height="8" border="0" alt="03-2011"><img src="http://ec.europa.eu/prelex/images/background_grey1.gif" width="19" height="8" border="0" alt="04-2011"><img src="http://ec.europa.eu/prelex/images/background_grey2.gif" width="19" height="8" border="0" alt="05-2011"><img src="http://ec.europa.eu/prelex/images/background_grey1.gif" width="18" height="8" border="0" alt="06-2011"><img src="http://ec.europa.eu/prelex/images/background_grey2.gif" width="19" height="8" border="0" alt="07-2011"><img src="http://ec.europa.eu/prelex/images/background_grey1.gif" width="20" height="8" border="0" alt="08-2011"><img src="http://ec.europa.eu/prelex/images/background_grey2.gif" width="18" height="8" border="0" alt="09-2011"><img src="http://ec.europa.eu/prelex/images/background_grey1.gif" width="19" height="8" border="0" alt="10-2011"><img src="http://ec.europa.eu/prelex/images/background_grey2.gif" width="19" height="8" border="0" alt="11-2011"><img src="http://ec.europa.eu/prelex/images/background_grey1.gif" width="19" height="8" border="0" alt="12-2011"><img src="http://ec.europa.eu/prelex/images/background_grey2.gif" width="19" height="8" border="0" alt="01-2012"><img src="http://ec.europa.eu/prelex/images/background_grey1.gif" width="18" height="8" border="0" alt="02-2012"><img src="http://ec.europa.eu/prelex/images/background_grey2.gif" width="19" height="8" border="0" alt="03-2012"><img src="http://ec.europa.eu/prelex/images/background_grey1.gif" width="19" height="8" border="0" alt="04-2012"><img src="http://ec.europa.eu/prelex/images/background_grey2.gif" width="19" height="8" border="0" alt="05-2012"><img src="http://ec.europa.eu/prelex/images/background_grey1.gif" width="18" height="8" border="0" alt="06-2012"><img src="http://ec.europa.eu/prelex/images/background_grey2.gif" width="19" height="8" border="0" alt="07-2012"><img src="http://ec.europa.eu/prelex/images/background_grey1.gif" width="20" height="8" border="0" alt="08-2012"><img src="http://ec.europa.eu/prelex/images/background_grey2.gif" width="18" height="8" border="0" alt="09-2012"><img src="http://ec.europa.eu/prelex/images/background_grey1.gif" width="19" height="8" border="0" alt="10-2012"><img src="http://ec.europa.eu/prelex/images/background_grey2.gif" width="19" height="8" border="0" alt="11-2012"><img src="http://ec.europa.eu/prelex/images/background_grey1.gif" width="19" height="8" border="0" alt="12-2012"><img src="http://ec.europa.eu/prelex/images/background_grey2.gif" width="8" height="8" border="0" alt="01-2013"></td><td><img src="http://ec.europa.eu/prelex/images/arrowright1.gif" width="16" height="8" border="0"></td></tr><tr><td></td><td><table width="100%" border="0" cellspacing="0" cellpadding="0"><td align="left" width="20%"><font face="Arial,Helvetica" size="-2">^<br>28-10-2010</font></td><td align="center" width="20%"><font face="Arial,Helvetica" size="-2">^<br>06-2011</font></td><td align="center" width="20%"><font face="Arial,Helvetica" size="-2">^<br>12-2011</font></td><td align="center" width="20%"><font face="Arial,Helvetica" size="-2">^<br>05-2012</font></td><td align="right" width="20%"><font face="Arial,Helvetica" size="-2">^<br>15-01-2013</font></td></table></td></tr></table></td>
+
+        </tr>
+    </table>
 
 
 
@@ -4416,9 +6153,9 @@ Description of the database
 
 
 <table width="100%">
-	<tr>
-		<td width="" valign="top" class="texte">
-			<strong>&nbsp;&nbsp;Events:</strong><br><br>
+    <tr>
+        <td width="" valign="top" class="texte">
+            <strong>&nbsp;&nbsp;Events:</strong><br><br>
 
 
 
@@ -4432,242 +6169,310 @@ Description of the database
 
 <table border="0" cellpadding="0" cellspacing="1">
 
-	<tr>
+    <tr>
 
-		<td>
-			<div align="left">
-				<span class="exemple">
+        <td>
+            <div align="left">
+                <span class="exemple">
 
-					<a href="#374673" style="color: Black;">
-					Adoption by Commission</a>
-					<br>&nbsp;&nbsp;11-11-2005
+                    <a href="#407754" style="color: Black;">
+                    Adoption by Commission</a>
+                    <br>&nbsp;&nbsp;28-10-2010
 
-				</span>
-			</div>
+                </span>
+            </div>
 
 
-		</td>
-	</tr>
+        </td>
+    </tr>
 
-	<tr>
+    <tr>
 
-		<td>
-			<div align="left">
-				<span class="exemple">
+        <td>
+            <div align="left">
+                <span class="exemple">
 
-					<a href="#374674" style="color: Black;">
-					Transmission to Council</a>
-					<br>&nbsp;&nbsp;11-11-2005
+                    <a href="#407757" style="color: Black;">
+                    Transmission to Council</a>
+                    <br>&nbsp;&nbsp;28-10-2010
 
-				</span>
-			</div>
+                </span>
+            </div>
 
 
-		</td>
-	</tr>
+        </td>
+    </tr>
 
-	<tr>
+    <tr>
 
-		<td>
-			<div align="left">
-				<span class="exemple">
+        <td>
+            <div align="left">
+                <span class="exemple">
 
-					<a href="#374675" style="color: Black;">
-					Transmission to EP</a>
-					<br>&nbsp;&nbsp;11-11-2005
+                    <a href="#407758" style="color: Black;">
+                    Transmission to EP</a>
+                    <br>&nbsp;&nbsp;28-10-2010
 
-				</span>
-			</div>
+                </span>
+            </div>
 
 
-		</td>
-	</tr>
+        </td>
+    </tr>
 
-	<tr>
+    <tr>
 
-		<td>
-			<div align="left">
-				<span class="exemple">
+        <td>
+            <div align="left">
+                <span class="exemple">
 
-					<a href="#378646" style="color: Black;">
-					EP opinion 1st rdg</a>
-					<br>&nbsp;&nbsp;15-06-2006
+                    <a href="#407756" style="color: Black;">
+                    Supplement</a>
+                    <br>&nbsp;&nbsp;28-10-2010
 
-				</span>
-			</div>
+                </span>
+            </div>
 
 
-		</td>
-	</tr>
+        </td>
+    </tr>
 
-	<tr>
+    <tr>
 
-		<td>
-			<div align="left">
-				<span class="exemple">
+        <td>
+            <div align="left">
+                <span class="exemple">
 
-					<a href="#378807" style="color: Black;">
-					Commission position on EP amendments on 1st reading</a>
-					<br>&nbsp;&nbsp;15-06-2006
+                    <a href="#407755" style="color: Black;">
+                    Supplement</a>
+                    <br>&nbsp;&nbsp;28-10-2010
 
-				</span>
-			</div>
+                </span>
+            </div>
 
 
-		</td>
-	</tr>
+        </td>
+    </tr>
 
-	<tr>
+    <tr>
 
-		<td>
-			<div align="left">
-				<span class="exemple">
+        <td>
+            <div align="left">
+                <span class="exemple">
 
-					<a href="#381830" style="color: Black;">
-					Adoption common position</a>
-					<br>&nbsp;&nbsp;14-11-2006
+                    <a href="#409759" style="color: Black;">
+                    EESC opinion</a>
+                    <br>&nbsp;&nbsp;16-02-2011
 
-				</span>
-			</div>
+                </span>
+            </div>
 
 
-		</td>
-	</tr>
+        </td>
+    </tr>
 
-	<tr>
+    <tr>
 
-		<td>
-			<div align="left">
-				<span class="exemple">
+        <td>
+            <div align="left">
+                <span class="exemple">
 
-					<a href="#381792" style="color: Black;">
-					Adopt. declaration comn posit.</a>
-					<br>&nbsp;&nbsp;14-11-2006
+                    <a href="#410306" style="color: Black;">
+                    Discussions at Council</a>
+                    <br>&nbsp;&nbsp;31-03-2011
 
-				</span>
-			</div>
+                </span>
+            </div>
 
 
-		</td>
-	</tr>
+        </td>
+    </tr>
 
-	<tr>
+    <tr>
 
-		<td>
-			<div align="left">
-				<span class="exemple">
+        <td>
+            <div align="left">
+                <span class="exemple">
 
-					<a href="#381793" style="color: Black;">
-					Trans. Council decl. cmn posn </a>
-					<br>&nbsp;&nbsp;15-11-2006
+                    <a href="#411569" style="color: Black;">
+                    Discussions at Council</a>
+                    <br>&nbsp;&nbsp;16-06-2011
 
-				</span>
-			</div>
+                </span>
+            </div>
 
 
-		</td>
-	</tr>
+        </td>
+    </tr>
 
-	<tr>
+    <tr>
 
-		<td>
-			<div align="left">
-				<span class="exemple">
+        <td>
+            <div align="left">
+                <span class="exemple">
 
-					<a href="#381794" style="color: Black;">
-					Trans. EP decl. cmn posn </a>
-					<br>&nbsp;&nbsp;15-11-2006
+                    <a href="#415003" style="color: Black;">
+                    EP opinion 1st rdg</a>
+                    <br>&nbsp;&nbsp;15-12-2011
 
-				</span>
-			</div>
+                </span>
+            </div>
 
 
-		</td>
-	</tr>
+        </td>
+    </tr>
 
-	<tr>
+    <tr>
 
-		<td>
-			<div align="left">
-				<span class="exemple">
+        <td>
+            <div align="left">
+                <span class="exemple">
 
-					<a href="#381963" style="color: Black;">
-					EP receipt of common position</a>
-					<br>&nbsp;&nbsp;16-11-2006
+                    <a href="#419611" style="color: Black;">
+                    N.C.</a>
+                    <br>&nbsp;&nbsp;04-10-2012
 
-				</span>
-			</div>
+                </span>
+            </div>
 
 
-		</td>
-	</tr>
+        </td>
+    </tr>
 
-	<tr>
+    <tr>
 
-		<td>
-			<div align="left">
-				<span class="exemple">
+        <td>
+            <div align="left">
+                <span class="exemple">
 
-					<a href="#382451" style="color: Black;">
-					EP opinion 2nd rdg</a>
-					<br>&nbsp;&nbsp;12-12-2006
+                    <a href="#419680" style="color: Black;">
+                    N.C.</a>
+                    <br>&nbsp;&nbsp;16-10-2012
 
-				</span>
-			</div>
+                </span>
+            </div>
 
 
-		</td>
-	</tr>
+        </td>
+    </tr>
 
-	<tr>
+    <tr>
 
-		<td>
-			<div align="left">
-				<span class="exemple">
+        <td>
+            <div align="left">
+                <span class="exemple">
 
-					<a href="#383234" style="color: Black;">
-					Signature by EP and Council</a>
-					<br>&nbsp;&nbsp;18-12-2006
+                    <a href="#419678" style="color: Black;">
+                    N.C.</a>
+                    <br>&nbsp;&nbsp;16-10-2012
 
-				</span>
-			</div>
+                </span>
+            </div>
 
 
-		</td>
-	</tr>
+        </td>
+    </tr>
+
+    <tr>
+
+        <td>
+            <div align="left">
+                <span class="exemple">
+
+                    <a href="#419679" style="color: Black;">
+                    N.C.</a>
+                    <br>&nbsp;&nbsp;16-10-2012
+
+                </span>
+            </div>
+
+
+        </td>
+    </tr>
+
+    <tr>
+
+        <td>
+            <div align="left">
+                <span class="exemple">
+
+                    <a href="#419935" style="color: Black;">
+                    N.C.</a>
+                    <br>&nbsp;&nbsp;25-10-2012
+
+                </span>
+            </div>
+
+
+        </td>
+    </tr>
+
+    <tr>
+
+        <td>
+            <div align="left">
+                <span class="exemple">
+
+                    <a href="#420662" style="color: Black;">
+                    EP opinion 2nd rdg</a>
+                    <br>&nbsp;&nbsp;11-12-2012
+
+                </span>
+            </div>
+
+
+        </td>
+    </tr>
+
+    <tr>
+
+        <td>
+            <div align="left">
+                <span class="exemple">
+
+                    <a href="#421462" style="color: Black;">
+                    Signature by EP and Council</a>
+                    <br>&nbsp;&nbsp;15-01-2013
+
+                </span>
+            </div>
+
+
+        </td>
+    </tr>
 
 </table>
 
 
 
 
-	<p><u><font face="arial"><font size=-2>Activities of the institutions:</font></font></u>
-	<table>
-		<tr>
-			<td valign="top">
+    <p><u><font face="arial"><font size=-2>Activities of the institutions:</font></font></u>
+    <table>
+        <tr>
+            <td valign="top">
 
-				<A HREF="http://wwwdb.europarl.europa.eu/oeil/oeil_ViewDNL.ProcViewByNum?lang=2&procnum=COD/2005/0223"  ONMOUSEOUT="isimgact( 'btn_oeil', 'btn_nav_pinoff')" ONMOUSEOVER="isimgact( 'btn_oeil', 'btn_nav_pinon')">
+                <A HREF="http://wwwdb.europarl.europa.eu/oeil/oeil_ViewDNL.ProcViewByNum?lang=2&procnum=COD/2010/0303"  ONMOUSEOUT="isimgact( 'btn_oeil', 'btn_nav_pinoff')" ONMOUSEOVER="isimgact( 'btn_oeil', 'btn_nav_pinon')">
 
-				<IMG SRC="http://ec.europa.eu/prelex/images/btn.gif" WIDTH="10" HEIGHT="10" NAME="btn_oeil" BORDER="0">
-				</a>
+                <IMG SRC="http://ec.europa.eu/prelex/images/btn.gif" WIDTH="10" HEIGHT="10" NAME="btn_oeil" BORDER="0">
+                </a>
 
-			</td>
-			<td>
+            </td>
+            <td>
 
-				<A HREF="http://wwwdb.europarl.europa.eu/oeil/oeil_ViewDNL.ProcViewByNum?lang=2&procnum=COD/2005/0223" ONMOUSEOUT="isimgact( 'btn_oeil', 'btn_nav_pinoff')" ONMOUSEOVER="isimgact( 'btn_oeil', 'btn_nav_pinon')">
+                <A HREF="http://wwwdb.europarl.europa.eu/oeil/oeil_ViewDNL.ProcViewByNum?lang=2&procnum=COD/2010/0303" ONMOUSEOUT="isimgact( 'btn_oeil', 'btn_nav_pinoff')" ONMOUSEOVER="isimgact( 'btn_oeil', 'btn_nav_pinon')">
 
-				<font face="arial" size=-2>
-				OEIL</font>
-				</a>
-			</td>
-		</tr>
-	</table>
-
-
+                <font face="arial" size=-2>
+                OEIL</font>
+                </a>
+            </td>
+        </tr>
+    </table>
 
 
-		</td>
-		<td width="70%" valign="top">
+
+
+        </td>
+        <td width="70%" valign="top">
 
 
 
@@ -4677,36 +6482,36 @@ Description of the database
 
 
 
-	<tr>
-		<td BGCOLOR="#AEFFAE">
-			<center>
-			<font face="Arial,Helvetica" size=-2>Fields of activity:</font>
-			</center>
-		</td>
-		<td BGCOLOR="#EEEEEE">
-			<font face="Arial,Helvetica" size=-2>
+    <tr>
+        <td BGCOLOR="#AEFFAE">
+            <center>
+            <font face="Arial,Helvetica" size=-2>Fields of activity:</font>
+            </center>
+        </td>
+        <td BGCOLOR="#EEEEEE">
+            <font face="Arial,Helvetica" size=-2>
 
-			</font>
-		</td>
-	</tr>
+            </font>
+        </td>
+    </tr>
 
 
 
-	<tr>
-		<td BGCOLOR="#CEFFCE">
-			<center>
-				<font face="Arial,Helvetica" size=-2>
-				Legal basis:
-				</font>
-			</center>
-		</td>
-		<td BGCOLOR="#FFFFFF">
+    <tr>
+        <td BGCOLOR="#CEFFCE">
+            <center>
+                <font face="Arial,Helvetica" size=-2>
+                Legal basis:
+                </font>
+            </center>
+        </td>
+        <td BGCOLOR="#FFFFFF">
 
 
 
 
 
-					<font face="Arial,Helvetica" size=-2>Commission&nbsp;:</font>
+                    <font face="Arial,Helvetica" size=-2>Commission&nbsp;:</font>
 
 
 
@@ -4765,7 +6570,7 @@ Description of the database
 
 
 
-	<font face="Arial"><font size=-2>&nbsp;Traité/CE/art 285 par 1&nbsp;&nbsp;</font></font>
+    <font face="Arial"><font size=-2>&nbsp;TFUE/art 100 par 2&nbsp;&nbsp;</font></font>
 
 
 
@@ -4780,60 +6585,60 @@ Description of the database
 
 
 
-		</td>
-	</tr>
+        </td>
+    </tr>
 
 
 
 
-	<tr>
-		<td BGCOLOR="#AEFFAE">
-			<center>
-			<font face="Arial,Helvetica" size=-2>Procedures:</font>
-			</center>
-		</td>
-		<td BGCOLOR="#EEEEEE">
+    <tr>
+        <td BGCOLOR="#AEFFAE">
+            <center>
+            <font face="Arial,Helvetica" size=-2>Procedures:</font>
+            </center>
+        </td>
+        <td BGCOLOR="#EEEEEE">
 
 
 
 
-					<font face="Arial,Helvetica" size=-2>Commission&nbsp;:</font>
-					<font face="Arial,Helvetica" size=-2>Codecision procedure&nbsp;</font>
-					<br>
+                    <font face="Arial,Helvetica" size=-2>Commission&nbsp;:</font>
+                    <font face="Arial,Helvetica" size=-2>Codecision procedure&nbsp;</font>
+                    <br>
 
 
 
 
 
 
-		</td>
-	</tr>
+        </td>
+    </tr>
 
 
 
 
-	<tr>
-		<td BGCOLOR="#CEFFCE">
-			<center>
-			<font face="Arial,Helvetica" size=-2>Type of file:</font>
-			</center>
-		</td>
-		<td BGCOLOR="#FFFFFF">
+    <tr>
+        <td BGCOLOR="#CEFFCE">
+            <center>
+            <font face="Arial,Helvetica" size=-2>Type of file:</font>
+            </center>
+        </td>
+        <td BGCOLOR="#FFFFFF">
 
 
 
 
-					<font face="Arial,Helvetica" size=-2>Commission&nbsp;:</font>
-					<font face="Arial,Helvetica" size=-2>Proposal for a Regulation&nbsp;</font>
-					<br>
+                    <font face="Arial,Helvetica" size=-2>Commission&nbsp;:</font>
+                    <font face="Arial,Helvetica" size=-2>Proposal for a Regulation&nbsp;</font>
+                    <br>
 
 
 
 
 
 
-		</td>
-	</tr>
+        </td>
+    </tr>
 
 
 
@@ -4852,31 +6657,31 @@ Description of the database
 
 
 
-	<a name="374673"></A>
+    <a name="407754"></A>
 
 
 
 
 
 
-	<table BORDER=0 CELLSPACING=0 WIDTH="100%" BGCOLOR="#CECEFF">
-		<tr>
-			<td width="1%" BGCOLOR="#CCCCCC">&nbsp;</td>
-			<td WIDTH="20%" BGCOLOR="#CCCCCC">
-				<font face="Arial">
-				<font size=-2>
-				<B>11-11-2005</B>
-				</font>
-				</font>
-			</td>
-			<td ALIGN=CENTER WIDTH="69%" BGCOLOR="#A0A0FF">
-					<font face="Arial">
-					<font size=-2>
-					<B>Adoption by Commission</B>
-					</font>
-					</font>
-			</td>
-		</tr>
+    <table BORDER=0 CELLSPACING=0 WIDTH="100%" BGCOLOR="#CECEFF">
+        <tr>
+            <td width="1%" BGCOLOR="#CCCCCC">&nbsp;</td>
+            <td WIDTH="20%" BGCOLOR="#CCCCCC">
+                <font face="Arial">
+                <font size=-2>
+                <B>28-10-2010</B>
+                </font>
+                </font>
+            </td>
+            <td ALIGN=CENTER WIDTH="69%" BGCOLOR="#A0A0FF">
+                    <font face="Arial">
+                    <font size=-2>
+                    <B>Adoption by Commission</B>
+                    </font>
+                    </font>
+            </td>
+        </tr>
 
 
 
@@ -4887,11 +6692,11 @@ Description of the database
 
 
 
-				<tr>
-				<td width="3">&nbsp;</td>
-				<td VALIGN=TOP><font face="Arial"><font size=-2>Decision mode:</font></font></td>
-				<td VALIGN=TOP><font face="Arial"><font size=-2>Written procedure</font></font></td>
-				</tr>
+                <tr>
+                <td width="3">&nbsp;</td>
+                <td VALIGN=TOP><font face="Arial"><font size=-2>Decision mode:</font></font></td>
+                <td VALIGN=TOP><font face="Arial"><font size=-2>Written procedure</font></font></td>
+                </tr>
 
 
 
@@ -4900,30 +6705,35 @@ Description of the database
 
 
 
-			<tr>
-			<td width="3">&nbsp;</td>
-			<td VALIGN=TOP><font face="Arial"><font size=-2>Primarily responsible</font></font></td>
-			<td VALIGN=TOP><font face="Arial"><font size=-2>Statistical Office</font></font></td>
-			</tr>
+            <tr>
+            <td width="3">&nbsp;</td>
+            <td VALIGN=TOP><font face="Arial"><font size=-2>Addressee for formal act</font></font></td>
+            <td VALIGN=TOP><font face="Arial"><font size=-2>Council; European Parliament</font></font></td>
+            </tr>
 
-			<tr>
-			<td width="3">&nbsp;</td>
-			<td VALIGN=TOP><font face="Arial"><font size=-2>Addressee for formal act</font></font></td>
-			<td VALIGN=TOP><font face="Arial"><font size=-2>Council; European Parliament</font></font></td>
-			</tr>
+            <tr>
+            <td width="3">&nbsp;</td>
+            <td VALIGN=TOP><font face="Arial"><font size=-2>Mandatory consultation</font></font></td>
+            <td VALIGN=TOP><font face="Arial"><font size=-2>Committee of the Regions; European Eco. & Soc. Committee</font></font></td>
+            </tr>
 
+            <tr>
+            <td width="3">&nbsp;</td>
+            <td VALIGN=TOP><font face="Arial"><font size=-2>Primarily responsible</font></font></td>
+            <td VALIGN=TOP><font face="Arial"><font size=-2></font></font></td>
+            </tr>
 
 
 
 
 
 
-			<tr>
-			<td width="3">&nbsp;</td>
-			<td VALIGN=TOP><font face="Arial"><font size=-2>Responsible</font></font></td>
-			<td VALIGN=TOP><font face="Arial"><font size=-2>Joaquin ALMUNIA</font></font></td>
-			</tr>
 
+            <tr>
+            <td width="3">&nbsp;</td>
+            <td VALIGN=TOP><font face="Arial"><font size=-2>Responsible</font></font></td>
+            <td VALIGN=TOP><font face="Arial"><font size=-2>Siim KALLAS</font></font></td>
+            </tr>
 
 
 
@@ -4932,12 +6742,12 @@ Description of the database
 
 
 
-			<tr>
-			<td width="3">&nbsp;</td>
-			<td VALIGN=TOP><font face="Arial"><font size=-2>Documents:</font></font></td>
-			<td VALIGN=TOP>
-				<font face="Arial"><font size=-2>
 
+            <tr>
+            <td width="3">&nbsp;</td>
+            <td VALIGN=TOP><font face="Arial"><font size=-2>Documents:</font></font></td>
+            <td VALIGN=TOP>
+                <font face="Arial"><font size=-2>
 
 
 
@@ -4988,24 +6798,24 @@ Description of the database
 
 
 
-	<a href="http://eur-lex.europa.eu/JOHtml.do?uri=OJ:C:2006:049:SOM:en:HTML" ONMOUSEOUT="isimgact2( 'doc_pin_32', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_32', 'images/doc_pinon.gif')"><img SRC="http://ec.europa.eu/prelex/images/doc_pin.gif" BORDER=0 height=15 width=15  NAME="doc_pin_32" ALT="Official Journal"></a>
-	&nbsp;
-	<a href="http://eur-lex.europa.eu/JOHtml.do?uri=OJ:C:2006:049:SOM:en:HTML" ONMOUSEOUT="isimgact2( 'doc_pin_32', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_32', 'images/doc_pinon.gif')">
 
-		<font face="Arial"><font size=-2>OJ C/2006/49/&nbsp;&nbsp;&nbsp;37</font></font>
 
-	</a>
 
 
 
 
-					<BR>
+    <a href="http://europa.eu/rapid/pressReleasesAction.do?reference=IP/10/1446&format=HTML&aged=0&lg=en&guiLanguage=en" ONMOUSEOUT="isimgact2( 'doc_pin_27', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_27', 'images/doc_pinon.gif')"><img SRC="http://ec.europa.eu/prelex/images/doc_pin.gif" BORDER=0 height=15 width=15  NAME="doc_pin_27" ALT="Press release Commission of the European Communities"></a>
+    &nbsp;
+    <a href="http://europa.eu/rapid/pressReleasesAction.do?reference=IP/10/1446&format=HTML&aged=0&lg=en&guiLanguage=en" ONMOUSEOUT="isimgact2( 'doc_pin_27', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_27', 'images/doc_pinon.gif')">
 
+        <font face="Arial"><font size=-2>IP/2010/1446/</font></font>
 
+    </a>
 
 
 
 
+                    <BR>
 
 
 
@@ -5048,25 +6858,25 @@ Description of the database
 
 
 
-	<a href="http://register.consilium.europa.eu/servlet/driver?page=Result&lang=EN&typ=Advanced&cmsid=639&ff_COTE_DOCUMENT=14571/05|14571/*/05&ff_COTE_DOSSIER_INST=&ff_TITRE=&ff_FT_TEXT=&ff_SOUS_COTE_MATIERE=&dd_DATE_DOCUMENT=&dd_DATE_REUNION=&dd_FT_DATE=&fc=REGAISEN&srm=25&md=100&ssf=" ONMOUSEOUT="isimgact2( 'doc_pin_33', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_33', 'images/doc_pinon.gif')"><img SRC="http://ec.europa.eu/prelex/images/doc_pin.gif" BORDER=0 height=15 width=15  NAME="doc_pin_33" ALT="Click here to see the document CS/2005/14571/"></a>
-	&nbsp;
-	<a href="http://register.consilium.europa.eu/servlet/driver?page=Result&lang=EN&typ=Advanced&cmsid=639&ff_COTE_DOCUMENT=14571/05|14571/*/05&ff_COTE_DOSSIER_INST=&ff_TITRE=&ff_FT_TEXT=&ff_SOUS_COTE_MATIERE=&dd_DATE_DOCUMENT=&dd_DATE_REUNION=&dd_FT_DATE=&fc=REGAISEN&srm=25&md=100&ssf=" ONMOUSEOUT="isimgact2( 'doc_pin_33', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_33', 'images/doc_pinon.gif')">
 
-		<font face="Arial"><font size=-2>CS/2005/14571/</font></font>
 
-	</a>
 
 
 
 
-					<BR>
 
+    <a href="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=COM:2010:0611:FIN:EN:PDF" ONMOUSEOUT="isimgact2( 'doc_pin_28', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_28', 'images/doc_pinon.gif')"><img SRC="http://ec.europa.eu/prelex/images/doc_pin.gif" BORDER=0 height=15 width=15  NAME="doc_pin_28" ALT="Document Commission of the European Communities"></a>
+    &nbsp;
+    <a href="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=COM:2010:0611:FIN:EN:PDF" ONMOUSEOUT="isimgact2( 'doc_pin_28', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_28', 'images/doc_pinon.gif')">
 
+        <font face="Arial"><font size=-2>COM/2010/611/FINAL</font></font>
 
+    </a>
 
 
 
 
+                    <BR>
 
 
 
@@ -5109,28 +6919,31 @@ Description of the database
 
 
 
-	<a href="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=COM:2005:0566:FIN:EN:PDF" ONMOUSEOUT="isimgact2( 'doc_pin_34', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_34', 'images/doc_pinon.gif')"><img SRC="http://ec.europa.eu/prelex/images/doc_pin.gif" BORDER=0 height=15 width=15  NAME="doc_pin_34" ALT="Document Commission of the European Communities"></a>
-	&nbsp;
-	<a href="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=COM:2005:0566:FIN:EN:PDF" ONMOUSEOUT="isimgact2( 'doc_pin_34', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_34', 'images/doc_pinon.gif')">
 
-		<font face="Arial"><font size=-2>COM/2005/566/FINAL</font></font>
 
-	</a>
 
 
 
 
-					<BR>
 
 
 
+    <a href="http://eur-lex.europa.eu/JOHtml.do?uri=OJ:C:2011:121:SOM:en:HTML" ONMOUSEOUT="isimgact2( 'doc_pin_29', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_29', 'images/doc_pinon.gif')"><img SRC="http://ec.europa.eu/prelex/images/doc_pin.gif" BORDER=0 height=15 width=15  NAME="doc_pin_29" ALT="Official Journal"></a>
+    &nbsp;
+    <a href="http://eur-lex.europa.eu/JOHtml.do?uri=OJ:C:2011:121:SOM:en:HTML" ONMOUSEOUT="isimgact2( 'doc_pin_29', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_29', 'images/doc_pinon.gif')">
 
+        <font face="Arial"><font size=-2>OJ C/2011/121/&nbsp;&nbsp;&nbsp;29</font></font>
 
+    </a>
 
 
 
 
+                    <BR>
 
+                </font></font>
+            </td>
+            </tr>
 
 
 
@@ -5139,6 +6952,11 @@ Description of the database
 
 
 
+                <tr>
+                <td width="3">&nbsp;</td>
+                <td VALIGN=TOP><font face="Arial"><font size=-2>Procedures:</font></font></td>
+                <td VALIGN=TOP><font face="Arial"><font size=-2>Codecision procedure</font></font></td>
+                </tr>
 
 
 
@@ -5148,6 +6966,11 @@ Description of the database
 
 
 
+                <tr>
+                <td width="3">&nbsp;</td>
+                <td VALIGN=TOP><font face="Arial"><font size=-2>Type of file:</font></font></td>
+                <td VALIGN=TOP><font face="Arial"><font size=-2>Proposal for a Regulation</font></font></td>
+                </tr>
 
 
 
@@ -5157,6 +6980,10 @@ Description of the database
 
 
 
+                <tr>
+                <td width="3">&nbsp;</td>
+                <td VALIGN=TOP><font face="Arial"><font size=-2>Legal basis:</font></font></td>
+                <td VALIGN=TOP>
 
 
 
@@ -5167,14 +6994,11 @@ Description of the database
 
 
 
-		<img SRC="http://ec.europa.eu/prelex/images/doc_pin.gif" BORDER=0 height=15 width=15  NAME="doc_pin_35"  ALT="C6/2005/376/">
 
-	<font face="Arial"><font size=-2>&nbsp;C6/2005/376/&nbsp;&nbsp;</font></font>
 
 
 
 
-					<BR>
 
 
 
@@ -5219,11 +7043,14 @@ Description of the database
 
 
 
+    <font face="Arial"><font size=-2>&nbsp;TFUE/art 100 par 2&nbsp;&nbsp;</font></font>
 
 
 
 
 
+                </td>
+                </tr>
 
 
 
@@ -5232,23 +7059,20 @@ Description of the database
 
 
 
+            <tr>
+            <td width="3">&nbsp;</td>
+            <td VALIGN=TOP><font face="Arial"><font size=-2>
 
-	<a href="http://europa.eu/bulletin/en/200511/p103010.htm" ONMOUSEOUT="isimgact2( 'doc_pin_36', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_36', 'images/doc_pinon.gif')"><img SRC="http://ec.europa.eu/prelex/images/doc_pin.gif" BORDER=0 height=15 width=15  NAME="doc_pin_36" ALT="Bulletin of the European Union"></a>
-	&nbsp;
-	<a href="http://europa.eu/bulletin/en/200511/p103010.htm" ONMOUSEOUT="isimgact2( 'doc_pin_36', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_36', 'images/doc_pinon.gif')">
 
-		<font face="Arial"><font size=-2>Bulletin /2005/11/&nbsp;&nbsp;&nbsp;1.3.10</font></font>
 
-	</a>
+                    CELEX NUMBER
 
+            </font></font></td>
 
 
+                <td VALIGN=TOP>
 
-					<BR>
 
-				</font></font>
-			</td>
-			</tr>
 
 
 
@@ -5257,11 +7081,6 @@ Description of the database
 
 
 
-				<tr>
-				<td width="3">&nbsp;</td>
-				<td VALIGN=TOP><font face="Arial"><font size=-2>Procedures:</font></font></td>
-				<td VALIGN=TOP><font face="Arial"><font size=-2>Codecision procedure</font></font></td>
-				</tr>
 
 
 
@@ -5271,11 +7090,6 @@ Description of the database
 
 
 
-				<tr>
-				<td width="3">&nbsp;</td>
-				<td VALIGN=TOP><font face="Arial"><font size=-2>Type of file:</font></font></td>
-				<td VALIGN=TOP><font face="Arial"><font size=-2>Proposal for a Regulation</font></font></td>
-				</tr>
 
 
 
@@ -5285,10 +7099,6 @@ Description of the database
 
 
 
-				<tr>
-				<td width="3">&nbsp;</td>
-				<td VALIGN=TOP><font face="Arial"><font size=-2>Legal basis:</font></font></td>
-				<td VALIGN=TOP>
 
 
 
@@ -5300,13 +7110,20 @@ Description of the database
 
 
 
+    <a href="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CELEX:52010PC0611:EN:NOT" ONMOUSEOUT="isimgact2( 'doc_pin_31', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_31', 'images/doc_pinon.gif')"><img SRC="http://ec.europa.eu/prelex/images/doc_pin.gif" BORDER=0 height=15 width=15  NAME="doc_pin_31" ALT="Document Celex"></a>
+    &nbsp;
+    <a href="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CELEX:52010PC0611:EN:NOT" ONMOUSEOUT="isimgact2( 'doc_pin_31', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_31', 'images/doc_pinon.gif')">
 
+        <font face="Arial"><font size=-2>52010PC0611</font></font>
 
+    </a>
 
 
 
 
+                </td>
 
+            </tr>
 
 
 
@@ -5319,14 +7136,34 @@ Description of the database
 
 
 
+    </table>
 
 
+    <a name="407757"></A>
 
 
 
 
 
 
+    <table BORDER=0 CELLSPACING=0 WIDTH="100%" BGCOLOR="#FFFFCE">
+        <tr>
+            <td width="1%" BGCOLOR="#EEEEEE">&nbsp;</td>
+            <td WIDTH="20%" BGCOLOR="#EEEEEE">
+                <font face="Arial">
+                <font size=-2>
+                <B>28-10-2010</B>
+                </font>
+                </font>
+            </td>
+            <td ALIGN=CENTER WIDTH="69%" BGCOLOR="#FFFFA0">
+                    <font face="Arial">
+                    <font size=-2>
+                    <B>Transmission to Council</B>
+                    </font>
+                    </font>
+            </td>
+        </tr>
 
 
 
@@ -5348,14 +7185,11 @@ Description of the database
 
 
 
-	<font face="Arial"><font size=-2>&nbsp;Traité/CE/art 285 par 1&nbsp;&nbsp;</font></font>
 
 
 
 
 
-				</td>
-				</tr>
 
 
 
@@ -5364,18 +7198,12 @@ Description of the database
 
 
 
-			<tr>
-			<td width="3">&nbsp;</td>
-			<td VALIGN=TOP><font face="Arial"><font size=-2>
 
 
 
-					CELEX NUMBER
 
-			</font></font></td>
 
 
-				<td VALIGN=TOP>
 
 
 
@@ -5387,14 +7215,34 @@ Description of the database
 
 
 
+    </table>
 
 
+    <a name="407758"></A>
 
 
 
 
 
 
+    <table BORDER=0 CELLSPACING=0 WIDTH="100%" BGCOLOR="#CECEFF">
+        <tr>
+            <td width="1%" BGCOLOR="#CCCCCC">&nbsp;</td>
+            <td WIDTH="20%" BGCOLOR="#CCCCCC">
+                <font face="Arial">
+                <font size=-2>
+                <B>28-10-2010</B>
+                </font>
+                </font>
+            </td>
+            <td ALIGN=CENTER WIDTH="69%" BGCOLOR="#A0A0FF">
+                    <font face="Arial">
+                    <font size=-2>
+                    <B>Transmission to EP</B>
+                    </font>
+                    </font>
+            </td>
+        </tr>
 
 
 
@@ -5415,20 +7263,13 @@ Description of the database
 
 
 
-	<a href="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CELEX:52005PC0566:EN:NOT" ONMOUSEOUT="isimgact2( 'doc_pin_38', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_38', 'images/doc_pinon.gif')"><img SRC="http://ec.europa.eu/prelex/images/doc_pin.gif" BORDER=0 height=15 width=15  NAME="doc_pin_38" ALT="Document Celex"></a>
-	&nbsp;
-	<a href="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CELEX:52005PC0566:EN:NOT" ONMOUSEOUT="isimgact2( 'doc_pin_38', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_38', 'images/doc_pinon.gif')">
 
-		<font face="Arial"><font size=-2>52005PC0566</font></font>
 
-	</a>
 
 
 
 
-				</td>
 
-			</tr>
 
 
 
@@ -5441,46 +7282,46 @@ Description of the database
 
 
 
-	</table>
 
 
-	<a name="374674"></A>
 
 
 
 
 
 
-	<table BORDER=0 CELLSPACING=0 WIDTH="100%" BGCOLOR="#FFFFCE">
-		<tr>
-			<td width="1%" BGCOLOR="#EEEEEE">&nbsp;</td>
-			<td WIDTH="20%" BGCOLOR="#EEEEEE">
-				<font face="Arial">
-				<font size=-2>
-				<B>11-11-2005</B>
-				</font>
-				</font>
-			</td>
-			<td ALIGN=CENTER WIDTH="69%" BGCOLOR="#FFFFA0">
-					<font face="Arial">
-					<font size=-2>
-					<B>Transmission to Council</B>
-					</font>
-					</font>
-			</td>
-		</tr>
 
 
 
 
+    </table>
 
 
+    <a name="407756"></A>
 
 
 
 
 
 
+    <table BORDER=0 CELLSPACING=0 WIDTH="100%" BGCOLOR="#FFFFCE">
+        <tr>
+            <td width="1%" BGCOLOR="#EEEEEE">&nbsp;</td>
+            <td WIDTH="20%" BGCOLOR="#EEEEEE">
+                <font face="Arial">
+                <font size=-2>
+                <B>28-10-2010</B>
+                </font>
+                </font>
+            </td>
+            <td ALIGN=CENTER WIDTH="69%" BGCOLOR="#FFFFA0">
+                    <font face="Arial">
+                    <font size=-2>
+                    <B>Supplement</B>
+                    </font>
+                    </font>
+            </td>
+        </tr>
 
 
 
@@ -5507,6 +7348,11 @@ Description of the database
 
 
 
+            <tr>
+            <td width="3">&nbsp;</td>
+            <td VALIGN=TOP><font face="Arial"><font size=-2>Documents:</font></font></td>
+            <td VALIGN=TOP>
+                <font face="Arial"><font size=-2>
 
 
 
@@ -5520,34 +7366,14 @@ Description of the database
 
 
 
-	</table>
 
 
-	<a name="374675"></A>
 
 
 
 
 
 
-	<table BORDER=0 CELLSPACING=0 WIDTH="100%" BGCOLOR="#CECEFF">
-		<tr>
-			<td width="1%" BGCOLOR="#CCCCCC">&nbsp;</td>
-			<td WIDTH="20%" BGCOLOR="#CCCCCC">
-				<font face="Arial">
-				<font size=-2>
-				<B>11-11-2005</B>
-				</font>
-				</font>
-			</td>
-			<td ALIGN=CENTER WIDTH="69%" BGCOLOR="#A0A0FF">
-					<font face="Arial">
-					<font size=-2>
-					<B>Transmission to EP</B>
-					</font>
-					</font>
-			</td>
-		</tr>
 
 
 
@@ -5573,13 +7399,22 @@ Description of the database
 
 
 
+    <a href="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CELEX:52010SC1264:EN:NOT" ONMOUSEOUT="isimgact2( 'doc_pin_32', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_32', 'images/doc_pinon.gif')"><img SRC="http://ec.europa.eu/prelex/images/doc_pin.gif" BORDER=0 height=15 width=15  NAME="doc_pin_32" ALT="Click here to see the document SEC/2010/1264/FINAL"></a>
+    &nbsp;
+    <a href="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CELEX:52010SC1264:EN:NOT" ONMOUSEOUT="isimgact2( 'doc_pin_32', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_32', 'images/doc_pinon.gif')">
 
+        <font face="Arial"><font size=-2>SEC/2010/1264/FINAL</font></font>
 
+    </a>
 
 
 
 
+                    <BR>
 
+                </font></font>
+            </td>
+            </tr>
 
 
 
@@ -5599,46 +7434,41 @@ Description of the database
 
 
 
-	</table>
 
 
-	<a name="378646"></A>
 
 
 
 
 
+    </table>
 
-	<table BORDER=0 CELLSPACING=0 WIDTH="100%" BGCOLOR="#FFFFCE">
-		<tr>
-			<td width="1%" BGCOLOR="#EEEEEE">&nbsp;</td>
-			<td WIDTH="20%" BGCOLOR="#EEEEEE">
-				<font face="Arial">
-				<font size=-2>
-				<B>15-06-2006</B>
-				</font>
-				</font>
-			</td>
-			<td ALIGN=CENTER WIDTH="69%" BGCOLOR="#FFFFA0">
-					<font face="Arial">
-					<font size=-2>
-					<B>EP opinion 1st rdg</B>
-					</font>
-					</font>
-			</td>
-		</tr>
 
+    <a name="407755"></A>
 
 
 
 
 
-				<tr>
-				<td width="3">&nbsp;</td>
-				<td VALIGN=TOP><font face="Arial"><font size=-2>Decision :</font></font></td>
-				<td VALIGN=TOP><font face="Arial"><font size=-2>Approval with amendments</font></font></td>
-				</tr>
 
+    <table BORDER=0 CELLSPACING=0 WIDTH="100%" BGCOLOR="#CECEFF">
+        <tr>
+            <td width="1%" BGCOLOR="#CCCCCC">&nbsp;</td>
+            <td WIDTH="20%" BGCOLOR="#CCCCCC">
+                <font face="Arial">
+                <font size=-2>
+                <B>28-10-2010</B>
+                </font>
+                </font>
+            </td>
+            <td ALIGN=CENTER WIDTH="69%" BGCOLOR="#A0A0FF">
+                    <font face="Arial">
+                    <font size=-2>
+                    <B>Supplement</B>
+                    </font>
+                    </font>
+            </td>
+        </tr>
 
 
 
@@ -5655,23 +7485,8 @@ Description of the database
 
 
 
-			<tr>
-			<td width="3">&nbsp;</td>
-			<td VALIGN=TOP><font face="Arial"><font size=-2>Responsible</font></font></td>
-			<td VALIGN=TOP><font face="Arial"><font size=-2>Joaquin ALMUNIA</font></font></td>
-			</tr>
 
-			<tr>
-			<td width="3">&nbsp;</td>
-			<td VALIGN=TOP><font face="Arial"><font size=-2>Taking over</font></font></td>
-			<td VALIGN=TOP><font face="Arial"><font size=-2>Joaquin ALMUNIA</font></font></td>
-			</tr>
 
-			<tr>
-			<td width="3">&nbsp;</td>
-			<td VALIGN=TOP><font face="Arial"><font size=-2>Rapporteur</font></font></td>
-			<td VALIGN=TOP><font face="Arial"><font size=-2>Philippe MORILLON</font></font></td>
-			</tr>
 
 
 
@@ -5680,12 +7495,12 @@ Description of the database
 
 
 
+            <tr>
+            <td width="3">&nbsp;</td>
+            <td VALIGN=TOP><font face="Arial"><font size=-2>Documents:</font></font></td>
+            <td VALIGN=TOP>
+                <font face="Arial"><font size=-2>
 
-			<tr>
-			<td width="3">&nbsp;</td>
-			<td VALIGN=TOP><font face="Arial"><font size=-2>Documents:</font></font></td>
-			<td VALIGN=TOP>
-				<font face="Arial"><font size=-2>
 
 
 
@@ -5731,21 +7546,24 @@ Description of the database
 
 
 
+    <a href="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CELEX:52010SC1263:EN:NOT" ONMOUSEOUT="isimgact2( 'doc_pin_33', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_33', 'images/doc_pinon.gif')"><img SRC="http://ec.europa.eu/prelex/images/doc_pin.gif" BORDER=0 height=15 width=15  NAME="doc_pin_33" ALT="Click here to see the document SEC/2010/1263/FINAL"></a>
+    &nbsp;
+    <a href="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CELEX:52010SC1263:EN:NOT" ONMOUSEOUT="isimgact2( 'doc_pin_33', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_33', 'images/doc_pinon.gif')">
 
+        <font face="Arial"><font size=-2>SEC/2010/1263/FINAL</font></font>
 
+    </a>
 
-	<a href="http://www.europarl.europa.eu/omk/sipade2?PUBREF=-//EP//TEXT+REPORT+A6-2006-0169+0+NOT+XML+V0//EN" ONMOUSEOUT="isimgact2( 'doc_pin_39', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_39', 'images/doc_pinon.gif')"><img SRC="http://ec.europa.eu/prelex/images/doc_pin.gif" BORDER=0 height=15 width=15  NAME="doc_pin_39" ALT="Report"></a>
-	&nbsp;
-	<a href="http://www.europarl.europa.eu/omk/sipade2?PUBREF=-//EP//TEXT+REPORT+A6-2006-0169+0+NOT+XML+V0//EN" ONMOUSEOUT="isimgact2( 'doc_pin_39', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_39', 'images/doc_pinon.gif')">
 
-		<font face="Arial"><font size=-2>A6/2006/169/</font></font>
 
-	</a>
 
+                    <BR>
 
+                </font></font>
+            </td>
+            </tr>
 
 
-					<BR>
 
 
 
@@ -5770,14 +7588,34 @@ Description of the database
 
 
 
+    </table>
 
 
+    <a name="409759"></A>
 
 
 
 
 
 
+    <table BORDER=0 CELLSPACING=0 WIDTH="100%" BGCOLOR="#FFFFCE">
+        <tr>
+            <td width="1%" BGCOLOR="#EEEEEE">&nbsp;</td>
+            <td WIDTH="20%" BGCOLOR="#EEEEEE">
+                <font face="Arial">
+                <font size=-2>
+                <B>16-02-2011</B>
+                </font>
+                </font>
+            </td>
+            <td ALIGN=CENTER WIDTH="69%" BGCOLOR="#FFFFA0">
+                    <font face="Arial">
+                    <font size=-2>
+                    <B>EESC opinion</B>
+                    </font>
+                    </font>
+            </td>
+        </tr>
 
 
 
@@ -5788,26 +7626,30 @@ Description of the database
 
 
 
+                <tr>
+                <td width="3">&nbsp;</td>
+                <td VALIGN=TOP><font face="Arial"><font size=-2>Decision mode:</font></font></td>
+                <td VALIGN=TOP><font face="Arial"><font size=-2>Procedure without debate</font></font></td>
+                </tr>
 
 
 
 
 
 
-	<a href="http://www.europarl.europa.eu/omk/sipade2?PUBREF=-//EP//TEXT+TA+P6-TA-2006-0264+0+DOC+XML+V0//EN" ONMOUSEOUT="isimgact2( 'doc_pin_40', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_40', 'images/doc_pinon.gif')"><img SRC="http://ec.europa.eu/prelex/images/doc_pin.gif" BORDER=0 height=15 width=15  NAME="doc_pin_40" ALT="Report"></a>
-	&nbsp;
-	<a href="http://www.europarl.europa.eu/omk/sipade2?PUBREF=-//EP//TEXT+TA+P6-TA-2006-0264+0+DOC+XML+V0//EN" ONMOUSEOUT="isimgact2( 'doc_pin_40', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_40', 'images/doc_pinon.gif')">
 
-		<font face="Arial"><font size=-2>TA/2006/264/</font></font>
 
-	</a>
 
 
 
 
-					<BR>
 
 
+            <tr>
+            <td width="3">&nbsp;</td>
+            <td VALIGN=TOP><font face="Arial"><font size=-2>Rapporteur</font></font></td>
+            <td VALIGN=TOP><font face="Arial"><font size=-2>Jan SIMONS</font></font></td>
+            </tr>
 
 
 
@@ -5817,6 +7659,11 @@ Description of the database
 
 
 
+            <tr>
+            <td width="3">&nbsp;</td>
+            <td VALIGN=TOP><font face="Arial"><font size=-2>Documents:</font></font></td>
+            <td VALIGN=TOP>
+                <font face="Arial"><font size=-2>
 
 
 
@@ -5864,25 +7711,22 @@ Description of the database
 
 
 
-	<a href="http://europa.eu/bulletin/en/200606/p107002.htm" ONMOUSEOUT="isimgact2( 'doc_pin_41', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_41', 'images/doc_pinon.gif')"><img SRC="http://ec.europa.eu/prelex/images/doc_pin.gif" BORDER=0 height=15 width=15  NAME="doc_pin_41" ALT="Bulletin of the European Union"></a>
-	&nbsp;
-	<a href="http://europa.eu/bulletin/en/200606/p107002.htm" ONMOUSEOUT="isimgact2( 'doc_pin_41', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_41', 'images/doc_pinon.gif')">
 
-		<font face="Arial"><font size=-2>Bulletin /2006/6/&nbsp;&nbsp;&nbsp;1.7.2</font></font>
 
-	</a>
 
 
+    <a href="http://eur-lex.europa.eu/JOHtml.do?uri=OJ:C:2011:107:SOM:en:HTML" ONMOUSEOUT="isimgact2( 'doc_pin_34', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_34', 'images/doc_pinon.gif')"><img SRC="http://ec.europa.eu/prelex/images/doc_pin.gif" BORDER=0 height=15 width=15  NAME="doc_pin_34" ALT="Official Journal"></a>
+    &nbsp;
+    <a href="http://eur-lex.europa.eu/JOHtml.do?uri=OJ:C:2011:107:SOM:en:HTML" ONMOUSEOUT="isimgact2( 'doc_pin_34', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_34', 'images/doc_pinon.gif')">
 
+        <font face="Arial"><font size=-2>OJ C/2011/107/&nbsp;&nbsp;&nbsp;68</font></font>
 
-					<BR>
+    </a>
 
-				</font></font>
-			</td>
-			</tr>
 
 
 
+                    <BR>
 
 
 
@@ -5906,45 +7750,20 @@ Description of the database
 
 
 
-	</table>
 
 
-	<a name="378807"></A>
 
 
 
 
 
 
-	<table BORDER=0 CELLSPACING=0 WIDTH="100%" BGCOLOR="#CECEFF">
-		<tr>
-			<td width="1%" BGCOLOR="#CCCCCC">&nbsp;</td>
-			<td WIDTH="20%" BGCOLOR="#CCCCCC">
-				<font face="Arial">
-				<font size=-2>
-				<B>15-06-2006</B>
-				</font>
-				</font>
-			</td>
-			<td ALIGN=CENTER WIDTH="69%" BGCOLOR="#A0A0FF">
-					<font face="Arial">
-					<font size=-2>
-					<B>Commission position on EP amendments on 1st reading</B>
-					</font>
-					</font>
-			</td>
-		</tr>
 
 
 
 
 
 
-				<tr>
-				<td width="3">&nbsp;</td>
-				<td VALIGN=TOP><font face="Arial"><font size=-2>Decision :</font></font></td>
-				<td VALIGN=TOP><font face="Arial"><font size=-2>Agreement</font></font></td>
-				</tr>
 
 
 
@@ -5957,13 +7776,22 @@ Description of the database
 
 
 
+    <a href="http://eescopinions.eesc.europa.eu/eescopiniondocument.aspx?language=en&docnr=365&year=2011" ONMOUSEOUT="isimgact2( 'doc_pin_35', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_35', 'images/doc_pinon.gif')"><img SRC="http://ec.europa.eu/prelex/images/doc_pin.gif" BORDER=0 height=15 width=15  NAME="doc_pin_35" ALT="Document Economic and Social Committee of the European Communities"></a>
+    &nbsp;
+    <a href="http://eescopinions.eesc.europa.eu/eescopiniondocument.aspx?language=en&docnr=365&year=2011" ONMOUSEOUT="isimgact2( 'doc_pin_35', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_35', 'images/doc_pinon.gif')">
 
+        <font face="Arial"><font size=-2>EESC/2011/365/</font></font>
 
+    </a>
 
 
 
 
+                    <BR>
 
+                </font></font>
+            </td>
+            </tr>
 
 
 
@@ -5983,46 +7811,32 @@ Description of the database
 
 
 
+            <tr>
+            <td width="3">&nbsp;</td>
+            <td VALIGN=TOP><font face="Arial"><font size=-2>
 
 
 
+                    CELEX NUMBER
 
+            </font></font></td>
 
 
+                <td VALIGN=TOP>
 
 
 
 
 
 
-	</table>
 
 
-	<a name="381830"></A>
 
 
 
 
 
 
-	<table BORDER=0 CELLSPACING=0 WIDTH="100%" BGCOLOR="#FFFFCE">
-		<tr>
-			<td width="1%" BGCOLOR="#EEEEEE">&nbsp;</td>
-			<td WIDTH="20%" BGCOLOR="#EEEEEE">
-				<font face="Arial">
-				<font size=-2>
-				<B>14-11-2006</B>
-				</font>
-				</font>
-			</td>
-			<td ALIGN=CENTER WIDTH="69%" BGCOLOR="#FFFFA0">
-					<font face="Arial">
-					<font size=-2>
-					<B>Adoption common position</B>
-					</font>
-					</font>
-			</td>
-		</tr>
 
 
 
@@ -6048,18 +7862,20 @@ Description of the database
 
 
 
+    <a href="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CELEX:52011AE0365:EN:NOT" ONMOUSEOUT="isimgact2( 'doc_pin_36', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_36', 'images/doc_pinon.gif')"><img SRC="http://ec.europa.eu/prelex/images/doc_pin.gif" BORDER=0 height=15 width=15  NAME="doc_pin_36" ALT="Document Celex"></a>
+    &nbsp;
+    <a href="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CELEX:52011AE0365:EN:NOT" ONMOUSEOUT="isimgact2( 'doc_pin_36', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_36', 'images/doc_pinon.gif')">
 
-			<tr>
-			<td width="3">&nbsp;</td>
-			<td VALIGN=TOP><font face="Arial"><font size=-2>Documents:</font></font></td>
-			<td VALIGN=TOP>
-				<font face="Arial"><font size=-2>
+        <font face="Arial"><font size=-2>52011AE0365</font></font>
 
+    </a>
 
 
 
 
+                </td>
 
+            </tr>
 
 
 
@@ -6072,14 +7888,34 @@ Description of the database
 
 
 
+    </table>
 
 
+    <a name="410306"></A>
 
 
 
 
 
 
+    <table BORDER=0 CELLSPACING=0 WIDTH="100%" BGCOLOR="#CECEFF">
+        <tr>
+            <td width="1%" BGCOLOR="#CCCCCC">&nbsp;</td>
+            <td WIDTH="20%" BGCOLOR="#CCCCCC">
+                <font face="Arial">
+                <font size=-2>
+                <B>31-03-2011</B>
+                </font>
+                </font>
+            </td>
+            <td ALIGN=CENTER WIDTH="69%" BGCOLOR="#A0A0FF">
+                    <font face="Arial">
+                    <font size=-2>
+                    <B>Discussions at Council</B>
+                    </font>
+                    </font>
+            </td>
+        </tr>
 
 
 
@@ -6103,18 +7939,17 @@ Description of the database
 
 
 
-	<a href="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:C:2006:301E:SOM:en:HTML" ONMOUSEOUT="isimgact2( 'doc_pin_42', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_42', 'images/doc_pinon.gif')"><img SRC="http://ec.europa.eu/prelex/images/doc_pin.gif" BORDER=0 height=15 width=15  NAME="doc_pin_42" ALT="Official Journal"></a>
-	&nbsp;
-	<a href="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:C:2006:301E:SOM:en:HTML" ONMOUSEOUT="isimgact2( 'doc_pin_42', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_42', 'images/doc_pinon.gif')">
 
-		<font face="Arial"><font size=-2>OJ C E/2006/301/</font></font>
 
-	</a>
 
+            <tr>
+            <td width="3">&nbsp;</td>
+            <td VALIGN=TOP><font face="Arial"><font size=-2>Documents:</font></font></td>
+            <td VALIGN=TOP>
+                <font face="Arial"><font size=-2>
 
 
 
-					<BR>
 
 
 
@@ -6167,24 +8002,27 @@ Description of the database
 
 
 
+    <a href="http://europa.eu/rapid/pressReleasesAction.do?reference=PRES/11/84&format=HTML&aged=0&lg=en&guiLanguage=en" ONMOUSEOUT="isimgact2( 'doc_pin_37', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_37', 'images/doc_pinon.gif')"><img SRC="http://ec.europa.eu/prelex/images/doc_pin.gif" BORDER=0 height=15 width=15  NAME="doc_pin_37" ALT="Press release Council of the European Union"></a>
+    &nbsp;
+    <a href="http://europa.eu/rapid/pressReleasesAction.do?reference=PRES/11/84&format=HTML&aged=0&lg=en&guiLanguage=en" ONMOUSEOUT="isimgact2( 'doc_pin_37', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_37', 'images/doc_pinon.gif')">
 
+        <font face="Arial"><font size=-2>PRES/2011/84/</font></font>
 
+    </a>
 
 
 
 
-	<a href="http://europa.eu/bulletin/en/200611/p107005.htm" ONMOUSEOUT="isimgact2( 'doc_pin_43', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_43', 'images/doc_pinon.gif')"><img SRC="http://ec.europa.eu/prelex/images/doc_pin.gif" BORDER=0 height=15 width=15  NAME="doc_pin_43" ALT="Bulletin of the European Union"></a>
-	&nbsp;
-	<a href="http://europa.eu/bulletin/en/200611/p107005.htm" ONMOUSEOUT="isimgact2( 'doc_pin_43', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_43', 'images/doc_pinon.gif')">
+                    <BR>
 
-		<font face="Arial"><font size=-2>Bulletin /2006/11/&nbsp;&nbsp;&nbsp;1.7.5</font></font>
+                </font></font>
+            </td>
+            </tr>
 
-	</a>
 
 
 
 
-					<BR>
 
 
 
@@ -6199,37 +8037,58 @@ Description of the database
 
 
 
+            <tr>
+            <td width="3">&nbsp;</td>
+            <td VALIGN=TOP><font face="Arial"><font size=-2>
 
 
 
+                    COUNCIL AGENDA
 
+            </font></font></td>
 
 
+                <td VALIGN=TOP><font face="Arial"><font size=-2> ITEM "B" ON COUNCIL AGENDA</font></font></td>
 
+            </tr>
 
 
 
 
 
+            <tr>
+            <td width="3">&nbsp;</td>
+            <td VALIGN=TOP><font face="Arial"><font size=-2>
 
 
 
+                    COUNCIL SESSION
 
+            </font></font></td>
 
 
+                <td VALIGN=TOP><font face="Arial"><font size=-2> 3080</font></font></td>
 
+            </tr>
 
 
 
 
 
+            <tr>
+            <td width="3">&nbsp;</td>
+            <td VALIGN=TOP><font face="Arial"><font size=-2>
 
 
 
+                    SUBJECT
 
+            </font></font></td>
 
 
+                <td VALIGN=TOP><font face="Arial"><font size=-2> TRANSPORT, TELECOMMUNICATIONS AND ENERGY</font></font></td>
 
+            </tr>
 
 
 
@@ -6240,22 +8099,36 @@ Description of the database
 
 
 
-	<a href="http://europa.eu/rapid/pressReleasesAction.do?reference=PRES/06/309&format=HTML&aged=0&lg=en&guiLanguage=en" ONMOUSEOUT="isimgact2( 'doc_pin_44', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_44', 'images/doc_pinon.gif')"><img SRC="http://ec.europa.eu/prelex/images/doc_pin.gif" BORDER=0 height=15 width=15  NAME="doc_pin_44" ALT="Press release Council of the European Union"></a>
-	&nbsp;
-	<a href="http://europa.eu/rapid/pressReleasesAction.do?reference=PRES/06/309&format=HTML&aged=0&lg=en&guiLanguage=en" ONMOUSEOUT="isimgact2( 'doc_pin_44', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_44', 'images/doc_pinon.gif')">
 
-		<font face="Arial"><font size=-2>PRES/2006/309/</font></font>
 
-	</a>
+    </table>
 
 
+    <a name="411569"></A>
 
 
-					<BR>
 
 
 
 
+    <table BORDER=0 CELLSPACING=0 WIDTH="100%" BGCOLOR="#FFFFCE">
+        <tr>
+            <td width="1%" BGCOLOR="#EEEEEE">&nbsp;</td>
+            <td WIDTH="20%" BGCOLOR="#EEEEEE">
+                <font face="Arial">
+                <font size=-2>
+                <B>16-06-2011</B>
+                </font>
+                </font>
+            </td>
+            <td ALIGN=CENTER WIDTH="69%" BGCOLOR="#FFFFA0">
+                    <font face="Arial">
+                    <font size=-2>
+                    <B>Discussions at Council</B>
+                    </font>
+                    </font>
+            </td>
+        </tr>
 
 
 
@@ -6282,6 +8155,11 @@ Description of the database
 
 
 
+            <tr>
+            <td width="3">&nbsp;</td>
+            <td VALIGN=TOP><font face="Arial"><font size=-2>Documents:</font></font></td>
+            <td VALIGN=TOP>
+                <font face="Arial"><font size=-2>
 
 
 
@@ -6300,18 +8178,12 @@ Description of the database
 
 
 
-	<a href="http://register.consilium.europa.eu/servlet/driver?page=Result&lang=EN&typ=Advanced&cmsid=639&ff_COTE_DOCUMENT=15032/06|15032/*/06&ff_COTE_DOSSIER_INST=&ff_TITRE=&ff_FT_TEXT=&ff_SOUS_COTE_MATIERE=&dd_DATE_DOCUMENT=&dd_DATE_REUNION=&dd_FT_DATE=&fc=REGAISEN&srm=25&md=100&ssf=" ONMOUSEOUT="isimgact2( 'doc_pin_45', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_45', 'images/doc_pinon.gif')"><img SRC="http://ec.europa.eu/prelex/images/doc_pin.gif" BORDER=0 height=15 width=15  NAME="doc_pin_45" ALT="Click here to see the document CS/2006/15032/"></a>
-	&nbsp;
-	<a href="http://register.consilium.europa.eu/servlet/driver?page=Result&lang=EN&typ=Advanced&cmsid=639&ff_COTE_DOCUMENT=15032/06|15032/*/06&ff_COTE_DOSSIER_INST=&ff_TITRE=&ff_FT_TEXT=&ff_SOUS_COTE_MATIERE=&dd_DATE_DOCUMENT=&dd_DATE_REUNION=&dd_FT_DATE=&fc=REGAISEN&srm=25&md=100&ssf=" ONMOUSEOUT="isimgact2( 'doc_pin_45', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_45', 'images/doc_pinon.gif')">
 
-		<font face="Arial"><font size=-2>CS/2006/15032/</font></font>
 
-	</a>
 
 
 
 
-					<BR>
 
 
 
@@ -6343,13 +8215,22 @@ Description of the database
 
 
 
+    <a href="http://europa.eu/rapid/pressReleasesAction.do?reference=PRES/11/175&format=HTML&aged=0&lg=en&guiLanguage=en" ONMOUSEOUT="isimgact2( 'doc_pin_38', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_38', 'images/doc_pinon.gif')"><img SRC="http://ec.europa.eu/prelex/images/doc_pin.gif" BORDER=0 height=15 width=15  NAME="doc_pin_38" ALT="Press release Council of the European Union"></a>
+    &nbsp;
+    <a href="http://europa.eu/rapid/pressReleasesAction.do?reference=PRES/11/175&format=HTML&aged=0&lg=en&guiLanguage=en" ONMOUSEOUT="isimgact2( 'doc_pin_38', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_38', 'images/doc_pinon.gif')">
 
+        <font face="Arial"><font size=-2>PRES/2011/175/</font></font>
 
+    </a>
 
 
 
 
+                    <BR>
 
+                </font></font>
+            </td>
+            </tr>
 
 
 
@@ -6360,52 +8241,67 @@ Description of the database
 
 
 
-	<a href="http://register.consilium.europa.eu/servlet/driver?page=Result&lang=EN&typ=Advanced&cmsid=639&ff_COTE_DOCUMENT=14283/06|14283/*/06&ff_COTE_DOSSIER_INST=&ff_TITRE=&ff_FT_TEXT=&ff_SOUS_COTE_MATIERE=&dd_DATE_DOCUMENT=&dd_DATE_REUNION=&dd_FT_DATE=&fc=REGAISEN&srm=25&md=100&ssf=" ONMOUSEOUT="isimgact2( 'doc_pin_46', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_46', 'images/doc_pinon.gif')"><img SRC="http://ec.europa.eu/prelex/images/doc_pin.gif" BORDER=0 height=15 width=15  NAME="doc_pin_46" ALT="Click here to see the document CS/2006/14283/"></a>
-	&nbsp;
-	<a href="http://register.consilium.europa.eu/servlet/driver?page=Result&lang=EN&ttyp=Advanced&cmsid=639&ff_COTE_DOCUMENT=14283/06|14283/*/06&ff_COTE_DOSSIER_INST=&ff_TITRE=&ff_FT_TEXT=&ff_SOUS_COTE_MATIERE=&dd_DATE_DOCUMENT=&dd_DATE_REUNION=&dd_FT_DATE=&fc=REGAISEN&srm=25&md=100&ssf=" ONMOUSEOUT="isimgact2( 'doc_pin_46', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_46', 'images/doc_pinon.gif')">
 
-		<font face="Arial"><font size=-2>CS/2006/14283/</font></font>
 
-	</a>
 
 
 
 
-					<BR>
 
 
 
+            <tr>
+            <td width="3">&nbsp;</td>
+            <td VALIGN=TOP><font face="Arial"><font size=-2>
 
 
 
+                    COUNCIL AGENDA
 
+            </font></font></td>
 
 
+                <td VALIGN=TOP><font face="Arial"><font size=-2> ITEM "B" ON COUNCIL AGENDA</font></font></td>
 
+            </tr>
 
 
 
 
 
+            <tr>
+            <td width="3">&nbsp;</td>
+            <td VALIGN=TOP><font face="Arial"><font size=-2>
 
 
 
+                    COUNCIL SESSION
 
+            </font></font></td>
 
 
+                <td VALIGN=TOP><font face="Arial"><font size=-2> 3098</font></font></td>
 
+            </tr>
 
 
 
 
 
+            <tr>
+            <td width="3">&nbsp;</td>
+            <td VALIGN=TOP><font face="Arial"><font size=-2>
 
 
 
+                    SUBJECT
 
+            </font></font></td>
 
 
+                <td VALIGN=TOP><font face="Arial"><font size=-2> TRANSPORT, TELECOMMUNICATIONS AND ENERGY</font></font></td>
 
+            </tr>
 
 
 
@@ -6418,26 +8314,45 @@ Description of the database
 
 
 
-		<img SRC="http://ec.europa.eu/prelex/images/doc_pin.gif" BORDER=0 height=15 width=15  NAME="doc_pin_47"  ALT="C6/2006/421/">
+    </table>
 
-	<font face="Arial"><font size=-2>&nbsp;C6/2006/421/&nbsp;&nbsp;</font></font>
 
+    <a name="415003"></A>
 
 
 
-					<BR>
 
-				</font></font>
-			</td>
-			</tr>
 
 
+    <table BORDER=0 CELLSPACING=0 WIDTH="100%" BGCOLOR="#CECEFF">
+        <tr>
+            <td width="1%" BGCOLOR="#CCCCCC">&nbsp;</td>
+            <td WIDTH="20%" BGCOLOR="#CCCCCC">
+                <font face="Arial">
+                <font size=-2>
+                <B>15-12-2011</B>
+                </font>
+                </font>
+            </td>
+            <td ALIGN=CENTER WIDTH="69%" BGCOLOR="#A0A0FF">
+                    <font face="Arial">
+                    <font size=-2>
+                    <B>EP opinion 1st rdg</B>
+                    </font>
+                    </font>
+            </td>
+        </tr>
 
 
 
 
 
 
+                <tr>
+                <td width="3">&nbsp;</td>
+                <td VALIGN=TOP><font face="Arial"><font size=-2>Decision :</font></font></td>
+                <td VALIGN=TOP><font face="Arial"><font size=-2>Approval with amendments</font></font></td>
+                </tr>
 
 
 
@@ -6449,56 +8364,56 @@ Description of the database
 
 
 
-			<tr>
-			<td width="3">&nbsp;</td>
-			<td VALIGN=TOP><font face="Arial"><font size=-2>
 
 
 
-					COUNCIL AGENDA
 
-			</font></font></td>
 
 
-				<td VALIGN=TOP><font face="Arial"><font size=-2> ITEM "A" ON COUNCIL AGENDA</font></font></td>
+            <tr>
+            <td width="3">&nbsp;</td>
+            <td VALIGN=TOP><font face="Arial"><font size=-2>Taking over</font></font></td>
+            <td VALIGN=TOP><font face="Arial"><font size=-2>Siim KALLAS</font></font></td>
+            </tr>
 
-			</tr>
+            <tr>
+            <td width="3">&nbsp;</td>
+            <td VALIGN=TOP><font face="Arial"><font size=-2>Responsible</font></font></td>
+            <td VALIGN=TOP><font face="Arial"><font size=-2>Siim KALLAS</font></font></td>
+            </tr>
 
+            <tr>
+            <td width="3">&nbsp;</td>
+            <td VALIGN=TOP><font face="Arial"><font size=-2>Rapporteur</font></font></td>
+            <td VALIGN=TOP><font face="Arial"><font size=-2>Knut FLECKENSTEIN</font></font></td>
+            </tr>
 
 
 
 
-			<tr>
-			<td width="3">&nbsp;</td>
-			<td VALIGN=TOP><font face="Arial"><font size=-2>
 
 
 
-					COUNCIL SESSION
 
-			</font></font></td>
 
+            <tr>
+            <td width="3">&nbsp;</td>
+            <td VALIGN=TOP><font face="Arial"><font size=-2>Documents:</font></font></td>
+            <td VALIGN=TOP>
+                <font face="Arial"><font size=-2>
 
-				<td VALIGN=TOP><font face="Arial"><font size=-2> 2762</font></font></td>
 
-			</tr>
 
 
 
 
 
-			<tr>
-			<td width="3">&nbsp;</td>
-			<td VALIGN=TOP><font face="Arial"><font size=-2>
 
 
 
-					CELEX NUMBER
 
-			</font></font></td>
 
 
-				<td VALIGN=TOP>
 
 
 
@@ -6534,43 +8449,35 @@ Description of the database
 
 
 
+    <a href="http://www.europarl.europa.eu/omk/sipade2?PUBREF=-//EP//TEXT+TA+P6-TA-2011-0581+0+DOC+XML+V0//EN" ONMOUSEOUT="isimgact2( 'doc_pin_39', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_39', 'images/doc_pinon.gif')"><img SRC="http://ec.europa.eu/prelex/images/doc_pin.gif" BORDER=0 height=15 width=15  NAME="doc_pin_39" ALT="Report"></a>
+    &nbsp;
+    <a href="http://www.europarl.europa.eu/omk/sipade2?PUBREF=-//EP//TEXT+TA+P6-TA-2011-0581+0+DOC+XML+V0//EN" ONMOUSEOUT="isimgact2( 'doc_pin_39', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_39', 'images/doc_pinon.gif')">
 
+        <font face="Arial"><font size=-2>TA/2011/581/P7</font></font>
 
+    </a>
 
 
-	<a href="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CELEX:52006AG0029:EN:NOT" ONMOUSEOUT="isimgact2( 'doc_pin_48', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_48', 'images/doc_pinon.gif')"><img SRC="http://ec.europa.eu/prelex/images/doc_pin.gif" BORDER=0 height=15 width=15  NAME="doc_pin_48" ALT="Document Celex"></a>
-	&nbsp;
-	<a href="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CELEX:52006AG0029:EN:NOT" ONMOUSEOUT="isimgact2( 'doc_pin_48', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_48', 'images/doc_pinon.gif')">
 
-		<font face="Arial"><font size=-2>52006AG0029</font></font>
 
-	</a>
+                    <BR>
 
 
 
 
-				</td>
 
-			</tr>
 
 
 
 
 
-			<tr>
-			<td width="3">&nbsp;</td>
-			<td VALIGN=TOP><font face="Arial"><font size=-2>
 
 
 
-					SUBJECT
 
-			</font></font></td>
 
 
-				<td VALIGN=TOP><font face="Arial"><font size=-2> EDUCATION, YOUTH AND CULTURE</font></font></td>
 
-			</tr>
 
 
 
@@ -6583,34 +8490,14 @@ Description of the database
 
 
 
-	</table>
 
 
-	<a name="381792"></A>
 
 
 
 
 
 
-	<table BORDER=0 CELLSPACING=0 WIDTH="100%" BGCOLOR="#CECEFF">
-		<tr>
-			<td width="1%" BGCOLOR="#CCCCCC">&nbsp;</td>
-			<td WIDTH="20%" BGCOLOR="#CCCCCC">
-				<font face="Arial">
-				<font size=-2>
-				<B>14-11-2006</B>
-				</font>
-				</font>
-			</td>
-			<td ALIGN=CENTER WIDTH="69%" BGCOLOR="#A0A0FF">
-					<font face="Arial">
-					<font size=-2>
-					<B>Adopt. declaration comn posit.</B>
-					</font>
-					</font>
-			</td>
-		</tr>
 
 
 
@@ -6623,13 +8510,22 @@ Description of the database
 
 
 
+    <a href="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:C:2013:168E:SOM:en:HTML" ONMOUSEOUT="isimgact2( 'doc_pin_40', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_40', 'images/doc_pinon.gif')"><img SRC="http://ec.europa.eu/prelex/images/doc_pin.gif" BORDER=0 height=15 width=15  NAME="doc_pin_40" ALT="Official Journal"></a>
+    &nbsp;
+    <a href="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:C:2013:168E:SOM:en:HTML" ONMOUSEOUT="isimgact2( 'doc_pin_40', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_40', 'images/doc_pinon.gif')">
 
+        <font face="Arial"><font size=-2>OJ C E/2013/168/&nbsp;&nbsp;&nbsp;178</font></font>
 
+    </a>
 
 
 
 
+                    <BR>
 
+                </font></font>
+            </td>
+            </tr>
 
 
 
@@ -6637,11 +8533,6 @@ Description of the database
 
 
 
-			<tr>
-			<td width="3">&nbsp;</td>
-			<td VALIGN=TOP><font face="Arial"><font size=-2>Documents:</font></font></td>
-			<td VALIGN=TOP>
-				<font face="Arial"><font size=-2>
 
 
 
@@ -6661,14 +8552,34 @@ Description of the database
 
 
 
+    </table>
 
 
+    <a name="419611"></A>
 
 
 
 
 
 
+    <table BORDER=0 CELLSPACING=0 WIDTH="100%" BGCOLOR="#FFFFCE">
+        <tr>
+            <td width="1%" BGCOLOR="#EEEEEE">&nbsp;</td>
+            <td WIDTH="20%" BGCOLOR="#EEEEEE">
+                <font face="Arial">
+                <font size=-2>
+                <B>04-10-2012</B>
+                </font>
+                </font>
+            </td>
+            <td ALIGN=CENTER WIDTH="69%" BGCOLOR="#FFFFA0">
+                    <font face="Arial">
+                    <font size=-2>
+                    <B>N.C.</B>
+                    </font>
+                    </font>
+            </td>
+        </tr>
 
 
 
@@ -6691,18 +8602,17 @@ Description of the database
 
 
 
-	<a href="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=COM:2006:0706:FIN:EN:PDF" ONMOUSEOUT="isimgact2( 'doc_pin_49', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_49', 'images/doc_pinon.gif')"><img SRC="http://ec.europa.eu/prelex/images/doc_pin.gif" BORDER=0 height=15 width=15  NAME="doc_pin_49" ALT="Document Commission of the European Communities"></a>
-	&nbsp;
-	<a href="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=COM:2006:0706:FIN:EN:PDF" ONMOUSEOUT="isimgact2( 'doc_pin_49', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_49', 'images/doc_pinon.gif')">
 
-		<font face="Arial"><font size=-2>COM/2006/706/FINAL</font></font>
 
-	</a>
 
 
+            <tr>
+            <td width="3">&nbsp;</td>
+            <td VALIGN=TOP><font face="Arial"><font size=-2>Documents:</font></font></td>
+            <td VALIGN=TOP>
+                <font face="Arial"><font size=-2>
 
 
-					<BR>
 
 
 
@@ -6750,26 +8660,23 @@ Description of the database
 
 
 
+    <a href="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:C:2012:352E:SOM:en:HTML" ONMOUSEOUT="isimgact2( 'doc_pin_41', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_41', 'images/doc_pinon.gif')"><img SRC="http://ec.europa.eu/prelex/images/doc_pin.gif" BORDER=0 height=15 width=15  NAME="doc_pin_41" ALT="Official Journal"></a>
+    &nbsp;
+    <a href="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:C:2012:352E:SOM:en:HTML" ONMOUSEOUT="isimgact2( 'doc_pin_41', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_41', 'images/doc_pinon.gif')">
 
+        <font face="Arial"><font size=-2>OJ C E/2012/352/&nbsp;&nbsp;&nbsp;1</font></font>
 
+    </a>
 
 
-	<a href="http://eur-lex.europa.eu/JOHtml.do?uri=OJ:C:2007:138:SOM:en:HTML" ONMOUSEOUT="isimgact2( 'doc_pin_50', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_50', 'images/doc_pinon.gif')"><img SRC="http://ec.europa.eu/prelex/images/doc_pin.gif" BORDER=0 height=15 width=15  NAME="doc_pin_50" ALT="Official Journal"></a>
-	&nbsp;
-	<a href="http://eur-lex.europa.eu/JOHtml.do?uri=OJ:C:2007:138:SOM:en:HTML" ONMOUSEOUT="isimgact2( 'doc_pin_50', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_50', 'images/doc_pinon.gif')">
 
-		<font face="Arial"><font size=-2>OJ C/2007/138/</font></font>
 
-	</a>
+                    <BR>
 
 
 
 
-					<BR>
 
-				</font></font>
-			</td>
-			</tr>
 
 
 
@@ -6789,18 +8696,12 @@ Description of the database
 
 
 
-			<tr>
-			<td width="3">&nbsp;</td>
-			<td VALIGN=TOP><font face="Arial"><font size=-2>
 
 
 
-					CELEX NUMBER
 
-			</font></font></td>
 
 
-				<td VALIGN=TOP>
 
 
 
@@ -6826,13 +8727,22 @@ Description of the database
 
 
 
+    <a href="http://europa.eu/rapid/pressReleasesAction.do?reference=PRES/12/406&format=HTML&aged=0&lg=en&guiLanguage=en" ONMOUSEOUT="isimgact2( 'doc_pin_42', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_42', 'images/doc_pinon.gif')"><img SRC="http://ec.europa.eu/prelex/images/doc_pin.gif" BORDER=0 height=15 width=15  NAME="doc_pin_42" ALT="Press release Council of the European Union"></a>
+    &nbsp;
+    <a href="http://europa.eu/rapid/pressReleasesAction.do?reference=PRES/12/406&format=HTML&aged=0&lg=en&guiLanguage=en" ONMOUSEOUT="isimgact2( 'doc_pin_42', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_42', 'images/doc_pinon.gif')">
 
+        <font face="Arial"><font size=-2>PRES/2012/406/</font></font>
 
+    </a>
 
 
 
 
+                    <BR>
 
+                </font></font>
+            </td>
+            </tr>
 
 
 
@@ -6840,20 +8750,13 @@ Description of the database
 
 
 
-	<a href="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CELEX:52006PC0706:EN:NOT" ONMOUSEOUT="isimgact2( 'doc_pin_51', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_51', 'images/doc_pinon.gif')"><img SRC="http://ec.europa.eu/prelex/images/doc_pin.gif" BORDER=0 height=15 width=15  NAME="doc_pin_51" ALT="Document Celex"></a>
-	&nbsp;
-	<a href="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CELEX:52006PC0706:EN:NOT" ONMOUSEOUT="isimgact2( 'doc_pin_51', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_51', 'images/doc_pinon.gif')">
 
-		<font face="Arial"><font size=-2>52006PC0706</font></font>
 
-	</a>
 
 
 
 
-				</td>
 
-			</tr>
 
 
 
@@ -6866,34 +8769,34 @@ Description of the database
 
 
 
-	</table>
+    </table>
 
 
-	<a name="381793"></A>
+    <a name="419680"></A>
 
 
 
 
 
 
-	<table BORDER=0 CELLSPACING=0 WIDTH="100%" BGCOLOR="#FFFFCE">
-		<tr>
-			<td width="1%" BGCOLOR="#EEEEEE">&nbsp;</td>
-			<td WIDTH="20%" BGCOLOR="#EEEEEE">
-				<font face="Arial">
-				<font size=-2>
-				<B>15-11-2006</B>
-				</font>
-				</font>
-			</td>
-			<td ALIGN=CENTER WIDTH="69%" BGCOLOR="#FFFFA0">
-					<font face="Arial">
-					<font size=-2>
-					<B>Trans. Council decl. cmn posn </B>
-					</font>
-					</font>
-			</td>
-		</tr>
+    <table BORDER=0 CELLSPACING=0 WIDTH="100%" BGCOLOR="#CECEFF">
+        <tr>
+            <td width="1%" BGCOLOR="#CCCCCC">&nbsp;</td>
+            <td WIDTH="20%" BGCOLOR="#CCCCCC">
+                <font face="Arial">
+                <font size=-2>
+                <B>16-10-2012</B>
+                </font>
+                </font>
+            </td>
+            <td ALIGN=CENTER WIDTH="69%" BGCOLOR="#A0A0FF">
+                    <font face="Arial">
+                    <font size=-2>
+                    <B>N.C.</B>
+                    </font>
+                    </font>
+            </td>
+        </tr>
 
 
 
@@ -6945,34 +8848,34 @@ Description of the database
 
 
 
-	</table>
+    </table>
 
 
-	<a name="381794"></A>
+    <a name="419678"></A>
 
 
 
 
 
 
-	<table BORDER=0 CELLSPACING=0 WIDTH="100%" BGCOLOR="#CECEFF">
-		<tr>
-			<td width="1%" BGCOLOR="#CCCCCC">&nbsp;</td>
-			<td WIDTH="20%" BGCOLOR="#CCCCCC">
-				<font face="Arial">
-				<font size=-2>
-				<B>15-11-2006</B>
-				</font>
-				</font>
-			</td>
-			<td ALIGN=CENTER WIDTH="69%" BGCOLOR="#A0A0FF">
-					<font face="Arial">
-					<font size=-2>
-					<B>Trans. EP decl. cmn posn </B>
-					</font>
-					</font>
-			</td>
-		</tr>
+    <table BORDER=0 CELLSPACING=0 WIDTH="100%" BGCOLOR="#FFFFCE">
+        <tr>
+            <td width="1%" BGCOLOR="#EEEEEE">&nbsp;</td>
+            <td WIDTH="20%" BGCOLOR="#EEEEEE">
+                <font face="Arial">
+                <font size=-2>
+                <B>16-10-2012</B>
+                </font>
+                </font>
+            </td>
+            <td ALIGN=CENTER WIDTH="69%" BGCOLOR="#FFFFA0">
+                    <font face="Arial">
+                    <font size=-2>
+                    <B>N.C.</B>
+                    </font>
+                    </font>
+            </td>
+        </tr>
 
 
 
@@ -6983,6 +8886,11 @@ Description of the database
 
 
 
+                <tr>
+                <td width="3">&nbsp;</td>
+                <td VALIGN=TOP><font face="Arial"><font size=-2>Decision mode:</font></font></td>
+                <td VALIGN=TOP><font face="Arial"><font size=-2>Written procedure</font></font></td>
+                </tr>
 
 
 
@@ -7005,6 +8913,11 @@ Description of the database
 
 
 
+            <tr>
+            <td width="3">&nbsp;</td>
+            <td VALIGN=TOP><font face="Arial"><font size=-2>Documents:</font></font></td>
+            <td VALIGN=TOP>
+                <font face="Arial"><font size=-2>
 
 
 
@@ -7024,34 +8937,14 @@ Description of the database
 
 
 
-	</table>
 
 
-	<a name="381963"></A>
 
 
 
 
 
 
-	<table BORDER=0 CELLSPACING=0 WIDTH="100%" BGCOLOR="#FFFFCE">
-		<tr>
-			<td width="1%" BGCOLOR="#EEEEEE">&nbsp;</td>
-			<td WIDTH="20%" BGCOLOR="#EEEEEE">
-				<font face="Arial">
-				<font size=-2>
-				<B>16-11-2006</B>
-				</font>
-				</font>
-			</td>
-			<td ALIGN=CENTER WIDTH="69%" BGCOLOR="#FFFFA0">
-					<font face="Arial">
-					<font size=-2>
-					<B>EP receipt of common position</B>
-					</font>
-					</font>
-			</td>
-		</tr>
 
 
 
@@ -7074,13 +8967,22 @@ Description of the database
 
 
 
+    <a href="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=COM:2012:0606:FIN:EN:PDF" ONMOUSEOUT="isimgact2( 'doc_pin_43', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_43', 'images/doc_pinon.gif')"><img SRC="http://ec.europa.eu/prelex/images/doc_pin.gif" BORDER=0 height=15 width=15  NAME="doc_pin_43" ALT="Document Commission of the European Communities"></a>
+    &nbsp;
+    <a href="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=COM:2012:0606:FIN:EN:PDF" ONMOUSEOUT="isimgact2( 'doc_pin_43', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_43', 'images/doc_pinon.gif')">
 
+        <font face="Arial"><font size=-2>COM/2012/606/FINAL</font></font>
 
+    </a>
 
 
 
 
+                    <BR>
 
+                </font></font>
+            </td>
+            </tr>
 
 
 
@@ -7103,45 +9005,40 @@ Description of the database
 
 
 
-	</table>
 
 
-	<a name="382451"></A>
 
 
+    </table>
 
 
+    <a name="419679"></A>
 
 
-	<table BORDER=0 CELLSPACING=0 WIDTH="100%" BGCOLOR="#CECEFF">
-		<tr>
-			<td width="1%" BGCOLOR="#CCCCCC">&nbsp;</td>
-			<td WIDTH="20%" BGCOLOR="#CCCCCC">
-				<font face="Arial">
-				<font size=-2>
-				<B>12-12-2006</B>
-				</font>
-				</font>
-			</td>
-			<td ALIGN=CENTER WIDTH="69%" BGCOLOR="#A0A0FF">
-					<font face="Arial">
-					<font size=-2>
-					<B>EP opinion 2nd rdg</B>
-					</font>
-					</font>
-			</td>
-		</tr>
 
 
 
 
+    <table BORDER=0 CELLSPACING=0 WIDTH="100%" BGCOLOR="#CECEFF">
+        <tr>
+            <td width="1%" BGCOLOR="#CCCCCC">&nbsp;</td>
+            <td WIDTH="20%" BGCOLOR="#CCCCCC">
+                <font face="Arial">
+                <font size=-2>
+                <B>16-10-2012</B>
+                </font>
+                </font>
+            </td>
+            <td ALIGN=CENTER WIDTH="69%" BGCOLOR="#A0A0FF">
+                    <font face="Arial">
+                    <font size=-2>
+                    <B>N.C.</B>
+                    </font>
+                    </font>
+            </td>
+        </tr>
 
 
-				<tr>
-				<td width="3">&nbsp;</td>
-				<td VALIGN=TOP><font face="Arial"><font size=-2>Decision :</font></font></td>
-				<td VALIGN=TOP><font face="Arial"><font size=-2>Approval without amendment</font></font></td>
-				</tr>
 
 
 
@@ -7159,17 +9056,7 @@ Description of the database
 
 
 
-			<tr>
-			<td width="3">&nbsp;</td>
-			<td VALIGN=TOP><font face="Arial"><font size=-2>Responsible</font></font></td>
-			<td VALIGN=TOP><font face="Arial"><font size=-2>Joaquin ALMUNIA</font></font></td>
-			</tr>
 
-			<tr>
-			<td width="3">&nbsp;</td>
-			<td VALIGN=TOP><font face="Arial"><font size=-2>Rapporteur</font></font></td>
-			<td VALIGN=TOP><font face="Arial"><font size=-2>Philippe MORILLON</font></font></td>
-			</tr>
 
 
 
@@ -7179,11 +9066,6 @@ Description of the database
 
 
 
-			<tr>
-			<td width="3">&nbsp;</td>
-			<td VALIGN=TOP><font face="Arial"><font size=-2>Documents:</font></font></td>
-			<td VALIGN=TOP>
-				<font face="Arial"><font size=-2>
 
 
 
@@ -7206,14 +9088,34 @@ Description of the database
 
 
 
+    </table>
 
 
+    <a name="419935"></A>
 
 
 
 
 
 
+    <table BORDER=0 CELLSPACING=0 WIDTH="100%" BGCOLOR="#FFFFCE">
+        <tr>
+            <td width="1%" BGCOLOR="#EEEEEE">&nbsp;</td>
+            <td WIDTH="20%" BGCOLOR="#EEEEEE">
+                <font face="Arial">
+                <font size=-2>
+                <B>25-10-2012</B>
+                </font>
+                </font>
+            </td>
+            <td ALIGN=CENTER WIDTH="69%" BGCOLOR="#FFFFA0">
+                    <font face="Arial">
+                    <font size=-2>
+                    <B>N.C.</B>
+                    </font>
+                    </font>
+            </td>
+        </tr>
 
 
 
@@ -7232,18 +9134,12 @@ Description of the database
 
 
 
-	<a href="http://www.europarl.europa.eu/omk/sipade2?PUBREF=-//EP//TEXT+TA+P6-TA-2006-0536+0+DOC+XML+V0//EN" ONMOUSEOUT="isimgact2( 'doc_pin_52', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_52', 'images/doc_pinon.gif')"><img SRC="http://ec.europa.eu/prelex/images/doc_pin.gif" BORDER=0 height=15 width=15  NAME="doc_pin_52" ALT="Report"></a>
-	&nbsp;
-	<a href="http://www.europarl.europa.eu/omk/sipade2?PUBREF=-//EP//TEXT+TA+P6-TA-2006-0536+0+DOC+XML+V0//EN" ONMOUSEOUT="isimgact2( 'doc_pin_52', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_52', 'images/doc_pinon.gif')">
 
-		<font face="Arial"><font size=-2>TA/2006/536/</font></font>
 
-	</a>
 
 
 
 
-					<BR>
 
 
 
@@ -7271,20 +9167,45 @@ Description of the database
 
 
 
+    </table>
 
 
+    <a name="420662"></A>
 
 
 
 
 
 
+    <table BORDER=0 CELLSPACING=0 WIDTH="100%" BGCOLOR="#CECEFF">
+        <tr>
+            <td width="1%" BGCOLOR="#CCCCCC">&nbsp;</td>
+            <td WIDTH="20%" BGCOLOR="#CCCCCC">
+                <font face="Arial">
+                <font size=-2>
+                <B>11-12-2012</B>
+                </font>
+                </font>
+            </td>
+            <td ALIGN=CENTER WIDTH="69%" BGCOLOR="#A0A0FF">
+                    <font face="Arial">
+                    <font size=-2>
+                    <B>EP opinion 2nd rdg</B>
+                    </font>
+                    </font>
+            </td>
+        </tr>
 
 
 
 
 
 
+                <tr>
+                <td width="3">&nbsp;</td>
+                <td VALIGN=TOP><font face="Arial"><font size=-2>Decision :</font></font></td>
+                <td VALIGN=TOP><font face="Arial"><font size=-2>Approval without amendment</font></font></td>
+                </tr>
 
 
 
@@ -7292,23 +9213,27 @@ Description of the database
 
 
 
-	<a href="http://www.europarl.europa.eu/omk/sipade2?PUBREF=-//EP//TEXT+REPORT+A6-2006-0400+0+NOT+XML+V0//EN" ONMOUSEOUT="isimgact2( 'doc_pin_53', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_53', 'images/doc_pinon.gif')"><img SRC="http://ec.europa.eu/prelex/images/doc_pin.gif" BORDER=0 height=15 width=15  NAME="doc_pin_53" ALT="Report"></a>
-	&nbsp;
-	<a href="http://www.europarl.europa.eu/omk/sipade2?PUBREF=-//EP//TEXT+REPORT+A6-2006-0400+0+NOT+XML+V0//EN" ONMOUSEOUT="isimgact2( 'doc_pin_53', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_53', 'images/doc_pinon.gif')">
 
-		<font face="Arial"><font size=-2>A6/2006/400/</font></font>
 
-	</a>
 
 
 
 
-					<BR>
 
 
 
 
+            <tr>
+            <td width="3">&nbsp;</td>
+            <td VALIGN=TOP><font face="Arial"><font size=-2>Responsible</font></font></td>
+            <td VALIGN=TOP><font face="Arial"><font size=-2>Siim KALLAS</font></font></td>
+            </tr>
 
+            <tr>
+            <td width="3">&nbsp;</td>
+            <td VALIGN=TOP><font face="Arial"><font size=-2>Rapporteur</font></font></td>
+            <td VALIGN=TOP><font face="Arial"><font size=-2>Knut FLECKENSTEIN</font></font></td>
+            </tr>
 
 
 
@@ -7318,6 +9243,11 @@ Description of the database
 
 
 
+            <tr>
+            <td width="3">&nbsp;</td>
+            <td VALIGN=TOP><font face="Arial"><font size=-2>Documents:</font></font></td>
+            <td VALIGN=TOP>
+                <font face="Arial"><font size=-2>
 
 
 
@@ -7362,26 +9292,26 @@ Description of the database
 
 
 
-	<a href="http://europa.eu/bulletin/en/200612/p107009.htm" ONMOUSEOUT="isimgact2( 'doc_pin_54', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_54', 'images/doc_pinon.gif')"><img SRC="http://ec.europa.eu/prelex/images/doc_pin.gif" BORDER=0 height=15 width=15  NAME="doc_pin_54" ALT="Bulletin of the European Union"></a>
-	&nbsp;
-	<a href="http://europa.eu/bulletin/en/200612/p107009.htm" ONMOUSEOUT="isimgact2( 'doc_pin_54', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_54', 'images/doc_pinon.gif')">
 
-		<font face="Arial"><font size=-2>Bulletin /2006/12/&nbsp;&nbsp;&nbsp;1.7.9</font></font>
 
-	</a>
 
 
+    <a href="http://www.europarl.europa.eu/omk/sipade2?PUBREF=-//EP//TEXT+TA+P6-TA-2012-0473+0+DOC+XML+V0//EN" ONMOUSEOUT="isimgact2( 'doc_pin_44', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_44', 'images/doc_pinon.gif')"><img SRC="http://ec.europa.eu/prelex/images/doc_pin.gif" BORDER=0 height=15 width=15  NAME="doc_pin_44" ALT="Report"></a>
+    &nbsp;
+    <a href="http://www.europarl.europa.eu/omk/sipade2?PUBREF=-//EP//TEXT+TA+P6-TA-2012-0473+0+DOC+XML+V0//EN" ONMOUSEOUT="isimgact2( 'doc_pin_44', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_44', 'images/doc_pinon.gif')">
 
+        <font face="Arial"><font size=-2>TA/2012/473/P7</font></font>
 
-					<BR>
+    </a>
 
-				</font></font>
-			</td>
-			</tr>
 
 
 
+                    <BR>
 
+                </font></font>
+            </td>
+            </tr>
 
 
 
@@ -7401,37 +9331,23 @@ Description of the database
 
 
 
+            <tr>
+            <td width="3">&nbsp;</td>
+            <td VALIGN=TOP><font face="Arial"><font size=-2>
 
 
 
-	</table>
+                    CELEX NUMBER
 
+            </font></font></td>
 
-	<a name="383234"></A>
 
+                <td VALIGN=TOP>
 
 
 
 
 
-	<table BORDER=0 CELLSPACING=0 WIDTH="100%" BGCOLOR="#FFFFCE">
-		<tr>
-			<td width="1%" BGCOLOR="#EEEEEE">&nbsp;</td>
-			<td WIDTH="20%" BGCOLOR="#EEEEEE">
-				<font face="Arial">
-				<font size=-2>
-				<B>18-12-2006</B>
-				</font>
-				</font>
-			</td>
-			<td ALIGN=CENTER WIDTH="69%" BGCOLOR="#FFFFA0">
-					<font face="Arial">
-					<font size=-2>
-					<B>Signature by EP and Council</B>
-					</font>
-					</font>
-			</td>
-		</tr>
 
 
 
@@ -7458,11 +9374,6 @@ Description of the database
 
 
 
-			<tr>
-			<td width="3">&nbsp;</td>
-			<td VALIGN=TOP><font face="Arial"><font size=-2>Documents:</font></font></td>
-			<td VALIGN=TOP>
-				<font face="Arial"><font size=-2>
 
 
 
@@ -7471,13 +9382,20 @@ Description of the database
 
 
 
+    <a href="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CELEX:52011AP0581:EN:NOT" ONMOUSEOUT="isimgact2( 'doc_pin_45', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_45', 'images/doc_pinon.gif')"><img SRC="http://ec.europa.eu/prelex/images/doc_pin.gif" BORDER=0 height=15 width=15  NAME="doc_pin_45" ALT="Document Celex"></a>
+    &nbsp;
+    <a href="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CELEX:52011AP0581:EN:NOT" ONMOUSEOUT="isimgact2( 'doc_pin_45', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_45', 'images/doc_pinon.gif')">
 
+        <font face="Arial"><font size=-2>52011AP0581</font></font>
 
+    </a>
 
 
 
 
+                </td>
 
+            </tr>
 
 
 
@@ -7490,14 +9408,34 @@ Description of the database
 
 
 
+    </table>
 
 
+    <a name="421462"></A>
 
 
 
 
 
 
+    <table BORDER=0 CELLSPACING=0 WIDTH="100%" BGCOLOR="#FFFFCE">
+        <tr>
+            <td width="1%" BGCOLOR="#EEEEEE">&nbsp;</td>
+            <td WIDTH="20%" BGCOLOR="#EEEEEE">
+                <font face="Arial">
+                <font size=-2>
+                <B>15-01-2013</B>
+                </font>
+                </font>
+            </td>
+            <td ALIGN=CENTER WIDTH="69%" BGCOLOR="#FFFFA0">
+                    <font face="Arial">
+                    <font size=-2>
+                    <B>Signature by EP and Council</B>
+                    </font>
+                    </font>
+            </td>
+        </tr>
 
 
 
@@ -7521,18 +9459,17 @@ Description of the database
 
 
 
-	<a href="http://europa.eu/bulletin/en/200612/p107009.htm" ONMOUSEOUT="isimgact2( 'doc_pin_55', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_55', 'images/doc_pinon.gif')"><img SRC="http://ec.europa.eu/prelex/images/doc_pin.gif" BORDER=0 height=15 width=15  NAME="doc_pin_55" ALT="Bulletin of the European Union"></a>
-	&nbsp;
-	<a href="http://europa.eu/bulletin/en/200612/p107009.htm" ONMOUSEOUT="isimgact2( 'doc_pin_55', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_55', 'images/doc_pinon.gif')">
 
-		<font face="Arial"><font size=-2>Bulletin /2006/12/&nbsp;&nbsp;&nbsp;1.7.9</font></font>
 
-	</a>
 
+            <tr>
+            <td width="3">&nbsp;</td>
+            <td VALIGN=TOP><font face="Arial"><font size=-2>Documents:</font></font></td>
+            <td VALIGN=TOP>
+                <font face="Arial"><font size=-2>
 
 
 
-					<BR>
 
 
 
@@ -7579,21 +9516,21 @@ Description of the database
 
 
 
+    <a href="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2013:039:SOM:en:HTML" ONMOUSEOUT="isimgact2( 'doc_pin_46', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_46', 'images/doc_pinon.gif')"><img SRC="http://ec.europa.eu/prelex/images/doc_pin.gif" BORDER=0 height=15 width=15  NAME="doc_pin_46" ALT="Official Journal"></a>
+    &nbsp;
+    <a href="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2013:039:SOM:en:HTML" ONMOUSEOUT="isimgact2( 'doc_pin_46', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_46', 'images/doc_pinon.gif')">
 
+        <font face="Arial"><font size=-2>OJ L/2013/39/&nbsp;&nbsp;&nbsp;30</font></font>
 
+    </a>
 
-	<a href="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2006:403:SOM:en:HTML" ONMOUSEOUT="isimgact2( 'doc_pin_56', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_56', 'images/doc_pinon.gif')"><img SRC="http://ec.europa.eu/prelex/images/doc_pin.gif" BORDER=0 height=15 width=15  NAME="doc_pin_56" ALT="Official Journal"></a>
-	&nbsp;
-	<a href="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2006:403:SOM:en:HTML" ONMOUSEOUT="isimgact2( 'doc_pin_56', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_56', 'images/doc_pinon.gif')">
 
-		<font face="Arial"><font size=-2>OJ L/2006/403/&nbsp;&nbsp;&nbsp;1</font></font>
 
-	</a>
 
+                    <BR>
 
 
 
-					<BR>
 
 
 
@@ -7639,30 +9576,35 @@ Description of the database
 
 
 
+    <a href="http://register.consilium.europa.eu/servlet/driver?page=Result&lang=EN&typ=Advanced&cmsid=639&ff_COTE_DOCUMENT=78/12|78/*/12&ff_COTE_DOSSIER_INST=&ff_TITRE=&ff_FT_TEXT=&ff_SOUS_COTE_MATIERE=&dd_DATE_DOCUMENT=&dd_DATE_REUNION=&dd_FT_DATE=&fc=REGAISEN&srm=25&md=100&ssf=" ONMOUSEOUT="isimgact2( 'doc_pin_47', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_47', 'images/doc_pinon.gif')"><img SRC="http://ec.europa.eu/prelex/images/doc_pin.gif" BORDER=0 height=15 width=15  NAME="doc_pin_47" ALT="Click here to see the document PE-CONS/2012/78/"></a>
+    &nbsp;
+    <a href="http://register.consilium.europa.eu/servlet/driver?page=Result&lang=EN&typ=Advanced&cmsid=639&ff_COTE_DOCUMENT=78/12|78/*/12&ff_COTE_DOSSIER_INST=&ff_TITRE=&ff_FT_TEXT=&ff_SOUS_COTE_MATIERE=&dd_DATE_DOCUMENT=&dd_DATE_REUNION=&dd_FT_DATE=&fc=REGAISEN&srm=25&md=100&ssf=" ONMOUSEOUT="isimgact2( 'doc_pin_47', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_47', 'images/doc_pinon.gif')">
 
+        <font face="Arial"><font size=-2>PE-CONS/2012/78/</font></font>
 
+    </a>
 
-	<a href="http://register.consilium.europa.eu/servlet/driver?page=Result&lang=EN&typ=Advanced&cmsid=639&ff_COTE_DOCUMENT=3684/06|3684/*/06&ff_COTE_DOSSIER_INST=&ff_TITRE=&ff_FT_TEXT=&ff_SOUS_COTE_MATIERE=&dd_DATE_DOCUMENT=&dd_DATE_REUNION=&dd_FT_DATE=&fc=REGAISEN&srm=25&md=100&ssf=" ONMOUSEOUT="isimgact2( 'doc_pin_57', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_57', 'images/doc_pinon.gif')"><img SRC="http://ec.europa.eu/prelex/images/doc_pin.gif" BORDER=0 height=15 width=15  NAME="doc_pin_57" ALT="Click here to see the document PE-CONS/2006/3684/"></a>
-	&nbsp;
-	<a href="http://register.consilium.europa.eu/servlet/driver?page=Result&lang=EN&typ=Advanced&cmsid=639&ff_COTE_DOCUMENT=3684/06|3684/*/06&ff_COTE_DOSSIER_INST=&ff_TITRE=&ff_FT_TEXT=&ff_SOUS_COTE_MATIERE=&dd_DATE_DOCUMENT=&dd_DATE_REUNION=&dd_FT_DATE=&fc=REGAISEN&srm=25&md=100&ssf=" ONMOUSEOUT="isimgact2( 'doc_pin_57', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_57', 'images/doc_pinon.gif')">
 
-		<font face="Arial"><font size=-2>PE-CONS/2006/3684/</font></font>
 
-	</a>
 
+                    <BR>
 
+                </font></font>
+            </td>
+            </tr>
 
 
-					<BR>
 
-				</font></font>
-			</td>
-			</tr>
 
 
 
 
 
+                <tr>
+                <td width="3">&nbsp;</td>
+                <td VALIGN=TOP><font face="Arial"><font size=-2>Procedures:</font></font></td>
+                <td VALIGN=TOP><font face="Arial"><font size=-2>Codecision procedure</font></font></td>
+                </tr>
 
 
 
@@ -7672,32 +9614,37 @@ Description of the database
 
 
 
+                <tr>
+                <td width="3">&nbsp;</td>
+                <td VALIGN=TOP><font face="Arial"><font size=-2>Type of file:</font></font></td>
+                <td VALIGN=TOP><font face="Arial"><font size=-2>Regulation</font></font></td>
+                </tr>
 
 
 
 
 
-			<tr>
-			<td width="3">&nbsp;</td>
-			<td VALIGN=TOP><font face="Arial"><font size=-2>
 
 
 
-					CELEX NUMBER
 
-			</font></font></td>
 
 
-				<td VALIGN=TOP>
 
 
 
+            <tr>
+            <td width="3">&nbsp;</td>
+            <td VALIGN=TOP><font face="Arial"><font size=-2>
 
 
 
+                    CELEX NUMBER
 
+            </font></font></td>
 
 
+                <td VALIGN=TOP>
 
 
 
@@ -7728,41 +9675,50 @@ Description of the database
 
 
 
-	<a href="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CELEX:32006R1921:EN:NOT" ONMOUSEOUT="isimgact2( 'doc_pin_58', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_58', 'images/doc_pinon.gif')"><img SRC="http://ec.europa.eu/prelex/images/doc_pin.gif" BORDER=0 height=15 width=15  NAME="doc_pin_58" ALT="Document Celex"></a>
-	&nbsp;
-	<a href="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CELEX:32006R1921:EN:NOT" ONMOUSEOUT="isimgact2( 'doc_pin_58', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_58', 'images/doc_pinon.gif')">
 
-		<font face="Arial"><font size=-2>32006R1921</font></font>
 
-	</a>
 
 
 
 
-				</td>
 
-			</tr>
 
 
+    <a href="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CELEX:32013R0100:EN:NOT" ONMOUSEOUT="isimgact2( 'doc_pin_48', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_48', 'images/doc_pinon.gif')"><img SRC="http://ec.europa.eu/prelex/images/doc_pin.gif" BORDER=0 height=15 width=15  NAME="doc_pin_48" ALT="Document Celex"></a>
+    &nbsp;
+    <a href="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CELEX:32013R0100:EN:NOT" ONMOUSEOUT="isimgact2( 'doc_pin_48', 'images/doc_pin.gif')" ONMOUSEOVER="isimgact2( 'doc_pin_48', 'images/doc_pinon.gif')">
 
+        <font face="Arial"><font size=-2>32013R0100</font></font>
 
+    </a>
 
 
 
 
+                </td>
 
+            </tr>
 
 
 
-	</table>
 
 
 
-		</td>
-	</tr>
+
+
+
+
+
+
+    </table>
+
+
+
+        </td>
+    </tr>
 </table>
 </TD>
-	</TR>
+    </TR>
 </TABLE>
 
 
@@ -7785,26 +9741,24 @@ Description of the database
 
 
 
-				<!-- BOTTOM NAVIGATION BAR -->
-				<div align="left">
+                <!-- BOTTOM NAVIGATION BAR -->
+                <div align="left">
 
 <br>
 <table width="100%" border="0" cellspacing="0" cellpadding="0" summary="navigation de bas de page" id="bottom_nav">
-	<tr>
-		<td align="center">
+    <tr>
+        <td align="center">
 
-			<span class="bottom-navigation">
-   			    <a href="http://ec.europa.eu/prelex/apcnet.cfm?CL=en" id="tl_simplesearch" class="bottom-navigation" target="_parent">PreLex home page</a>
-				<strong>&nbsp;|&nbsp;</strong>
-				<strong>Search</strong>
-				&gt;
-   			    <a href="http://ec.europa.eu/prelex/rech_simple.cfm?CL=en" id="tl_simplesearch" class="bottom-navigation" target="_parent">Standard</a>
-				&gt;
-   			    <a href="http://ec.europa.eu/prelex/rech_avancee.cfm?CL=en" id="tl_advancedsearch" class="bottom-navigation" target="_parent">Advanced</a>
+            <span class="bottom-navigation">
+                <a href="http://ec.europa.eu/prelex/apcnet.cfm?CL=en" id="tl_simplesearch" class="bottom-navigation" target="_parent">PreLex home page</a>
+                <strong>&nbsp;|&nbsp;</strong>
+                <strong>Search</strong>
+                &gt;
+                <a href="http://ec.europa.eu/prelex/rech_simple.cfm?CL=en" id="tl_simplesearch" class="bottom-navigation" target="_parent">Standard</a>
+                &gt;
+                <a href="http://ec.europa.eu/prelex/rech_avancee.cfm?CL=en" id="tl_advancedsearch" class="bottom-navigation" target="_parent">Advanced</a>
 
-				<strong>&nbsp;|&nbsp;</strong>
-
-
+                <strong>&nbsp;|&nbsp;</strong>
 
 
 
@@ -7863,7 +9817,9 @@ Description of the database
 
 
 
-		<a href="#" class="bottom-navigation" onClick="OpenWin_manual('ct/sgv_manual_dsp_main.cfm?manualcat_id=prelex&cl=en')" id="tl_legissearch">
+
+
+        <a href="#" class="bottom-navigation" onClick="OpenWin_manual('ct/sgv_manual_dsp_main.cfm?manualcat_id=prelex&cl=en')" id="tl_legissearch">
 
 
 
@@ -7934,7 +9890,7 @@ Description of the database
 
 
 
-	</a>
+    </a>
 
 
 
@@ -7943,19 +9899,19 @@ Description of the database
 
 
 
-				<strong>&nbsp;|&nbsp;</strong>
-				<A href="#Top" class="bottom-navigation">
-				Beginning
-		   		<IMG src="http://ec.europa.eu/images/navigation/ar_pag_t.gif" border="0" alt="Beginning" width="14" height="16">
-			   </a>
-			</span>
+                <strong>&nbsp;|&nbsp;</strong>
+                <A href="#Top" class="bottom-navigation">
+                Beginning
+                <IMG src="http://ec.europa.eu/images/navigation/ar_pag_t.gif" border="0" alt="Beginning" width="14" height="16">
+               </a>
+            </span>
 
-	    </td>
-	</tr>
+        </td>
+    </tr>
 </table>
-				</div>
-	</body>
-	</html>
+                </div>
+    </body>
+    </html>
 
 
 

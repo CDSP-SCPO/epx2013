@@ -4,8 +4,8 @@ print ""
 
 #CHO0SE SOURCE (COMMENT OTHER SOURCES)
 src="eurlex"
-#~ src="oeil"
-#~ src="prelex"
+src="oeil"
+src="prelex"
 
 
 if src=="eurlex":
@@ -38,11 +38,18 @@ elif src=="prelex":
         idsDataDic['split_propos']=0
         idsDataDic['suite_2e_lecture_pe']=1
 
+
+        #get no_celex
+        import get_ids_eurlex as eurlex_ids
+        url_eurlex="eurlex_content.html"
+        html=eurlex_ids.get_url_content_eurlex(url_eurlex)
+        no_celex=eurlex_ids.get_ids_eurlex(html)["no_celex"]
+
         import get_ids_prelex as ids_prelex
         import get_data_prelex as prelexInfo
         html=ids_prelex.get_url_content_prelex(url)
         print "IDS RETRIEVAL"
-        idsDataDic.update(ids_prelex.get_ids_prelex(html))
+        idsDataDic.update(ids_prelex.get_ids_prelex(html, no_celex))
         print ""
         print "INFORMATION RETRIEVAL"
         fields=prelexInfo.get_data_prelex(html, idsDataDic)

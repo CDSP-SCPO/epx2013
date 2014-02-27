@@ -25,12 +25,15 @@ def link_act_gvt_compo(act_ids, act):
     if act.adopt_conseil!=None:
         date=act.adopt_conseil
         print "act.adopt_conseil", act.adopt_conseil
+    #if no adopt_conseil, take sign_pecs
     elif act.sign_pecs!=None:
-        #if no adopt_conseil, take sign_pecs
         date=act.sign_pecs
+        print "act.sign_pecs", act.sign_pecs
     elif act_ids.propos_origine in ["EM", "CONS", "BCE", "CJUE"]:
         date=act.date_doc
+        print "act.date_doc", act.date_doc
 
+    print "date", date
     if date==None:
         return None
 

@@ -308,7 +308,7 @@ def get_date_doc(soup):
     """
     #<li><b>of document: </b>18/12/2006</li>
     try:
-        return date_string_to_iso(soup.find("b", text=re.compile("of document")).next_sibling.strip())
+        return date_string_to_iso(soup.find("li", text=re.compile("of document")).get_text().split(":",1)[1].strip())
     except Exception, e:
         print "no date gvt_compo!", e
         return None
