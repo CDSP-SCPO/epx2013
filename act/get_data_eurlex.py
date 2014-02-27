@@ -216,10 +216,10 @@ def get_type_acte(soup):
         misc=soup.find(text=re.compile("Miscellaneous information")).find_next("div", {"class": "tabContent"}).find("ul")
         #author part
         author=misc.find("li", text=re.compile("Author:")).get_text().split(":",1)[1].strip().lower()
-        print "author", author
+        #~ print "author", author
         #form part
         form=misc.find("li", text=re.compile("Form:")).get_text().split(":",1)[1].strip().lower()
-        print "form", form
+        #~ print "form", form
 
         #return acronyms
         author_code=""
@@ -269,7 +269,7 @@ def get_base_j(soup):
     try:
         #http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CELEX:32002L0090:EN:NOT
         li=soup.find(text=re.compile("Legal basis:")).find_parent()
-        print "li", li
+        #~ print "li", li
         legal_bases=li.find_all('a')
         var=""
         for legal_base in legal_bases:

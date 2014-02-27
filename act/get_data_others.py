@@ -24,6 +24,7 @@ def link_act_gvt_compo(act_ids, act):
     date=None
     if act.adopt_conseil!=None:
         date=act.adopt_conseil
+        print "act.adopt_conseil", act.adopt_conseil
     elif act.sign_pecs!=None:
         #if no adopt_conseil, take sign_pecs
         date=act.sign_pecs
@@ -136,22 +137,9 @@ def get_data_others(act_ids, act):
 
     #link the act with the gvt_compo variables
     link_act_gvt_compo(act_ids, act)
-    #display gvt_compo variables
-    for gvt_compo in act.gvt_compo.all():
-        print "gvt_compo_country:", gvt_compo.country.country_code
-        partys=""
-        for party in gvt_compo.party.all():
-            partys+=party.party+"; "
-        print "gvt_compo_partys:", partys[:-2]
 
     #link the act with the min_attend variables  and return those variables in a special format to make their display easier in the template
     fields["min_attend"]=link_act_min_attend(act)
-     #display min_attend variables
-    for min_attend in MinAttend.objects.all():
-        print "min_attend_act:", min_attend.act.releve_annee, min_attend.act.releve_mois, min_attend.act.no_ordre
-        print "min_attend_country:", min_attend.country.country_code
-        print "min_attend_verbatim:", min_attend.verbatim
-        print "min_attend_ind_status:", min_attend.ind_status
 
     #link the act with the opal variables and return opal variables in a special format to make their display easier in the template
     fields["opal"]=link_get_act_opal(act_ids, act)
