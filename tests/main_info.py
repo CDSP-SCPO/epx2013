@@ -5,7 +5,7 @@ print ""
 #CHO0SE SOURCE (COMMENT OTHER SOURCES)
 src="eurlex"
 src="oeil"
-src="prelex"
+#~ src="prelex"
 
 
 if src=="eurlex":
@@ -20,17 +20,17 @@ if src=="eurlex":
 
 elif src=="oeil":
         #MODIFY AT WILL!!
-        url="oeilContent.html"
+        url="oeil_content.html"
         idsDataDic['suite_2e_lecture_pe']=1
 
         import get_ids_oeil as ids_oeil
-        import get_data_oeil as oeilInfo
+        import get_data_oeil as oeil_info
         html=ids_oeil.get_url_content_oeil(url)
         print "IDS RETRIEVAL"
         idsDataDic.update(ids_oeil.get_ids_oeil(html))
         print ""
         print "INFORMATION RETRIEVAL"
-        fields=oeilInfo.get_data_oeil(html, idsDataDic)
+        fields=oeil_info.get_data_oeil(html, idsDataDic)
 
 elif src=="prelex":
         #MODIFY AT WILL!!

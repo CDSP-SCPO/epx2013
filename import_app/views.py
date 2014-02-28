@@ -402,8 +402,8 @@ def get_data_adopt_pc(row):
 
 
     #TEMPORARY: update with no_celex
-    instance.no_celex=row[5].strip()
-    instance.save();
+    #~ instance.no_celex=row[5].strip()
+    #~ instance.save();
 
 
     #exist and created are opposite boolean
