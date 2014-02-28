@@ -400,6 +400,12 @@ def get_data_adopt_pc(row):
     instance, created = ImportAdoptPC.objects.get_or_create(defaults=defaults, **ids_row)
     msg=get_error_msg(ids_row)
 
+
+    #TEMPORARY: update with no_celex
+    instance.no_celex=row[5].strip()
+    instance.save();
+
+
     #exist and created are opposite boolean
     return instance, msg, not created
 

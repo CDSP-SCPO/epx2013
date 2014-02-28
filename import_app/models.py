@@ -64,6 +64,7 @@ class ImportAdoptPC(models.Model):
     releve_annee=models.IntegerField(max_length=4, blank=False, null=False)
     releve_mois=models.IntegerField(max_length=2, blank=False, null=False)
     no_ordre=models.IntegerField(max_length=2, blank=False, null=False)
+    no_celex=models.CharField(max_length=15, blank=False, null=False)
     #list of country_codes
     adopt_pc_abs=models.CharField(max_length=18, blank=True, null=True, default=None)
     #list of country_codes

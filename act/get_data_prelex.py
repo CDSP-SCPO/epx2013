@@ -563,19 +563,20 @@ def get_vote_public(adopt_cs_contre, adopt_cs_abs):
 
 
 #external table
-def link_act_adopt_pc(act):
+def link_act_adopt_pc(act, act_ids):
     """
     FUNCTION
     fill the assocation table which links an act to its adopt_pc_contre and adopt_pc_abs variables
     PARAMETERS
     act: instance of an act [Act model instance]
+    act_ids: instance of an act ids [ActIds model instance]
     RETURN
     adopt_pc: adopt_pc_contre and adopt_pc_abs variables
     """
     adopt_pc=None
     try:
         #is there a match in the ImportAdoptPC table?
-        adopt_pc=ImportAdoptPC.objects.only("adopt_pc_contre", "adopt_pc_abs").get(releve_annee=act.releve_annee, releve_mois=act.releve_mois, no_ordre=act.no_ordre)
+        adopt_pc=ImportAdoptPC.objects.only("adopt_pc_contre", "adopt_pc_abs").get(no_celex=act_ids.no_celex)
         save_adopt_cs_pc(act, "adopt_pc_contre", adopt_pc.adopt_pc_contre)
         save_adopt_cs_pc(act, "adopt_pc_abs", adopt_pc.adopt_pc_abs)
     except Exception, e:
@@ -738,7 +739,7 @@ def get_data_prelex(soup, act_ids, act):
     print "vote_public:", fields['vote_public']
 
     #adopt_pc_contre, #adopt_pc_abs
-    adopt_pc=link_act_adopt_pc(act)
+    adopt_pc=link_act_adopt_pc(act, act_ids)
     if adopt_pc!=None:
         print "adopt_pc_contre:", adopt_pc.adopt_pc_contre
         print "adopt_pc_abs:", adopt_pc.adopt_pc_abs
