@@ -50,18 +50,18 @@ def link_act_gvt_compo(act_ids, act):
 
 
 
-def link_act_min_attend(act):
+def link_act_min_attend(act_ids):
     """
     FUNCTION
     fill the assocation table which links an act and a country to its minister's attendance
     PARAMETERS
-    act: instance of an act [Act model instance]
+    act_ids: instance of the ids of the act [ActIds model instance]
     RETURN
     min_attend_dic: min_attend variables [dictionary]
     """
     min_attend_dic={}
     #retrieve all the rows of the act from the ImportMinAttend table
-    min_attends=ImportMinAttend.objects.filter(releve_annee=act.releve_annee, releve_mois=act.releve_mois, no_ordre=act.no_ordre)
+    min_attends=ImportMinAttend.objects.filter(no_celex=act_ids.no_celex)
     #for each country and each verbatim fill the association
     for min_attend in min_attends:
         #store data in a dictionary
@@ -72,11 +72,11 @@ def link_act_min_attend(act):
         min_attend_dic[country]+=min_attend.ind_status+"; "
 
         try:
-            MinAttend.objects.create(act=act, country=Country.objects.get(pk=min_attend.country), verbatim=min_attend.verbatim, ind_status=min_attend.ind_status)
+            MinAttend.objects.create(act=act_ids.act_id, country=Country.objects.get(pk=min_attend.country), verbatim=min_attend.verbatim, ind_status=min_attend.ind_status)
         except Exception, e:
             print "min_attend already exists!", e
 
-     #remove last "; "
+    #remove last "; "
     for country in min_attend_dic:
         min_attend_dic[country]=min_attend_dic[country][:-2]
 
@@ -142,7 +142,7 @@ def get_data_others(act_ids, act):
     link_act_gvt_compo(act_ids, act)
 
     #link the act with the min_attend variables  and return those variables in a special format to make their display easier in the template
-    fields["min_attend"]=link_act_min_attend(act)
+    fields["min_attend"]=link_act_min_attend(act_ids)
 
     #link the act with the opal variables and return opal variables in a special format to make their display easier in the template
     fields["opal"]=link_get_act_opal(act_ids, act)
