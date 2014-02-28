@@ -2,8 +2,6 @@ from django.db import models
 #min and max values for integer fields
 from django.core.validators import MinValueValidator, MaxValueValidator
 import var_name_data
-#for the history table
-from django.contrib.auth.models import User
 
 
 class Country(models.Model):
@@ -283,18 +281,4 @@ class MinAttend(models.Model):
     class Meta:
         unique_together=(("act", "country", "verbatim"), )
 
-
-class History(models.Model):
-    """
-    MODEL
-    history of validated acts
-    """
-    date=models.DateField(max_length=10, blank=False, null=False, auto_now_add=True)
-    time = models.TimeField(max_length=10, blank=False, null=False, auto_now_add=True)
-    #"add" or "modif"
-    action=models.CharField(max_length=5, blank=False, null=False)
-    #"ids" or "data"
-    form=models.CharField(max_length=4, blank=False, null=False)
-    act=models.ForeignKey(Act)
-    user = models.ForeignKey(User)
 

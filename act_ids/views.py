@@ -3,7 +3,8 @@ from django.shortcuts import render_to_response
 from django.template import RequestContext
 from act_ids.forms import ActIdsForm, ActForm, Add, Modif
 from act_ids.models import ActIds
-from act.models import Act, History
+from act.models import Act
+from history.models import History
 from import_app.models import ImportDosId
 from common.db import save_get_object, get_act_ids
 #variables name

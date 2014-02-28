@@ -244,9 +244,6 @@ def qs_to_csv_file(headers, acts, outfile_path):
     """
     writer=csv.writer(open(outfile_path, 'w'),  delimiter=';', quotechar='"', quoting=csv.QUOTE_ALL)
 
-    #force utf-8 for excel
-    writer.writerow("\uFEFF")
-
     #write headers
     writer.writerow(headers)
 
@@ -292,7 +289,7 @@ def export(request):
             sort_field=request.POST['sort_fields']
             sort_direction=request.POST['sort_direction']
             dir_server=settings.MEDIA_ROOT+"/export/"
-            file_name="acts.csv"
+            file_name="acts.txt"
             #if a file with the same name already exists, we delete it
             if os.path.exists(dir_server+file_name):
                 os.remove(dir_server+file_name)

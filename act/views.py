@@ -1,7 +1,8 @@
 #-*- coding: utf-8 -*-
 from act_ids.forms import ActIdsForm
 from act.forms import ActForm, Add, Modif
-from act.models import Act, DG, Person, NP, PartyFamily, Country, CodeSect, History
+from act.models import Act, DG, Person, NP, PartyFamily, Country, CodeSect
+from history.models import History
 from import_app.models import ImportNP
 from common.db import get_act_ids
 #get the add_modif fct
