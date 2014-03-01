@@ -72,7 +72,7 @@ def link_act_min_attend(act_ids):
         min_attend_dic[country]+=min_attend.ind_status+"; "
 
         try:
-            MinAttend.objects.create(act=act_ids.act_id, country=Country.objects.get(pk=min_attend.country), verbatim=min_attend.verbatim, ind_status=min_attend.ind_status)
+            MinAttend.objects.create(act=act_ids.act, country=Country.objects.get(pk=min_attend.country), verbatim=min_attend.verbatim, ind_status=min_attend.ind_status)
         except Exception, e:
             print "min_attend already exists!", e
 

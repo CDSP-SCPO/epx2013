@@ -11,7 +11,7 @@ from collections import OrderedDict
 class Command(NoArgsCommand):
     def handle(self, **options):
         years_list=[str(n) for n in range(1996, 2013)]
-        titles={}
+        titles=OrderedDict({})
         nbs=OrderedDict({})
 
         titles["prelex ids on eurlex"]=OrderedDict({})
@@ -22,12 +22,15 @@ class Command(NoArgsCommand):
         titles["eurlex ids on oeil"]=OrderedDict({})
 
         for year in years_list:
+            #first zero: number of occurences
+            #second zero: percentage
             titles["prelex ids on eurlex"][year]=[0,0]
             titles["oeil ids on eurlex"][year]=[0,0]
             titles["eurlex on prelex"][year]=[0,0]
             titles["oeil ids on prelex"][year]=[0,0]
             titles["prelex ids on oeil"][year]=[0,0]
             titles["eurlex ids on oeil"][year]=[0,0]
+            #count nb of acts for each year
             nbs[year]=0
 
 
@@ -35,7 +38,9 @@ class Command(NoArgsCommand):
             for year in titles[title]:
                 #~ print ""
                 #~ print "YEAR", year
-                acts=Act.objects.filter(releve_annee=year)
+                #acts of the year "year" and with validated ids
+                acts=Act.objects.filter(releve_annee=year, validated__gt=0)
+                #count nb of acts for each year
                 nbs[year]=acts.count()
                 #~ print "nb", nbs[year]
                 for act in acts:
