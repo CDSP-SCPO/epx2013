@@ -3,6 +3,14 @@ from bs4 import BeautifulSoup
 import re
 import urllib
 
-url="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CELEX:32007D0722:EN:NOT"
-soup=BeautifulSoup(urllib.urlopen(url))
-print soup.find("h2", text="Dates").find_next("ul").find(text=re.compile("of document")).strip()[-10:]
+def contains_digits(d):
+    _digits = re.compile('\d')
+    return bool(_digits.search(d))
+
+
+propos_origine="COM"
+
+if contains_digits(d):
+    print "digit"
+else
+    print "no digit"

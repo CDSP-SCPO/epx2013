@@ -5,7 +5,7 @@ print ""
 #CHO0SE SOURCE (COMMENT OTHER SOURCES)
 src="eurlex"
 src="oeil"
-#~ src="prelex"
+src="prelex"
 
 
 if src=="eurlex":
@@ -34,16 +34,18 @@ elif src=="oeil":
 
 elif src=="prelex":
         #MODIFY AT WILL!!
-        url="prelexContent.html"
+        url="prelex_content.html"
         idsDataDic['split_propos']=0
         idsDataDic['suite_2e_lecture_pe']=1
 
 
         #get no_celex
-        import get_ids_eurlex as eurlex_ids
-        url_eurlex="eurlex_content.html"
-        html=eurlex_ids.get_url_content_eurlex(url_eurlex)
-        no_celex=eurlex_ids.get_ids_eurlex(html)["no_celex"]
+        #~ import get_ids_eurlex as eurlex_ids
+        #~ url_eurlex="eurlex_content.html"
+        #~ html=eurlex_ids.get_url_content_eurlex(url_eurlex)
+        #~ no_celex=eurlex_ids.get_ids_eurlex(html)["no_celex"]
+        no_celex="32006R0816"
+        #~ no_celex="32011R0182"
 
         import get_ids_prelex as ids_prelex
         import get_data_prelex as prelexInfo

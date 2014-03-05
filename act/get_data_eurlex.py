@@ -81,12 +81,12 @@ def get_directory_code(soup_all, soup_his):
     tab="ALL"
     try:
         #extraction from the ALL tab
-        return soup_all.find(text=re.compile("Directory code:")).find_parent("li"), tab
+        return soup_his.find("td", {"id": "directoryCodeProc"}).find_all("span"), "HIS"
     except Exception, e :
         print "exception, get_directory_code", e
         try:
-             #extraction from the HIS tab
-            return soup_his.find("td", {"id": "directoryCodeProc"}).find_all("span"), "HIS"
+            #extraction from the HIS tab
+            return soup_all.find(text=re.compile("Directory code:")).find_parent("li"), tab
         except Exception, e :
             print "exception, get_directory_code 2", e
 

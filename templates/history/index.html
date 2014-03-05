@@ -1,0 +1,53 @@
+<!--
+TEMPLATE
+displays the history page
+ -->
+{% extends "base.html" %}
+
+{% block contentTitle %}<div id="title">History</div>{% endblock %}
+
+{% block content %}
+    <div id="content">
+        <!-- css related to the export application -->
+        <link rel="stylesheet" href="{{STATIC_URL}}europolix/css/history.css?{% now 'U' %}" />
+
+        <div class="row-fluid">
+            This page displays a history of the last 100 validated acts in descending order. Each time an act is validated, the following data are stored : date and time of validation, action performed (add or modification of the act), form used (act ids validation or act data validation), ids of the act and user who validated it.
+        </div>
+
+        <br />
+
+        <table id="history_table" class="table table-bordered table-hover table-condensed span10">
+            <thead>
+                <tr class="table_column_title">
+                    <th class="span2">Date</th>
+                    <th class="span2">Time</th>
+                    <th class="span1">Action</th>
+                    <th class="span1">Form</th>
+                    <th class="span5">Act</th>
+                    <th class="span3">User</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for history in object_list %}
+<!--
+                {{ history.id }}
+-->
+                    <tr>
+                        <td>{{ history.date }}</td>
+                        <td>{{ history.time }}</td>
+                        <td>{{ history.action }}</td>
+                        <td>{{ history.form }}</td>
+                        <td>{{ history.act }}</td>
+                        <td>{{ history.user.username }}</td>
+                    </tr>
+                {% empty %}
+                    <tr><td>No history yet.</td></tr>
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+    </div>
+
+{% endblock %}

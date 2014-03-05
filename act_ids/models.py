@@ -22,7 +22,7 @@ class ActIds(models.Model):
     no_unique_chrono=models.CharField(max_length=5, blank=True, null=True, default=None)
     propos_origine=models.CharField(max_length=4, blank=True, null=True, default=None)
     propos_annee=models.IntegerField(max_length=4, blank=True, null=True, default=None)
-    propos_chrono=models.CharField(max_length=7, blank=True, null=True, default=None)
+    propos_chrono=models.CharField(max_length=8, blank=True, null=True, default=None)
     dos_id=models.IntegerField(max_length=7, blank=True, null=True, default=None)
     act=models.ForeignKey(Act)
 
