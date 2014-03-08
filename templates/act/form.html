@@ -226,7 +226,7 @@
                                 {% with index=field.name|slice:"-1:" %}
                                     <div class="row-fluid">
                                         {% with dg_prelex=dg_names_prelex|get_value:index dg_oeil=dg_names_oeil|get_value:index %}
-                                            {% if dg_prelex != "" and dg_prelex != dg_oeil %}
+                                            {% if dg_prelex != dg_oeil %}
                                                 <span class="error_msg">
                                             {% else %}
                                                 <span>
@@ -245,7 +245,7 @@
                                 {% with index=field.name|slice:"-1:" %}
                                     <div class="row-fluid">
                                         {% with resp_prelex=resp_names_prelex|get_value:index resp_oeil=resp_names_oeil|get_value:index %}
-                                            {% if resp_prelex != "" and resp_prelex != resp_oeil %}
+                                            {% if resp_prelex != resp_oeil %}
                                                 <span class="error_msg">
                                             {% else %}
                                                 <span>

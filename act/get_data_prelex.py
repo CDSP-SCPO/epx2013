@@ -181,8 +181,9 @@ def save_get_dg(dg):
     """
     dg_instance=[]
     many=False
-    if dg!=None:
+    if dg!=None and dg.strip()!="":
         #if there are two possible dgs separated by a semi-column
+        print "dg", dg
         temp=dg.split(";")
         for dg in temp:
             dg=dg.strip()
