@@ -447,10 +447,14 @@ def get_council_a(soup):
     try:
         council_a_temp=""
         for tables in soup.find_all(text=re.compile('ITEM "A" ON COUNCIL AGENDA')):
-            council_a_temp+=tables.find_parent('table').find(text=re.compile("SUBJECT")).find_next("font", {"size":-2}).get_text().strip()+'; '
+            try:
+                council_a_temp+=tables.find_parent('table').find(text=re.compile("SUBJECT")).find_next("font", {"size":-2}).get_text().strip()+'; '
+            except Exception, e:
+                print "exception council_a", e
+                council_a_temp+='; '
         council_a=council_a_temp[:-2]
-    except:
-        print "no council_a!"
+    except Exception, e:
+        print "no council_a!", e
 
     return council_a
 
