@@ -63,9 +63,9 @@ contains the template of each webpage: doctype, left menu, right content templat
                             <!--  Welcome username -->
                             <span id="welcome_user">
                                 {% if user.username == "" %}
-                                    Welcome visitor!
+                                    Welcome visitor :).
                                 {% else %}
-                                    Welcome {{ user.username }}!
+                                    Welcome {{ user.username }} :).
                                 {% endif %}
                             </span>
                         </div>
@@ -88,7 +88,9 @@ contains the template of each webpage: doctype, left menu, right content templat
                                 <li><a href="{% url import %}" class="internal_link">CSV import<i class="icon-chevron-right"></i></a></li>
                                 <li><a href="{% url act_ids %}" class="internal_link">Act ids validation<i class="icon-chevron-right"></i></a></li>
                                 <li><a href="{% url act %}" class="internal_link">Act data validation<i class="icon-chevron-right"></i></a></li>
-                                <li><a href="{% url export %}" class="internal_link">CSV export<i class="icon-chevron-right"></i></a></li>
+                                {% if user.username != "simoneta.laviana" %}
+                                    <li><a href="{% url export %}" class="internal_link">CSV export<i class="icon-chevron-right"></i></a></li>
+                                {% endif %}
                                 <li><a href="{% url history %}" class="internal_link">History<i class="icon-chevron-right"></i></a></li>
                                 <li><a id="last_child" href="{% url admin:index %}">Administration<i class="icon-chevron-right"></i></a></li>
                             </ul>

@@ -7,7 +7,9 @@ from django.http import HttpResponse
 #generic view
 from django.views.generic.list import ListView
 #models
+from django.db.models import Count
 from history.models import History
+from act.models import Act
 
 
 
@@ -26,4 +28,5 @@ class HistoryListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super(HistoryListView, self).get_context_data(**kwargs)
+        context['nb_acts'] = Act.objects.filter(validated=2).count
         return context
