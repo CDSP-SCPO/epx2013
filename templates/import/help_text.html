@@ -8,27 +8,29 @@
 
         <span id="import_type">{{ form.file_to_import.value|selected_label:form.file_to_import.field.choices }}: </span>
         {% if form.file_to_import.value == "act" %}
-            {{ display_name.releve_annee }}, {{ display_name.releve_mois }}, {{ display_name.no_ordre }}, {{ display_name.titre_rmc }}, {{ display_name.adopt_cs_regle_vote }}, {{ display_name.adopt_cs_abs }}, {{ display_name.adopt_cs_contre }}, {{ display_name.no_celex }}, {{ display_name.propos_annee }}, {{ display_name.propos_chrono }}, {{ display_name.propos_origine }}, {{ display_name.no_unique_annee }}, {{ display_name.no_unique_type }}, {{ display_name.no_unique_chrono }}, {{ display_name.split_propos }}, {{ display_name.suite_2e_lecture_pe }}, {{ display_name.council_path }}, {{ display_name.notes }}
+            {{ display_name.releve_annee }}, {{ display_name.releve_mois }}, {{ display_name.no_ordre }}, {{ display_name.titre_rmc }}, {{ display_name.adopt_cs_regle_vote }}, {{ display_name.adopt_cs_abs }}, {{ display_name.adopt_cs_contre }}, {{ display_name.no_celex }}, {{ display_name.propos_annee }}, {{ display_name.propos_chrono }}, {{ display_name.propos_origine }}, {{ display_name.no_unique_annee }}, {{ display_name.no_unique_type }}, {{ display_name.no_unique_chrono }}, {{ display_name.split_propos }}, {{ display_name.suite_2e_lecture_pe }}, {{ display_name.council_path }}, {{ display_name.notes }}.
         {% elif form.file_to_import.value == "dos_id" %}
-            {{ display_name.dos_id }}, {{ display_name.no_celex }} (VAL_CHP_SUP_01), {{ display_name.no_celex }} (VAL_CHP_SUP_03)
+            {{ display_name.dos_id }}, {{ display_name.no_celex }} (VAL_CHP_SUP_01), {{ display_name.no_celex }} (VAL_CHP_SUP_03).
         {% elif form.file_to_import.value == "code_agenda" %}
-            {{ display_name.code_sect }}, {{ display_name.code_agenda }}
+            {{ display_name.code_sect }}, {{ display_name.code_agenda }}.
         {% elif form.file_to_import.value == "name" %}
-            {{ display_name.resp }}, {{ display_name.resp_party }}, {{ display_name.resp_party_family }}, {{ display_name.resp_country }}
+            {{ display_name.resp }}, {{ display_name.resp_party }}, {{ display_name.resp_party_family }}, {{ display_name.resp_country }}.
         {% elif form.file_to_import.value == "dg" %}
-            {{ display_name.dg }}, {{ display_name.dg_sigle }}, {{ display_name.dg_nb }}
+            {{ display_name.dg }}, {{ display_name.dg_sigle }}, {{ display_name.dg_nb }}.
         {% elif form.file_to_import.value == "config_cons" %}
-            {{ display_name.code_sect }}, {{ display_name.config_cons }}
+            {{ display_name.code_sect }}, {{ display_name.config_cons }}.
         {% elif form.file_to_import.value == "adopt_pc" %}
-            {{ display_name.releve_annee }}, {{ display_name.releve_mois }}, {{ display_name.no_ordre }}, {{ display_name.adopt_pc_abs }} , {{ display_name.adopt_pc_contre }}
+            {{ display_name.releve_annee }}, {{ display_name.releve_mois }}, {{ display_name.no_ordre }}, {{ display_name.adopt_pc_abs }} , {{ display_name.adopt_pc_contre }}.
         {% elif form.file_to_import.value  == "gvt_compo" %}
-            {{ display_name.start_date }}, {{ display_name.end_date }}, {{ display_name.gvt_compo }}
+            {{ display_name.start_date }}, {{ display_name.end_date }}, {{ display_name.gvt_compo }}.
         {% elif form.file_to_import.value == "np" %}
-            {{ display_name.case_nb }}, {{ display_name.no_celex }}, {{ display_name.np }}, {{ display_name.act_type }},  {{ display_name.act_date }}
-        {% elif form.file_to_import.value == "min_attend" %}
-            {{ display_name.releve_annee }}, {{ display_name.releve_mois }}, {{ display_name.no_ordre }}, {{ display_name.no_celex }}, {{ display_name.inc }}, {{ display_name.country }},  {{ display_name.ind_status }},  {{ display_name.verbatim }}
+            {{ display_name.case_nb }}, {{ display_name.no_celex }}, {{ display_name.np }}, {{ display_name.act_type }},  {{ display_name.act_date }}.
+        {% elif form.file_to_import.value == "min_attend_insert" %}
+            {{ display_name.releve_annee }}, {{ display_name.releve_mois }}, {{ display_name.no_ordre }}, {{ display_name.no_celex }}, {{ display_name.inc }}, {{ display_name.country }},  {{ display_name.ind_status }},  {{ display_name.verbatim }}.
+        {% elif form.file_to_import.value == "min_attend_update" %}
+            {{ display_name.no_celex }}, {{ display_name.country }},  {{ display_name.ind_status }},  {{ display_name.verbatim }}.
         {% endif %}
-        .<br />
+        <br />
 
     </div>
 

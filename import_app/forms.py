@@ -20,27 +20,55 @@ def ext_validation(csv_file):
     if not csv_file.name.endswith('.csv'):
         raise ValidationError(u'Incorrect format. Please choose a CSV file.')
 
+
+def get_choices(group=""):
+    """
+    FUNCTION
+    list of available choices for the import drop down list, in function of the user
+    PARAMETERS
+    group: group of the user ("" or "admin") [string]
+    RETURN
+    choices: list of available choices [list of tuples]
+    """
+    choices=[("","Select the import")]
+    if group=="admin":
+        choices.append(('act', 'Import acts to validate'))
+        choices.append(('dos_id', 'Import '+var_name_ids.var_name['dos_id']))
+        choices.append(('code_agenda', 'Import '+var_name_data.var_name['code_agenda']))
+        choices.append(('name', 'Import '+var_name_data.var_name['resp']+' and relative data'))
+        choices.append(('dg', 'Import '+var_name_data.var_name['dg']+" and "+var_name_data.var_name['dg_sigle']))
+        choices.append(('config_cons', 'Import '+var_name_data.var_name['config_cons']))
+        choices.append(('adopt_pc', 'Import '+var_name_data.var_name['adopt_pc_abs']+' and '+var_name_data.var_name['adopt_pc_contre']))
+        choices.append(('gvt_compo', 'Import '+var_name_data.var_name['gvt_compo']))
+        choices.append(('np', 'Import opal file (NP variables)'))
+        choices.append(('min_attend_insert', 'Import new Attendance of ministers'))
+
+    choices.append(('min_attend_update', 'Update Attendance of ministers'))
+
+    return choices
+
+
 class CSVUploadForm(forms.Form):
     """
     FORM
     upload a csv file containing either prelex unique ids (disId) or acts to validate
     """
-    file_to_import_choices=(
+
+    file_to_import_choices_not_admin=(
         ("","Select the import"),
-        ('act', 'Import acts to validate'),
-        ('dos_id', 'Import '+var_name_ids.var_name['dos_id']),
-        ('code_agenda', 'Import '+var_name_data.var_name['code_agenda']),
-        ('name', 'Import '+var_name_data.var_name['resp']+' and relative data'),
-        ('dg', 'Import '+var_name_data.var_name['dg']+" and "+var_name_data.var_name['dg_sigle']),
-        ('config_cons', 'Import '+var_name_data.var_name['config_cons']),
-        ('adopt_pc', 'Import '+var_name_data.var_name['adopt_pc_abs']+' and '+var_name_data.var_name['adopt_pc_contre']),
-        ('gvt_compo', 'Import '+var_name_data.var_name['gvt_compo']),
-        ('np', 'Import opal file (NP variables)'),
-        ('min_attend', 'Import Attendance of ministers'),
+        ('min_attend_update', 'Update Attendance of ministers'),
     )
-    file_to_import=forms.ChoiceField(choices=file_to_import_choices)
+
+    file_to_import=forms.ChoiceField(choices=get_choices())
 
     csv_file=forms.FileField(validators=[ext_validation])
 
     class Meta:
         model=CSVUpload
+
+    def __init__(self, user, *args, **kwargs):
+        self.user = user
+        super(CSVUploadForm, self).__init__(*args, **kwargs)
+        if self.user.username == "romain.lalande" or self.user.username == "genevieve.michaud":
+            self.fields['file_to_import'].choices = get_choices("admin")
+            #~ self.fields['file_to_import'] = forms.ChoiceField(choices=file_to_import_choices_admin)

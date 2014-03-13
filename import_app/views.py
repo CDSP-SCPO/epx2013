@@ -7,7 +7,7 @@ from forms import CSVUploadForm
 from models import CSVUpload
 #models
 from act_ids.models import ActIds
-from act.models import Act, ConfigCons, CodeSect, CodeAgenda, GvtCompo, Person, Country, Party, PartyFamily, DG, DGSigle, DGNb, NP
+from act.models import Act, ConfigCons, CodeSect, CodeAgenda, GvtCompo, Person, Country, Party, PartyFamily, DG, DGSigle, DGNb, NP, MinAttend
 from import_app.models import ImportAdoptPC, ImportDosId, ImportNP, ImportMinAttend
 from common.db import save_get_object
 #manipulate csv files, path of the file to import, copy a list and use regex
@@ -500,7 +500,7 @@ def get_data_np(row):
 
 
 
-def get_data_min_attend(row):
+def get_data_min_attend_insert(row):
     """
     FUNCTION
     get a string (row from csv file) and put its content into an instance of ImportMinAttend
@@ -533,6 +533,42 @@ def get_data_min_attend(row):
     return instance, msg, not created
 
 
+def get_data_min_attend_update(row):
+    """
+    FUNCTION
+    update ImportMinAttend and MinAttend for a specific act
+    PARAMETERS
+    row: row from the csv file [row object]
+    RETURN
+    instance: instance of the model with the extracted data [ImportMinAttend model instance]
+    msg: id of the row, used to display an error message [string]
+    exist (not created): True if the instance already exists, False otherwise [boolean]
+    """
+    #used to identify the row
+    ids_row={}
+    ids_row["no_celex"]=row[0].strip()
+    ids_row["country"]=row[1].strip()
+    ids_row["verbatim"]=row[3].strip()
+
+    #extra fields to save if the act does not exist yet
+    defaults={}
+    defaults["ind_status"]=row[2].strip()
+
+    #get the releve_ids
+    act=ActIds.objects.get(src="index", no_celex=ids_row["no_celex"]).act
+    defaults["releve_annee"]=act.releve_annee
+    defaults["releve_mois"]=act.releve_mois
+    defaults["no_ordre"]=act.no_ordre
+
+    #get instance or create instance if does not already exist
+    instance, created = ImportMinAttend.objects.get_or_create(defaults=defaults, **ids_row)
+    print "instance", instance
+    print "created", created
+
+    msg=get_error_msg(ids_row)
+    return instance, msg, not created
+
+
 def import_table(csv_file, import_type):
     """
     FUNCTION
@@ -552,7 +588,25 @@ def import_table(csv_file, import_type):
         delimiter=detect_delim(csv_file_temp.readline())
         reader=csv.reader(csv_file_temp, delimiter=delimiter)
 
+        min_attend_update_set=set()
+
         for row in reader:
+            #delete previous records
+            if import_type=="min_attend_update":
+                no_celex=row[0].strip()
+                if no_celex not in min_attend_update_set:
+                    #list of unique no_celex
+                    min_attend_update_set.add(no_celex)
+                    act=ActIds.objects.get(src="index", no_celex=no_celex).act
+                    #delete previous MinAttend instances
+                    for min_attend in MinAttend.objects.filter(act=act):
+                        print "MinAttend deletion", min_attend
+                        min_attend.delete()
+                    #delete previous ImportMinAttend instances
+                    for min_attend in ImportMinAttend.objects.filter(no_celex=no_celex):
+                        min_attend.delete()
+                        print "ImportMinAttend deletion", min_attend
+
             #according to the type of import, extract the content of the row and put it in an object
             instance, msg, exist=eval("get_data_"+import_type)(row)
             #if the row has already been imported
@@ -575,7 +629,7 @@ def help_text(request):
     import/help_text.html
     """
     response={}
-    form=CSVUploadForm(request.POST)
+    form=CSVUploadForm(request.user, request.POST)
     response['form']=form
     response['display_name']=var_name_ids.var_name
     response['display_name'].update(var_name_data.var_name)
@@ -597,7 +651,7 @@ def import_view(request):
     response['display_name']=var_name_ids.var_name
     response['display_name'].update(var_name_data.var_name)
     if request.method=='POST':
-        form=CSVUploadForm(request.POST, request.FILES)
+        form=CSVUploadForm(request.user, request.POST, request.FILES)
         #the form is valid and the import can be processed
         if form.is_valid():
             print "csv import"
@@ -613,7 +667,7 @@ def import_view(request):
             rows_not_saved=[]
 
             #importation of dos_id, act, adopt_pc, gvt_compo, np or min_attend file
-            if file_to_import in ["dos_id","act","adopt_pc","gvt_compo", "np", "min_attend"]:
+            if file_to_import in ["dos_id","act","adopt_pc","gvt_compo", "np", "min_attend_insert", "min_attend_update"]:
                 rows_saved, rows_not_saved=import_table(path, file_to_import)
                 if file_to_import=="act":
                     #save retrieved ids
@@ -667,7 +721,7 @@ def import_view(request):
 
     #unbound forms
     if "form" not in response:
-        response['form']=CSVUploadForm()
+        response['form']=CSVUploadForm(request.user)
 
     #displays the page (GET) or POST if javascript disabled
     return render_to_response('import/index.html', response, context_instance=RequestContext(request))
