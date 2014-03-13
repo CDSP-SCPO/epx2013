@@ -64,11 +64,11 @@ function reset_form($form)
 //handle django view return
 function handle_result(form, result)
 {
-    //change the welcome message (login form)
-    if (form.attr("id")=="login_form")
+    //reload menu if click on login button and success
+    if (form.attr("id")=="login_form" && result.msg_class=="success_msg")
     {
-        username=(result.username)? result.username: "visitor";
-        $("#welcome_user").text("Welcome "+username+" :).");
+        //~ alert(result.user.username);
+        reload_menu(result.user.username);
     }
 
     //form not valid -> displays errors
@@ -137,6 +137,21 @@ $('.internal_link').click(function(event)
     load_content($(this), event);
 });
 
+
+/* reload the left menu when a user log in or log out */
+function reload_menu(username)
+{
+    //~ alert("username"+username+"\n"+"path"+$("#reload_menu_view").text())
+
+
+    $("#sidebar_and_content").load($("#reload_menu_view").text(), {"username": username}, function()
+    {
+        //~ alert("ok");
+    });
+
+}
+
+
 function load_content($a, event)
 {
     //do not follow the href link
@@ -148,10 +163,10 @@ function load_content($a, event)
     //show message ("the page is being loaded")
     show_msg("The page is being loaded...", "alert alert-data");
 
-    //change the welcome message (login form)
+    //logout
     if (link.match(/login/))
     {
-        $("#welcome_user").text("Welcome visitor!");
+        reload_menu("")
     }
 
     $.get(link, function(data)

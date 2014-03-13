@@ -451,7 +451,7 @@ def get_council_a(soup):
                 council_a_temp+=tables.find_parent('table').find(text=re.compile("SUBJECT")).find_next("font", {"size":-2}).get_text().strip()+'; '
             except Exception, e:
                 print "exception council_a", e
-                council_a_temp+='; '
+                council_a_temp+='None; '
         council_a=council_a_temp[:-2]
     except Exception, e:
         print "no council_a!", e
@@ -748,6 +748,8 @@ def get_data_prelex(soup, act_ids, act):
     if adopt_pc!=None:
         print "adopt_pc_contre:", adopt_pc.adopt_pc_contre
         print "adopt_pc_abs:", adopt_pc.adopt_pc_abs
+
+    print "NB LECTURES PRELEX", fields["nb_lectures"]
 
     #~ return fields
     return fields, dgs_temp, resp_names

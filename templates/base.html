@@ -56,47 +56,7 @@ contains the template of each webpage: doctype, left menu, right content templat
         <!-- Sidebar -->
         <div class="row-fluid">
             <div id="sidebar_and_content" class="span3">
-                <div id="sidebar">
-
-                    <div class="row-fluid">
-                        <div class="span12 first_row">
-                            <!--  Welcome username -->
-                            <span id="welcome_user">
-                                {% if user.username == "" %}
-                                    Welcome visitor :).
-                                {% else %}
-                                    Welcome {{ user.username }} :).
-                                {% endif %}
-                            </span>
-                        </div>
-                    </div>
-
-                    <div class="row-fluid">
-                        <div id="menu" class="span12">
-                            <!-- vertical left-side menu -->
-                            <ul class="nav nav-list menu">
-                                <li>
-                                    <a id="first_child" href="{% url login %}" class="internal_link">
-                                        {% if user.username == "" %}
-                                            Log in
-                                        {% else %}
-                                            Log out
-                                        {% endif %}
-                                        <i class="icon-chevron-right"></i>
-                                    </a>
-                                </li>
-                                <li><a href="{% url import %}" class="internal_link">CSV import<i class="icon-chevron-right"></i></a></li>
-                                <li><a href="{% url act_ids %}" class="internal_link">Act ids validation<i class="icon-chevron-right"></i></a></li>
-                                <li><a href="{% url act %}" class="internal_link">Act data validation<i class="icon-chevron-right"></i></a></li>
-                                {% if user.username != "" and user.username != "simoneta.laviana" and user.username != "florence.deloche" %}
-                                    <li><a href="{% url export %}" class="internal_link">CSV export<i class="icon-chevron-right"></i></a></li>
-                                {% endif %}
-                                <li><a href="{% url history %}" class="internal_link">History<i class="icon-chevron-right"></i></a></li>
-                                <li><a id="last_child" href="{% url admin:index %}">Administration<i class="icon-chevron-right"></i></a></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
+                {% include "menu.html" %}
             </div>
 
             <!--Body content-->

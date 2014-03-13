@@ -41,7 +41,7 @@ def get_nb_lectures(soup, suite_2e_lecture_pe):
             return 2
 
         #1st lecture
-        if key_events_soup.find(text=re.compile("Act adopted by Council after Parliament's 1st reading"))>0:
+        if key_events_soup.find(text=re.compile("Act adopted by Council after Parliament's 1st reading"))>0 or key_events_soup.find(text=re.compile("Committee referral announced in Parliament, 1st reading/single reading"))>0:
             return 1
 
         return None
@@ -580,5 +580,7 @@ def get_data_oeil(soup, act_ids, act=None):
     #get resp names
     resp_names=get_resp_names(soup_dg_resp)
     print "resp_names:", resp_names
+
+    print "NB LECTURES OEIL", fields["nb_lectures"]
 
     return fields, dg_names, resp_names

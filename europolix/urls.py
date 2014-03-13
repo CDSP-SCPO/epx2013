@@ -12,8 +12,8 @@ admin.autodiscover()
 urlpatterns=patterns('',
     #load the homepage template (no view)
     url(r'^/?$', direct_to_template, {'template': 'index.html'}, name="homepage"),
-    #tests page
-    #~ url(r'^tests/$', 'tests.views.testView'),
+    # reload the left menu
+    url(r'^menu.html$', 'europolix.views.reload_menu', name='reload_menu'),
     #login page
     url(r'^login/$', 'login.views.login_view', name='login'),
     #import page
@@ -30,6 +30,9 @@ urlpatterns=patterns('',
     url(r'^history/', include('history.urls')),
     # Uncomment the admin/doc line below to enable admin documentation:
     # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
+
+     #tests page
+    #~ url(r'^tests/$', 'tests.views.testView'),
 
     # Uncomment the next line to enable the admin:
     url(r'^admin/', include(admin.site.urls)),
