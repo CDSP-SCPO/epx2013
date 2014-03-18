@@ -548,22 +548,36 @@ def get_data_min_attend_update(row):
     ids_row={}
     ids_row["no_celex"]=row[0].strip()
     ids_row["country"]=row[1].strip()
-    ids_row["verbatim"]=row[3].strip()
 
     #extra fields to save if the act does not exist yet
     defaults={}
     defaults["ind_status"]=row[2].strip()
 
+    try:
+        if row[3].strip()=="":
+            raise Exception("empty verbatim")
+        ids_row["verbatim"]=row[3].strip()
+    except Exception, e:
+        print "no verbatim has been entered", e
+        #AB or NA
+        ids_row["verbatim"]=defaults["ind_status"]
+
     #get the releve_ids
-    act=ActIds.objects.get(src="index", no_celex=ids_row["no_celex"]).act
-    defaults["releve_annee"]=act.releve_annee
-    defaults["releve_mois"]=act.releve_mois
-    defaults["no_ordre"]=act.no_ordre
+    try:
+        act=ActIds.objects.get(src="index", no_celex=ids_row["no_celex"]).act
+        defaults["releve_annee"]=act.releve_annee
+        defaults["releve_mois"]=act.releve_mois
+        defaults["no_ordre"]=act.no_ordre
+    except Exception, e:
+        print "the act does not exist yet", e
+        defaults["releve_annee"]=0
+        defaults["releve_mois"]=0
+        defaults["no_ordre"]=0
+
 
     #get instance or create instance if does not already exist
     instance, created = ImportMinAttend.objects.get_or_create(defaults=defaults, **ids_row)
-    print "instance", instance
-    print "created", created
+
 
     msg=get_error_msg(ids_row)
     return instance, msg, not created
@@ -597,15 +611,24 @@ def import_table(csv_file, import_type):
                 if no_celex not in min_attend_update_set:
                     #list of unique no_celex
                     min_attend_update_set.add(no_celex)
-                    act=ActIds.objects.get(src="index", no_celex=no_celex).act
-                    #delete previous MinAttend instances
-                    for min_attend in MinAttend.objects.filter(act=act):
-                        print "MinAttend deletion", min_attend
-                        min_attend.delete()
-                    #delete previous ImportMinAttend instances
-                    for min_attend in ImportMinAttend.objects.filter(no_celex=no_celex):
-                        min_attend.delete()
-                        print "ImportMinAttend deletion", min_attend
+                    try:
+                        acts=ImportMinAttend.objects.filter(no_celex=no_celex)
+
+                        #if releve* are filled which means the act has already been imported
+                        if acts[0].releve_annee!=0:
+                            act=ActIds.objects.get(src="index", no_celex=no_celex).act
+                            #delete previous MinAttend instances
+                            for min_attend in MinAttend.objects.filter(act=act):
+                                print "MinAttend deletion", min_attend.act
+                                min_attend.delete()
+
+                        #delete previous ImportMinAttend instances
+                        for act in acts:
+                            print "ImportMinAttend deletion", act.no_celex
+                            act.delete()
+
+                    except Exception, e:
+                        print "the act does not exist yet", e
 
             #according to the type of import, extract the content of the row and put it in an object
             instance, msg, exist=eval("get_data_"+import_type)(row)
