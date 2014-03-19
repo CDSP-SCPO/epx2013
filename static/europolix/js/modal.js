@@ -82,9 +82,9 @@ function modal_save_form(form, button, event)
                     {
                         update_dg(drop_down_list_id, new_id)
                     }
-                    else if ($("#var").html()=="resp")
+                    else if (jQuery.inArray($("#var").html(),["rapp", "resp"]) != -1)
                     {
-                        update_person(drop_down_list_id, new_id, "resp")
+                        update_person(drop_down_list_id, new_id, $("#var").html())
                     }
                 }
 

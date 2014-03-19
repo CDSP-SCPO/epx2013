@@ -7,6 +7,9 @@ $('.update_btn').hide();
 /* add dg link */
 $('.add_dg_no_js').hide();
 $('.add_dg_js').show();
+/* add rapp link */
+$('.add_rapp_no_js').hide();
+$('.add_rapp_js').show();
 /* add resp link */
 $('.add_resp_no_js').hide();
 $('.add_resp_js').show();

@@ -138,6 +138,10 @@
 
     <!-- link view to update rapp or resp data -->
     <div id="person" style="display:none">{% url update_person %}</div>
+     <!-- field that triggered the modal -->
+    <div id="modal_field" style="display:none"></div>
+    <!-- link view to add a rapp -->
+    <div id="link_add_rapp" style="display:none">{% url form_add field='rapp' %}</div>
 
     {% for field in form_data %}
         {% if field.name in vars_oeil %}
@@ -156,7 +160,9 @@
                                 <div id="rapp_{{ index }}" class="update_fields">
                                     {{ display_name.rapp_country_ }}{{ index }}=<span id="rapp_country_{{ index }}">{% get_related_field "Person" field.value "country" %}</span><br />
                                     {{ display_name.rapp_party_ }}{{ index }}=<span id="rapp_party_{{ index }}">{% get_related_field "Person" field.value "party" %}</span><br />
-                                 </div>
+                                </div>
+                                <a class="add_rapp add_rapp_no_js" href="{% url add field='rapp' %}" target="_blank">Add a new {{ display_name.rapp }}</a>
+                                <a  id="modal_{{ field.name }}" class="add_rapp add_rapp_js" href="#modal_add" role="button"  data-id="rapp;{{ display_name.rapp }}" data-toggle="modal">Add a new {{ display_name.rapp }}</a>
                             {% endwith %}
                         {% endif %}
 
@@ -207,8 +213,6 @@
     <div id="link_add_dg" style="display:none">{% url form_add field='dg' %}</div>
     <!-- link view to add a resp -->
     <div id="link_add_resp" style="display:none">{% url form_add field='resp' %}</div>
-    <!-- field that triggered the modal -->
-    <div id="modal_field" style="display:none"></div>
 
     {% for field in form_data %}
         {% if field.name in vars_prelex_1 %}

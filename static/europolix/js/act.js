@@ -453,8 +453,8 @@ function update_durations(element)
 
 /* modal add dg / resp*/
 
-/* bind the event to update a dg /resp with the associated drop down list */
-$('#act_form').on('click', '.add_dg_js, .add_resp_js', function()
+/* bind the event to update a dg / rapp / resp with the associated drop down list */
+$('#act_form').on('click', '.add_dg_js, .add_rapp_js, .add_resp_js', function()
 {
     //fill the hidden div with the name of the drop down list to update (if add a record with the modal)
     field_id=this.id;

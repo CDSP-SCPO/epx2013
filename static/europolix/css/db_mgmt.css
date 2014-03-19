@@ -2,30 +2,42 @@
 
 fieldset > div.row-fluid
 {
-	padding-left: 10px;
+    padding-left: 10px;
 }
 
 
 #form_add .control-label
 {
-	width: 130px;
+    width: 185px;
 }
+
+
+#form_add input
+{
+    width: 259px;
+}
+
+#form_add select
+{
+    width: 272px;
+}
+
 
 legend
 {
-	width: 260px;
+    width: 260px;
 }
 
 /* align error messages with the field and not its label */
 .field_error
 {
-	padding-left: 157px;
-	width: auto;
+    padding-left: 215px;
+    width: auto;
 }
 
 /* error or success message */
 #form_add_msg
 {
-	padding-right: 5px;
-	padding-left: 10px;
+    padding-right: 5px;
+    padding-left: 10px;
 }

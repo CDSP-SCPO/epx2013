@@ -96,7 +96,7 @@ def get_com_proc(soup, propos_origine):
 def format_resp_name(names):
     """
     FUNCTION
-    rewrite  the name of the responsible in the right format
+    rewrite  the name of the responsible in the right format (also used for rapporteurs)
     PARAMETERS
     names: full name of the person [string]
     RETURN

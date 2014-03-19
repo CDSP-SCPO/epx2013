@@ -129,6 +129,19 @@
     display: none;
 }
 
+/* align link to add a rapp */
+.add_rapp
+{
+    float: left;
+    margin-left: 1.5%;
+}
+
+/* hide link for javascript version */
+.add_rapp_js
+{
+    display: none;
+}
+
 /* align link to add a resp */
 .add_resp
 {

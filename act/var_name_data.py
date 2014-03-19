@@ -40,7 +40,9 @@ for index in xrange(1,3):
     var_name["votes_agst_"+num]="EPVotesAgst"+num
     var_name["votes_abs_"+num]="EPVotesAbs"+num
 var_name["rapp"]="Rapporteur*"
+var_name["rapp_party"]="GroupePolitiqueRapporteur*"
 var_name["rapp_party_"]="GroupePolitiqueRapporteur"
+var_name["rapp_country"]="EtatMbRapport*"
 var_name["rapp_country_"]="EtatMbRapport"
 for index in xrange(1,6):
     num=str(index)
