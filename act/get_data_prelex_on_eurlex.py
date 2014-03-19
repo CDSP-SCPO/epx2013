@@ -1,7 +1,7 @@
 #-*- coding: utf-8 -*-
-#for accents between comments inside this file
 """
 get data from Prelex (fields for the statistical analysis)
+NOT DONE YET, FOR THE MOMENT WE USE THE OLD PRELEX PAGE (thus this file is not used)
 """
 import re
 from bs4 import BeautifulSoup

@@ -472,6 +472,8 @@ def save_config_cons(code_sect_1):
     RETURN
     None
     """
+    #~ print "save_config_cons"
+    #~ print "code_sect_1.pk", code_sect_1.pk
     save_fk_code_sect(code_sect_1, "config_cons")
 
 

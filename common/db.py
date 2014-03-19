@@ -33,9 +33,16 @@ def save_fk_code_sect(instance, field):
     None
     """
     #if there is no value for the foreign key field, try to get a value
+    #~ try:
+        #~ print "instance.pk", instance.pk
+        #~ print "getattr(instance, field)", getattr(instance, field)
+    #~ except Exception, e:
+        #~ print "exception 1", e
+
     if instance!=None and getattr(instance, field)==None:
         for index, item in list_reverse_enum(instance.code_sect):
             if item==".":
+                #~ print "instance.code_sect[:index]", instance.code_sect[:index]
                 code_sect_temp=instance.code_sect[:index]
                 try:
                     #get the new instance corresponding to the new code_sect
@@ -46,7 +53,7 @@ def save_fk_code_sect(instance, field):
                         instance.save()
                         break
                 except Exception, e:
-                    print "exception", e
+                    print "exception 2", e
 
 
 def save_get_object(model, fields):
