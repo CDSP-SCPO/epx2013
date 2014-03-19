@@ -344,19 +344,23 @@ def act(request):
     #html page of the form
     form_template='act/form.html'
 
+
+    #save all prints to a log file
+    from django.conf import settings
+    log_file_path=os.path.join(settings.PROJECT_ROOT, 'europolix.log')
+    sys.stdout = open(log_file_path, "a")
+    print ""
+    import time
+    print time.strftime("TODAY IS: %d/%m/%Y, CURRENT TIME IS: %H:%M:%S")
+    print "entered in act view"
+
     if request.method=='POST':
         #add_modif=None, "add" or "modif"
         #act=act to validate / modify or None if no act is found (modifcation)
         #response: add add or modif to the forms being displayed / to be displayed
         mode, add_modif, act, response=add_modif_fct(request, response, Add, Modif)
 
-        #save all prints to a log file
-        from django.conf import settings
-        log_file_path=os.path.join(settings.PROJECT_ROOT, 'europolix.log')
-        sys.stdout = open(log_file_path, "a")
-        print ""
-        import time
-        print time.strftime("TODAY IS: %d/%m/%Y, CURRENT TIME IS: %H:%M:%S")
+        #for log
         print "ACT", act
         print "ACTION",  add_modif
         print "USER", request.user.username
@@ -373,6 +377,8 @@ def act(request):
                 #saves the act
                 if 'save_act' in request.POST:
                     response, state=save_act(act, request, response, add_modif)
+                else:
+                    print "save_act button not in request.POST!!!"
 
                 #update person variables if the form is not saved
                 if state!="saved":

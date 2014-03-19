@@ -57,7 +57,7 @@ def add_modif_fct(request, response, Add, Modif):
 
     #adding of an act (validation of a new act)
     if request.POST["act_to_validate"]!="" and "modif_act" not in request.POST:
-        print "add mode"
+        print "add_modif_fct: add mode"
         mode="add"
         add=Add(request.POST)
         if not request.is_ajax():
@@ -67,8 +67,10 @@ def add_modif_fct(request, response, Add, Modif):
             add_modif="add"
             act_to_validate=add.cleaned_data['act_to_validate']
             #get the primary key
+            print "add_modif_fct: the act is going to be retrieved"
             act_to_validate_id=act_to_validate.pk
             act=Act.objects.get(id=act_to_validate_id)
+            print "add_modif_fct: the act has been retrieved:", act
         #empty selection for the drop down list
         else:
             if request.is_ajax():
@@ -77,7 +79,7 @@ def add_modif_fct(request, response, Add, Modif):
 
     #modification of an act -> display
     elif "modif_act" in request.POST or request.POST["modif_button_clicked"]=="yes" or request.POST["releve_annee_modif"]!="" and not request.is_ajax():
-        print "modification mode"
+        print "add_modif_fct: modification mode"
         mode="modif"
         modif=Modif(request.POST)
         if not request.is_ajax():
@@ -89,11 +91,15 @@ def add_modif_fct(request, response, Add, Modif):
             releve_annee_modif=modif.cleaned_data['releve_annee_modif']
             releve_mois_modif=modif.cleaned_data['releve_mois_modif']
             no_ordre_modif=modif.cleaned_data['no_ordre_modif']
+            print "add_modif_fct: act is going to be retrieved"
             act=Act.objects.select_related().get(releve_annee=releve_annee_modif, releve_mois=releve_mois_modif, no_ordre=no_ordre_modif, validated__gt=0)
+            print "add_modif_fct: the act has been retrieved:", act
         else:
             if request.is_ajax():
                 response['modif_act_errors']=dict([(k, modif.error_class.as_text(v)) for k, v in modif.errors.items()])
             print "modif form not valid", modif.errors
+    else:
+        print "request.POST", request.POST
 
     return mode, add_modif, act, response
 
