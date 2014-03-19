@@ -29,8 +29,8 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "europolix.settings")
 import sys
 path=os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
 if path not in sys.path:
-	sys.path.append(path)
-	sys.path.append( os.path.join( path, 'europolix') )
+    sys.path.append(path)
+    sys.path.append( os.path.join( path, 'europolix') )
 os.environ['DJANGO_SETTINGS_MODULE']='europolix.settings'
 import django.core.handlers.wsgi
 from django.core.wsgi import get_wsgi_application

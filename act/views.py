@@ -29,6 +29,9 @@ from django.http import HttpResponse
 from django.template.loader import render_to_string
 from django.utils import simplejson
 
+import sys, os
+
+
 
 def get_urls(act_ids, url_prelex, dos_id):
     """
@@ -279,11 +282,12 @@ def save_act(act, request, response, add_modif):
     act.validated=2
     act.notes=request.POST['notes']
     form_data=ActForm(request.POST, instance=act)
-    print "save"
+    print "act to be saved"
     if form_data.is_valid():
         print "form_data valid"
         #if use form_data m2m are deleted!
         act.save()
+        print "THE ACT HAS BEEN SAVED :)"
         state="saved"
         response["msg"]="The act " + str(act) + " has been validated!"
         response["msg_class"]="success_msg"
@@ -332,6 +336,7 @@ def act(request):
     act/index.html: display the act data page which itself calls the template of the act form
     act/form.html: display the act form
     """
+
     #fill the dictionary sent to the template with the list of variables along with the names to display
     response=init_response()
     #state=display (display the data of an act), saved (the act is being saved) or ongoing (validation errors while saving)
@@ -344,6 +349,18 @@ def act(request):
         #act=act to validate / modify or None if no act is found (modifcation)
         #response: add add or modif to the forms being displayed / to be displayed
         mode, add_modif, act, response=add_modif_fct(request, response, Add, Modif)
+
+        #save all prints to a log file
+        from django.conf import settings
+        log_file_path=os.path.join(settings.PROJECT_ROOT, 'europolix.log')
+        sys.stdout = open(log_file_path, "a")
+        print ""
+        import time
+        print time.strftime("TODAY IS: %d/%m/%Y, CURRENT TIME IS: %H:%M:%S")
+        print "ACT", act
+        print "ACTION",  add_modif
+        print "USER", request.user.username
+        print ""
 
         #if any of this key is present in the response dictionary -> no act display and return the errors with a json object
         #otherwise display act and return the html form of the act to validate or modif in a string format
@@ -391,6 +408,9 @@ def act(request):
             response[form[0]]=form[1]
 
     response['form_template']=form_template
+
+    #prints are normally displayed (back to normal)
+    sys.stdout = sys.__stdout__
 
     #displays the page (GET) or POST if javascript disabled
     return render_to_response('act/index.html', response, context_instance=RequestContext(request))
