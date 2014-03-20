@@ -356,7 +356,7 @@ def act(request):
 
     if request.method=='POST':
         #add_modif=None, "add" or "modif"
-        #act=act to validate / modify or None if no act is found (modifcation)
+        #act=act to validate / modify or None if no act is found (modification)
         #response: add add or modif to the forms being displayed / to be displayed
         mode, add_modif, act, response=add_modif_fct(request, response, Add, Modif)
 

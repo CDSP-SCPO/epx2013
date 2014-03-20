@@ -78,7 +78,7 @@ def add_modif_fct(request, response, Add, Modif):
             print "add form not valid", add.errors
 
     #modification of an act -> display
-    elif "modif_act" in request.POST or request.POST["modif_button_clicked"]=="yes" or request.POST["releve_annee_modif"]!="" and not request.is_ajax():
+    elif "modif_act" in request.POST or request.POST["modif_button_clicked"]=="yes" or request.POST["releve_annee_modif"]!="":
         print "add_modif_fct: modification mode"
         mode="modif"
         modif=Modif(request.POST)
