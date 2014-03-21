@@ -78,7 +78,7 @@ Git is the versionning tool used for the project. The project is currently hoste
 ```shell
     apt-get install git
 ```
-Inside the "europolix" website root directory (create it and move to this directory), initialize the git tracking system:
+Inside the "europolix" website root directory (**create it and move to this directory**), initialize the git tracking system:
 ```shell
     git init
     git status
@@ -105,5 +105,5 @@ If you have right problems:
     python manage.py runserver
 ```
 
-## Access the website from your webbrowser
+## Access the website from your web browser
 http://127.0.0.1:8000/
