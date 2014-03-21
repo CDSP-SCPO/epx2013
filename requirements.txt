@@ -1,6 +1,7 @@
-python==2.7.3
 Django==1.4.2
-python-django-south==0.7.5
-beautifulsoup4
-mysql-server-5.5
-python-mysqldb
+MySQL-python==1.2.5
+argparse==1.2.1
+beautifulsoup4==4.3.2
+distribute==0.7.3
+pdfminer==20110515
+wsgiref==0.1.2
