@@ -181,3 +181,28 @@ def save_get_resp_prelex(names):
                 break
 
     return instance
+
+
+def is_member(user, groups):
+    """
+    FUNCTION
+    check if a user belongs to a group given in parameter
+    PARAMETERS
+    user: user instance [User object]
+    groups: names of the groups to be checked [list of strings]
+    RETURN
+    True if the user belongs to the group in parameter, false otherwise [boolean]
+    """
+    if user:
+        return user.groups.filter(name__in=groups)
+    return False
+
+
+def user_context(request):
+    groups=[]
+    if request.user.is_authenticated():
+        groups=request.user.groups.values_list('name',flat=True)
+
+    return {
+        'groupnames': groups
+    }

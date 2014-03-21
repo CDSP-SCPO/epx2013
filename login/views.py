@@ -32,7 +32,6 @@ def login_view(request):
                 msg="You're successfully logged in!"
                 msg_class="success_msg"
                 #for ajax function
-                print "user", user
                 response["user"]={}
                 response["user"]["username"]=user.username
             else:

@@ -141,8 +141,6 @@ $('.internal_link').click(function(event)
 /* reload the left menu when a user log in or log out */
 function reload_menu(username)
 {
-    //~ alert("username"+username+"\n"+"path"+$("#reload_menu_view").text())
-
 
     $("#sidebar_and_content").load($("#reload_menu_view").text(), {"username": username}, function()
     {

@@ -17,8 +17,9 @@ import mimetypes
 #change variable names (first row of the csv file)
 import act_ids.var_name_ids  as var_name_ids
 import act.var_name_data  as var_name_data
-#redirect to login page if not logged
-from django.contrib.auth.decorators import login_required
+#redirect to login page if not logged or does not belong to authorized group
+from django.contrib.auth.decorators import login_required, user_passes_test
+from common.db import is_member
 
 #use json for the ajax request
 from django.utils import simplejson
@@ -273,7 +274,9 @@ def send_file(request, file_server, file_client):
     return response
 
 
+
 @login_required
+@user_passes_test(lambda u: is_member(u, ["admin", "import_export"]))
 def export(request):
     """
     VIEW

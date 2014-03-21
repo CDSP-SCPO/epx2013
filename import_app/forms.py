@@ -69,6 +69,6 @@ class CSVUploadForm(forms.Form):
     def __init__(self, user, *args, **kwargs):
         self.user = user
         super(CSVUploadForm, self).__init__(*args, **kwargs)
-        if self.user.username == "romain.lalande" or self.user.username == "genevieve.michaud":
+        if self.user.is_superuser:
             self.fields['file_to_import'].choices = get_choices("admin")
             #~ self.fields['file_to_import'] = forms.ChoiceField(choices=file_to_import_choices_admin)

@@ -25,5 +25,5 @@ def reload_menu(request):
     response={}
     response["user"]={}
     response["user"]["username"]=request.POST["username"]
+
     return HttpResponse(render_to_string('menu.html', response, RequestContext(request)))
-    #~ return render_to_response('menu.html', response, context_instance=RequestContext(request))

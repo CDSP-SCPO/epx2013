@@ -1,4 +1,5 @@
 <div id="sidebar">
+
     <div id="reload_menu_view" style="display: none;">{% url reload_menu %}</div>
     <div class="row-fluid">
         <div class="span12 first_row">
@@ -27,12 +28,13 @@
                         <i class="icon-chevron-right"></i>
                     </a>
                 </li>
-                {% if user.username != "" and user.username != "simoneta.laviana" and user.username != "florence.deloche" %}
+
+                {% if "admin" in groupnames or "import_export" in groupnames %}
                     <li><a href="{% url import %}" class="internal_link">CSV import<i class="icon-chevron-right"></i></a></li>
                 {% endif %}
                 <li><a href="{% url act_ids %}" class="internal_link">Act ids validation<i class="icon-chevron-right"></i></a></li>
                 <li><a href="{% url act %}" class="internal_link">Act data validation<i class="icon-chevron-right"></i></a></li>
-                {% if user.username != "" and user.username != "simoneta.laviana" and user.username != "florence.deloche" %}
+                {% if "admin" in groupnames or "import_export" in groupnames %}
                     <li><a href="{% url export %}" class="internal_link">CSV export<i class="icon-chevron-right"></i></a></li>
                 {% endif %}
                 <li><a href="{% url history %}" class="internal_link">History<i class="icon-chevron-right"></i></a></li>
