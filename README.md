@@ -51,6 +51,7 @@ If error Python.h not found:
     sudo apt-get install python-dev
 ```
 
+Then finish the installation of python
 ```shell
     sudo make install
 ```
