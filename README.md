@@ -89,7 +89,8 @@ Indicate where to fetch the source code:
 ```shell
     git remote add origin https://github.com/EPX/epx2013.git
 ```
-    Get the source code:
+
+Get the source code:
 ```shell
     git pull origin master
 ```
