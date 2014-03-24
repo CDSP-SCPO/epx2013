@@ -64,7 +64,7 @@ Create a database called `europolix` from the mysql interpreter:
     exit;
 ```
 
-Create the tables from the sql file (again, choose the way )
+Create the tables from the sql file.
 
 ```shell
     mysql -u root -p europolix < [/path/sql/file]
@@ -73,8 +73,8 @@ Create the tables from the sql file (again, choose the way )
 
 ## Update the settings file
 Inside the europolix directory, update the settings.py file.
-At the beginning, modify WEB_ROOT to point to the address of your server.
-In the databases section, update the user and password to correspond to your mysql ids.
+At the beginning, modify `WEB_ROOT` to point to the address of your server.
+In the `DATABASES` section, update `USER` and `PASSWORD` to correspond to your mysql ids.
 
 
 
