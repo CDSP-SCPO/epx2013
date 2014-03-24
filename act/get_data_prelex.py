@@ -346,7 +346,7 @@ def get_cons_b(soup, propos_origine):
 #~ if propos_origine=="CONS", filled manually
 
 
-def get_adopt_conseil(soup, suite_2e_lecture_pe, split_propos, nb_lectures):
+def get_adopt_conseil(soup, suite_2e_lecture_pe, split_propos, nb_lectures, no_unique_type):
     """
     FUNCTION
     get the adopt_conseil variable from the prelex url
@@ -355,22 +355,15 @@ def get_adopt_conseil(soup, suite_2e_lecture_pe, split_propos, nb_lectures):
     suite_2e_lecture_pe: suite_2e_lecture_pe variable [boolean]
     split_propos: split_propos variable [boolean]
     nb_lectures: nb_lectures variable [int]
+    no_unique_type: no_unique_type variable [string]
     RETURN
     adopt_conseil: adopt_conseil variable [date]
     """
     adopt_conseil=None
-    # if there is no  2d Lecture at PE
-    if suite_2e_lecture_pe==False:
-        acts=["Formal adoption by Council", "Adoption common position", "Council approval 1st rdg"]
-        for act in acts:
-            try:
-                adopt_conseil=soup.find("a", text=re.compile(act)).find_next('br').next.strip()
-                break
-            except:
-                print "pb", act
+
     # if Suite2LecturePE=Y and split_propos=N
-    elif split_propos==False:
-        if nb_lectures==2:
+    if split_propos==False:
+        if suite_2e_lecture_pe or nb_lectures==2:
             try:
                 #~ http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=en&DosId=156619
                 date_table_soup=soup.find("b", text="EP opinion 2nd rdg").find_parent("table")
@@ -380,8 +373,8 @@ def get_adopt_conseil(soup, suite_2e_lecture_pe, split_propos, nb_lectures):
                 next_table_title=date_table_soup.find_next("table").find(text="Signature by EP and Council")
                 #if conditions are met, then get the date
                 adopt_conseil=date_table_soup.find("b").get_text()
-            except:
-                print "pb AdoptionConseil (case split_propos==0)"
+            except Exception, e:
+                print "pb AdoptionConseil (case split_propos==0)", e
         elif nb_lectures==3:
             #~ http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=en&DosId=137644
             date_table_soup=soup.find("b", text="Council decision at 3rd rdg").find_parent("table")
@@ -390,6 +383,16 @@ def get_adopt_conseil(soup, suite_2e_lecture_pe, split_propos, nb_lectures):
             #if conditions are met, then get the date
             adopt_conseil=date_table_soup.find("b").get_text()
             #~ return soup.find("a", text=re.compile("Council decision at 3rd rdg")).find_next('br').next.strip()
+
+    # if there is no  2d Lecture at PE
+    if adopt_conseil==None and suite_2e_lecture_pe==False:
+        acts=["Formal adoption by Council", "Adoption common position", "Council approval 1st rdg"]
+        for act in acts:
+            try:
+                adopt_conseil=soup.find("a", text=re.compile(act)).find_next('br').next.strip()
+                break
+            except:
+                print "pb", act
 
     #transform dates to the iso format (YYYY-MM-DD)
     if adopt_conseil!=None:
@@ -400,7 +403,7 @@ def get_adopt_conseil(soup, suite_2e_lecture_pe, split_propos, nb_lectures):
 #not Null
 #~ AAAA-MM-JJ format
 
-#~ quand Suite2LecturePE=Y ET quand ProposSplittee=N and nb_lectures=2. Dans ce cas, la date AdoptionConseil=la date qui se trouve en face de la ligne « EP Opinion 2nd rdg » (vérifier qu’à la ligne qui suit dans le même carré, on trouve « Approval without amendment » et que le titre du carré qui suit est bien « Signature by EP and Council »
+#~ Si Suite2LecturePE = Y (ou NbLectures=2) et ProposSplittee=N. Dans ce cas, la date AdoptionConseil=la date qui se trouve en face de la ligne « EP Opinion 2nd rdg » (vérifier qu’à la ligne qui suit dans le même carré, on trouve « Approval without amendment » et que le titre du carré qui suit est bien « Signature by EP and Council »
 #~ Exemple : http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=en&DosId=156619
 
 #~ quand Suite2LecturePE=Y ET quand ProposSplittee=N and nb_lectures=3 -> date in front of Council decision at 3rd rdg (vérifier que le titre du carré qui suit est bien « Signature by EP and Council »)
@@ -701,7 +704,7 @@ def get_data_prelex(soup, act_ids, act):
     #~ print "nb_lectures:", fields['nb_lectures']
 
     #adopt_conseil
-    fields['adopt_conseil']=get_adopt_conseil(soup, act.suite_2e_lecture_pe, act.split_propos, fields['nb_lectures'])
+    fields['adopt_conseil']=get_adopt_conseil(soup, act.suite_2e_lecture_pe, act.split_propos, fields['nb_lectures'], act_ids.no_unique_type)
     print "adopt_conseil:", fields['adopt_conseil']
 
     #nb_point_a

@@ -199,6 +199,14 @@ def is_member(user, groups):
 
 
 def user_context(request):
+    """
+    FUNCTION
+    access the group(s) of the current user in any view / template (add the groups to the request dictionary)
+    PARAMETERS
+    request: request object [HttpRequest object]
+    RETURN
+    groupnames: list of group names of the current user [list of strings]
+    """
     groups=[]
     if request.user.is_authenticated():
         groups=request.user.groups.values_list('name',flat=True)
