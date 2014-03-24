@@ -2,14 +2,22 @@
 tested on lubuntu 13.10 with virtualenv on March 21, 2014
 
 
+## Create the directory of the project
+Go to the directory of your choice in a terminal and type:
+
+```shell
+    mkdir europolix
+    cd europolix
+```
+
 
 ## Install and set up git
 Git is the versionning tool used for the project. The project is currently hosted on github.
 ```shell
-    apt-get install git
+    sudo apt-get install git
 ```
 
-Inside the "europolix" website root directory (**create it and move to this directory**), initialize the git tracking system:
+Initialize the git tracking system:
 
 ```shell
     git init
@@ -24,13 +32,6 @@ Indicate where to fetch the source code:
     git remote add origin https://github.com/EPX/epx2013.git
 ```
 
-## Create the directory of the project
-Go to the directory of your choice in a terminal and type:
-
-```shell
-    mkdir europolix
-    cd europolix
-```
 
 ## Get the source code
 Fetch the source code from the github directory and copy it inside the root directory of the project
