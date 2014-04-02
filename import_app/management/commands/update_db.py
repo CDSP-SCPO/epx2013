@@ -10,6 +10,7 @@ from act_ids.models import ActIds
 from act.get_data_others import link_act_min_attend
 import os
 import csv
+from django.conf import settings
 
 
 def detect_delim(header):
@@ -38,7 +39,8 @@ class Command(NoArgsCommand):
     def handle(self, **options):
 
         #update attendance_pdf
-        path="/home/rom/Documents/jobs/SciencesPo/europolix/import/csv/"
+        path=settings.MEDIA_ROOT+"/import/"
+        #~ path="/home/rom/Documents/jobs/SciencesPo/europolix/import/csv/"
         years=[str(n) for n in range(2003, 2010)]
         for year in years:
             path_file=path+"RMC_"+year+".csv"
