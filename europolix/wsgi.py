@@ -20,17 +20,16 @@ sys.setdefaultencoding('utf-8')
 
 #add the current directory to python path
 import os
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "europolix.settings")
+appname="europolix"
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", appname+".settings")
 
-# This application object is used by any WSGI server configured to use this
-# file. This includes Django's development server, if the WSGI_APPLICATION
-# setting points here.
-#~ import sys
-#~ path=os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
-#~ if path not in sys.path:
-    #~ sys.path.append(path)
-    #~ sys.path.append( os.path.join( path, appname) )
-#~ os.environ['DJANGO_SETTINGS_MODULE']=appname+'.settings'
+#apache
+import sys
+path=os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
+if path not in sys.path:
+    sys.path.append(path)
+    sys.path.append( os.path.join( path, appname) )
+os.environ['DJANGO_SETTINGS_MODULE']=appname+'.settings'
 import django.core.handlers.wsgi
 #~ from django.core.wsgi import get_wsgi_application
 application=django.core.handlers.wsgi.WSGIHandler()
