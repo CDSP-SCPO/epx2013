@@ -1,0 +1,51 @@
+<!-- attendance validation form -->
+
+{% if no_celex %}
+    <div class="row-fluid data_msg">{{ display_name.no_celex }}: {{ no_celex }}, link to the <a href="{{ attendance_pdf }}" target="_blank">{{ display_name.attendance_pdf }}.</a></div>
+{% endif %}
+
+
+<div id="id_update_attendance__all__errors" class="row-fluid">{{ form.non_field_errors }}</div>
+
+
+<div class="row-fluid border">
+    <span class="column column_title country">{{ display_name.country}}</span>
+    <span class="column column_title verbatim">{{ display_name.verbatim}}</span>
+    <span class="column column_title status">{{ display_name.status}}</span>
+</div>
+
+
+
+<!-- for each minister -->
+{% for form in formset %}
+
+    <!-- for each field -->
+     <div class="row-fluid border">
+        {% for field in form %}
+             <span class="fieldWrapper">
+                <span id="{{ field.auto_id }}_errors">{{ field.errors }}</span>
+                <span class="column {{ field.name }}">{{ field }}</span>
+            </span>
+        {% endfor %}
+    </div>
+    <div class="new_minister"></div>
+
+{% endfor %}
+
+<div class="new_minister"></div>
+
+<div class="row-fluid">
+     <button id="update_status" name="update_status" type="submit" class="btn btn-primary pull-right" data-loading-text="Loading...">Update  status</button>
+</div>
+
+<div class="new_minister"></div>
+
+
+<div id="notes_and_save" class="row-fluid">
+    <button id="save_attendance" name="save_attendance" type="submit" class="btn btn-primary offset5" data-loading-text="Loading...">SAVE THE ACT</button>
+
+    <!-- success or error message -->
+    <div id="msg" class="{{ msg_class }}">{{ msg }}</div>
+</div>
+
+

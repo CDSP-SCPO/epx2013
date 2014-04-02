@@ -1,9 +1,5 @@
 #-*- coding: utf-8 -*-
-from django.shortcuts import render, render_to_response
-from django.template import RequestContext
-#use json for the ajax request
-from django.utils import simplejson
-from django.http import HttpResponse
+
 #generic view
 from django.views.generic.list import ListView
 #models

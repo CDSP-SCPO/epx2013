@@ -86,7 +86,7 @@ def get_headers(excl_fields_act_ids, excl_fields_act):
     #Ministers' attendance fields
     headers.append(var_name_data.var_name["country_min_attend"])
     headers.append(var_name_data.var_name["verbatim_min_attend"])
-    headers.append(var_name_data.var_name["ind_status_min_attend"])
+    headers.append(var_name_data.var_name["status_min_attend"])
 
     return headers
 
@@ -197,11 +197,11 @@ def get_validated_acts(excl_fields_act_ids, excl_fields_act):
 
          #Ministers' attendance fields
         instances=MinAttend.objects.filter(act=act)
-        temp_fields={"country": "", "ind_status": "", "verbatim": ""}
+        temp_fields={"country": "", "verbatim": "", "status": ""}
         for instance in instances:
             temp_fields["country"]+=instance.country.country_code+"; "
-            temp_fields["verbatim"]+=instance.verbatim+"; "
-            temp_fields["ind_status"]+=instance.ind_status+"; "
+            temp_fields["verbatim"]+=instance.verbatim.verbatim+"; "
+            temp_fields["status"]+=instance.verbatim.status+"; "
         for temp_field in temp_fields:
             fields.append(temp_fields[temp_field][:-2])
 

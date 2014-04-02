@@ -13,6 +13,7 @@ var_name["releve_mois_init"]="ReleveMoisInitial"
 var_name["no_ordre"]="NoOrdre"
 var_name["titre_rmc"]="TitreRMC"
 var_name["council_path"]="CouncilPath"
+var_name["attendance_pdf"]="Attendance pdf"
 var_name["notes"]="Notes"
 
 #eurlex
@@ -121,9 +122,9 @@ var_name["act_date"]="NPActivityDate"
 #MINISTERS' ATTENDANCE
 var_name["min_attend"]="MinistersAttendance"
 var_name["inc"]="Inc"
-var_name["ind_status"]="IndStatus"
+var_name["status"]="Status"
 var_name["verbatim"]="Verbatim"
 #export file
 var_name["country_min_attend"]="MinAttendCountry"
-var_name["ind_status_min_attend"]="MinAttendIndStatus"
+var_name["status_min_attend"]="MinAttendStatus"
 var_name["verbatim_min_attend"]="MinAttendVerbatim"

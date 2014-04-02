@@ -22,6 +22,8 @@ urlpatterns=patterns('',
     url(r'^act_ids/', include('act_ids.urls')),
     #acts data validation page
     url(r'^act/', include('act.urls')),
+    #attendance validation page
+    url(r'^attendance/', include('attendance.urls')),
     #db management page
     url(r'^db_mgmt/', include('db_mgmt.urls')),
     #export page

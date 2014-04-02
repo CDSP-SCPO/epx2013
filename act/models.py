@@ -157,6 +157,7 @@ class Act(models.Model):
     no_ordre=models.IntegerField(max_length=2, blank=False, null=False)
     titre_rmc=models.CharField(max_length=2000, blank=False, null=False)
     council_path=models.CharField(max_length=200, blank=True, null=True, default=None)
+    attendance_pdf=models.CharField(max_length=200, blank=True, null=True, default=None)
 
     #EURLEX
     titre_en=models.CharField(max_length=1000, blank=True, null=True, default=None)
@@ -231,7 +232,6 @@ class Act(models.Model):
     proc_ecrite=models.BooleanField(default=False)
     suite_2e_lecture_pe=models.BooleanField(default=False)
     gvt_compo=models.ManyToManyField(GvtCompo)
-    #~ min_attend=models.ManyToManyField(Country, related_name='min_attend', through='MinAttend')
 
     #GENERAL
     notes=models.CharField(max_length=2000,  blank=True, null=True, default=None)
@@ -265,6 +265,36 @@ class NP(models.Model):
     act=models.ForeignKey(Act)
 
 
+class Verbatim(models.Model):
+    """
+    MODEL
+    instances of verbatims and associated status
+    """
+    verbatim = models.CharField(max_length=250, unique=True)
+
+
+    def __unicode__(self):
+        return u"%s" % self.verbatim
+
+
+
+class Status(models.Model):
+    """
+    MODEL
+    instances of status determined by a verbatim and a country (association model)
+    """
+    verbatim = models.ForeignKey(Verbatim)
+    country = models.ForeignKey(Country)
+    status = models.CharField(max_length=5, db_index=True)
+
+    def __unicode__(self):
+        return u"%s" % self.status
+
+    class Meta:
+        unique_together=(("verbatim", "country"), )
+
+
+
 class MinAttend(models.Model):
     """
     MODEL
@@ -272,13 +302,10 @@ class MinAttend(models.Model):
     """
     act = models.ForeignKey(Act)
     country = models.ForeignKey(Country)
-    verbatim = models.CharField(max_length=250)
-    ind_status = models.CharField(max_length=5)
-
+    verbatim = models.ForeignKey(Verbatim)
+#~ #~
     def __unicode__(self):
         return u"%s" % self.verbatim
-
+#~ #~
     class Meta:
         unique_together=(("act", "country", "verbatim"), )
-
-

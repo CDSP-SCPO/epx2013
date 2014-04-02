@@ -1,0 +1,1 @@
+/* javascript functions for the attendance application */

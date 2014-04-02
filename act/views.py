@@ -248,7 +248,6 @@ def get_data_all(state, add_modif, act, POST, response):
             form_data=ActForm(instance=act)
             response["status"]="modif"
 
-        print "status", response["status"]
     else:
         form_data=ActForm(POST, instance=act)
 
@@ -279,15 +278,12 @@ def save_act(act, request, response, add_modif):
     response: update of the dictionary containing all the variables to be displayed in th html form [dictionary]
     state: saved or ongoing (if errors) [string]
     """
-    act.validated=2
-    act.notes=request.POST['notes']
     form_data=ActForm(request.POST, instance=act)
-    print "act to be saved"
     if form_data.is_valid():
-        print "form_data valid"
         #if use form_data m2m are deleted!
+        act.validated=2
+        act.notes=request.POST['notes']
         act.save()
-        print "THE ACT HAS BEEN SAVED :)"
         state="saved"
         response["msg"]="The act " + str(act) + " has been validated!"
         response["msg_class"]="success_msg"
@@ -320,6 +316,7 @@ def init_response():
     response['display_name']=var_name_ids.var_name
     response['display_name'].update(var_name_data.var_name)
     #one table (used to display one source) displays a subset of variables of the Act model only -> create list to loop over each subset
+    #-> one table for eurlex, one for oeil and two for prelex
     response["vars_eurlex"]=["titre_en", "code_sect_1", "code_sect_2", "code_sect_3", "code_sect_4", "rep_en_1", "rep_en_2", "rep_en_3", "rep_en_4", "type_acte", "base_j"]
     response["vars_oeil"]=["commission", "com_amdt_tabled", "com_amdt_adopt", "amdt_tabled", "amdt_adopt", "votes_for_1", "votes_agst_1", "votes_abs_1", "votes_for_2", "votes_agst_2", "votes_abs_2", "rapp_1", "rapp_2", "rapp_3", "rapp_4", "rapp_5", "modif_propos", "nb_lectures", "sign_pecs"]
     response["vars_prelex_1"]=["adopt_propos_origine", "com_proc", "dg_1", "dg_2", "resp_1", "resp_2", "resp_3", "transm_council", "cons_b", "nb_point_b", "adopt_conseil", "nb_point_a", "council_a"]
@@ -358,7 +355,7 @@ def act(request):
         #add_modif=None, "add" or "modif"
         #act=act to validate / modify or None if no act is found (modification)
         #response: add add or modif to the forms being displayed / to be displayed
-        mode, add_modif, act, response=add_modif_fct(request, response, Add, Modif)
+        mode, add_modif, act, response=add_modif_fct(request, response, Add, Modif, "act")
 
         #for log
         print "ACT", act
@@ -377,13 +374,6 @@ def act(request):
                 #saves the act
                 if 'save_act' in request.POST:
                     response, state=save_act(act, request, response, add_modif)
-                else:
-                    print "save_act button not in request.POST!!!"
-
-                #update person variables if the form is not saved
-                if state!="saved":
-                    print "update"
-                    #~ state="update"
 
                 #displays the retrieved data of the act to validate / modify
                 #(selection of an act in the add / modif form  with no form error)

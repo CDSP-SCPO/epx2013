@@ -3,7 +3,6 @@ from django.contrib.auth.models import User
 from act.models import Act
 
 
-# Create your models here.
 class History(models.Model):
     """
     MODEL
@@ -13,7 +12,7 @@ class History(models.Model):
     time = models.TimeField(max_length=8, blank=False, null=False, auto_now_add=True)
     #"add" or "modif"
     action=models.CharField(max_length=5, blank=False, null=False)
-    #"ids" or "data"
-    form=models.CharField(max_length=4, blank=False, null=False)
+    #"ids" or "data" or "attendance"
+    form=models.CharField(max_length=10, blank=False, null=False)
     act=models.ForeignKey(Act)
     user = models.ForeignKey(User)

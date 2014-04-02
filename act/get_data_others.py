@@ -3,7 +3,7 @@
 """
 get government composition from the file Composition politique gvts nationaux 93-12.csv (NationGvtPoliticalComposition) and opal variables
 """
-from act.models import GvtCompo, Country, NP, MinAttend
+from act.models import GvtCompo, Country, NP, MinAttend, Verbatim, Status
 from import_app.models import ImportNP, ImportMinAttend
 from bs4 import BeautifulSoup
 import re
@@ -61,18 +61,23 @@ def link_act_min_attend(act_ids):
     """
     min_attend_dic={}
     #retrieve all the rows of the act from the ImportMinAttend table
-    min_attends=ImportMinAttend.objects.filter(no_celex=act_ids.no_celex)
+    min_attends=ImportMinAttend.objects.filter(no_celex=act_ids.no_celex, validated=True)
     #for each country and each verbatim fill the association
     for min_attend in min_attends:
+        #get or create the verbatim with its status if it does not exist in the Vernatim model
+        verbatim, created = Verbatim.objects.get_or_create(verbatim=min_attend.verbatim)
+        #fill status table
+        status, created = Status.objects.get_or_create(verbatim=verbatim, country=Country.objects.get(country_code=min_attend.country), status=min_attend.status)
+
         #store data in a dictionary
         country=min_attend.country
         #initialization
         if country not in min_attend_dic:
             min_attend_dic[country]=""
-        min_attend_dic[country]+=min_attend.ind_status+"; "
+        min_attend_dic[country]+=min_attend.status+"; "
 
         try:
-            MinAttend.objects.create(act=act_ids.act, country=Country.objects.get(pk=min_attend.country), verbatim=min_attend.verbatim, ind_status=min_attend.ind_status)
+            MinAttend.objects.create(act=act_ids.act, country=Country.objects.get(pk=min_attend.country), verbatim=verbatim)
         except Exception, e:
             print "min_attend already exists!", e
 

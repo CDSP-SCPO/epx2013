@@ -19,7 +19,7 @@ class Export(forms.Form):
         qs: field names [list of strings]
         """
         qs=[]
-        excluded_list=['id', 'actids', 'releve_annee', 'releve_mois', 'releve_mois_init', 'no_ordre', 'titre_rmc', 'council_path', 'date_doc', 'url_prelex', 'notes', 'validated', 'np', 'gvt_compo', 'minattend', 'history']
+        excluded_list=['id', 'actids', 'releve_annee', 'releve_mois', 'releve_mois_init', 'no_ordre', 'titre_rmc', 'council_path', 'date_doc', 'url_prelex', 'notes', 'validated', 'np', 'gvt_compo', 'minattend', 'history', "attendance_pdf"]
         for field in Act._meta.get_all_field_names():
             if field not in excluded_list:
                 qs.append((field, var_name_data.var_name[field]))

@@ -1,0 +1,61 @@
+/* css for the attendance application */
+
+/* css for all the 3 colomns (country, verbatim, status) */
+.column
+{
+    float: left;
+    text-align: center;
+}
+
+/* headers */
+.column_title
+{
+    font-weight: bold
+}
+
+
+/* width of the columns country and status */
+span.country, .status
+{
+    width: 17%;
+
+}
+
+/* width of the verbatim column */
+.verbatim
+{
+    width: 66%;
+
+}
+
+/* length of the selects (country and status) */
+#attendance_form select.country, #attendance_form select.status
+{
+    width: 94%;
+}
+
+/* lengths of the verbatim inputboxes */
+#attendance_form  input.verbatim
+{
+    width: 97.8%;
+}
+
+
+
+/* separater each minister */
+.new_minister
+{
+    height: 4px;
+}
+
+/*update statuses button*/
+#update_status
+{
+    margin-right: 2.6%;
+}
+
+/* save button */
+#save_attendance
+{
+    padding: 10px;
+}

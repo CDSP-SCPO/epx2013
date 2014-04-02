@@ -1,0 +1,39 @@
+<!--
+TEMPLATE
+displays the ministers' attendance validation
+ -->
+{% extends "base.html" %}
+
+{% block contentTitle %}<div id="title">Ministers's attendance validation</div>{% endblock %}
+
+
+{% block content %}
+    <div id="content">
+        <!-- css related to the attendance application -->
+        <link rel="stylesheet" href="{{STATIC_URL}}europolix/css/attendance.css?{% now 'U' %}" />
+        <!-- css related to the add_modif.html file -->
+        <link rel="stylesheet" href="{{STATIC_URL}}europolix/css/add_modif.css?{% now 'U' %}" />
+        <!-- css related to the notes_save.html file -->
+        <link rel="stylesheet" href="{{STATIC_URL}}europolix/css/notes_and_save.css?{% now 'U' %}" />
+
+        <div class="row-fluid">
+            This page lets you validate / update ministers' attendance for each act. The data is then saved and displayed inside the act data validation form.
+        </div>
+
+        <br />
+
+        <!-- attendancea form -->
+        <form id="attendance_form" class="form-inline" method="post" action="{% url attendance %}">{% csrf_token %}
+            <div id="reset_form_path" style="display: none;">{% url reset_form_attendance %}</div>
+            <div class="row-fluid">{% include "add_modif.html" %}</div>
+
+            <br />
+
+            <div id="attendance_form_div">{% include form_template %}</div>
+
+        </form>
+
+        <!-- js related to the attendance application -->
+        <script type="text/javascript" src="{{ STATIC_URL }}europolix/js/attendance.js?{% now 'U' %}"></script>
+    </div>
+{% endblock %}

@@ -5,7 +5,7 @@ from act_ids.forms import ActIdsForm, ActForm, Add, Modif
 from act_ids.models import ActIds
 from act.models import Act
 from history.models import History
-from import_app.models import ImportDosId
+from import_app.models import ImportDosId, ImportMinAttend
 from common.db import save_get_object, get_act_ids
 #variables name
 import act_ids.var_name_ids as var_name_ids
@@ -40,24 +40,24 @@ def check_equality_fields(fields):
     return True
 
 
-def add_modif_fct(request, response, Add, Modif):
+def add_modif_fct(request, response, Add, Modif, form):
     """
     FUNCTION
     check if the form is in any of add and modification mode
     PARAMETERS
     request: request variable [HttpRequest object]
     response: all the different forms [dictionary]
+    form: name of the form that uses the function ("act", "act_ids", "min_attend") [string]
     RETURN
     mode: "add" if selection of an act to add from the drop down list, "modif" if click on the modif_act button and None otherwise [string]
     add_modif: same than mode but return None if the add or modif form is not valid [string]
-    act: act to validate or modify [Act model instance]
+    queryset: act / ministers' attendance to validate or modify [Act or ImportMinAttend model instance(s)]
     response: all the forms being used or to use [dictionary]
     """
-    add_modif=mode=act=None
+    add_modif=mode=queryset=None
 
     #adding of an act (validation of a new act)
     if request.POST["act_to_validate"]!="" and "modif_act" not in request.POST:
-        print "add_modif_fct: add mode"
         mode="add"
         add=Add(request.POST)
         if not request.is_ajax():
@@ -67,10 +67,11 @@ def add_modif_fct(request, response, Add, Modif):
             add_modif="add"
             act_to_validate=add.cleaned_data['act_to_validate']
             #get the primary key
-            print "add_modif_fct: the act is going to be retrieved"
-            act_to_validate_id=act_to_validate.pk
-            act=Act.objects.get(id=act_to_validate_id)
-            print "add_modif_fct: the act has been retrieved:", act
+            act_ids=act_to_validate.pk
+            if form=="min_attend":
+                queryset=ImportMinAttend.objects.filter(releve_annee=act_ids[0], releve_mois=act_ids[1], no_ordre=act_ids[2], validated=0)
+            else:
+                queryset=Act.objects.get(id=act_ids)
         #empty selection for the drop down list
         else:
             if request.is_ajax():
@@ -79,29 +80,26 @@ def add_modif_fct(request, response, Add, Modif):
 
     #modification of an act -> display
     elif "modif_act" in request.POST or request.POST["modif_button_clicked"]=="yes" or request.POST["releve_annee_modif"]!="":
-        print "add_modif_fct: modification mode"
         mode="modif"
         modif=Modif(request.POST)
         if not request.is_ajax():
             response['modif']=modif
         if modif.is_valid():
             add_modif="modif"
-            print "modif form valid"
             #we display the act to modify it
             releve_annee_modif=modif.cleaned_data['releve_annee_modif']
             releve_mois_modif=modif.cleaned_data['releve_mois_modif']
             no_ordre_modif=modif.cleaned_data['no_ordre_modif']
-            print "add_modif_fct: act is going to be retrieved"
-            act=Act.objects.select_related().get(releve_annee=releve_annee_modif, releve_mois=releve_mois_modif, no_ordre=no_ordre_modif, validated__gt=0)
-            print "add_modif_fct: the act has been retrieved:", act
+            if form=="min_attend":
+                queryset=ImportMinAttend.objects.filter(releve_annee=releve_annee_modif, releve_mois=releve_mois_modif, no_ordre=no_ordre_modif, validated=1)
+            else:
+                queryset=Act.objects.get(releve_annee=releve_annee_modif, releve_mois=releve_mois_modif, no_ordre=no_ordre_modif, validated__gt=0)
         else:
             if request.is_ajax():
                 response['modif_act_errors']=dict([(k, modif.error_class.as_text(v)) for k, v in modif.errors.items()])
             print "modif form not valid", modif.errors
-    else:
-        print "request.POST", request.POST
 
-    return mode, add_modif, act, response
+    return mode, add_modif, queryset, response
 
 
 @login_required
@@ -127,7 +125,7 @@ def act_ids(request):
         #add_modif: same than mode but return None if the add or modif form is not valid
         #act=act to validate / modify or None if no act is found (modifcation)
         #response: add add or modif to the forms being displayed / to be displayed
-        mode, add_modif, act, response=add_modif_fct(request, response, Add, Modif)
+        mode, add_modif, act, response=add_modif_fct(request, response, Add, Modif, "act_ids")
 
         #if any of this key is present in the response dictionary -> no act display and return the errors with a json object
         #otherwise display act and return the html form of the act to validate or update in a string format

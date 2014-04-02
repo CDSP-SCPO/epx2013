@@ -1,4 +1,5 @@
 from django.db import models
+import act.var_name_data as var_name_data
 
 
 def file_path(instance, file_name):
@@ -80,14 +81,15 @@ class ImportMinAttend(models.Model):
     MODEL
     temporary model: attendance of ministers for each act and each country
     """
-    releve_annee=models.IntegerField(max_length=4, blank=False, null=False)
-    releve_mois=models.IntegerField(max_length=2, blank=False, null=False)
-    no_ordre=models.IntegerField(max_length=2, blank=False, null=False)
+    releve_annee=models.IntegerField(max_length=4)
+    releve_mois=models.IntegerField(max_length=2)
+    no_ordre=models.IntegerField(max_length=2)
     no_celex=models.CharField(max_length=15, blank=False, null=False)
-    inc=models.CharField(max_length=1, blank=False, null=False)
+    #country_code
     country=models.CharField(max_length=2, blank=False, null=False)
-    ind_status=models.CharField(max_length=5, blank=False, null=False)
     verbatim=models.CharField(max_length=250, blank=False, null=False)
+    status=models.CharField(max_length=5)
+    validated=models.BooleanField(default=False)
 
     #joined primary keys
     class Meta:

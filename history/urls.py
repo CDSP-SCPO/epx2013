@@ -1,5 +1,5 @@
 from django.conf.urls import patterns, url
-from history.views import HistoryListView
+from views import HistoryListView
 #redirect to login page if not logged
 from django.contrib.auth.decorators import login_required
 

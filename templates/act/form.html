@@ -403,16 +403,16 @@
                         <!-- column names -->
                         <tr>
                             <td class="table_column_title">{{ display_name.country }}</td>
-                            <td class="table_column_title">{{ display_name.ind_status }}</td>
+                            <td class="table_column_title">{{ display_name.status }}</td>
                         </tr>
 
-                        <!-- display all the countries and ind_status for the act) -->
-                        {% for country, ind_status in min_attends.items %}
+                        <!-- display all the countries and status for the act) -->
+                        {% for country, status in min_attends.items %}
                             <tr>
                                  <!-- display country -->
                                 <td>{{ country }}</td>
-                                <!-- display ind_status -->
-                                <td class="second_column_others">{{ ind_status }}</td>
+                                <!-- display status -->
+                                <td class="second_column_others">{{ status }}</td>
                             </tr>
                         {% endfor %}
                     </table>
@@ -431,7 +431,7 @@
 
 <!-- opal validation table -->
 <table id="opal_table" class="table table-bordered table-hover table-condensed">
-    <!-- display all the fields for each different NP (reverse relationship) -->
+    <!-- display all the fields for each different NP -->
     {% for country, fields in opals.items %}
         <tr>
             <!-- display np -->

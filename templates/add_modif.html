@@ -1,57 +1,64 @@
 <!-- anchor bottom page -->
 <div id="bottom_anchor_div" class="row">
-	<a id="top_anchor" href="#bottom_anchor">Go to the bottom</a>
+    <a id="top_anchor" href="#bottom_anchor">Go to the bottom</a>
 </div>
 
 <div id="add_modif">
 
-	<div id="add_div" class="span6">
-		<div class="row-fluid"><h4>Act to validate</h4></div>
-		<br />
-		<div id="acts_nb" class="row-fluid">{{ add.act_to_validate.field.choices.queryset.all|length }} act(s) to validate!</div>
-		<div id="id_add_act__all__errors" class="row-fluid modif_errors">{{ add.non_field_errors }}</div>
-		<div class="row-fluid">
-			<div id="act_to_validate_div" class="fieldWrapper">
-				<div id="id_{{ add.act_to_validate.name }}_errors" class="row-fluid">{{ add.act_to_validate.errors }}</div>
-				<div class="row-fluid">
-					{{ add.act_to_validate }}
-					<!-- if javascript disabled -->
-					<button id="add_act" name="add_act" type="submit" class="btn btn-primary">OK</button>
-				</div>
+    <div id="add_div" class="span6">
+        <div class="row-fluid"><h4>Act to validate</h4></div>
+        <br />
+        <div id="acts_nb" class="row-fluid">
+            {% if attendance_form %}
+                {{ add.act_to_validate.field.choices|length|add:"-1" }}
+            {% else %}
+                {{ add.act_to_validate.field.choices.queryset.all|length }}
+            {% endif %}
+             act(s) to validate!
+        </div>
+        <div id="id_add_act__all__errors" class="row-fluid modif_errors">{{ add.non_field_errors }}</div>
+        <div class="row-fluid">
+            <div id="act_to_validate_div" class="fieldWrapper">
+                <div id="id_{{ add.act_to_validate.name }}_errors" class="row-fluid">{{ add.act_to_validate.errors }}</div>
+                <div class="row-fluid">
+                    {{ add.act_to_validate }}
+                    <!-- if javascript disabled -->
+                    <button id="add_act" name="add_act" type="submit" class="btn btn-primary">OK</button>
+                </div>
 
-				<div id="loading_gif_add_act"><img src="{{STATIC_URL}}europolix/img/loading_medium.gif" /></div>
-			</div>
-		</div>
-	</div>
+                <div id="loading_gif_add_act"><img src="{{STATIC_URL}}europolix/img/loading_medium.gif" /></div>
+            </div>
+        </div>
+    </div>
 
-	<div id="modif_div"  class="span6">
-		<div class="row-fluid"><h4>Search a validated act to modify</h4></div>
-		<br />
-		<div id="id_modif_act__all__errors" class="row-fluid">{{ modif.non_field_errors }}</div>
-			<div id="modif" class="row-fluid">
-				<div id="releve_annee_modif" class="fieldWrapper span3">
-					<div id="id_{{ modif.releve_annee_modif.name }}_errors" class="row-fluid modif_errors">{{ modif.releve_annee_modif.errors }}</div>
-					<label for="id_releve_annee_modif">{{ display_name.releve_annee_modif }}</label>
-					{{ modif.releve_annee_modif }}
-				</div>
-				<div id="releve_mois_modif" class="fieldWrapper span3">
-					<div id="id_{{ modif.releve_mois_modif.name }}_errors" class="row-fluid modif_errors">{{ modif.releve_mois_modif.errors }}</div>
-					<label for="id_releve_mois_modif">{{ display_name.releve_mois_modif }}</label>
-					{{ modif.releve_mois_modif }}
-				</div>
-				<div id="no_ordre_modif" class="fieldWrapper span3">
-					<div id="id_{{ modif.no_ordre_modif.name }}_errors" class="row-fluid modif_errors">{{ modif.no_ordre_modif.errors }}</div>
-					<label for="id_no_ordre_modif">{{ display_name.no_ordre_modif }}</label>
-					{{ modif.no_ordre_modif }}
-				</div>
-				<div id="modif_act_button_div" class="span3">
-					<div class="row-fluid modif_errors"></div>
-					<label for=""></label>
-					<button id="modif_act" name="modif_act" type="submit" class="btn btn-primary">MODIF</button>
-					<input id="modif_button_clicked" name="modif_button_clicked" type="hidden" name="next" value="no" />
-					<div id="loading_gif_modif_act"><img src="{{STATIC_URL}}europolix/img/loading_medium.gif" /></div>
-				</div>
-			</div>
-	</div>
+    <div id="modif_div"  class="span6">
+        <div class="row-fluid"><h4>Search a validated act to modify</h4></div>
+        <br />
+        <div id="id_modif_act__all__errors" class="row-fluid">{{ modif.non_field_errors }}</div>
+            <div id="modif" class="row-fluid">
+                <div id="releve_annee_modif" class="fieldWrapper span3">
+                    <div id="id_{{ modif.releve_annee_modif.name }}_errors" class="row-fluid modif_errors">{{ modif.releve_annee_modif.errors }}</div>
+                    <label for="id_releve_annee_modif">{{ display_name.releve_annee_modif }}</label>
+                    {{ modif.releve_annee_modif }}
+                </div>
+                <div id="releve_mois_modif" class="fieldWrapper span3">
+                    <div id="id_{{ modif.releve_mois_modif.name }}_errors" class="row-fluid modif_errors">{{ modif.releve_mois_modif.errors }}</div>
+                    <label for="id_releve_mois_modif">{{ display_name.releve_mois_modif }}</label>
+                    {{ modif.releve_mois_modif }}
+                </div>
+                <div id="no_ordre_modif" class="fieldWrapper span3">
+                    <div id="id_{{ modif.no_ordre_modif.name }}_errors" class="row-fluid modif_errors">{{ modif.no_ordre_modif.errors }}</div>
+                    <label for="id_no_ordre_modif">{{ display_name.no_ordre_modif }}</label>
+                    {{ modif.no_ordre_modif }}
+                </div>
+                <div id="modif_act_button_div" class="span3">
+                    <div class="row-fluid modif_errors"></div>
+                    <label for=""></label>
+                    <button id="modif_act" name="modif_act" type="submit" class="btn btn-primary">MODIF</button>
+                    <input id="modif_button_clicked" name="modif_button_clicked" type="hidden" name="next" value="no" />
+                    <div id="loading_gif_modif_act"><img src="{{STATIC_URL}}europolix/img/loading_medium.gif" /></div>
+                </div>
+            </div>
+    </div>
 
 </div>
