@@ -1,12 +1,14 @@
+#-*- coding: utf-8 -*-
 """
-command to recreate the min_attend instances for validated acts
+command to get the min_attend instances for acts with an attendance_pdf url
 """
 from django.core.management.base import NoArgsCommand
 #new table
 from import_app.models import ImportMinAttend
 from act_ids.models import ActIds
-from act.models import Country, Verbatim
+from act.models import Country, Verbatim, Status
 import urllib, urllib2, time, os, tempfile, subprocess
+from django.db import IntegrityError
 
 
 def pdf_to_string(file_object):
@@ -69,7 +71,7 @@ def get_participants(string):
     print "begin", begin
     end=string.find("ITEMS DEBATED", begin)
     print "end", end
-    return string[begin:end]
+    return string[begin:end].split('\n')
 
 
 
@@ -111,9 +113,17 @@ def capitalized_word(words):
     True if there is at least one capitalized word, False otherwise [boolean]
     """
     #Micheál MARTIN without Mr or Ms
+    print "words before split"
+    print words
     words=words.split()
+    print "words after split"
+    print words
+    print ""
     for word in words:
-        if word.isupper() and word!="EU":
+        if word.isupper() and not word.isdigit() and word not in ["EU","EN"]:
+            print "capitalized word"
+            print word
+            print ""
             return True
     return False
 
@@ -129,9 +139,8 @@ def format_participants(participants, country_list):
     RETURN
     new_participants: participants part (countries, ministers' names and verbatims)  [list of strings]
     """
+    #~ print new_participants
     new_participants=[]
-    #~ for participant in participants:
-        #~ print participant
 
     #separate 'Mr Didier REYNDERS                  Deputy Prime Minister and Minister for Foreign Affairs,'
     for participant in participants:
@@ -158,6 +167,10 @@ def format_participants(participants, country_list):
 
     new_participants=new_participants[index_belgium:]
 
+    print "participants WITH header/footer"
+    print new_participants
+    print ""
+
     #if two pages, remove footer and header of separation
     begin=end=-1
     for i in range(len(new_participants)):
@@ -165,11 +178,24 @@ def format_participants(participants, country_list):
         if new_participants[i].strip()=="":
             if begin==-1:
                 begin=i
-        elif new_participants[i].split(":")[0].strip() in country_list and begin!=-1:
-            new_participants=new_participants[:begin]+new_participants[i:]
-            break
 
-    print "new_participants", new_participants
+        elif begin!=-1:
+            #new page starts with a minister's name from a country started on the previous page
+            #http://www.consilium.europa.eu/uedocs/cms_data/docs/pressdata/en/gena/87078.pdf
+            if new_participants[i].lstrip()[:2].lower() in ["mr", "ms"] or capitalized_word(new_participants[i]):
+                print "youpi"
+                print new_participants[i]
+                print new_participants[i-5:i+5]
+                print ""
+                new_participants=new_participants[:begin]+new_participants[i:]
+                break
+            #new page starts with a new country
+            elif new_participants[i].split(":")[0].strip() in country_list:
+                new_participants=new_participants[:begin]+new_participants[i:]
+                break
+
+    print "participants WITHOUT header/footer"
+    print new_participants
     print ""
 
     #stop after last country (uk usually)
@@ -184,7 +210,8 @@ def format_participants(participants, country_list):
             new_participants=new_participants[:i+1]
             break
 
-    #~ print "new_participants", new_participants
+    #~ print "new_participants"
+    #~ print new_participants
     #~ print ""
     return new_participants
 
@@ -211,8 +238,9 @@ def get_countries(participants, country_list):
         else:
             countries[-1][1].append(participant)
 
-    print countries
-    print ""
+    #~ print "countries"
+    #~ print countries
+    #~ print ""
     #~ print "nb countries", len(countries)
     #~ print ""
     return countries
@@ -229,17 +257,44 @@ def get_verbatims(countries, country_list):
     countries: participants with countries and associated ministers grouped together [list of lists of strings / lists]
     """
     verbatims=[]
+
+    #check that each country starts with a minister's name, not a verbatim
+    #-> pb Belgium with http://www.consilium.europa.eu/uedocs/cms_data/docs/pressdata/en/agricult/75376.pdf
+    #['Belgium', ['Minister, attached to the Minister for Foreign Affairs, with', 'Ms Annemie NEYTS-UTTENBROEK', 'responsibility for Agriculture', 'Mr Jos\xc3\xa9 HAPPART', 'Minister for Agriculture and Rural Affairs (Walloon Region)', 'Ms Vera DUA', 'Minister for the Environment and Agriculture (Flemish Region)']]
+    #~ print "countries BEFORE moving ministers", countries
+    #~ print ""
+    nb_pbs=[0, ""]
+    for country in countries:
+        first=country[1][0].lstrip()
+        #pb
+        if first[:2].lower() not in ["mr", "ms"] or not capitalized_word(first):
+            for index in range(len(country[1])):
+                if country[1][index].lstrip()[:2].lower() in ["mr", "ms"] or capitalized_word(country[1][index]):
+                    #move the minister to the first place
+                    #['Belgium', ['Ms Annemie NEYTS-UTTENBROEK', 'Minister, attached to the Minister for Foreign Affairs, with', 'responsibility for Agriculture', 'Mr Jos\xc3\xa9 HAPPART', 'Minister for Agriculture and Rural Affairs (Walloon Region)', 'Ms Vera DUA', 'Minister for the Environment and Agriculture (Flemish Region)']]
+                    country[1].insert(0, country[1].pop(index))
+                    nb_pbs[0]+=1
+                    nb_pbs[1]+=country[0]+ ";"
+                    break
+#~
+    #~ print 'NB DIFFS', nb_pbs
+    #~ print ""
+    #~ print "countries AFTER moving ministers", countries
+    #~ print ""
+
+
+    #remove ministers' names and group long verbatims split into more than one item
     for country in countries:
         #~ print "country", country
         for minister in country[1]:
             #new minister for the country
-            #~ print "minister", minister
             if minister.lstrip()[:2].lower() in ["mr", "ms"] or capitalized_word(minister):
                 #~ print "mr ms", minister
                 verbatims.append([country[0], ""])
             else:
                 #~ print "verbatim", minister
                 #for long verbatims in 2 or more lines
+                #~ print "verbatims", verbatims
                 if verbatims[-1][1]=="":
                     separator=""
                 else:
@@ -248,6 +303,16 @@ def get_verbatims(countries, country_list):
             #~ print "verbatims", verbatims
         #~ break
 
+    #~ print "no more ministers' names"
+    #~ print verbatims
+    #~ print ""
+
+    #remove extra blank spaces
+    for country in verbatims:
+        country[1]=' '.join(country[1].split())
+
+
+    #display final result
     for country in verbatims:
         print country[0]+": "+country[1]
     print ""
@@ -268,27 +333,30 @@ class Command(NoArgsCommand):
     def handle(self, **options):
 
         #get the list of countries from the db
-        country_list=Country.object.values_list('country', flat=True)
+        country_list=Country.objects.values_list('country', flat=True)
 
         #get all the acts with a non null attendance_path
-        acts_ids=ActIds.objects.filter(src="index").exclude(act__attendance_path__isnull=True)
+        acts_ids=ActIds.objects.filter(src="index").exclude(act__attendance_pdf__isnull=True)
         for act_ids in acts_ids:
             already_imported=ImportMinAttend.objects.filter(no_celex=act_ids.no_celex, validated=True)
             #if the act has been imported and validated already, don't import it again
             if not already_imported:
-
                 act=act_ids.act
-                #name of the file
+
+                #TEST ONLY
+                act.attendance_pdf="http://www.consilium.europa.eu/uedocs/cms_data/docs/pressdata/en/gena/87078.pdf"
+
                 print ""
-                print "act", filename
+                print "act", act
+                print act.attendance_pdf
                 print ""
 
                 #get the pdf
-                file_object = urllib2.urlopen(act.attendance_path)
+                file_object = urllib2.urlopen(act.attendance_pdf)
 
                 #read the pdf and assign its text to a string
                 string=pdf_to_string(file_object)
-                string=get_participants(string)
+                participants=get_participants(string)
                 #~ string_to_file(string, file_path+filename+".txt")
 
                 #format the string variable to get the countries and verbatims only
@@ -305,12 +373,17 @@ class Command(NoArgsCommand):
                     status=None
                     #retrieves the status if the verbatim exists in the dictionary
                     try:
-                        status=Verbatim.object.get(verbatim=country[1]).status
+                        verbatim=Verbatim.objects.get(verbatim=country[1])
+                        status=Status.objects.get(verbatim=verbatim, country=Country.objects.get(country=country[0])).status
                     except Exception, e:
                         print "no verbatim", e
 
                     #add extracted attendances into ImportMinAttend
-                    ImportMinAttend.objects.create(releve_annee=act.releve_annee, releve_mois=act.releve_mois, no_ordre=act.no_ordre, no_celex=act_ids.no_celex, country=country[0], verbatim=country[1], status=status)
+                    try:
+                        ImportMinAttend.objects.create(releve_annee=act.releve_annee, releve_mois=act.releve_mois, no_ordre=act.no_ordre, no_celex=act_ids.no_celex, country=Country.objects.get(country=country[0]).country_code, verbatim=country[1], status=status)
+                    except IntegrityError as e:
+                        pass
+                        #~ print "integrity error", e
 
                 #TEST ONLY
                 break

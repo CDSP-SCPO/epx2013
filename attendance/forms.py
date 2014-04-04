@@ -27,9 +27,10 @@ class MinAttendForm(forms.ModelForm):
 
 
 def format_releve_ids(releves):
-    releve_annee=var_name_data.var_name['releve_annee'] + "=" + str(releves[0])
-    releve_mois=var_name_data.var_name['releve_mois'] + "=" + str(releves[1])
-    no_ordre=var_name_data.var_name['no_ordre'] + "=" + str(releves[2])
+    releves=releves.split(",")
+    releve_annee=var_name_data.var_name['releve_annee'] + "=" + releves[0]
+    releve_mois=var_name_data.var_name['releve_mois'] + "=" + releves[1]
+    no_ordre=var_name_data.var_name['no_ordre'] + "=" + releves[2]
     return releve_annee + ", " + releve_mois + ", " + no_ordre
 
 
@@ -48,7 +49,7 @@ class Add(forms.Form):
         acts_list=[]
         qs=ImportMinAttend.objects.filter(validated=0)
         for act in qs:
-            name=[int(act.releve_annee),int(act.releve_mois),int(act.no_ordre)]
+            name=str(act.releve_annee)+","+str(act.releve_mois)+","+str(act.no_ordre)
             if name not in acts_list:
                 acts_list.append(name)
         #add name to be displayed in the form to have a list of tuples

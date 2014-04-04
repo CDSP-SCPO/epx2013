@@ -66,6 +66,7 @@ class MinAttendUpdate(UpdateView):
         The form is posted
         """
         print "post"
+        self.object=None
         context={}
         mode, add_modif, attendances, context=add_modif_fct(request, context, Add, Modif, "min_attend")
 #~ #~

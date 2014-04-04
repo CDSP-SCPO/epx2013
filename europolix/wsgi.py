@@ -30,6 +30,7 @@ if path not in sys.path:
     sys.path.append(path)
     sys.path.append( os.path.join( path, appname) )
 os.environ['DJANGO_SETTINGS_MODULE']=appname+'.settings'
+
 import django.core.handlers.wsgi
 #~ from django.core.wsgi import get_wsgi_application
 application=django.core.handlers.wsgi.WSGIHandler()

@@ -67,10 +67,11 @@ def add_modif_fct(request, response, Add, Modif, form):
             add_modif="add"
             act_to_validate=add.cleaned_data['act_to_validate']
             #get the primary key
-            act_ids=act_to_validate.pk
             if form=="min_attend":
-                queryset=ImportMinAttend.objects.filter(releve_annee=act_ids[0], releve_mois=act_ids[1], no_ordre=act_ids[2], validated=0)
+                act_ids=act_to_validate.split(",")
+                queryset=ImportMinAttend.objects.filter(releve_annee=int(act_ids[0]), releve_mois=int(act_ids[1]), no_ordre=int(act_ids[2]), validated=0)
             else:
+                act_ids=act_to_validate.pk
                 queryset=Act.objects.get(id=act_ids)
         #empty selection for the drop down list
         else:
