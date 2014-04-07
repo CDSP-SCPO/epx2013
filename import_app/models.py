@@ -88,7 +88,7 @@ class ImportMinAttend(models.Model):
     #country_code
     country=models.CharField(max_length=2, blank=False, null=False)
     verbatim=models.CharField(max_length=250, blank=False, null=False)
-    status=models.CharField(max_length=5, blank=False, null=False, default=None)
+    status=models.CharField(max_length=5, blank=True, null=True, default=None)
     validated=models.BooleanField(default=False, db_index=True)
 
     #joined primary keys

@@ -68,9 +68,9 @@ def get_participants(string):
         begin=find_nth(string, participant, 2)
         if begin!=-1:
             break
-    print "begin", begin
+    #~ print "begin", begin
     end=string.find("ITEMS DEBATED", begin)
-    print "end", end
+    #~ print "end", end
     return string[begin:end].split('\n')
 
 
@@ -103,7 +103,7 @@ def file_to_string(path):
     return participants
 
 
-def capitalized_word(words):
+def capitalized_word(words, display=False):
     """
     FUNCTION
     check if there is at least one capitalized word in a group of words
@@ -113,17 +113,19 @@ def capitalized_word(words):
     True if there is at least one capitalized word, False otherwise [boolean]
     """
     #Micheál MARTIN without Mr or Ms
-    print "words before split"
-    print words
     words=words.split()
-    print "words after split"
-    print words
-    print ""
     for word in words:
-        if word.isupper() and not word.isdigit() and word not in ["EU","EN"]:
-            print "capitalized word"
-            print word
-            print ""
+        #word.isupper() is what we really want to test
+        #http://www.consilium.europa.eu/uedocs/cms_data/docs/pressdata/en/lsa/111599.pdf
+        #len(word)>1: "E" (problem with N of EN)
+        #not any(char.isdigit() for char in word): discard dates (roman numerals are in upper case)
+        #REV: 16611/2/09 REV 2 (en) (Presse 348)
+        if word.isupper() and len(word)>1 and not any(char.isdigit() for char in word) and word not in ["EU","EN", "REV"]:
+            #~ if display:
+                #~ print "word", word
+                #~ print "word.isupper()", word.isupper()
+                #~ print "not any(char.isdigit() for char in word)", not any(char.isdigit() for char in word)
+                #~ print "word not in [EU,EN]", word not in ["EU","EN"]
             return True
     return False
 
@@ -139,25 +141,34 @@ def format_participants(participants, country_list):
     RETURN
     new_participants: participants part (countries, ministers' names and verbatims)  [list of strings]
     """
-    #~ print new_participants
     new_participants=[]
+
+    #~ print "begin participants"
+    #~ print participants
+    #~ print ""
 
     #separate 'Mr Didier REYNDERS                  Deputy Prime Minister and Minister for Foreign Affairs,'
     for participant in participants:
         participant=participant.strip()
-        #~ print "participant", participant
-        if participant[:2].lower() in ["mr", "ms"] or capitalized_word(participant):
-            for i in range(len(participant)):
-                if participant[i]==" " and participant[i+1]==" ":
-                    #add Mr or Ms
-                    new_participants.append(participant[:i].strip())
-                    #add verbatim
-                    new_participants.append(participant[i:].strip())
-                    break
+        #remove empty items
+        if participant!="":
+            #~ print "participant", participant
+            if participant[:2].lower() in ["mr", "ms"] or capitalized_word(participant):
+                for i in range(len(participant)):
+                    if participant[i]==" " and participant[i+1]==" ":
+                        #add Mr or Ms
+                        new_participants.append(participant[:i].strip())
+                        #add verbatim
+                        new_participants.append(participant[i:].strip())
+                        break
+                else:
+                    new_participants.append(participant)
             else:
                 new_participants.append(participant)
-        else:
-            new_participants.append(participant)
+
+    #~ print "begin new_participants"
+    #~ print new_participants
+    #~ print ""
 
     #start the list with the first participant (Belgium)
     for participant in new_participants:
@@ -167,36 +178,25 @@ def format_participants(participants, country_list):
 
     new_participants=new_participants[index_belgium:]
 
-    print "participants WITH header/footer"
-    print new_participants
-    print ""
-
     #if two pages, remove footer and header of separation
     begin=end=-1
     for i in range(len(new_participants)):
-        #~ print "new_participants[i]", new_participants[i]
-        if new_participants[i].strip()=="":
+        #'Ms Audron MORNIEN', 'Deputy minister for Social Security and Labour', '16611/2/09 REV 2 (en) (Presse 348)                                                                             5', 'E', '30.XI-1.XII.2009', 'Luxembourg:', 'Mr Mars DIBO'
+        if any(char.isdigit() for char in new_participants[i].strip()):
             if begin==-1:
                 begin=i
 
-        elif begin!=-1:
-            #new page starts with a minister's name from a country started on the previous page
-            #http://www.consilium.europa.eu/uedocs/cms_data/docs/pressdata/en/gena/87078.pdf
-            if new_participants[i].lstrip()[:2].lower() in ["mr", "ms"] or capitalized_word(new_participants[i]):
-                print "youpi"
-                print new_participants[i]
-                print new_participants[i-5:i+5]
-                print ""
-                new_participants=new_participants[:begin]+new_participants[i:]
-                break
-            #new page starts with a new country
-            elif new_participants[i].split(":")[0].strip() in country_list:
-                new_participants=new_participants[:begin]+new_participants[i:]
-                break
-
-    print "participants WITHOUT header/footer"
-    print new_participants
-    print ""
+        #new page starts with a minister's name from a country started on the previous page
+        #http://www.consilium.europa.eu/uedocs/cms_data/docs/pressdata/en/gena/87078.pdf
+        #or new page starts with a new country
+        if begin!=-1 and (new_participants[i].lstrip()[:2].lower() in ["mr", "ms"] or capitalized_word(new_participants[i]) or new_participants[i].split(":")[0].strip() in country_list):
+            #~ print "PB"
+            #~ print new_participants[i]
+            #~ print new_participants[i-5:i+5]
+            #~ capitalized_word(new_participants[i], True)
+            #~ print ""
+            new_participants=new_participants[:begin]+new_participants[i:]
+            break
 
     #stop after last country (uk usually)
     for participant in new_participants:
@@ -205,8 +205,10 @@ def format_participants(participants, country_list):
             break
 
     new_participants=new_participants[:index_uk]
+
+    #remove "*" before the word "Commission"
     for i, element in reversed(list(enumerate(new_participants))):
-        if element.strip()!="" and "*" not in element:
+        if "*" not in element:
             new_participants=new_participants[:i+1]
             break
 
@@ -335,23 +337,30 @@ class Command(NoArgsCommand):
         #get the list of countries from the db
         country_list=Country.objects.values_list('country', flat=True)
 
-        #get all the acts with a non null attendance_path
+        #~ file_path="/var/www/europolix/import_app/management/commands/files/"
+        #~ for year in range(2003, 2014):
+            #~ file_name=str(year)
+            #~ print "year", file_name
+            #~ file_object=open(file_path+file_name+".pdf",'r')
+
+        #~ #get all the acts with a non null attendance_path
         acts_ids=ActIds.objects.filter(src="index").exclude(act__attendance_pdf__isnull=True)
         for act_ids in acts_ids:
+#~
             already_imported=ImportMinAttend.objects.filter(no_celex=act_ids.no_celex, validated=True)
-            #if the act has been imported and validated already, don't import it again
+            #~ #if the act has been imported and validated already, don't import it again
             if not already_imported:
                 act=act_ids.act
-
+#~ #~
                 #TEST ONLY
-                act.attendance_pdf="http://www.consilium.europa.eu/uedocs/cms_data/docs/pressdata/en/gena/87078.pdf"
-
+                #~ act.attendance_pdf="http://www.consilium.europa.eu/uedocs/cms_data/docs/pressdata/en/agricult/74276.pdf"
+#~ #~
                 print ""
                 print "act", act
                 print act.attendance_pdf
                 print ""
-
-                #get the pdf
+#~
+                #~ #get the pdf
                 file_object = urllib2.urlopen(act.attendance_pdf)
 
                 #read the pdf and assign its text to a string
@@ -368,7 +377,7 @@ class Command(NoArgsCommand):
 
                 #remove non validated ministers' attendances
                 ImportMinAttend.objects.filter(no_celex=act_ids.no_celex, validated=False).delete()
-
+    #~ #~
                 for country in verbatims:
                     status=None
                     #retrieves the status if the verbatim exists in the dictionary
@@ -376,17 +385,18 @@ class Command(NoArgsCommand):
                         verbatim=Verbatim.objects.get(verbatim=country[1])
                         status=Status.objects.get(verbatim=verbatim, country=Country.objects.get(country=country[0])).status
                     except Exception, e:
-                        print "no verbatim", e
-
+                        pass
+                        #print "no verbatim", e
+    #~ #~
                     #add extracted attendances into ImportMinAttend
                     try:
                         ImportMinAttend.objects.create(releve_annee=act.releve_annee, releve_mois=act.releve_mois, no_ordre=act.no_ordre, no_celex=act_ids.no_celex, country=Country.objects.get(country=country[0]).country_code, verbatim=country[1], status=status)
                     except IntegrityError as e:
                         pass
-                        #~ print "integrity error", e
-
+                        #print "integrity error", e
+    #~
                 #TEST ONLY
-                break
+                #~ break
 
                 print ""
                 print ""

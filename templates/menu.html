@@ -32,9 +32,7 @@
                     <li><a href="{% url import %}" class="internal_link">CSV import<i class="icon-chevron-right"></i></a></li>
                 {% endif %}
                 <li><a href="{% url act_ids %}" class="internal_link">Act ids validation<i class="icon-chevron-right"></i></a></li>
-<!--
                 <li><a href="{% url attendance %}" class="internal_link">Attendance validation<i class="icon-chevron-right"></i></a></li>
--->
                 <li><a href="{% url act %}" class="internal_link">Act data validation<i class="icon-chevron-right"></i></a></li>
                 {% if "admin" in groupnames or "import_export" in groupnames %}
                     <li><a href="{% url export %}" class="internal_link">CSV export<i class="icon-chevron-right"></i></a></li>

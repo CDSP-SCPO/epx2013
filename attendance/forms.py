@@ -3,27 +3,56 @@ from import_app.models import ImportMinAttend
 from act.models import Country, Status
 #variables names
 import act.var_name_data as var_name_data
+from django.forms.util import ErrorList
+from django.core.exceptions import ValidationError, ObjectDoesNotExist
 
 
-class MinAttendForm(forms.ModelForm):
+class ImportMinAttendForm(forms.ModelForm):
     """
     FORM
     form to validate the ministers' attendance
     """
-    country=forms.ModelChoiceField(queryset=Country.objects.all(), empty_label="Select the country")
-    status=forms.ModelChoiceField(queryset=Status.objects.values_list('status', flat = True).distinct(), empty_label="Select the status")
+    country=forms.ModelChoiceField(queryset=Country.objects.all(), empty_label="Select a country")
+    status=forms.ModelChoiceField(queryset=Status.objects.values_list('status', flat = True).distinct(), empty_label="Select a status")
 
     class Meta:
         model=ImportMinAttend
-        #fields NOT used for the validation
-        fields = ('country', 'verbatim', 'status')
+        #fields used for the validation
+        fields = ['country', 'verbatim', 'status']
 
-    def __init__(self, *args, **kwargs):
-        super(MinAttendForm, self).__init__(*args, **kwargs)
-        #add class to each field to recognize them
-        self.fields['country'].widget.attrs.update({'class' : 'country'})
-        self.fields['verbatim'].widget.attrs.update({'class' : 'verbatim'})
-        self.fields['status'].widget.attrs.update({'class' : 'status'})
+    def clean(self):
+        #call status clean method
+        self.cleaned_data["status"]=self.clean_status()
+        return self.cleaned_data
+
+    def clean_country(self):
+        #avoid validation error
+        country = self.cleaned_data['country'].pk
+        return country
+
+    def clean_verbatim(self):
+        #remove extra blank spaces
+        verbatim = self.cleaned_data['verbatim']
+        return ' '.join(verbatim.split())
+
+    def clean_status(self):
+        #valid if a value has been selected
+        if self["status"].value()!="":
+            del self._errors["status"]
+        return self["status"].value()
+
+    def save(self, *args, **kwargs):
+        #if extra forms, add ids
+        if "no_celex" in kwargs:
+            self.instance.no_celex = kwargs.pop('no_celex', None)
+            self.instance.releve_annee = kwargs.pop('releve_annee', None)
+            self.instance.releve_mois = kwargs.pop('releve_mois', None)
+            self.instance.no_ordre = kwargs.pop('no_ordre', None)
+        instance = super(ImportMinAttendForm, self).save(*args, **kwargs)
+        #when saving from the attendance form validation, validated=True
+        instance.validated = True
+        instance.save()
+        return instance
 
 
 def format_releve_ids(releves):
@@ -76,6 +105,7 @@ class Modif(forms.Form):
 
     #check if the searched act already exists in the db and has been validated
     def is_valid(self):
+        print "is valid"
         # run the parent validation first
         valid=super(Modif, self).is_valid()
 
@@ -89,11 +119,14 @@ class Modif(forms.Form):
         no_ordre_modif=self.cleaned_data.get("no_ordre_modif")
 
         try:
-            act=ImportMinAttend.objects.get(releve_annee=releve_annee_modif, releve_mois=releve_mois_modif, no_ordre=no_ordre_modif, validated=1)
-        except:
-            print "pb find act"
+            #~ print ImportMinAttend.objects.get(releve_annee=releve_annee_modif, releve_mois=releve_mois_modif, no_ordre=no_ordre_modif, validated=True).query
+            act=ImportMinAttend.objects.get(releve_annee=releve_annee_modif, releve_mois=releve_mois_modif, no_ordre=no_ordre_modif, validated=True)
+        except ObjectDoesNotExist, e:
+            #~ print "pb find act", e
             self._errors['__all__']=ErrorList([u"The act you are looking for has not been validated yet!"])
             return False
+        except Exception, e:
+            print "more than one rows: OK", e
 
         # form valid -> return True
         return True
