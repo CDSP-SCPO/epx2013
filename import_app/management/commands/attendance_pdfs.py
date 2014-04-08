@@ -257,9 +257,9 @@ def get_countries(participants, country_list):
         else:
             countries[-1][1].append(participant)
 
-    print "countries"
-    print countries
-    print ""
+    #~ print "countries"
+    #~ print countries
+    #~ print ""
     #~ print "nb countries", len(countries)
     #~ print ""
     return countries
@@ -370,7 +370,7 @@ class Command(NoArgsCommand):
                 act=act_ids.act
 #~ #~
                 #TEST ONLY
-                #~ act.attendance_pdf="http://www.consilium.europa.eu/uedocs/cms_data/docs/pressdata/en/agricult/101422.pdf"
+                act.attendance_pdf="http://www.consilium.europa.eu/uedocs/cms_data/docs/pressdata/en/intm/110310.pdf"
 #~ #~
                 print ""
                 print "act", act
@@ -407,13 +407,14 @@ class Command(NoArgsCommand):
     #~ #~
                     #add extracted attendances into ImportMinAttend
                     try:
+                        #~ print len(country[1])
                         ImportMinAttend.objects.create(releve_annee=act.releve_annee, releve_mois=act.releve_mois, no_ordre=act.no_ordre, no_celex=act_ids.no_celex, country=Country.objects.get(country=country[0]).country_code, verbatim=country[1], status=status)
                     except IntegrityError as e:
                         pass
                         #print "integrity error", e
     #~
                 #TEST ONLY
-                #~ break
+                break
 
                 print ""
                 print ""

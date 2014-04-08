@@ -87,10 +87,11 @@ class ImportMinAttend(models.Model):
     no_celex=models.CharField(max_length=15, blank=False, null=False)
     #country_code
     country=models.CharField(max_length=2, blank=False, null=False)
-    verbatim=models.CharField(max_length=250, blank=False, null=False)
+    verbatim=models.CharField(max_length=300, blank=False, null=False)
     status=models.CharField(max_length=5, blank=True, null=True, default=None)
     validated=models.BooleanField(default=False, db_index=True)
 
     #joined primary keys
     class Meta:
+        #ALTER TABLE `europolix`.`import_app_importminattend` ADD INDEX (no_celex, country, verbatim(255));
         unique_together=(("no_celex", "country", "verbatim"), )

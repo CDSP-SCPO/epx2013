@@ -270,7 +270,9 @@ class Verbatim(models.Model):
     MODEL
     instances of verbatims and associated status
     """
-    verbatim = models.CharField(max_length=250, unique=True)
+    #ADD MANUALLY INDEX ON FIRST 255 CHARACTERS
+    #ALTER TABLE `europolix`.`act_verbatim` ADD INDEX (verbatim(255));
+    verbatim = models.CharField(max_length=300)
 
 
     def __unicode__(self):
