@@ -40,6 +40,30 @@ def check_equality_fields(fields):
     return True
 
 
+def get_ordered_queryset(releve_mois, releve_annee, no_ordre, validated=False):
+    """
+    FUNCTION
+    get the acts from the ids in parameter and order the queryset according to the status and country
+    PARAMETERS
+    releve_mois: releve_mois variable [int]
+    releve_annee: releve_annee variable [int]
+    no_ordre: no_ordre variable [int]
+    validated: validated value [boolean]
+    RETURN
+    sorted queryset [Queryset object]
+    """
+    queryset_no_order=ImportMinAttend.objects.filter(releve_annee=releve_mois, releve_mois=releve_annee, no_ordre=no_ordre, validated=validated)
+    queryset=queryset_no_order.filter(status=None).order_by("country")
+    #must hit the database to have _result_cache work
+    len(queryset)
+
+    queryset_status=queryset_no_order.exclude(status=None).order_by("country")
+    for query in queryset_status:
+        queryset._result_cache.append(query)
+
+    return queryset
+
+
 def add_modif_fct(request, response, Add, Modif, form):
     """
     FUNCTION
@@ -67,9 +91,11 @@ def add_modif_fct(request, response, Add, Modif, form):
             add_modif="add"
             act_to_validate=add.cleaned_data['act_to_validate']
             #get the primary key
-            if form=="min_attend":
+            if form=="attendance_form":
                 act_ids=act_to_validate.split(",")
-                queryset=ImportMinAttend.objects.filter(releve_annee=int(act_ids[0]), releve_mois=int(act_ids[1]), no_ordre=int(act_ids[2]), validated=0).order_by("status")
+                queryset=get_ordered_queryset(int(act_ids[0]), int(act_ids[1]), int(act_ids[2]))
+                #~ for query in queryset:
+                    #~ print query.id
             else:
                 act_ids=act_to_validate.pk
                 queryset=Act.objects.get(id=act_ids)
@@ -91,10 +117,12 @@ def add_modif_fct(request, response, Add, Modif, form):
             releve_annee_modif=modif.cleaned_data['releve_annee_modif']
             releve_mois_modif=modif.cleaned_data['releve_mois_modif']
             no_ordre_modif=modif.cleaned_data['no_ordre_modif']
-            if form=="min_attend":
-                queryset=ImportMinAttend.objects.filter(releve_annee=releve_annee_modif, releve_mois=releve_mois_modif, no_ordre=no_ordre_modif, validated=1).order_by("status")
+            if form=="attendance_form":
+                queryset=get_ordered_queryset(releve_annee_modif, releve_mois_modif, no_ordre_modif, True)
+                #~ for query in queryset:
+                    #~ print query.id
             else:
-                queryset=Act.objects.get(releve_annee=releve_annee_modif, releve_mois=releve_mois_modif, no_ordre=no_ordre_modif, validated__gt=0)
+                queryset=Act.objects.get(releve_annee=releve_annee_modif, releve_mois=releve_mois_modif, no_ordre=no_ordre_modif)
         else:
             if request.is_ajax():
                 response['modif_act_errors']=dict([(k, modif.error_class.as_text(v)) for k, v in modif.errors.items()])

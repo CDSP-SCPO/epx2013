@@ -95,7 +95,7 @@ class MinAttendUpdate(UpdateView):
         """
         print "post"
         context={}
-        mode, add_modif, attendances, context=add_modif_fct(request, context, Add, Modif, "min_attend")
+        mode, add_modif, attendances, context=add_modif_fct(request, context, Add, Modif, "attendance_form")
 
         #not called with ajax!
         #~ context = self.get_context_data(**kwargs)
