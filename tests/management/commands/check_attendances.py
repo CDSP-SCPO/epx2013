@@ -3,13 +3,13 @@ from django.core.management.base import NoArgsCommand
 from act.models import Country, Verbatim, Status
 from import_app.models import ImportMinAttend
 import csv
-
+from django.conf import settings
 
 class Command(NoArgsCommand):
     def handle(self, **options):
 
         #check status errors
-        path="/var/www/europolix/tests/management/commands/"
+        path=settings.PROJECT_ROOT+"/tests/management/commands/"
         headers=["releve_annee", "releve_mois", "no_ordre", "no_celex", "verbatim", "country", "status"]
         with open(path+"status_mistakes.csv", 'r') as csv_file:
             status_errors=[]
