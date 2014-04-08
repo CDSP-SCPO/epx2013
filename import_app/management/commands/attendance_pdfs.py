@@ -176,7 +176,7 @@ def format_participants(participants, country_list):
 
     #start the list with the first participant (Belgium)
     for participant in new_participants:
-        if participant.strip() in ["Belgium:", "Belgium :"]:
+        if participant.strip() in ["Belgium", "Belgium:", "Belgium :"]:
             index_belgium=new_participants.index(participant)
             break
 
@@ -368,7 +368,7 @@ class Command(NoArgsCommand):
                 act=act_ids.act
 #~ #~
                 #TEST ONLY
-                #~ act.attendance_pdf="http://www.consilium.europa.eu/uedocs/cms_data/docs/pressdata/en/envir/81264.pdf"
+                #~ act.attendance_pdf="http://www.consilium.europa.eu/uedocs/cms_data/docs/pressdata/en/agricult/96806.pdf"
 #~ #~
                 print ""
                 print "act", act
