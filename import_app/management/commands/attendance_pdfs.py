@@ -206,13 +206,13 @@ def format_participants(participants, country_list):
             new_participants=new_participants[:begin]+new_participants[i:]
             break
 
-    #~ print "begin new_participants"
-    #~ print new_participants
-    #~ print ""
+    print "begin new_participants"
+    print new_participants
+    print ""
 
     #stop after last country (uk usually)
     for participant in new_participants:
-        if participant.strip() in ["Commission:", "Commission :", '*   *   *']:
+        if participant.strip() in ["Commission", "Commission:", "Commission :", '*   *   *']:
             index_uk=new_participants.index(participant)
             #~ print 'uk ok'
             break
@@ -368,7 +368,7 @@ class Command(NoArgsCommand):
                 act=act_ids.act
 #~ #~
                 #TEST ONLY
-                #~ act.attendance_pdf="http://www.consilium.europa.eu/uedocs/cms_data/docs/pressdata/en/trans/79411.pdf"
+                act.attendance_pdf="http://www.consilium.europa.eu/uedocs/cms_data/docs/pressdata/en/envir/81264.pdf"
 #~ #~
                 print ""
                 print "act", act
@@ -411,7 +411,7 @@ class Command(NoArgsCommand):
                         #print "integrity error", e
     #~
                 #TEST ONLY
-                #~ break
+                break
 
                 print ""
                 print ""
