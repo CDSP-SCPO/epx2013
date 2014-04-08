@@ -370,7 +370,7 @@ class Command(NoArgsCommand):
                 act=act_ids.act
 #~ #~
                 #TEST ONLY
-                act.attendance_pdf="http://www.consilium.europa.eu/uedocs/cms_data/docs/pressdata/en/intm/110310.pdf"
+                #~ act.attendance_pdf="http://www.consilium.europa.eu/uedocs/cms_data/docs/pressdata/en/intm/110310.pdf"
 #~ #~
                 print ""
                 print "act", act
@@ -414,7 +414,7 @@ class Command(NoArgsCommand):
                         #print "integrity error", e
     #~
                 #TEST ONLY
-                break
+                #~ break
 
                 print ""
                 print ""
