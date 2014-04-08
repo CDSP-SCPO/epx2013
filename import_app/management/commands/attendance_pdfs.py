@@ -206,9 +206,9 @@ def format_participants(participants, country_list):
             new_participants=new_participants[:begin]+new_participants[i:]
             break
 
-    print "begin new_participants"
-    print new_participants
-    print ""
+    #~ print "begin new_participants"
+    #~ print new_participants
+    #~ print ""
 
     #stop after last country (uk usually)
     for participant in new_participants:
@@ -250,14 +250,16 @@ def get_countries(participants, country_list):
         #problem when conversion from pdf to text
         if country=="etherlands":
             country="Netherlands"
-        if country in country_list:
+        #http://www.consilium.europa.eu/uedocs/cms_data/docs/pressdata/en/agricult/101422.pdf
+        #'Ms Michelle GILDERNEW', 'Minister for Agriculture and Rural Development, Northern', 'Ireland']
+        if country in country_list and participants.index(participant)<len(participants)-1:
             countries.append([country, []])
         else:
             countries[-1][1].append(participant)
 
-    #~ print "countries"
-    #~ print countries
-    #~ print ""
+    print "countries"
+    print countries
+    print ""
     #~ print "nb countries", len(countries)
     #~ print ""
     return countries
@@ -368,7 +370,7 @@ class Command(NoArgsCommand):
                 act=act_ids.act
 #~ #~
                 #TEST ONLY
-                #~ act.attendance_pdf="http://www.consilium.europa.eu/uedocs/cms_data/docs/pressdata/en/agricult/96806.pdf"
+                #~ act.attendance_pdf="http://www.consilium.europa.eu/uedocs/cms_data/docs/pressdata/en/agricult/101422.pdf"
 #~ #~
                 print ""
                 print "act", act
