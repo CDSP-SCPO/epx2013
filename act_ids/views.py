@@ -69,7 +69,7 @@ def add_modif_fct(request, response, Add, Modif, form):
             #get the primary key
             if form=="min_attend":
                 act_ids=act_to_validate.split(",")
-                queryset=ImportMinAttend.objects.filter(releve_annee=int(act_ids[0]), releve_mois=int(act_ids[1]), no_ordre=int(act_ids[2]), validated=0)
+                queryset=ImportMinAttend.objects.filter(releve_annee=int(act_ids[0]), releve_mois=int(act_ids[1]), no_ordre=int(act_ids[2]), validated=0).order_by("status")
             else:
                 act_ids=act_to_validate.pk
                 queryset=Act.objects.get(id=act_ids)
@@ -92,7 +92,7 @@ def add_modif_fct(request, response, Add, Modif, form):
             releve_mois_modif=modif.cleaned_data['releve_mois_modif']
             no_ordre_modif=modif.cleaned_data['no_ordre_modif']
             if form=="min_attend":
-                queryset=ImportMinAttend.objects.filter(releve_annee=releve_annee_modif, releve_mois=releve_mois_modif, no_ordre=no_ordre_modif, validated=1)
+                queryset=ImportMinAttend.objects.filter(releve_annee=releve_annee_modif, releve_mois=releve_mois_modif, no_ordre=no_ordre_modif, validated=1).order_by("status")
             else:
                 queryset=Act.objects.get(releve_annee=releve_annee_modif, releve_mois=releve_mois_modif, no_ordre=no_ordre_modif, validated__gt=0)
         else:

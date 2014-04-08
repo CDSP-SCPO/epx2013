@@ -19,14 +19,15 @@
 
 <!-- for each minister -->
 {% for form in formset %}
-<!--
-    <div id="id_update_attendance__all__errors" class="row-fluid">{{ form.non_field_errors }}</div>
--->
+
+    <!-- {{ form.prefix }} -> form-0, form-1, form-2, etc. -->
+    <div id="id_{{ form.prefix }}_errors" class="row-fluid">{{ form.non_field_errors }}</div>
 
     <!-- for each field -->
      <div class="row-fluid border">
         {% for field in form %}
              <span class="fieldWrapper">
+                 <!-- {{ field.auto_id }} -> id_form-0-country, id_form-0-verbatim, id_form-0-status -->
                 <span id="{{ field.auto_id }}_errors">{{ field.errors }}</span>
                 <!-- if error on status, move down other fields so as to align the form -->
                 <span class="column {{ field.name }} {% if field.name != 'status' and form.status.errors %}align_form_fields{% endif %}">
@@ -63,3 +64,8 @@
 
 <!-- anchor top page -->
 <a id="bottom_anchor" href="#top_anchor">Go to the top</a>
+
+<!-- hide update buttons if javascript is activated -->
+<!--
+<script type="text/javascript" src="{{ STATIC_URL }}europolix/js/attendance_hide.js?{% now 'U' %}"></script>
+-->

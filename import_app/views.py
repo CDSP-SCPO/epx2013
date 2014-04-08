@@ -737,10 +737,12 @@ def import_view(request):
         #validation errors
         else:
             if 'iframe' in request.POST:
+                print "form.errors"
                 response['form_errors']= dict([(k, form.error_class.as_text(v)) for k, v in form.errors.items()])
             else:
                 response['form']=form
 
+        #if ajax
         if 'iframe' in request.POST:
             return HttpResponse(simplejson.dumps(response), mimetype="application/json")
 

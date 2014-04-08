@@ -141,12 +141,10 @@ $('.internal_link').click(function(event)
 /* reload the left menu when a user log in or log out */
 function reload_menu(username)
 {
-
     $("#sidebar_and_content").load($("#reload_menu_view").text(), {"username": username}, function()
     {
         //~ alert("ok");
     });
-
 }
 
 
@@ -291,4 +289,18 @@ function submit_form($form, file, button, event)
             }
         });
     }
+}
+
+
+//display message when click on save button
+function display_save_message(result)
+{
+    //if there is already a message class on the element, remove it
+    $('#msg').removeClass(function()
+    {
+        var match=$(this).attr('class').match(/(success|error)_msg/);
+        return match ? match[0] : '';
+    });
+    $("#msg").addClass(result.msg_class);
+    $("#msg").text(result.msg);
 }

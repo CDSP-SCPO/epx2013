@@ -16,6 +16,13 @@ import act_ids.var_name_ids as var_name_ids
 import act.var_name_data as var_name_data
 from act.get_data_others import link_act_min_attend
 
+#use json for the ajax request
+from django.http import HttpResponse
+from django.template.loader import render_to_string
+from django.utils import simplejson
+#parse errors
+from bs4 import BeautifulSoup
+
 
 class MinAttendUpdate(UpdateView):
     """
@@ -24,11 +31,13 @@ class MinAttendUpdate(UpdateView):
     TEMPLATES
     min_attend/index.html
     """
+    object=None
     model = ImportMinAttend
     fields = ['country', 'verbatim', 'status']
     form_class=ImportMinAttendForm
     template_name = 'attendance/index.html'
-    object=None
+
+    form_template = 'attendance/form.html'
     nb_extra_forms=3
 
     def get(self, request, *args, **kwargs):
@@ -52,7 +61,7 @@ class MinAttendUpdate(UpdateView):
             context['modif'] = Modif()
         if "formset" not in context:
             context["formset"]=formset_factory(self.form_class, extra=self.nb_extra_forms)
-        context['form_template'] = 'attendance/form.html'
+        context["form_template"]=self.form_template
         context['display_name'] = var_name_ids.var_name
         context['display_name'].update(var_name_data.var_name)
         #display the length of the drop down list
@@ -87,17 +96,16 @@ class MinAttendUpdate(UpdateView):
         print "post"
         context={}
         mode, add_modif, attendances, context=add_modif_fct(request, context, Add, Modif, "min_attend")
-        #~ print "context beginning post", context
-#~ #~
+
+        #not called with ajax!
+        #~ context = self.get_context_data(**kwargs)
+
         #if any of this key is present in the response dictionary -> no act display and return the errors with a json object
         #otherwise display act and return the html form of the act to validate or modif in a string format
-        keys=["msg", "add_act_errors", "modif_act_errors", "update_act_errors"]
-#~ #~
-        #if click on OK or MODIF but no act selected or no releve* entered
-        if mode==None:
-            context=self.get_context_data(**context)
+        keys=["msg", "add_act_errors", "modif_act_errors"]
+
         #if selection of an act in the drop down list (and click on Ok) or input releves* and click on MODIF
-        else:
+        if mode !=None:
             #if we are about to add or modif an act (the add or modif form is valid)
             if add_modif!=None:
                 #get act_ids instance
@@ -110,9 +118,9 @@ class MinAttendUpdate(UpdateView):
                 #saves the ministers' attendances
                 if 'save_attendance' in request.POST:
                     if formset.is_valid():
-                        context=self.form_valid(formset, request, context, add_modif, act_ids)
+                        context=self.form_valid(formset, context, add_modif, act_ids)
                     else:
-                        context=self.form_invalid(formset, request, context)
+                        context=self.form_invalid(formset, context)
                 #update status
                 elif "update_status" in request.POST:
                     #we are going to update the status if possible
@@ -147,12 +155,16 @@ class MinAttendUpdate(UpdateView):
                 context['mode']=mode
 
             if request.is_ajax():
-                #save act (with or without errors) or act display and modif (with errors)
+                #display and modif (with errors) or save (with or without errors)
                 if any(key in context for key in keys):
+                    print "display and modif (with errors) or save (with or without errors)"
                     return HttpResponse(simplejson.dumps(context), mimetype="application/json")
                 else:
-                    #act display or modif (without errors)
-                    return HttpResponse(render_to_string(context['form_template'], context, RequestContext(request)))
+                    print "display or modif (without errors)"
+                    #get_context_data with ajax!
+                    context=self.get_context_data(**context)
+                    #display or modif (without errors)
+                    return HttpResponse(render_to_string(self.form_template, context, RequestContext(request)))
 
         if request.is_ajax():
             #no act has been selected-> do nothing
@@ -162,7 +174,7 @@ class MinAttendUpdate(UpdateView):
         return self.render_to_response(self.get_context_data(**context))
 
 
-    def form_valid(self, formset, request, context, add_modif, act_ids):
+    def form_valid(self, formset, context, add_modif, act_ids):
         """
         Called if all forms are valid.
         """
@@ -194,7 +206,7 @@ class MinAttendUpdate(UpdateView):
         context["msg_class"]="success_msg"
 
         #save in history
-        History.objects.create(action=add_modif, form="attendance", act=act_ids.act, user=request.user)
+        History.objects.create(action=add_modif, form="attendance", act=act_ids.act, user=self.request.user)
 
         #empty forms
         context['add'] = Add()
@@ -203,13 +215,27 @@ class MinAttendUpdate(UpdateView):
         return context
 
 
-    def form_invalid(self, formset, request, context):
+    def form_invalid(self, formset, context):
         """
         Called if a form is invalid. Re-renders the context data with the data-filled forms and errors.
         """
         print "form_invalid", formset.errors
-        if request.is_ajax():
-            context['save_act_errors']= dict([(k, form.error_class.as_text(v)) for k, v in form.errors.items() for form in formset])
+        errors=[]
+        if self.request.is_ajax():
+            #~ for form in formset.errors:
+                #~ form_errors={}
+                #~ for field, error in form.items():
+                    #~ error=BeautifulSoup(str(error))
+                    #~ error=error.find("li").get_text()
+                    #~ form_errors[field]=error
+                #~ errors.append(form_errors)
+            #~ print "errors"
+            #~ print errors
+            #~ print ""
+            context['save_attendance_errors']= simplejson.dumps(formset.errors)
+            #~ print "context['save_attendance_errors']"
+            #~ print context['save_attendance_errors']
+            print ""
         else:
             context['formset']=formset
         context["msg"]="The form contains errors! Please correct them before submitting again."
