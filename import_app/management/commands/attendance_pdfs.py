@@ -2,6 +2,10 @@
 """
 command to get the min_attend instances for acts with an attendance_pdf url
 """
+
+#PACKAGE TO INSTALL
+#poppler-utils
+
 from django.core.management.base import NoArgsCommand
 #new table
 from import_app.models import ImportMinAttend
@@ -178,6 +182,10 @@ def format_participants(participants, country_list):
 
     new_participants=new_participants[index_belgium:]
 
+    #~ print "begin new_participants"
+    #~ print new_participants
+    #~ print ""
+
     #if two pages, remove footer and header of separation
     begin=end=-1
     for i in range(len(new_participants)):
@@ -198,11 +206,18 @@ def format_participants(participants, country_list):
             new_participants=new_participants[:begin]+new_participants[i:]
             break
 
+    #~ print "begin new_participants"
+    #~ print new_participants
+    #~ print ""
+
     #stop after last country (uk usually)
     for participant in new_participants:
-        if participant.strip() in ["Commission:", "Commission :"]:
+        if participant.strip() in ["Commission:", "Commission :", '*   *   *']:
             index_uk=new_participants.index(participant)
+            #~ print 'uk ok'
             break
+        #~ else:
+            #~ print participant.strip()
 
     new_participants=new_participants[:index_uk]
 
@@ -353,7 +368,7 @@ class Command(NoArgsCommand):
                 act=act_ids.act
 #~ #~
                 #TEST ONLY
-                #~ act.attendance_pdf="http://www.consilium.europa.eu/uedocs/cms_data/docs/pressdata/en/agricult/74276.pdf"
+                #~ act.attendance_pdf="http://www.consilium.europa.eu/uedocs/cms_data/docs/pressdata/en/trans/79411.pdf"
 #~ #~
                 print ""
                 print "act", act
