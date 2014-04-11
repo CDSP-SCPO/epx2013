@@ -175,7 +175,7 @@ class Add(forms.Form):
     FORM
     details the Add form (fields for the add mode of ActIdsForm)
     """
-    act_to_validate=forms.ModelChoiceField(queryset=Act.objects.filter(validated=0), empty_label="Select an act to validate")
+    act_to_validate=forms.ModelChoiceField(queryset=Act.objects.filter(validated=0).order_by("releve_annee", "releve_mois", "no_ordre"), empty_label="Select an act to validate")
 
 
 class Modif(forms.Form):

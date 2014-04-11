@@ -62,6 +62,7 @@ def link_act_min_attend(act_ids):
     min_attend_dic={}
     #retrieve all the rows of the act from the ImportMinAttend table
     min_attends=ImportMinAttend.objects.filter(no_celex=act_ids.no_celex, validated=True)
+    attendance=False
     #for each country and each verbatim fill the association
     for min_attend in min_attends:
         #get or create the verbatim with its status if it does not exist in the Vernatim model
@@ -80,6 +81,14 @@ def link_act_min_attend(act_ids):
             MinAttend.objects.create(act=act_ids.act, country=Country.objects.get(pk=min_attend.country), verbatim=verbatim)
         except Exception, e:
             print "min_attend already exists!", e
+
+        #check if there is at least one status different from AB and NA -> check if there are attendances for the act
+        if min_attend.status not in ["AB", "NA"]:
+            attendance=True
+
+    #if no status different from AB or NA found, consider there is no attendance for this act and empty the dictionary
+    if not attendance:
+        min_attend_dic={}
 
     #remove last "; "
     for country in min_attend_dic:

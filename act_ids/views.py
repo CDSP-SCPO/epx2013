@@ -94,8 +94,6 @@ def add_modif_fct(request, response, Add, Modif, form):
             if form=="attendance_form":
                 act_ids=act_to_validate.split(",")
                 queryset=get_ordered_queryset(int(act_ids[0]), int(act_ids[1]), int(act_ids[2]))
-                #~ for query in queryset:
-                    #~ print query.id
             else:
                 act_ids=act_to_validate.pk
                 queryset=Act.objects.get(id=act_ids)
@@ -119,8 +117,6 @@ def add_modif_fct(request, response, Add, Modif, form):
             no_ordre_modif=modif.cleaned_data['no_ordre_modif']
             if form=="attendance_form":
                 queryset=get_ordered_queryset(releve_annee_modif, releve_mois_modif, no_ordre_modif, True)
-                #~ for query in queryset:
-                    #~ print query.id
             else:
                 queryset=Act.objects.get(releve_annee=releve_annee_modif, releve_mois=releve_mois_modif, no_ordre=no_ordre_modif)
         else:

@@ -33,8 +33,8 @@ class MinAttendUpdate(UpdateView):
     """
     object=None
     model = ImportMinAttend
-    fields = ['country', 'verbatim', 'status']
     form_class=ImportMinAttendForm
+    #~ fields = ('country', 'status', 'verbatim')
     template_name = 'attendance/index.html'
 
     form_template = 'attendance/form.html'
@@ -68,6 +68,8 @@ class MinAttendUpdate(UpdateView):
         context['attendance_form']=True
         if "state" not in context:
             context['state']="display"
+        if "attendance" not in context:
+            context["attendance"]=True
         return context
 
 
@@ -112,7 +114,7 @@ class MinAttendUpdate(UpdateView):
                 act_ids=self.get_act_ids(request.POST, add_modif)
 
                 #set the number of forms to the number of ministers + 3 extra form to fill if needed
-                MinAttendFormSet = modelformset_factory(self.model, form=self.form_class, fields=self.fields, extra=len(attendances), max_num=len(attendances)+self.nb_extra_forms)
+                MinAttendFormSet = modelformset_factory(self.model, form=self.form_class, extra=len(attendances), max_num=len(attendances)+self.nb_extra_forms)
                 formset = MinAttendFormSet(request.POST, queryset=attendances)
 
                 #saves the ministers' attendances
@@ -148,9 +150,15 @@ class MinAttendUpdate(UpdateView):
                         else:
                             context["status"]="modif"
 
+                    #display an error message in the template if there is no minister' s attendance for the act
+                    attendance=False
+                    for att in attendances:
+                        if att.status not in ["AB", "NA"]:
+                            attendance=True
+
                     context['formset']=formset
-                    context['no_celex']=act_ids.no_celex
-                    context['attendance_pdf']=act_ids.act.attendance_pdf
+                    context['act_ids']=act_ids
+                    context["attendance"]=attendance
 
                 context['mode']=mode
 

@@ -17,8 +17,9 @@ class ImportMinAttendForm(forms.ModelForm):
 
     class Meta:
         model=ImportMinAttend
-        #fields used for the validation
-        fields = ['country', 'verbatim', 'status']
+        #fields used for the validation and order
+        fields = ('country', 'status', 'verbatim')
+
 
     def clean(self):
         #call status clean method
@@ -76,7 +77,7 @@ class Add(forms.Form):
 
         #create list of different acts to validate
         acts_list=[]
-        qs=ImportMinAttend.objects.filter(validated=0)
+        qs=ImportMinAttend.objects.filter(validated=0).order_by("releve_annee", "releve_mois", "no_ordre")
         for act in qs:
             name=str(act.releve_annee)+","+str(act.releve_mois)+","+str(act.no_ordre)
             if name not in acts_list:

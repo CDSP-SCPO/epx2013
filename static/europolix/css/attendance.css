@@ -18,19 +18,14 @@
 .country, .status
 {
     width: 14%;
-
 }
 
-.status
-{
-    float: right;
-}
 
 /* width of the verbatim column */
 .verbatim
 {
+    float: right;
     width: 72%;
-
 }
 
 /* length of the selects (country and status) */
@@ -39,17 +34,25 @@
     width: 100%;
 }
 
+
+#attendance_form .status select
+{
+    margin-left: 2%;
+}
+
+
 /* lengths of the verbatim inputboxes */
 #attendance_form .verbatim input
 {
     width: 97.2%;
+    margin-left: 0.8%;
 }
 
 
 /* if error on status, other fields are not aligned anymore!  */
 .align_form_fields
 {
-    padding-top: 40px;
+    padding-top: 20px;
 }
 
 
@@ -62,7 +65,7 @@
 /*update statuses button*/
 #update_status
 {
-    margin-right: 1.3%;
+    margin-left: 15.6%;
 }
 
 /* save button */
