@@ -8,7 +8,7 @@ from django.template import RequestContext
 from export.forms import Export
 #data to export coming from the two main models ActIds and Act
 from act_ids.models import ActIds
-from act.models import Act, PartyFamily, NP, MinAttend
+from act.models import Act, PartyFamily, NP, MinAttend, Status
 #for the export
 import os, tempfile, zipfile
 from django.core.servers.basehttp import FileWrapper
@@ -195,15 +195,17 @@ def get_validated_acts(excl_fields_act_ids, excl_fields_act):
         for np_var in np_vars:
             fields.append(np_vars[np_var][:-2])
 
-         #Ministers' attendance fields
+        #Ministers' attendance fields
         instances=MinAttend.objects.filter(act=act)
         temp_fields={"country": "", "verbatim": "", "status": ""}
         for instance in instances:
             temp_fields["country"]+=instance.country.country_code+"; "
             temp_fields["verbatim"]+=instance.verbatim.verbatim+"; "
-            temp_fields["status"]+=instance.verbatim.status+"; "
-        for temp_field in temp_fields:
-            fields.append(temp_fields[temp_field][:-2])
+            temp_fields["status"]+=Status.objects.get(verbatim=instance.verbatim, country=instance.country).status+"; "
+
+        fields.append(temp_fields["country"][:-2])
+        fields.append(temp_fields["verbatim"][:-2])
+        fields.append(temp_fields["status"][:-2])
 
 
         acts.append(fields)
