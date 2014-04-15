@@ -359,21 +359,22 @@ class Command(NoArgsCommand):
         country_list=Country.objects.values_list('country', flat=True)
 
         file_path="/var/www/europolix/import_app/management/commands/files/"
-        for year in range(2003, 2014):
-            file_name=str(year)
-            print "year", file_name
-            file_object=open(file_path+file_name+".pdf",'r')
+        #~ for year in range(2003, 2014):
+            #~ file_name=str(year)
+        file_name="test"
+        print "year", file_name
+        file_object=open(file_path+file_name+".pdf",'r')
 
-            #read the pdf and assign its text to a string
-            string=pdf_to_string(file_object)
-            participants=get_participants(string)
-            #~ string_to_file(string, file_path+filename+".txt")
+        #read the pdf and assign its text to a string
+        string=pdf_to_string(file_object)
+        participants=get_participants(string)
+        #~ string_to_file(string, file_path+filename+".txt")
 
-            #format the string variable to get the countries and verbatims only
-            #~ participants=file_to_string(file_path+file_name+".txt")
-            participants=format_participants(participants, country_list)
-            countries=get_countries(participants, country_list)
-            verbatims=get_verbatims(countries, country_list)
+        #format the string variable to get the countries and verbatims only
+        #~ participants=file_to_string(file_path+file_name+".txt")
+        participants=format_participants(participants, country_list)
+        countries=get_countries(participants, country_list)
+        verbatims=get_verbatims(countries, country_list)
 
 
 
