@@ -215,11 +215,12 @@ def format_participants(participants, country_list):
             new_participants=new_participants[:begin]+new_participants[i:]
             break
 
-    #~ print "begin new_participants"
+    #~ print "begin new_participants before UK"
     #~ print new_participants
     #~ print ""
 
     #stop after last country (uk usually)
+    index_uk=len(new_participants)-1
     for participant in new_participants:
         #remove all whitespaces from the string
         temp=''.join(participant.split())
@@ -364,6 +365,7 @@ class Command(NoArgsCommand):
 
     def handle(self, **options):
 
+        nb_pbs=0
         #get the list of countries from the db
         country_list=Country.objects.values_list('country', flat=True)
 
@@ -400,40 +402,54 @@ class Command(NoArgsCommand):
                 #read the pdf and assign its text to a string
                 string=pdf_to_string(file_object)
                 participants=get_participants(string)
-                #~ string_to_file(string, file_path+filename+".txt")
+                readable=False
+                for participant in participants:
+                    #for some acts in 2002, countries are not read properly
+                    if "Belgium" in participant:
+                        readable=True
+                        break
 
-                #format the string variable to get the countries and verbatims only
-                #~ participants=file_to_string(file_path+file_name+".txt")
-                participants=format_participants(participants, country_list)
-                countries=get_countries(participants, country_list)
-                verbatims=get_verbatims(countries, country_list)
-                #~ break
+                if readable:
+                    #format the string variable to get the countries and verbatims only
+                    #~ participants=file_to_string(file_path+file_name+".txt")
+                    participants=format_participants(participants, country_list)
+                    countries=get_countries(participants, country_list)
+                    verbatims=get_verbatims(countries, country_list)
 
-                #remove non validated ministers' attendances
-                ImportMinAttend.objects.filter(no_celex=act_ids.no_celex, validated=False).delete()
-    #~ #~
-                for country in verbatims:
-                    status=None
-                    #retrieves the status if the verbatim exists in the dictionary
-                    try:
-                        verbatim=Verbatim.objects.get(verbatim=country[1])
-                        status=Status.objects.get(verbatim=verbatim, country=Country.objects.get(country=country[0])).status
-                    except Exception, e:
-                        pass
-                        #print "no verbatim", e
-    #~ #~
-                    #add extracted attendances into ImportMinAttend
-                    try:
-                        #~ print len(country[1])
-                        ImportMinAttend.objects.create(releve_annee=act.releve_annee, releve_mois=act.releve_mois, no_ordre=act.no_ordre, no_celex=act_ids.no_celex, country=Country.objects.get(country=country[0]).country_code, verbatim=country[1], status=status)
-                    except IntegrityError as e:
-                        pass
-                        #print "integrity error", e
-    #~
-                #TEST ONLY
-                #~ break
+                    #format the string variable to get the countries and verbatims only
+                    #~ participants=file_to_string(file_path+file_name+".txt")
+                    participants=format_participants(participants, country_list)
+                    countries=get_countries(participants, country_list)
+                    verbatims=get_verbatims(countries, country_list)
+                    #~ break
 
-                print ""
-                #~ print ""
-                #~ print ""
+                    #remove non validated ministers' attendances
+                    ImportMinAttend.objects.filter(no_celex=act_ids.no_celex, validated=False).delete()
+        #~ #~
+                    for country in verbatims:
+                        status=None
+                        #retrieves the status if the verbatim exists in the dictionary
+                        try:
+                            verbatim=Verbatim.objects.get(verbatim=country[1])
+                            status=Status.objects.get(verbatim=verbatim, country=Country.objects.get(country=country[0])).status
+                        except Exception, e:
+                            pass
+                            #print "no verbatim", e
+        #~ #~
+                        #add extracted attendances into ImportMinAttend
+                        try:
+                            #~ print len(country[1])
+                            ImportMinAttend.objects.create(releve_annee=act.releve_annee, releve_mois=act.releve_mois, no_ordre=act.no_ordre, no_celex=act_ids.no_celex, country=Country.objects.get(country=country[0]).country_code, verbatim=country[1], status=status)
+                        except IntegrityError as e:
+                            pass
+                            #print "integrity error", e
+        #~
+                    #TEST ONLY
+                    #~ break
 
+                    print ""
+                else:
+                    print "countries not readable"
+                    nb_pbs+=1
+
+        print "nb_pbs", nb_pbs

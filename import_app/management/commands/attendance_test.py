@@ -220,6 +220,7 @@ def format_participants(participants, country_list):
     #~ print ""
 
     #stop after last country (uk usually)
+    index_uk=len(new_participants)-1
     for participant in new_participants:
         temp=''.join(participant.split())
         if temp in ["Commission", "Commission:", "***"]:
@@ -382,13 +383,21 @@ class Command(NoArgsCommand):
         #read the pdf and assign its text to a string
         string=pdf_to_string(file_object)
         participants=get_participants(string)
-        #~ string_to_file(string, file_path+filename+".txt")
+        readable=False
+        for participant in participants:
+            #for some acts in 2002, countries are not read properly
+            if "Belgium" in participant:
+                readable=True
+                break
 
-        #format the string variable to get the countries and verbatims only
-        #~ participants=file_to_string(file_path+file_name+".txt")
-        participants=format_participants(participants, country_list)
-        countries=get_countries(participants, country_list)
-        verbatims=get_verbatims(countries, country_list)
+        if readable:
+            #format the string variable to get the countries and verbatims only
+            #~ participants=file_to_string(file_path+file_name+".txt")
+            participants=format_participants(participants, country_list)
+            countries=get_countries(participants, country_list)
+            verbatims=get_verbatims(countries, country_list)
+        else:
+            print "countries not readable"
 
 
 
