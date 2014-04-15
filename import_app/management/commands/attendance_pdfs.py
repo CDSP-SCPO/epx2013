@@ -266,7 +266,7 @@ def get_countries(participants, country_list):
         #'Ms Michelle GILDERNEW', 'Minister for Agriculture and Rural Development, Northern', 'Ireland']
         #http://www.consilium.europa.eu/uedocs/cms_data/docs/pressdata/en/agricult/70070.pdf
         #'Portugal :', 'Mr Jaime SILVA', 'Agricultural Counsellor at the Permanent Representation of', 'Portugal', 'Finland :
-        if country in country_list and participants[index+1].split(":")[0].strip() not in country_list:
+        if country in country_list and index<len(participants)-1 and participants[index+1].split(":")[0].strip() not in country_list:
             countries.append([country, []])
         else:
             countries[-1][1].append(participants[index])

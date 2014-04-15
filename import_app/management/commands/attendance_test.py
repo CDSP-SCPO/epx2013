@@ -268,7 +268,7 @@ def get_countries(participants, country_list):
         #'Ms Michelle GILDERNEW', 'Minister for Agriculture and Rural Development, Northern', 'Ireland']
         #http://www.consilium.europa.eu/uedocs/cms_data/docs/pressdata/en/agricult/70070.pdf
         #'Portugal :', 'Mr Jaime SILVA', 'Agricultural Counsellor at the Permanent Representation of', 'Portugal', 'Finland :
-        if country in country_list and participants[index+1].split(":")[0].strip() not in country_list:
+        if country in country_list and index<len(participants)-1 and participants[index+1].split(":")[0].strip() not in country_list:
             countries.append([country, []])
         else:
             countries[-1][1].append(participants[index])
@@ -376,12 +376,14 @@ class Command(NoArgsCommand):
         file_path="/var/www/europolix/import_app/management/commands/files/"
         #~ for year in range(2003, 2014):
             #~ file_name=str(year)
-        file_name="test"
-        print "year", file_name
-        file_object=open(file_path+file_name+".pdf",'r')
+        #~ file_name="test"
+        #~ print "year", file_name
+        #~ file_object=open(file_path+file_name+".pdf",'r')
+        file_object = urllib2.urlopen("http://www.consilium.europa.eu/uedocs/cms_data/docs/pressdata/en/agricult/101422.pdf")
 
         #read the pdf and assign its text to a string
         string=pdf_to_string(file_object)
+        print string
         participants=get_participants(string)
         readable=False
         for participant in participants:
@@ -398,6 +400,7 @@ class Command(NoArgsCommand):
             verbatims=get_verbatims(countries, country_list)
         else:
             print "countries not readable"
+
 
 
 
