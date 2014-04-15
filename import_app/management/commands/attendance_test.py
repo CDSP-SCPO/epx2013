@@ -110,7 +110,7 @@ def file_to_string(path):
 def capitalized_word(words, display=False):
     """
     FUNCTION
-    check if there is at least one capitalized word in a group of words (used to detect ministers's names)
+    check if there is at least one capitalized word in a group of words
     PARAMETERS
     words: group of words to check [string]
     RETURN
@@ -186,7 +186,7 @@ def format_participants(participants, country_list):
 
     new_participants=new_participants[index_belgium:]
 
-    #~ print "begin new_participants"
+    #~ print "begin new_participants WITH header / footer"
     #~ print new_participants
     #~ print ""
 
@@ -201,7 +201,7 @@ def format_participants(participants, country_list):
         #new page starts with a minister's name from a country started on the previous page
         #http://www.consilium.europa.eu/uedocs/cms_data/docs/pressdata/en/gena/87078.pdf
         #or new page starts with a new country
-        if begin!=-1 and (new_participants[i].lstrip()[:2].lower() in ["mr", "ms"] or capitalized_word(new_participants[i]) or new_participants[i].split(":")[0].strip() in country_list):
+        if begin!=-1 and (new_participants[i].lstrip()[:2].lower() in ["mr", "ms"] or capitalized_word(new_participants[i], True) or new_participants[i].split(":")[0].strip() in country_list):
             #~ print "PB"
             #~ print new_participants[i]
             #~ print new_participants[i-5:i+5]
@@ -209,8 +209,8 @@ def format_participants(participants, country_list):
             #~ print ""
             new_participants=new_participants[:begin]+new_participants[i:]
             break
-
-    #~ print "begin new_participants"
+#~
+    #~ print "begin new_participants WITHOUT header / footer"
     #~ print new_participants
     #~ print ""
 
@@ -358,73 +358,22 @@ class Command(NoArgsCommand):
         #get the list of countries from the db
         country_list=Country.objects.values_list('country', flat=True)
 
-        #delete not validated acts
-        ImportMinAttend.objects.filter(validated=False).delete()
+        file_path="/var/www/europolix/import_app/management/commands/files/"
+        for year in range(2003, 2014):
+            file_name=str(year)
+            print "year", file_name
+            file_object=open(file_path+file_name+".pdf",'r')
 
-        #~ #get all the acts with a non null attendance_path
-        acts_ids=ActIds.objects.filter(src="index").exclude(act__attendance_pdf__isnull=True)
-        for act_ids in acts_ids:
-#~
-            already_imported=ImportMinAttend.objects.filter(no_celex=act_ids.no_celex, validated=True)
-            #~ #if the act has been imported and validated already, don't import it again
-            if not already_imported:
-                act=act_ids.act
-#~ #~
-                #TEST ONLY
-                #~ act.attendance_pdf="http://www.consilium.europa.eu/uedocs/cms_data/docs/pressdata/en/intm/110310.pdf"
-#~ #~
-                print ""
-                print "act", act
-                print act.attendance_pdf
-                print ""
-#~
-                #~ #get the pdf
-                try:
-                    file_object = urllib2.urlopen(act.attendance_pdf)
-                except Exception, e:
-                    #wait a few seconds
-                    print e
-                    print ""
-                    time.sleep(3)
-                    file_object = urllib2.urlopen(act.attendance_pdf)
+            #read the pdf and assign its text to a string
+            string=pdf_to_string(file_object)
+            participants=get_participants(string)
+            #~ string_to_file(string, file_path+filename+".txt")
 
-                #read the pdf and assign its text to a string
-                string=pdf_to_string(file_object)
-                participants=get_participants(string)
-                #~ string_to_file(string, file_path+filename+".txt")
+            #format the string variable to get the countries and verbatims only
+            #~ participants=file_to_string(file_path+file_name+".txt")
+            participants=format_participants(participants, country_list)
+            countries=get_countries(participants, country_list)
+            verbatims=get_verbatims(countries, country_list)
 
-                #format the string variable to get the countries and verbatims only
-                #~ participants=file_to_string(file_path+file_name+".txt")
-                participants=format_participants(participants, country_list)
-                countries=get_countries(participants, country_list)
-                verbatims=get_verbatims(countries, country_list)
-                #~ break
 
-                #remove non validated ministers' attendances
-                ImportMinAttend.objects.filter(no_celex=act_ids.no_celex, validated=False).delete()
-    #~ #~
-                for country in verbatims:
-                    status=None
-                    #retrieves the status if the verbatim exists in the dictionary
-                    try:
-                        verbatim=Verbatim.objects.get(verbatim=country[1])
-                        status=Status.objects.get(verbatim=verbatim, country=Country.objects.get(country=country[0])).status
-                    except Exception, e:
-                        pass
-                        #print "no verbatim", e
-    #~ #~
-                    #add extracted attendances into ImportMinAttend
-                    try:
-                        #~ print len(country[1])
-                        ImportMinAttend.objects.create(releve_annee=act.releve_annee, releve_mois=act.releve_mois, no_ordre=act.no_ordre, no_celex=act_ids.no_celex, country=Country.objects.get(country=country[0]).country_code, verbatim=country[1], status=status)
-                    except IntegrityError as e:
-                        pass
-                        #print "integrity error", e
-    #~
-                #TEST ONLY
-                #~ break
-
-                print ""
-                #~ print ""
-                #~ print ""
 
