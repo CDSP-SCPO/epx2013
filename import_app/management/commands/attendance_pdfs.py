@@ -66,15 +66,20 @@ def get_participants(string):
     RETURN
     string: participant part [string]
     """
-    begin=-1
+    begin=end=-1
     participants=["PARTICIPA(cid:6)TS", "PARTICIPANTS", "PARTICIPA TS"]
     for participant in participants:
         begin=find_nth(string, participant, 2)
         if begin!=-1:
             break
-    #~ print "begin", begin
-    end=string.find("ITEMS DEBATED", begin)
-    #~ print "end", end
+
+    #TOBACCO: http://www.consilium.europa.eu/uedocs/cms_data/docs/pressdata/en/agricult/70070.pdf
+    items=["ITEMS DEBATED", "TOBACCO"]
+    for item in items:
+        end=string.find(item, begin)
+        if end!=-1:
+            break
+
     return string[begin:end].split('\n')
 
 
@@ -216,7 +221,9 @@ def format_participants(participants, country_list):
 
     #stop after last country (uk usually)
     for participant in new_participants:
-        if participant.strip() in ["Commission", "Commission:", "Commission :", '*   *   *']:
+        #remove all whitespaces from the string
+        temp=''.join(participant.split())
+        if temp in ["Commission", "Commission:", "***"]:
             index_uk=new_participants.index(participant)
             #~ print 'uk ok'
             break
@@ -248,18 +255,20 @@ def get_countries(participants, country_list):
     countries: participants with countries and associated ministers grouped together [list of lists of strings / lists]
     """
     countries=[]
-    for participant in participants:
+    for index in range(len(participants)):
         #~ print "participant", participant
-        country=participant.split(":")[0].strip()
+        country=participants[index].split(":")[0].strip()
         #problem when conversion from pdf to text
         if country=="etherlands":
             country="Netherlands"
         #http://www.consilium.europa.eu/uedocs/cms_data/docs/pressdata/en/agricult/101422.pdf
         #'Ms Michelle GILDERNEW', 'Minister for Agriculture and Rural Development, Northern', 'Ireland']
-        if country in country_list and participants.index(participant)<len(participants)-1:
+        #http://www.consilium.europa.eu/uedocs/cms_data/docs/pressdata/en/agricult/70070.pdf
+        #'Portugal :', 'Mr Jaime SILVA', 'Agricultural Counsellor at the Permanent Representation of', 'Portugal', 'Finland :
+        if country in country_list and participants[index+1].split(":")[0].strip() not in country_list:
             countries.append([country, []])
         else:
-            countries[-1][1].append(participant)
+            countries[-1][1].append(participants[index])
 
     #~ print "countries"
     #~ print countries
