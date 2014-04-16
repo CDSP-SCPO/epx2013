@@ -73,6 +73,12 @@ def get_participants(string):
         if begin!=-1:
             break
 
+    print "begin", begin
+    #if no begin found, go to then begin of the string
+    if begin==-1:
+        begin=0
+
+
     #TOBACCO: http://www.consilium.europa.eu/uedocs/cms_data/docs/pressdata/en/agricult/70070.pdf
     items=["ITEMS DEBATED", "TOBACCO"]
     for item in items:
@@ -80,6 +86,14 @@ def get_participants(string):
         if end!=-1:
             break
 
+    print "end", end
+    #if no end found, go to then end of the string
+    if end==-1:
+        end=len(string)-begin-1
+
+    print "PARTICIPANTS BEGIN"
+    print string[begin:end]
+    print ""
     return string[begin:end].split('\n')
 
 
@@ -376,10 +390,10 @@ class Command(NoArgsCommand):
         file_path="/var/www/europolix/import_app/management/commands/files/"
         #~ for year in range(2003, 2014):
             #~ file_name=str(year)
-        #~ file_name="test"
-        #~ print "year", file_name
-        #~ file_object=open(file_path+file_name+".pdf",'r')
-        file_object = urllib2.urlopen("http://www.consilium.europa.eu/uedocs/cms_data/docs/pressdata/en/agricult/101422.pdf")
+        file_name="test3"
+        print "year", file_name
+        file_object=open(file_path+file_name+".pdf",'r')
+        #~ file_object = urllib2.urlopen("http://www.consilium.europa.eu/uedocs/cms_data/docs/pressdata/en/agricult/101422.pdf")
 
         #read the pdf and assign its text to a string
         string=pdf_to_string(file_object)
@@ -387,10 +401,17 @@ class Command(NoArgsCommand):
         participants=get_participants(string)
         readable=False
         for participant in participants:
+            print "PB no belgium"
+            print participant
+            print ""
             #for some acts in 2002, countries are not read properly
             if "Belgium" in participant:
                 readable=True
                 break
+            elif "%HOJLXP" in participant:
+                print "Belgium youpi!"
+
+
 
         if readable:
             #format the string variable to get the countries and verbatims only
