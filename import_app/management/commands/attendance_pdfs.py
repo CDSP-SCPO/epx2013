@@ -370,10 +370,10 @@ class Command(NoArgsCommand):
         country_list=Country.objects.values_list('country', flat=True)
 
         #delete not validated acts
-        ImportMinAttend.objects.filter(validated=False).delete()
+        #~ ImportMinAttend.objects.filter(validated=False).delete()
 
         #~ #get all the acts with a non null attendance_path
-        acts_ids=ActIds.objects.filter(src="index").exclude(act__attendance_pdf__isnull=True)
+        acts_ids=ActIds.objects.filter(src="index", act__attendance_pdf__contains="pdf",  act__releve_annee=2001)
         for act_ids in acts_ids:
 #~
             already_imported=ImportMinAttend.objects.filter(no_celex=act_ids.no_celex, validated=True)
