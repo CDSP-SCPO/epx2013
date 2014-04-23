@@ -375,7 +375,9 @@ class Command(NoArgsCommand):
         #~ #get all the acts with a non null attendance_path
         acts_ids=ActIds.objects.filter(src="index", act__attendance_pdf__contains="pdf",  act__releve_annee=2001)
         for act_ids in acts_ids:
-#~
+            print "ok"
+            print  act_ids.act
+            print ""
             already_imported=ImportMinAttend.objects.filter(no_celex=act_ids.no_celex, validated=True)
             #~ #if the act has been imported and validated already, don't import it again
             if not already_imported:
@@ -444,5 +446,7 @@ class Command(NoArgsCommand):
                 else:
                     print "countries not readable"
                     nb_pbs+=1
+            else:
+                print "already imported"
 
         print "nb_pbs", nb_pbs
