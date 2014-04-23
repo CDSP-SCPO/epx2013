@@ -60,5 +60,7 @@ class Command(NoArgsCommand):
                                 act=Act.objects.get(releve_annee=releve_annee, releve_mois=releve_mois, no_ordre=no_ordre)
                                 act.attendance_pdf=attendance_pdf
                                 act.save()
+                                print act.attendance_pdf
+                                print ""
                             except Exception, e:
                                 print e
