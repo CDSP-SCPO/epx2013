@@ -35,7 +35,7 @@ class Command(NoArgsCommand):
         #update attendance_pdf
         path=settings.MEDIA_ROOT+"/import/"
         #~ path="/home/rom/Documents/jobs/SciencesPo/europolix/import/csv/"
-        years=[str(n) for n in range(2001, 2002)]
+        years=[str(n) for n in range(1998, 1999)]
         for year in years:
             path_file=path+"RMC_"+year+".csv"
             with open(path_file, 'r') as csv_file_temp:

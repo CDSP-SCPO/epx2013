@@ -87,6 +87,9 @@ def get_headers(excl_fields_act_ids, excl_fields_act):
     headers.append(var_name_data.var_name["country_min_attend"])
     headers.append(var_name_data.var_name["verbatim_min_attend"])
     headers.append(var_name_data.var_name["status_min_attend"])
+    
+    #notes
+    headers.append(var_name_data.var_name["notes"])
 
     return headers
 
@@ -207,7 +210,9 @@ def get_validated_acts(excl_fields_act_ids, excl_fields_act):
         fields.append(temp_fields["verbatim"][:-2])
         fields.append(temp_fields["status"][:-2])
 
-
+        #notes
+        fields.append(act.notes)
+        
         acts.append(fields)
 
     return acts

@@ -386,7 +386,7 @@ def q9():
     print "res", res
 
     writer.writerow([question])
-    writer.writerow(years_list_zero)
+    writer.writerow(years_list)
     writer.writerow(res)
     writer.writerow("")
     print ""
@@ -677,7 +677,7 @@ def q20():
 
 
 def q21():
-    #ombre d’actes pour lesquels on a eu au moins une discussion en points B par année
+    #Nombre d’actes pour lesquels on a eu au moins une discussion en points B par année
     question="Nombre d’actes pour lesquels on a eu au moins une discussion en points B par année"
     print question
     res={}
@@ -754,7 +754,7 @@ def q23():
     print ""
 
 
-def q25():
+def q24():
     #TODO
     #Frequence de la concordance PE/Conseil
     question="Frequence de la concordance PE/Conseil par année"
@@ -836,8 +836,7 @@ def q30():
 
     res=get_cs_year_nb_lec(res, variable="duree_tot_depuis_prop_com")
 
-    writer.writerow([question])
-    write_cs_year_nb_lec(res)
+    write_cs_year_nb_lec(question, res)
     
 
 def q31():
@@ -1076,102 +1075,102 @@ class Command(NoArgsCommand):
         writer.writerow([""])
 
         #proportion d’actes avec plusieurs codes sectoriels
-        #~ q1()
-        #ventilation par domaines
-        #~ q2()
-        #Frequence de la concordance Com/rapporteur/presidence du Conseil pour les 3 grandes familles (PPE ,PSE, ALDE)
-        #~ q3()
-        #Frequence de la concordance PE/Conseil
-        #~ q4()
-        #Fréquence de la concordance Commission/Conseil
-        #~ q5()
-        #Frequence de la concordance Commission/PE
-        #~ q6()
-        #durée moyenne des actes adoptés en 1e et en 2e lecture
-        #~ q7()
-        #durée moyenne entre transmission au conseil et adoption pour les actes qui ont donné lieu à un vote public
-        #~ q8()
-
-
-        #PAR ANNEE
-
-        #production législative
-        #~ q9()
-        #ventilation par domaines
-        #~ q10()
-        #pourcentage de propositions modifiées par la Commission
-        #~ q11()
-        #~ #durée moyenne d’adoption
-        #~ q12()
-        #pourcentage d’actes adoptés en 1e et 2e lecture
-        #~ q13()
-        #durée moyenne des actes adoptés en 1e et en 2e lecture
-        #~ q14()
-        #durée moyenne entre transmission au conseil et adoption pour les actes qui ont donné lieu à un vote public
-        #~ q15()
-        #nombre moyen d’amendements déposés/adoptés
-        #~ q16()
-        #vote?
-        #~ q17()
-        #pourcentage AdoptCSContre=Y
-        #~ q18()
-        #~ #1/ %age AdoptCSContre=Y ET 1 EM.       2/%age AdoptCSContre=Y ET 2 EM.        3/%age AdoptCSContre=Y ET 3 EM
-        #~ q19()
-        #Durée moyenne des actes soumis à un vote
-        #~ q20()
-        #Nombre d’actes pour lesquels on a eu au moins une discussion en points B
-        #~ q21()
-        #pourcentage de ministres presents (M) et de RP (CS ou CS_PR)? par annee ET par secteurs
-        #~ q22()
-         #Frequence de la concordance Com/rapporteur/presidence du Conseil pour les 3 grandes familles (PPE ,PSE, ALDE)
-        #~ q23()
-        #Frequence de la concordance PE/Conseil
-        #~ q24()
-        #Fréquence de la concordance Commission/Conseil
-        #~ q25()
-        #Frequence de la concordance Commission/PE
-        #~ q26()
-
-
-        #PAR SECTEUR ET PAR ANNEE
-
-        #% age de propositions modifiées par la Commission
-        #q27()
+        q1()
+        #~ #ventilation par domaines
+        q2()
+        #~ #Frequence de la concordance Com/rapporteur/presidence du Conseil pour les 3 grandes familles (PPE ,PSE, ALDE)
+        q3()
+        #~ #Frequence de la concordance PE/Conseil
+        q4()
+        #~ #Fréquence de la concordance Commission/Conseil
+        q5()
+        #~ #Frequence de la concordance Commission/PE
+        q6()
+        #~ #durée moyenne des actes adoptés en 1e et en 2e lecture
+        q7()
+        #~ #durée moyenne entre transmission au conseil et adoption pour les actes qui ont donné lieu à un vote public
+        q8()
+#~ 
+#~ 
+        #~ #PAR ANNEE
+#~ 
+        #~ #production législative
+        q9()
+        #~ #ventilation par domaines
+        q10()
+        #~ #pourcentage de propositions modifiées par la Commission
+        q11()
         #durée moyenne d’adoption
-        #q28()
-        #% age d’actes adoptés en 1e et 2e lecture
-        #~ q29()
-        #durée moyenne des actes adoptés en 1e et en 2e lecture
-        #~ q30()
-        #durée moyenne entre transmission au conseil et adoption pour les actes qui ont donné lieu à un vote public
-        #~ q31()
-        #nombre moyen d’amendements déposés/adoptés
-        #~ q32("EPComAmdtTabled", "com_amdt_tabled")
-        #~ q32("EPComAmdtAdopt", "com_amdt_adopt")
-        #~ q32("EPAmdtTabled", "amdt_tabled")
-        #~ q32("EPAmdtAdopt", "amdt_adopt")
-        #Vote?
-        #q33()
-        #%age de votes négatifs par Etat membre
-        #~ q34()
-        #% age de votes négatifs isolés, de 2 Etats, de 3 Etats
-        #~ q35(1)
-        #~ q35(2)
-        #~ q35(3)
-        #Durée moyenne des actes soumis à un vote
-        #~ q36()
-        #Nombre d’actes pour lesquels on a eu au moins une discussion en points B
-        #~ q37()
-        #pourcentage de ministres presents (M) et de RP (CS ou CS_PR)? par annee ET par secteurs
-        #~ q38()
-         #Frequence de la concordance Com/rapporteur/presidence du Conseil pour les 3 grandes familles (PPE ,PSE, ALDE)
-        #~ q39()
-        #Frequence de la concordance PE/Conseil
-        #~ q40()
-        #Fréquence de la concordance Commission/Conseil
-        #~ q41()
-        #Frequence de la concordance Commission/PE
-        #~ q42()
+        q12()
+        #~ #pourcentage d’actes adoptés en 1e et 2e lecture
+        q13()
+        #~ #durée moyenne des actes adoptés en 1e et en 2e lecture
+        q14()
+        #~ #durée moyenne entre transmission au conseil et adoption pour les actes qui ont donné lieu à un vote public
+        q15()
+        #~ #nombre moyen d’amendements déposés/adoptés
+        q16()
+        #~ #vote?
+        q17()
+        #~ #pourcentage AdoptCSContre=Y
+        q18()
+        #1/ %age AdoptCSContre=Y ET 1 EM.       2/%age AdoptCSContre=Y ET 2 EM.        3/%age AdoptCSContre=Y ET 3 EM
+        q19()
+        #~ #Durée moyenne des actes soumis à un vote
+        q20()
+        #~ #Nombre d’actes pour lesquels on a eu au moins une discussion en points B
+        q21()
+        #~ #pourcentage de ministres presents (M) et de RP (CS ou CS_PR)? par annee ET par secteurs
+        q22()
+         #~ #Frequence de la concordance Com/rapporteur/presidence du Conseil pour les 3 grandes familles (PPE ,PSE, ALDE)
+        q23()
+        #~ #Frequence de la concordance PE/Conseil
+        q24()
+        #~ #Fréquence de la concordance Commission/Conseil
+        q25()
+        #~ #Frequence de la concordance Commission/PE
+        q26()
+#~ 
+#~ 
+        #~ #PAR SECTEUR ET PAR ANNEE
+#~ 
+        #~ #% age de propositions modifiées par la Commission
+        #~ #q27()
+        #~ #durée moyenne d’adoption
+        #~ #q28()
+        #~ #% age d’actes adoptés en 1e et 2e lecture
+        q29()
+        #~ #durée moyenne des actes adoptés en 1e et en 2e lecture
+        q30()
+        #~ #durée moyenne entre transmission au conseil et adoption pour les actes qui ont donné lieu à un vote public
+        q31()
+        #~ #nombre moyen d’amendements déposés/adoptés
+        q32("EPComAmdtTabled", "com_amdt_tabled")
+        q32("EPComAmdtAdopt", "com_amdt_adopt")
+        q32("EPAmdtTabled", "amdt_tabled")
+        q32("EPAmdtAdopt", "amdt_adopt")
+        #~ #Vote?
+        #~ #q33()
+        #~ #%age de votes négatifs par Etat membre
+        q34()
+        #~ #% age de votes négatifs isolés, de 2 Etats, de 3 Etats
+        q35(1)
+        q35(2)
+        q35(3)
+        #~ #Durée moyenne des actes soumis à un vote
+        q36()
+        #~ #Nombre d’actes pour lesquels on a eu au moins une discussion en points B
+        q37()
+        #~ #pourcentage de ministres presents (M) et de RP (CS ou CS_PR)? par annee ET par secteurs
+        q38()
+         #~ #Frequence de la concordance Com/rapporteur/presidence du Conseil pour les 3 grandes familles (PPE ,PSE, ALDE)
+        q39()
+        #~ #Frequence de la concordance PE/Conseil
+        q40()
+        #~ #Fréquence de la concordance Commission/Conseil
+        q41()
+        #~ #Frequence de la concordance Commission/PE
+        q42()
         
         
         #période 2010-2012 : %age d’actes ayant fait l’objet d’ interventions des parlements nationaux
