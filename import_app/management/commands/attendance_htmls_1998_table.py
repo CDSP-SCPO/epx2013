@@ -245,7 +245,7 @@ class Command(NoArgsCommand):
         #~ ImportMinAttend.objects.filter(validated=False).delete()
 
         #~ #get all the acts with a non null attendance_path
-        acts_ids=ActIds.objects.filter(src="index", act__releve_annee=1998, act__releve_mois__gt=11, act__attendance_pdf__isnull=False)
+        acts_ids=ActIds.objects.filter(src="index", act__releve_annee=1998, act__attendance_pdf__isnull=False)
 
         for act_ids in acts_ids:
 #~
