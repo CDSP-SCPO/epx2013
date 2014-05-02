@@ -222,8 +222,11 @@ def get_data_all(state, add_modif, act, POST, response):
         print "data retrieval"
         #retrieve all the data from all the sources
         #COMMENT FOR TESTS ONLY
+        print "begin get_data_all"
         act.__dict__.update(get_data("eurlex", act_ids["eurlex"], urls["url_eurlex"], act)[0])
+        print "cont'd get_data_all"
         fields, dg_names_oeil, resp_names_oeil=get_data("oeil", act_ids["oeil"], urls["url_oeil"], act)
+        print "cont'd 2 get_data_all"
         act.__dict__.update(fields)
         nb_lectures=act.nb_lectures
 #~ #~

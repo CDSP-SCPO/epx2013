@@ -482,6 +482,8 @@ def get_data_oeil(soup, act_ids, act=None):
     """
     fields={}
     act=act_ids.act
+    
+    print "begin get_data_oeil"
 
     #<table style="margin:0;" width="100%" id="key_players">
     soup_key_players=soup.find("table", {"id": "key_players"})
