@@ -358,6 +358,7 @@ def act(request):
         mode, add_modif, act, response=add_modif_fct(request, response, Add, Modif, "act")
 
         #for log
+        print "post"
         print "ACT", act
         print "ACTION",  add_modif
         print "USER", request.user.username
@@ -396,6 +397,9 @@ def act(request):
         if request.is_ajax():
             #no act has been selected-> do nothing
             return HttpResponse(simplejson.dumps(""), mimetype="application/json")
+    
+    else:
+        print "get"
 
     #unbound forms
     forms=[("form_data", ActForm()), ("add", Add()), ("modif", Modif())]
