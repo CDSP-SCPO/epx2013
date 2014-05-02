@@ -211,6 +211,8 @@ def extract_html_2(soup):
 
     if "United Kingdom" not in country_list:
         pb=True
+        print country_list
+    print "ok"
 
     return verbatims, pb
     
@@ -238,8 +240,8 @@ class Command(NoArgsCommand):
         src_file="db"
         test=False
         
-        #~ test=True
-        #~ src_file="local"
+        test=True
+        src_file="local"
         
         #delete not validated acts
         #~ ImportMinAttend.objects.filter(validated=False).delete()

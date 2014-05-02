@@ -548,7 +548,11 @@ def get_data_min_attend_update(row):
     #used to identify the row
     ids_row={}
     ids_row["no_celex"]=row[0].strip()
-    ids_row["country"]=row[1].strip()
+    country=row[1].strip()
+    #we need the country code
+    if len(country)>2:
+        country=Country.objects.get(country=country).country_code
+    ids_row["country"]=country
 
     #extra fields to save if the act does not exist yet
     defaults={}
