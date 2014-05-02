@@ -408,6 +408,8 @@ def act(request):
             response[form[0]]=form[1]
 
     response['form_template']=form_template
+    
+    print "end"
 
     #prints are normally displayed (back to normal)
     sys.stdout = sys.__stdout__
