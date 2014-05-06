@@ -412,7 +412,7 @@ def act(request):
 
     response['form_template']=form_template
     
-    print "end"
+    print "end act view"
 
     #prints are normally displayed (back to normal)
     sys.stdout = sys.__stdout__

@@ -140,7 +140,7 @@ function save_result(result)
 /* add of an act (selection from drop down list) */
 $("#id_act_to_validate").change(function(event)
 {
-    alert("add act on change");
+    //~ alert("add act on change");
     display_or_update_act("add_act", event);
 });
 
@@ -159,7 +159,6 @@ $('#act_form').on('click', '#modif_act, #update_act', function(event)
 /* display/modif or update the ids/datas of the selected act */
 function display_or_update_act(button_name, event)
 {
-    alert("add act display function begin");
     //do not follow the href link
     event.preventDefault();
 
@@ -169,6 +168,8 @@ function display_or_update_act(button_name, event)
     form=$('#act_form');
     var form_data=form.serialize();
     form_data+="&"+button_name+"=''";
+    
+    //~ alert("add act display function begin");
       
     $.ajax
     ({
@@ -179,7 +180,7 @@ function display_or_update_act(button_name, event)
     })
     .done(function(result) 
     {
-        alert("add act display function success");
+        //~ alert("add act display function success beginning");
         //if an act has been selected, either from the add form or the modif form
         if (result!="")
         {
@@ -188,12 +189,14 @@ function display_or_update_act(button_name, event)
         }
         //hide loading gif
         $("#loading_gif_"+button_name).hide();
-        alert("add act display function success end");
+        //~ alert("add act display function success end");
     })
     .fail(function() 
     {
-        alert( "ajax error!" );
+        alert( "ajax failure!" );
     });
+    
+    //~ alert("add act display function end");
 
     //don't submit the form
     return false;
