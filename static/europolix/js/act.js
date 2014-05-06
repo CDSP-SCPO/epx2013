@@ -140,9 +140,8 @@ function save_result(result)
 /* add of an act (selection from drop down list) */
 $("#id_act_to_validate").change(function(event)
 {
-    alert("add act 0");
+    alert("add act on change");
     display_or_update_act("add_act", event);
-    alert("add act 1");
 });
 
 
@@ -160,6 +159,7 @@ $('#act_form').on('click', '#modif_act, #update_act', function(event)
 /* display/modif or update the ids/datas of the selected act */
 function display_or_update_act(button_name, event)
 {
+    alert("add act display function begin");
     //do not follow the href link
     event.preventDefault();
 
@@ -169,24 +169,30 @@ function display_or_update_act(button_name, event)
     form=$('#act_form');
     var form_data=form.serialize();
     form_data+="&"+button_name+"=''";
-
+      
     $.ajax
     ({
         type: "POST",
         url: form.attr('action'),
         //~ dataType: 'html',
-        data: form_data,
-        success: function(result)
+        data: form_data
+    })
+    .done(function(result) 
+    {
+        alert("add act display function success");
+        //if an act has been selected, either from the add form or the modif form
+        if (result!="")
         {
-            //if an act has been selected, either from the add form or the modif form
-            if (result!="")
-            {
-                //display or mpdify an act
-                display_or_update_result(result, button_name);
-            }
-            //hide loading gif
-            $("#loading_gif_"+button_name).hide();
+            //display or mpdify an act
+            display_or_update_result(result, button_name);
         }
+        //hide loading gif
+        $("#loading_gif_"+button_name).hide();
+        alert("add act display function success end");
+    })
+    .fail(function() 
+    {
+        alert( "ajax error!" );
     });
 
     //don't submit the form
