@@ -140,7 +140,9 @@ function save_result(result)
 /* add of an act (selection from drop down list) */
 $("#id_act_to_validate").change(function(event)
 {
+    alert("add act 0");
     display_or_update_act("add_act", event);
+    alert("add act 1");
 });
 
 

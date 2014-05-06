@@ -347,8 +347,8 @@ def act(request):
 
     #save all prints to a log file
     from django.conf import settings
-    #~ log_file_path=os.path.join(settings.PROJECT_ROOT, 'europolix.log')
-    #~ sys.stdout = open(log_file_path, "a")
+    log_file_path=os.path.join(settings.PROJECT_ROOT, 'europolix.log')
+    sys.stdout = open(log_file_path, "a")
     print ""
     import time
     print time.strftime("TODAY IS: %d/%m/%Y, CURRENT TIME IS: %H:%M:%S")
@@ -415,7 +415,7 @@ def act(request):
     print "end"
 
     #prints are normally displayed (back to normal)
-    #~ sys.stdout = sys.__stdout__
+    sys.stdout = sys.__stdout__
 
     #displays the page (GET) or POST if javascript disabled
     return render_to_response('act/index.html', response, context_instance=RequestContext(request))
