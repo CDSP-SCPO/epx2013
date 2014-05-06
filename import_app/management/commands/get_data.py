@@ -1,6 +1,6 @@
 #-*- coding: utf-8 -*-
 """
-command to retrieve data on eurlex, prelex and oeil manually and validate the act
+command to retrieve data on eurlex, prelex and oeil automatically and validate the act
 """
 from django.core.management.base import NoArgsCommand
 
