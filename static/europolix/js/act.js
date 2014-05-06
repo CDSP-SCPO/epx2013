@@ -193,7 +193,8 @@ function display_or_update_act(button_name, event)
     })
     .fail(function() 
     {
-        alert( "ajax failure!" );
+        //~ alert( "ajax failure!" );
+        window.console&&console.log("ajax failure!");
     });
     
     //~ alert("add act display function end");
