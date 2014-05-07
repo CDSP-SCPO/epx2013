@@ -78,6 +78,7 @@ def add_modif_fct(request, response, Add, Modif, form):
     queryset: act / ministers' attendance to validate or modify [Act or ImportMinAttend model instance(s)]
     response: all the forms being used or to use [dictionary]
     """
+    print "add_modif_fct"
     add_modif=mode=queryset=None
 
     #adding of an act (validation of a new act)

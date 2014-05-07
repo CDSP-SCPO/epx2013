@@ -24,8 +24,13 @@
 /* width of the verbatim column */
 .verbatim
 {
-    float: right;
-    width: 72%;
+    width: 67%;
+}
+
+/* delete column to delete forms individually */
+.DELETE
+{
+    width: 5%;
 }
 
 /* length of the selects (country and status) */
@@ -37,7 +42,7 @@
 
 #attendance_form .status select
 {
-    margin-left: 2%;
+    margin-left: 2px;
 }
 
 
@@ -45,7 +50,7 @@
 #attendance_form .verbatim input
 {
     width: 97.2%;
-    margin-left: 0.8%;
+    margin-left: 4px;
 }
 
 

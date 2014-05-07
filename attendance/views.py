@@ -60,7 +60,7 @@ class MinAttendUpdate(UpdateView):
         if "modif" not in context:
             context['modif'] = Modif()
         if "formset" not in context:
-            context["formset"]=formset_factory(self.form_class, extra=self.nb_extra_forms)
+            context["formset"]=formset_factory(self.form_class, extra=self.nb_extra_forms, can_delete=True)
         context["form_template"]=self.form_template
         context['display_name'] = var_name_ids.var_name
         context['display_name'].update(var_name_data.var_name)
@@ -114,7 +114,7 @@ class MinAttendUpdate(UpdateView):
                 act_ids=self.get_act_ids(request.POST, add_modif)
 
                 #set the number of forms to the number of ministers + 3 extra form to fill if needed
-                MinAttendFormSet = modelformset_factory(self.model, form=self.form_class, extra=len(attendances), max_num=len(attendances)+self.nb_extra_forms)
+                MinAttendFormSet = modelformset_factory(self.model, form=self.form_class, extra=len(attendances), max_num=len(attendances)+self.nb_extra_forms, can_delete=True)
                 formset = MinAttendFormSet(request.POST, queryset=attendances)
 
                 #saves the ministers' attendances
@@ -190,21 +190,26 @@ class MinAttendUpdate(UpdateView):
         #save validated ministers' attendances (MinAttend model)
         #~ instances = formset.save()
         for form in formset.forms:
-            #if the form has been changed
-            if form.has_changed():
-                #update status in ImportMinAttend with same verbatim and empty status
-                for instance in ImportMinAttend.objects.filter(verbatim=form.cleaned_data["verbatim"], status=None):
-                    print "instance ImportMinAttend", instance.pk
-                    instance.status=form.cleaned_data["status"]
-                    instance.save()
+            #if the form is not to be deleted
+            if form not in formset.deleted_forms:
+                #if the form has been changed
+                if form.has_changed():
+                    #update status in ImportMinAttend with same verbatim and empty status
+                    for instance in ImportMinAttend.objects.filter(verbatim=form.cleaned_data["verbatim"], status=None):
+                        print "instance ImportMinAttend", instance.pk
+                        instance.status=form.cleaned_data["status"]
+                        instance.save()
 
-                #add releve_ids and no_celex for extra forms not already in ImportMinAttend and save extra forms
-                if form.empty_permitted:
-                    form.save(no_celex=act_ids.no_celex, releve_annee=act_ids.act.releve_annee, releve_mois=act_ids.act.releve_mois, no_ordre=act_ids.act.no_ordre)
+                    #add releve_ids and no_celex for extra forms not already in ImportMinAttend and save extra forms
+                    if form.empty_permitted:
+                        form.save(no_celex=act_ids.no_celex, releve_annee=act_ids.act.releve_annee, releve_mois=act_ids.act.releve_mois, no_ordre=act_ids.act.no_ordre)
 
-            #save all the "normal" forms, even unchanged
-            if not form.empty_permitted:
-                form.save()
+                #save all the "normal" forms, even unchanged
+                if not form.empty_permitted:
+                    form.save()
+            #forms to be deleted
+            else:
+                ImportMinAttend.objects.get(id=form.instance.pk).delete()
 
         #update dictionary (Verbatim and status models) and save attendances in MinAttend
         link_act_min_attend(act_ids)

@@ -141,6 +141,7 @@ function save_result(result)
 $("#id_act_to_validate").change(function(event)
 {
     //~ alert("add act on change");
+    alert($("#id_act_to_validate").val());
     display_or_update_act("add_act", event);
 });
 

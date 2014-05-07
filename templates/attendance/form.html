@@ -19,6 +19,7 @@
     <span class="column column_title country">{{ display_name.country}}</span>
     <span class="column column_title status">{{ display_name.status}}</span>
     <span class="column column_title verbatim">{{ display_name.verbatim}}</span>
+    <span class="column column_title DELETE">Delete</span>
 </div>
 
 <div class="new_minister"></div>
@@ -35,6 +36,7 @@
     <!-- for each field -->
      <div class="row-fluid border">
         {% for field in form %}
+
              <span class="fieldWrapper">
                  <!-- {{ field.auto_id }} -> id_form-0-country, id_form-0-verbatim, id_form-0-status -->
                 <span id="{{ field.auto_id }}_errors">{{ field.errors }}</span>

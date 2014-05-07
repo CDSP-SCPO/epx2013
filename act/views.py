@@ -402,7 +402,8 @@ def act(request):
             return HttpResponse(simplejson.dumps(""), mimetype="application/json")
     
     else:
-        print "get"
+        print "get?"
+        #~ print form.data['act_to_validate']
 
     #unbound forms
     forms=[("form_data", ActForm()), ("add", Add()), ("modif", Modif())]
