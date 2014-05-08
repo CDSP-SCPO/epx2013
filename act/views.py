@@ -1,4 +1,5 @@
 #-*- coding: utf-8 -*-
+from django.views.generic.edit import UpdateView
 from act_ids.forms import ActIdsForm
 from act.forms import ActForm, Add, Modif
 from act.models import Act, DG, Person, NP, PartyFamily, Country, CodeSect
@@ -28,8 +29,11 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.template.loader import render_to_string
 from django.utils import simplejson
-
-import sys, os
+#log file
+from django.conf import settings
+import sys
+import os
+import time
 
 
 
@@ -197,28 +201,32 @@ s   field: name of the field ("dg" or "resp") [string]
     return act, oeil_dic, prelex_dic
 
 
-def get_data_all(state, add_modif, act, POST, response):
+def get_data_all(context, add_modif, act, POST):
     """
     FUNCTION
     get all data of an act (from eurlex, oeil and prelex)
     PARAMETERS
-    state: display (display the data of an act), saved (the act is being saved) or ongoing (validation errors while saving) [string]
+    context: variables to be displayed in the html form [dictionary]
     add_modif: "add" if the form is in add mode, "modif" otherwise [string]
     act: instance of the data of the act [Act model instance]
     POST: request.POST object [dictionary]
-    response: variables to be displayed in the html form [dictionary]
+    
     RETURN
-    response: update of the variables to be displayed in the html form [dictionary]
+    context: update of the variables to be displayed in the html form [dictionary]
     """
     #retrieve the act ids for each source
     act_ids=get_act_ids(act)
 
     #"compute" the url of the eurlex, oeil and prelex page
     urls=get_urls(act_ids["index"], act.url_prelex, act_ids["index"].dos_id)
+    
+    #default state: display the act
+    if "state" not in "display":
+        context["state"]="display"
 
     #an act has been selected in the drop down list -> the related data is displayed
     #if state different of modif, save and ongoing and if the act is not being modified
-    if state=="display" and add_modif=="add":
+    if context["state"]=="display" and add_modif=="add":
         print "data retrieval"
         #retrieve all the data from all the sources
         #COMMENT FOR TESTS ONLY
@@ -237,98 +245,60 @@ def get_data_all(state, add_modif, act, POST, response):
         act.nb_lectures=nb_lectures
 #~
         #~ #store dg/resp from oeil and prelex to be displayed as text in the template
-        act, response["dg_names_oeil"], response["dg_names_prelex"]=store_dg_resp(act, dg_names_oeil, dg_names_prelex, "dg")
-        act, response["resp_names_oeil"], response["resp_names_prelex"]=store_dg_resp(act, resp_names_oeil, resp_names_prelex, "resp")
+        act, context["dg_names_oeil"], context["dg_names_prelex"]=store_dg_resp(act, dg_names_oeil, dg_names_prelex, "dg")
+        act, context["resp_names_oeil"], context["resp_names_prelex"]=store_dg_resp(act, resp_names_oeil, resp_names_prelex, "resp")
 #~
         #~ #check multiple values for dgs with numbers
-        response["dg"], act=check_multiple_dgs(act)
+        context["dg"], act=check_multiple_dgs(act)
 
     if "add_act" in POST or "modif_act" in POST:
         if "add_act" in POST:
             form_data=ActForm(instance=act, initial={"releve_mois_init": act.releve_mois})
-            response["status"]="add"
+            context["status"]="add"
         else:
             form_data=ActForm(instance=act)
-            response["status"]="modif"
+            context["status"]="modif"
 
     else:
         form_data=ActForm(POST, instance=act)
 
-    response["urls"]=urls
-    response['act']=act
+    context["urls"]=urls
+    context['act']=act
     #COMMENT FOR TESTS ONLY
     temp=get_data_others(act_ids["index"], act)
-    response['opals']=temp["opal"]
-    response['min_attends']=temp["min_attend"]
-    response["party_family"]=get_party_family({"1": act.resp_1_id, "2": act.resp_2_id, "3": act.resp_3_id})
-    response['act_ids']=act_ids
-    response['form_data']=form_data
+    context['opals']=temp["opal"]
+    context['min_attends']=temp["min_attend"]
+    context["party_family"]=get_party_family({"1": act.resp_1_id, "2": act.resp_2_id, "3": act.resp_3_id})
+    context['act_ids']=act_ids
+    context['form_data']=form_data
+
+    return context
 
 
-    return response
 
-
-def save_act(act, request, response, add_modif):
+def init_context(context):
     """
     FUNCTION
-    get the data of an act
+    initialize the context dictionary passed to the template with list of variables and names to display
     PARAMETERS
-    act: instance of the data of the act [model instance]
-    request: request object [HttpRequest object]
-    response: dictionary containing all the variables to be displayed in th html form [dictionary]
-    add_modif: same than mode but return None if the add or modif form is not valid [string]
+    context: context dictionary (empty or with a few variables) [dictionary]
     RETURN
-    response: update of the dictionary containing all the variables to be displayed in th html form [dictionary]
-    state: saved or ongoing (if errors) [string]
+    context: first variables of the dictionary containing all the variables to be displayed in th html form [dictionary]
     """
-    form_data=ActForm(request.POST, instance=act)
-    if form_data.is_valid():
-        #if use form_data m2m are deleted!
-        act.validated=2
-        act.notes=request.POST['notes']
-        act.save()
-        state="saved"
-        response["msg"]="The act " + str(act) + " has been validated!"
-        response["msg_class"]="success_msg"
-        #save in history
-        History.objects.create(action=add_modif, form="data", act=act, user=request.user)
-    else:
-        print "form_data not valid", form_data.errors
-        if request.is_ajax():
-            response['save_act_errors']= dict([(k, form_data.error_class.as_text(v)) for k, v in form_data.errors.items()])
-        else:
-            response['form_data']=form_data
-        response["msg"]="The form contains errors! Please correct them before submitting again."
-        response["msg_class"]="error_msg"
-        state="ongoing"
-
-    return response, state
-
-
-def init_response():
-    """
-    FUNCTION
-    initialize the response dictionary passed to the template with list of variables and names to display
-    PARAMETERS
-    None
-    RETURN
-    response: first variables of the dictionary containing all the variables to be displayed in th html form [dictionary]
-    """
-    response={}
     #display "real" name of variables (names given by europolix team, not the names stored in db)
-    response['display_name']=var_name_ids.var_name
-    response['display_name'].update(var_name_data.var_name)
+    context['display_name']=var_name_ids.var_name
+    context['display_name'].update(var_name_data.var_name)
     #one table (used to display one source) displays a subset of variables of the Act model only -> create list to loop over each subset
     #-> one table for eurlex, one for oeil and two for prelex
-    response["vars_eurlex"]=["titre_en", "code_sect_1", "code_sect_2", "code_sect_3", "code_sect_4", "rep_en_1", "rep_en_2", "rep_en_3", "rep_en_4", "type_acte", "base_j"]
-    response["vars_oeil"]=["commission", "com_amdt_tabled", "com_amdt_adopt", "amdt_tabled", "amdt_adopt", "votes_for_1", "votes_agst_1", "votes_abs_1", "votes_for_2", "votes_agst_2", "votes_abs_2", "rapp_1", "rapp_2", "rapp_3", "rapp_4", "rapp_5", "modif_propos", "nb_lectures", "sign_pecs"]
-    response["vars_prelex_1"]=["adopt_propos_origine", "com_proc", "dg_1", "dg_2", "resp_1", "resp_2", "resp_3", "transm_council", "cons_b", "nb_point_b", "adopt_conseil", "nb_point_a", "council_a"]
-    response["vars_prelex_2"]=["rejet_conseil", "chgt_base_j", "duree_adopt_trans", "duree_proc_depuis_prop_com", "duree_proc_depuis_trans_cons", "duree_tot_depuis_prop_com", "duree_tot_depuis_trans_cons", "vote_public", "adopt_cs_regle_vote", "adopt_cs_contre", "adopt_cs_abs", "adopt_pc_contre", "adopt_pc_abs", "adopt_ap_contre", "adopt_ap_abs", "dde_em", "split_propos", "proc_ecrite", "suite_2e_lecture_pe", "gvt_compo"]
-    return response
+    context["vars_eurlex"]=["titre_en", "code_sect_1", "code_sect_2", "code_sect_3", "code_sect_4", "rep_en_1", "rep_en_2", "rep_en_3", "rep_en_4", "type_acte", "base_j"]
+    context["vars_oeil"]=["commission", "com_amdt_tabled", "com_amdt_adopt", "amdt_tabled", "amdt_adopt", "votes_for_1", "votes_agst_1", "votes_abs_1", "votes_for_2", "votes_agst_2", "votes_abs_2", "rapp_1", "rapp_2", "rapp_3", "rapp_4", "rapp_5", "modif_propos", "nb_lectures", "sign_pecs"]
+    context["vars_prelex_1"]=["adopt_propos_origine", "com_proc", "dg_1", "dg_2", "resp_1", "resp_2", "resp_3", "transm_council", "cons_b", "nb_point_b", "adopt_conseil", "nb_point_a", "council_a"]
+    context["vars_prelex_2"]=["rejet_conseil", "chgt_base_j", "duree_adopt_trans", "duree_proc_depuis_prop_com", "duree_proc_depuis_trans_cons", "duree_tot_depuis_prop_com", "duree_tot_depuis_trans_cons", "vote_public", "adopt_cs_regle_vote", "adopt_cs_contre", "adopt_cs_abs", "adopt_pc_contre", "adopt_pc_abs", "adopt_ap_contre", "adopt_ap_abs", "dde_em", "split_propos", "proc_ecrite", "suite_2e_lecture_pe", "gvt_compo"]
+    return context
 
 
-@login_required
-def act(request):
+
+class ActUpdate(UpdateView):
     """
     VIEW
     displays and processes the acts data retrieval page
@@ -336,90 +306,164 @@ def act(request):
     act/index.html: display the act data page which itself calls the template of the act form
     act/form.html: display the act form
     """
+    #if omitted error 'ActUpdate' object has no attribute 'object'
+    object=None
+    model = Act
+    form_class=ActForm
+    #html page of the form page
+    template_name = 'act/index.html'
+    #html page of the form object
+    form_template = 'act/form.html'
 
-    #fill the dictionary sent to the template with the list of variables along with the names to display
-    response=init_response()
-    #state=display (display the data of an act), saved (the act is being saved) or ongoing (validation errors while saving)
-    state="display"
-    #html page of the form
-    form_template='act/form.html'
+
+    def get(self, request, *args, **kwargs):
+        """
+        Handles GET requests and instantiates blank versions of the form
+        Pass parameters to the context object for get requests
+        """
+        print "get"
+        #if ommited, get error "Generic detail view ActUpdate must be called with either an object pk or a slug."
+        return self.render_to_response(self.get_context_data())
+    
+    
+    def get_context_data(self, **kwargs):
+        """
+        pass generic parameters to the context object so it can be viewed inside the template
+        """
+        print "get_context_data"
+        context = super(ActUpdate, self).get_context_data(**kwargs)
+        
+        #fill the dictionary sent to the template with the list of variables along with the names to display
+        context.update(init_context(context))
+        if "add" not in context:
+            context['add'] = Add()
+        if "modif" not in context:
+            context['modif'] = Modif()
+        if "form_data" not in context:
+            context["form_data"]=ActForm()
+        context["form_template"]=self.form_template
+         #state=display (display the data of an act), saved (the act is being saved) or ongoing (validation errors while saving)
+        if "state" not in context:
+            context['state']="display"
+        
+        return context
 
 
-    #save all prints to a log file
-    from django.conf import settings
-    log_file_path=os.path.join(settings.PROJECT_ROOT, 'europolix.log')
-    sys.stdout = open(log_file_path, "a")
-    print ""
-    import time
-    print time.strftime("TODAY IS: %d/%m/%Y, CURRENT TIME IS: %H:%M:%S")
-    print "entered in act view"
 
-    if request.method=='POST':
+    def post(self, request, *args, **kwargs):
+        """
+        The form is posted
+        """
+        context={}
         #add_modif=None, "add" or "modif"
         #act=act to validate / modify or None if no act is found (modification)
-        #response: add add or modif to the forms being displayed / to be displayed
-        mode, add_modif, act, response=add_modif_fct(request, response, Add, Modif, "act")
-
-        #for log
-        print "post"
+        #context: add add or modif to the forms being displayed / to be displayed
+        mode, add_modif, act, context=add_modif_fct(request, context, Add, Modif, "act")
+        
+        #save all prints to a log file
+        log_file_path=os.path.join(settings.PROJECT_ROOT, 'europolix.log')
+        #COMMENT OUT FOR LOCAL TESTS ONLY
+        #~ sys.stdout = open(log_file_path, "a")
+        print ""
+        print time.strftime("TODAY IS: %d/%m/%Y, CURRENT TIME IS: %H:%M:%S")
+        print ""
+        
+        print "begin post"
         print "ACT", act
         print "ACTION",  add_modif
         print "USER", request.user.username
         print ""
 
-        #if any of this key is present in the response dictionary -> no act display and return the errors with a json object
+        #if any of this key is present in the context dictionary -> no act display and return the errors with a json object
         #otherwise display act and return the html form of the act to validate or modif in a string format
         keys=["msg", "add_act_errors", "modif_act_errors"]
-
+    
         #if selection of an act in the drop down list or click on the modif_act button
-        if mode!=None:
+        if mode !=None:
             #if we are about to add or modif an act (the add or modif form is valid)
             if add_modif!=None:
+                form_data=ActForm(request.POST, instance=act)
+
                 #saves the act
                 if 'save_act' in request.POST:
-                    response, state=save_act(act, request, response, add_modif)
-
+                    if form_data.is_valid():
+                        context=self.form_valid(act, context, add_modif)
+                    else:
+                        context=self.form_invalid(form_data, context)
+                        
                 #displays the retrieved data of the act to validate / modify
                 #(selection of an act in the add / modif form  with no form error)
                 #or errors when saving the form if ajax deactivated
-                if not any(key in response for key in keys) or not request.is_ajax() and state!="saved":
+                if not any(key in context for key in keys) or not self.request.is_ajax() and context["state"]!="saved":
                     print 'act_to_validate display'
                     #get the data of the act
-                    response=get_data_all(state, add_modif, act, request.POST, response)
+                    context=get_data_all(context, add_modif, act, self.request.POST)
 
-                response['mode']=mode
-
+                context['mode']=mode
+            
             if request.is_ajax():
                 #save act (with or without errors) or act display and modif (with errors)
-                if any(key in response for key in keys):
-                    return HttpResponse(simplejson.dumps(response), mimetype="application/json")
+                if any(key in context for key in keys):
+                    return HttpResponse(simplejson.dumps(context), mimetype="application/json")
                 else:
                     #act display or modif (without errors)
-                    return HttpResponse(render_to_string(form_template, response, RequestContext(request)))
+                    context=self.get_context_data(**context)
+                    return HttpResponse(render_to_string(self.form_template, context, RequestContext(request)))
 
         if request.is_ajax():
             #no act has been selected-> do nothing
             return HttpResponse(simplejson.dumps(""), mimetype="application/json")
+            
+        print "end post"
+
+        #prints are normally displayed (back to normal)
+        #COMMENT OUT FOR LOCAL TESTS ONLY
+        #~ sys.stdout = sys.__stdout__
+
+        return self.render_to_response(self.get_context_data(**context))
+
+
+    def form_valid(self, act, context, add_modif):
+        """
+        Called if all forms are valid.
+        """
+        print "form_valid"
     
-    else:
-        print "get?"
-        #~ print form.data['act_to_validate']
+        #if use form_data m2m are deleted!
+        act.validated=2
+        act.notes=self.request.POST['notes']
+        act.save()
+        context["state"]="saved"
+        context["msg"]="The act " + str(act) + " has been validated!"
+        context["msg_class"]="success_msg"
+        
+        #save in history
+        History.objects.create(action=add_modif, form="data", act=act, user=self.request.user)
 
-    #unbound forms
-    forms=[("form_data", ActForm()), ("add", Add()), ("modif", Modif())]
-    for form in forms:
-        if form[0] not in response or state=="saved":
-            response[form[0]]=form[1]
+        #empty forms
+        #~ if not self.request.is_ajax():
+            #~ context['form_data'] = ActForm()
+            #~ context['add'] = Add()
+            #~ context['modif'] = Modif()
 
-    response['form_template']=form_template
-    
-    print "end act view"
+        return context
 
-    #prints are normally displayed (back to normal)
-    sys.stdout = sys.__stdout__
 
-    #displays the page (GET) or POST if javascript disabled
-    return render_to_response('act/index.html', response, context_instance=RequestContext(request))
+    def form_invalid(self, form_data, context):
+        """
+        Called if a form is invalid. Re-renders the context data with the data-filled forms and errors.
+        """
+        print "form_data not valid", form_data.errors
+        if self.request.is_ajax():
+            context['save_act_errors']= dict([(k, form_data.error_class.as_text(v)) for k, v in form_data.errors.items()])
+        else:
+            context['form_data']=form_data
+        context["msg"]="The form contains errors! Please correct them before submitting again."
+        context["msg_class"]="error_msg"
+        state="ongoing"
+
+        return context
+
 
 
 def reset_form(request):
@@ -429,9 +473,10 @@ def reset_form(request):
     TEMPLATES
     act/form.html
     """
-    response=init_response()
-    response['form_data']=ActForm()
-    return render_to_response('act/form.html', response, context_instance=RequestContext(request))
+    context={}
+    context=init_context(context)
+    context['form_data']=ActForm()
+    return render_to_response('act/form.html', context, context_instance=RequestContext(request))
 
 
 def update_code_sect(request):
@@ -441,13 +486,13 @@ def update_code_sect(request):
     TEMPLATES
     None (Ajax only)
     """
-    response={}
+    context={}
     if request.POST["code_sect_id"]!="":
         instance=CodeSect.objects.get(pk=request.POST["code_sect_id"])
-        response["code_agenda"]=instance.code_agenda.code_agenda
+        context["code_agenda"]=instance.code_agenda.code_agenda
     else:
-        response["code_agenda"]=None
-    return HttpResponse(simplejson.dumps(response), mimetype="application/json")
+        context["code_agenda"]=None
+    return HttpResponse(simplejson.dumps(context), mimetype="application/json")
 
 
 def update_person(request):
@@ -457,20 +502,20 @@ def update_person(request):
     TEMPLATES
     None (Ajax only)
     """
-    response={}
+    context={}
     if request.POST["person_id"]!="":
         instance=Person.objects.get(pk=request.POST["person_id"])
-        response["country"]=instance.country.pk
+        context["country"]=instance.country.pk
         party=instance.party
-        response["party"]=party.party
+        context["party"]=party.party
         if request.POST["src"]=="resp":
-            response["party_family"]=PartyFamily.objects.only("party_family").get(party=party, country=response["country"]).party_family
+            context["party_family"]=PartyFamily.objects.only("party_family").get(party=party, country=context["country"]).party_family
     else:
-        response["country"]=None
-        response["party"]=None
-        response["party_family"]=None
+        context["country"]=None
+        context["party"]=None
+        context["party_family"]=None
 
-    return HttpResponse(simplejson.dumps(response), mimetype="application/json")
+    return HttpResponse(simplejson.dumps(context), mimetype="application/json")
 
 
 def update_dg(request):
@@ -480,15 +525,15 @@ def update_dg(request):
     TEMPLATES
     None (Ajax only)
     """
-    response={}
+    context={}
     if request.POST["dg_id"]!="":
         print "dg_id", request.POST["dg_id"]
         instance=DG.objects.get(pk=request.POST["dg_id"])
-        response["dg_sigle"]=instance.dg_sigle.dg_sigle
-        print "dg_sigle", response["dg_sigle"]
+        context["dg_sigle"]=instance.dg_sigle.dg_sigle
+        print "dg_sigle", context["dg_sigle"]
     else:
-        response["dg_sigle"]=None
-    return HttpResponse(simplejson.dumps(response), mimetype="application/json")
+        context["dg_sigle"]=None
+    return HttpResponse(simplejson.dumps(context), mimetype="application/json")
 
 
 
@@ -499,8 +544,8 @@ def update_durations(request):
     TEMPLATES
     None (Ajax only)
     """
-    response={}
-    response['duree_adopt_trans']=response['duree_proc_depuis_prop_com']=response['duree_proc_depuis_trans_cons']=response['duree_tot_depuis_prop_com']=response['duree_tot_depuis_trans_cons']=[None]*5
+    context={}
+    context['duree_adopt_trans']=context['duree_proc_depuis_prop_com']=context['duree_proc_depuis_trans_cons']=context['duree_tot_depuis_prop_com']=context['duree_tot_depuis_trans_cons']=[None]*5
     duree_adopt_trans=request.POST["duree_adopt_trans"]
     duree_proc_depuis_prop_com=request.POST["duree_proc_depuis_prop_com"]
     duree_proc_depuis_trans_cons=request.POST["duree_proc_depuis_trans_cons"]
@@ -513,29 +558,29 @@ def update_durations(request):
 
 
     #duree_adopt_trans
-    response['duree_adopt_trans']=get_date_diff(transm_council, adopt_propos_origine)
-    print "duree_adopt_trans:", response['duree_adopt_trans']
+    context['duree_adopt_trans']=get_date_diff(transm_council, adopt_propos_origine)
+    print "duree_adopt_trans:", context['duree_adopt_trans']
 
     #duree_proc_depuis_prop_com
-    response['duree_proc_depuis_prop_com']=get_date_diff(adopt_conseil, adopt_propos_origine)
-    print "duree_proc_depuis_prop_com:", response['duree_proc_depuis_prop_com']
+    context['duree_proc_depuis_prop_com']=get_date_diff(adopt_conseil, adopt_propos_origine)
+    print "duree_proc_depuis_prop_com:", context['duree_proc_depuis_prop_com']
 
     #duree_proc_depuis_trans_cons
-    response['duree_proc_depuis_trans_cons']=get_date_diff(adopt_conseil, transm_council)
-    print "duree_proc_depuis_trans_cons:", response['duree_proc_depuis_trans_cons']
+    context['duree_proc_depuis_trans_cons']=get_date_diff(adopt_conseil, transm_council)
+    print "duree_proc_depuis_trans_cons:", context['duree_proc_depuis_trans_cons']
 
     #duree_tot_depuis_prop_com
-    response['duree_tot_depuis_prop_com']=get_date_diff(sign_pecs, adopt_propos_origine)
+    context['duree_tot_depuis_prop_com']=get_date_diff(sign_pecs, adopt_propos_origine)
     #if no sign_pecs
-    if response['duree_tot_depuis_prop_com']==None:
-        response['duree_tot_depuis_prop_com']=response['duree_proc_depuis_prop_com']
-    print "duree_tot_depuis_prop_com:", response['duree_tot_depuis_prop_com']
+    if context['duree_tot_depuis_prop_com']==None:
+        context['duree_tot_depuis_prop_com']=context['duree_proc_depuis_prop_com']
+    print "duree_tot_depuis_prop_com:", context['duree_tot_depuis_prop_com']
 
     #duree_tot_depuis_trans_cons
-    response['duree_tot_depuis_trans_cons']=get_date_diff(sign_pecs, transm_council)
+    context['duree_tot_depuis_trans_cons']=get_date_diff(sign_pecs, transm_council)
     #if no sign_pecs
-    if response['duree_tot_depuis_trans_cons']==None:
-        response['duree_tot_depuis_trans_cons']=response['duree_proc_depuis_trans_cons']
-    print "duree_tot_depuis_trans_cons:", response['duree_tot_depuis_trans_cons']
+    if context['duree_tot_depuis_trans_cons']==None:
+        context['duree_tot_depuis_trans_cons']=context['duree_proc_depuis_trans_cons']
+    print "duree_tot_depuis_trans_cons:", context['duree_tot_depuis_trans_cons']
 
-    return HttpResponse(simplejson.dumps(response), mimetype="application/json")
+    return HttpResponse(simplejson.dumps(context), mimetype="application/json")

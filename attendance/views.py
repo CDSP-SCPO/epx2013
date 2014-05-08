@@ -7,7 +7,7 @@ from act.models import Country, Verbatim, Status
 from act_ids.models import ActIds
 from history.models import History
 from forms import ImportMinAttendForm, Add, Modif
-from django.shortcuts import render_to_response, get_object_or_404
+from django.shortcuts import render_to_response
 from django.template import RequestContext
 #get the add_modif fct
 from act_ids.views import add_modif_fct

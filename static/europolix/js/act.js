@@ -296,7 +296,10 @@ function update_code_sect(name, value)
         {
             //get the number of code_sect (code_sect_1_id, code_sect_2_id, code_sect_3_id, code_sect_4_id)
             id=name.slice(-4,-3);
-            $("#code_agenda_"+id).text(result.code_agenda);
+            //get name of the variable
+            code_aggenda_name=$("#code_agenda_"+id).text()
+            code_aggenda_name=code_aggenda_name.substr(0, code_aggenda_name.indexOf('=')+1); 
+            $("#code_agenda_"+id).text(code_aggenda_name+result.code_agenda);
         }
     });
 }
