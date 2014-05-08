@@ -261,7 +261,12 @@ def get_rapps(rapps_html):
         if rapps_html[index]!=None:
             field=[Person, "name", get_rapp(rapps_html[index])]
             fks=[]
-            fks.append([Country, "country", get_country_instance(get_country(rapps_html[index])).pk])
+            
+            try:
+                fks.append([Country, "country", get_country_instance(get_country(rapps_html[index])).pk])
+            except Exception, e:
+                print "exception get_rapps", e
+                
             fks.append([Party, "party", get_party(rapps_html[index])])
             src="rapp"
             data['rapp_'+num+"_id"]=save_get_field_and_fk(field, fks, src)[0]
