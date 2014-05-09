@@ -158,6 +158,71 @@ $('#act_form').on('click', '#modif_act, #update_act', function(event)
 });
 
 
+
+function run_ajax_again(xhr, button_name)
+{
+    //only on data form and if an act has been selected in the drop down list
+    if($('#act_form').hasClass('data') && $('#id_act_to_validate').val()!="") 
+    {
+        //if no answer after 20 seconds, trigger the alternate data retrieval
+        timer=20
+        
+        setTimeout(function()
+        {
+            //~ alert("alternate data retrieval");
+            
+            //check if the form was filled with the first ajax call (if not, loading gif still turning)
+            if($("#loading_gif_"+button_name).is(":visible"))
+            {
+                //first ajax called stuck: need alternate call
+                 alert("first ajax call not executed :(");
+                
+                //stop previous ajax call
+                xhr.abort();
+                
+                form=$('#act_form');
+                var form_data=form.serialize();
+                form_data+="&"+button_name+"=''";
+                
+                //~ alert("add act display function begin");
+                  
+                xhr=$.ajax
+                ({
+                    type: "POST",
+                    url: form.attr('action'),
+                    //~ dataType: 'html',
+                    data: form_data
+                })
+                .done(function(result) 
+                {
+                    //~ alert("ajax success");
+                    //~ alert("add act display function success beginning");
+                    //if an act has been selected, either from the add form or the modif form
+                    if (result!="")
+                    {
+                        //display or mpdify an act
+                        display_or_update_result(result, button_name);
+                    }
+                    //hide loading gif
+                    $("#loading_gif_"+button_name).hide();
+                    //~ alert("add act display function success end");
+                })
+                .fail(function() 
+                {
+                    //~ alert( "ajax failure!");
+                    window.console&&console.log("ajax failure!");
+                });
+            }
+            else
+            {
+                //first ajax called completed: nothing to do :)
+                alert("first ajax call executed :)");
+            }
+        }, timer * 1000); 
+    }
+}
+
+
 /* if data retrieval is no triggered (no answer from the view, no answer from ajax), try an alternate view to get data of the act */
 function alternate_data_retrieval(xhr, button_name)
 {
@@ -182,7 +247,7 @@ function alternate_data_retrieval(xhr, button_name)
                 
                 //let's try the alternate view
                 act_id=$( "#id_act_to_validate" ).val();
-                form_data="act_id="+act_id;
+                form_data="act_to_validate="+act_id;
                 
                 //second ajax call
                 xhr=$.ajax
@@ -250,7 +315,7 @@ function display_or_update_act(button_name, event)
             display_or_update_result(result, button_name);
         }
         //hide loading gif
-        $("#loading_gif_"+button_name).hide();
+        //~ $("#loading_gif_"+button_name).hide();
         //~ alert("add act display function success end");
     })
     .fail(function() 
@@ -260,7 +325,8 @@ function display_or_update_act(button_name, event)
     });
     
     /* if data retrieval was not triggered, try an alternative function */
-    alternate_data_retrieval(xhr, button_name)
+    //~ alternate_data_retrieval(xhr, button_name)
+    run_ajax_again(xhr, button_name)
 
     //don't submit the form
     return false;

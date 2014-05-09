@@ -491,7 +491,7 @@ def alternate_data_retrieval(request):
     context['form_template']='act/form.html'
     
     #get act
-    act_id=request.POST["act_id"]
+    act_id=request.POST["act_to_validate"]
     act=Act.objects.get(pk=act_id)
         
     #retrieve the act ids for each source
