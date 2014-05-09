@@ -181,6 +181,7 @@ function display_or_update_act(button_name, event)
     })
     .done(function(result) 
     {
+        alert("ajax success");
         //~ alert("add act display function success beginning");
         //if an act has been selected, either from the add form or the modif form
         if (result!="")
@@ -194,7 +195,7 @@ function display_or_update_act(button_name, event)
     })
     .fail(function() 
     {
-        alert( "ajax failure!" );
+        alert( "ajax failure!");
         //~ window.console&&console.log("ajax failure!");
     });
     
