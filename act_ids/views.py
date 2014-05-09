@@ -23,6 +23,10 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.template.loader import render_to_string
 from django.utils import simplejson
+#log
+import logging
+# Get an instance of a logger
+logger = logging.getLogger(__name__)
 
 
 def check_equality_fields(fields):
@@ -79,10 +83,12 @@ def add_modif_fct(request, response, Add, Modif, form):
     response: all the forms being used or to use [dictionary]
     """
     print "add_modif_fct"
+    logger.debug('n')
     add_modif=mode=queryset=None
 
     #adding of an act (validation of a new act)
     if request.POST["act_to_validate"]!="" and "modif_act" not in request.POST:
+        logger.debug('mode=add')
         mode="add"
         add=Add(request.POST)
         if not request.is_ajax():
@@ -103,10 +109,12 @@ def add_modif_fct(request, response, Add, Modif, form):
             if request.is_ajax():
                 response['add_act_errors']=dict([(k, add.error_class.as_text(v)) for k, v in add.errors.items()])
             print "add form not valid", add.errors
+            logger.debug('add form not valid' + add.errors)
 
     #modification of an act -> display
     elif "modif_act" in request.POST or request.POST["modif_button_clicked"]=="yes" or request.POST["releve_annee_modif"]!="":
         mode="modif"
+        logger.debug('mode=modif')
         modif=Modif(request.POST)
         if not request.is_ajax():
             response['modif']=modif
@@ -124,6 +132,7 @@ def add_modif_fct(request, response, Add, Modif, form):
             if request.is_ajax():
                 response['modif_act_errors']=dict([(k, modif.error_class.as_text(v)) for k, v in modif.errors.items()])
             print "modif form not valid", modif.errors
+            logger.debug('modif form not valid' + modif.errors)
 
     return mode, add_modif, queryset, response
 

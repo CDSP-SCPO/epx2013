@@ -321,7 +321,7 @@ class ActUpdate(UpdateView):
     
     #used for log only
     def dispatch(self, request, *args, **kwargs):
-        logger.debug('')
+        logger.debug('\n')
         logger.debug('dispatch (log)')
         #~ self.course = get_object_or_404(Class, pk=kwargs['class_id'])
         #save all prints to a log file
@@ -400,9 +400,10 @@ class ActUpdate(UpdateView):
         print "USER", request.user.username
         print ""
         
-        logger.debug("ACT "+ str(act))
-        logger.debug("ACTION "+ add_modif)
-        logger.debug("USER "+ request.user.username)
+        logger.debug("act: "+ str(act))
+        logger.debug('mode: ' + mode)
+        logger.debug("add_modif: "+ add_modif)
+        logger.debug("user: "+ request.user.username)
 
         #if any of this key is present in the context dictionary -> no act display and return the errors with a json object
         #otherwise display act and return the html form of the act to validate or modif in a string format
@@ -425,6 +426,7 @@ class ActUpdate(UpdateView):
                 #(selection of an act in the add / modif form  with no form error)
                 #or errors when saving the form if ajax deactivated
                 if not any(key in context for key in keys) or not self.request.is_ajax() and context["state"]!="saved":
+                    logger.debug("act_to_validate display")
                     print 'act_to_validate display'
                     #get the data of the act
                     context=get_data_all(context, add_modif, act, self.request.POST)
@@ -434,9 +436,11 @@ class ActUpdate(UpdateView):
             if request.is_ajax():
                 #save act (with or without errors) or act display and modif (with errors)
                 if any(key in context for key in keys):
+                    logger.debug("save act (with or without errors) or act display and modif (with errors)")
                     return HttpResponse(simplejson.dumps(context), mimetype="application/json")
                 else:
                     #act display or modif (without errors)
+                    logger.debug("act display or modif (without errors)")
                     context=self.get_context_data(**context)
                     return HttpResponse(render_to_string(self.form_template, context, RequestContext(request)))
 
