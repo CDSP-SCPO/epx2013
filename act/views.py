@@ -34,6 +34,10 @@ from django.conf import settings
 import sys
 import os
 import time
+import logging
+
+# Get an instance of a logger
+logger = logging.getLogger(__name__)
 
 
 
@@ -317,9 +321,10 @@ class ActUpdate(UpdateView):
     
     #used for log only
     def dispatch(self, request, *args, **kwargs):
+        logger.debug('dispatch (log)')
         #~ self.course = get_object_or_404(Class, pk=kwargs['class_id'])
         #save all prints to a log file
-        log_file_path=os.path.join(settings.PROJECT_ROOT, 'europolix.log')
+        log_file_path=settings.LOG_FILE_PATH
         #COMMENT OUT FOR LOCAL TESTS ONLY
         #~ sys.stdout = open(log_file_path, "a")
         print ""
@@ -338,6 +343,7 @@ class ActUpdate(UpdateView):
         Handles GET requests and instantiates blank versions of the form
         Pass parameters to the context object for get requests
         """
+        logger.debug('get (log)')
         print "get"
         #~ print "static path"
         #~ print settings.STATIC_ROOT
@@ -349,6 +355,7 @@ class ActUpdate(UpdateView):
         """
         pass generic parameters to the context object so it can be viewed inside the template
         """
+        logger.debug('get_context_data (log)')
         print "get_context_data"
         context = super(ActUpdate, self).get_context_data(**kwargs)
         
@@ -369,7 +376,7 @@ class ActUpdate(UpdateView):
 
         #prints are normally displayed (back to normal)
         #COMMENT OUT FOR LOCAL TESTS ONLY
-        sys.stdout = sys.__stdout__
+        #~ sys.stdout = sys.__stdout__
         
         return context
 
@@ -379,6 +386,7 @@ class ActUpdate(UpdateView):
         """
         The form is posted
         """
+        logger.debug('post (log)')
         print "post"
         context={}
         #add_modif=None, "add" or "modif"

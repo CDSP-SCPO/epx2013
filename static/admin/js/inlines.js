@@ -15,47 +15,47 @@
  * See: http://www.opensource.org/licenses/bsd-license.php
  */
 (function($) {
-	$.fn.formset=function(opts) {
-		var options=$.extend({}, $.fn.formset.defaults, opts);
-		var updateElementIndex=function(el, prefix, ndx) {
-			var id_regex=new RegExp("(" + prefix + "-(\\d+|__prefix__))");
-			var replacement=prefix + "-" + ndx;
+	$.fn.formset = function(opts) {
+		var options = $.extend({}, $.fn.formset.defaults, opts);
+		var updateElementIndex = function(el, prefix, ndx) {
+			var id_regex = new RegExp("(" + prefix + "-(\\d+|__prefix__))");
+			var replacement = prefix + "-" + ndx;
 			if ($(el).attr("for")) {
 				$(el).attr("for", $(el).attr("for").replace(id_regex, replacement));
 			}
 			if (el.id) {
-				el.id=el.id.replace(id_regex, replacement);
+				el.id = el.id.replace(id_regex, replacement);
 			}
 			if (el.name) {
-				el.name=el.name.replace(id_regex, replacement);
+				el.name = el.name.replace(id_regex, replacement);
 			}
 		};
-		var totalForms=$("#id_" + options.prefix + "-TOTAL_FORMS").attr("autocomplete", "off");
-		var nextIndex=parseInt(totalForms.val());
-		var maxForms=$("#id_" + options.prefix + "-MAX_NUM_FORMS").attr("autocomplete", "off");
+		var totalForms = $("#id_" + options.prefix + "-TOTAL_FORMS").attr("autocomplete", "off");
+		var nextIndex = parseInt(totalForms.val());
+		var maxForms = $("#id_" + options.prefix + "-MAX_NUM_FORMS").attr("autocomplete", "off");
 		// only show the add button if we are allowed to add more items,
-        // note that max_num=None translates to a blank string.
-		var showAddButton=maxForms.val()=='' || (maxForms.val()-totalForms.val()) > 0;
+        // note that max_num = None translates to a blank string.
+		var showAddButton = maxForms.val() == '' || (maxForms.val()-totalForms.val()) > 0;
 		$(this).each(function(i) {
 			$(this).not("." + options.emptyCssClass).addClass(options.formCssClass);
 		});
 		if ($(this).length && showAddButton) {
 			var addButton;
-			if ($(this).attr("tagName")=="TR") {
+			if ($(this).attr("tagName") == "TR") {
 				// If forms are laid out as table rows, insert the
 				// "add" button in a new table row:
-				var numCols=this.eq(0).children().length;
+				var numCols = this.eq(0).children().length;
 				$(this).parent().append('<tr class="' + options.addCssClass + '"><td colspan="' + numCols + '"><a href="javascript:void(0)">' + options.addText + "</a></tr>");
-				addButton=$(this).parent().find("tr:last a");
+				addButton = $(this).parent().find("tr:last a");
 			} else {
 				// Otherwise, insert it immediately after the last form:
 				$(this).filter(":last").after('<div class="' + options.addCssClass + '"><a href="javascript:void(0)">' + options.addText + "</a></div>");
-				addButton=$(this).filter(":last").next().find("a");
+				addButton = $(this).filter(":last").next().find("a");
 			}
 			addButton.click(function() {
-				var totalForms=$("#id_" + options.prefix + "-TOTAL_FORMS");
-				var template=$("#" + options.prefix + "-empty");
-				var row=template.clone(true);
+				var totalForms = $("#id_" + options.prefix + "-TOTAL_FORMS");
+				var template = $("#" + options.prefix + "-empty");
+				var row = template.clone(true);
 				row.removeClass(options.emptyCssClass)
 				    .addClass(options.formCssClass)
 				    .attr("id", options.prefix + "-" + nextIndex);
@@ -79,26 +79,26 @@
 				row.insertBefore($(template));
 				// Update number of total forms
 				$(totalForms).val(parseInt(totalForms.val()) + 1);
-				nextIndex +=1;
+				nextIndex += 1;
 				// Hide add button in case we've hit the max, except we want to add infinitely
-				if ((maxForms.val() !='') && (maxForms.val()-totalForms.val()) <=0) {
+				if ((maxForms.val() != '') && (maxForms.val()-totalForms.val()) <= 0) {
 					addButton.parent().hide();
 				}
 				// The delete button of each row triggers a bunch of other things
 				row.find("a." + options.deleteCssClass).click(function() {
 					// Remove the parent form containing this button:
-					var row=$(this).parents("." + options.formCssClass);
+					var row = $(this).parents("." + options.formCssClass);
 					row.remove();
-					nextIndex -=1;
+					nextIndex -= 1;
 					// If a post-delete callback was provided, call it with the deleted form:
 					if (options.removed) {
 						options.removed(row);
 					}
 					// Update the TOTAL_FORMS form count.
-					var forms=$("." + options.formCssClass);
+					var forms = $("." + options.formCssClass);
 					$("#id_" + options.prefix + "-TOTAL_FORMS").val(forms.length);
 					// Show add button again once we drop below max
-					if ((maxForms.val()=='') || (maxForms.val()-forms.length) > 0) {
+					if ((maxForms.val() == '') || (maxForms.val()-forms.length) > 0) {
 						addButton.parent().show();
 					}
 					// Also, update names and ids for all remaining form controls
@@ -122,7 +122,7 @@
 		return this;
 	}
 	/* Setup plugin defaults */
-	$.fn.formset.defaults={
+	$.fn.formset.defaults = {
 		prefix: "form",					// The form prefix for your django formset
 		addText: "add another",			// Text for the add link
 		deleteText: "remove",			// Text for the delete link
