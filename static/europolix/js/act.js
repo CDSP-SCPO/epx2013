@@ -180,6 +180,8 @@ function run_ajax_again(xhr, button_name)
                 //stop previous ajax call
                 xhr.abort();
                 
+                alert("abort done");
+                
                 form=$('#act_form');
                 var form_data=form.serialize();
                 form_data+="&"+button_name+"=''";
@@ -210,7 +212,7 @@ function run_ajax_again(xhr, button_name)
                 .fail(function() 
                 {
                     //~ alert( "ajax failure!");
-                    window.console&&console.log("ajax failure!");
+                    window.console&&console.log("ajax failure 2!");
                 });
             }
             else
