@@ -482,13 +482,12 @@ def alternate_data_retrieval(request):
     VIEW
     reset the act form (except add and modif)
     TEMPLATES
-    act/form.html
+    act/form2.html
     """
     print 'alternate view'
     context={}
-    context['display_name']=var_name_ids.var_name
-    context['display_name'].update(var_name_data.var_name)
-    context['form_template']='act/form.html'
+    context=init_context(context)
+    context['form_template']='act/form2.html'
     
     #get act
     act_id=request.POST["act_to_validate"]

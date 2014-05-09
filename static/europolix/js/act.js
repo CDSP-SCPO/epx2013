@@ -247,20 +247,23 @@ function alternate_data_retrieval(xhr, button_name)
                 //stop previous ajax call
                 xhr.abort();
                 
+                //~ alert($('#alternate_data_retrieval').text());
+                
                 //let's try the alternate view
-                act_id=$( "#id_act_to_validate" ).val();
-                form_data="act_to_validate="+act_id;
+                act_to_validate=$( "#id_act_to_validate" ).val();
+                form_data="act_to_validate="+act_to_validate;
                 
                 //second ajax call
                 xhr=$.ajax
                 ({
                     type: "POST",
-                    url: form.attr('action'),
+                    url: $('#alternate_data_retrieval').text(),
                     //~ dataType: 'html',
                     data: form_data
                 })
                 .done(function(result) 
                 {
+                    alert(result);
                     //~ alert("ajax success");
                     //~ alert("add act display function success beginning");
                     //if an act has been selected, either from the add form or the modif form
@@ -327,8 +330,8 @@ function display_or_update_act(button_name, event)
     });
     
     /* if data retrieval was not triggered, try an alternative function */
-    //~ alternate_data_retrieval(xhr, button_name)
-    run_ajax_again(xhr, button_name)
+    alternate_data_retrieval(xhr, button_name)
+    //~ run_ajax_again(xhr, button_name)
 
     //don't submit the form
     return false;

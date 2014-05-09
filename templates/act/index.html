@@ -25,6 +25,7 @@ displays the data of a given act (data for the statistical analysis displays dat
 
 		<!-- act data form -->
 		<form id="act_form" class="form-inline data" method="post" action="{% url act %}">{% csrf_token %}
+            <div id="alternate_data_retrieval" style="display: none;">{% url alternate_data_retrieval %}</div>
 			<div id="reset_form_path" style="display: none;">{% url reset_form %}</div>
 			<div class="row-fluid">{% include "add_modif.html" %}</div>
 
