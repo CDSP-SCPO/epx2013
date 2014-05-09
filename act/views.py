@@ -218,6 +218,7 @@ def get_data_all(context, add_modif, act, POST):
     RETURN
     context: update of the variables to be displayed in the html form [dictionary]
     """
+    logger.debug('get_data_all')
     #retrieve the act ids for each source
     act_ids=get_act_ids(act)
 
@@ -232,16 +233,19 @@ def get_data_all(context, add_modif, act, POST):
     #if state different of modif, save and ongoing and if the act is not being modified
     if context["state"]=="display" and add_modif=="add":
         print "data retrieval"
+        logger.debug('data retrieval')
         #retrieve all the data from all the sources
         #COMMENT FOR TESTS ONLY
-        print "begin get_data_all"
+        logger.debug('eurlex to be processed')
+        print "eurlex to be processed"
         act.__dict__.update(get_data("eurlex", act_ids["eurlex"], urls["url_eurlex"], act)[0])
-        print "cont'd get_data_all"
+        logger.debug('oeil to be processed')
+        print "oeil to be processed"
         fields, dg_names_oeil, resp_names_oeil=get_data("oeil", act_ids["oeil"], urls["url_oeil"], act)
-        print "cont'd 2 get_data_all"
+        logger.debug('prelex to be processed')
+        print "prelex to be processed"
         act.__dict__.update(fields)
         nb_lectures=act.nb_lectures
-#~ #~
         #~ #prelex config_cons needs eurlex, gvt_compo needs oeil
         fields, dg_names_prelex, resp_names_prelex=get_data("prelex", act_ids["prelex"], urls["url_prelex"], act)
         act.__dict__.update(fields)
@@ -249,6 +253,7 @@ def get_data_all(context, add_modif, act, POST):
         act.nb_lectures=nb_lectures
 #~
         #~ #store dg/resp from oeil and prelex to be displayed as text in the template
+        logger.debug('dg and resp to be processed')
         act, context["dg_names_oeil"], context["dg_names_prelex"]=store_dg_resp(act, dg_names_oeil, dg_names_prelex, "dg")
         act, context["resp_names_oeil"], context["resp_names_prelex"]=store_dg_resp(act, resp_names_oeil, resp_names_prelex, "resp")
 #~
