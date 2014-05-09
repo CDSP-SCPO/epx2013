@@ -400,7 +400,7 @@ class ActUpdate(UpdateView):
         print "USER", request.user.username
         print ""
         
-        logger.debug("ACT "+ act)
+        logger.debug("ACT "+ str(act))
         logger.debug("ACTION "+ add_modif)
         logger.debug("USER "+ request.user.username)
 
