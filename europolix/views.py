@@ -4,6 +4,8 @@ from django.template import RequestContext
 from django.http import HttpResponse
 from django.template.loader import render_to_string
 from django.utils import simplejson
+from django.conf import settings
+
 
 def homepageView(request):
     """

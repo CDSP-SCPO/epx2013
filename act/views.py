@@ -314,6 +314,18 @@ class ActUpdate(UpdateView):
     template_name = 'act/index.html'
     #html page of the form object
     form_template = 'act/form.html'
+    
+    #used for log only
+    def dispatch(self, *args, **kwargs):
+        #~ self.course = get_object_or_404(Class, pk=kwargs['class_id'])
+        #save all prints to a log file
+        log_file_path=os.path.join(settings.PROJECT_ROOT, 'europolix.log')
+        #COMMENT OUT FOR LOCAL TESTS ONLY
+        sys.stdout = open(log_file_path, "a")
+        print ""
+        print time.strftime("TODAY IS: %d/%m/%Y, CURRENT TIME IS: %H:%M:%S")
+        print ""
+        return super(ActUpdate, self).dispatch(*args, **kwargs)
 
 
     def get(self, request, *args, **kwargs):
@@ -322,6 +334,8 @@ class ActUpdate(UpdateView):
         Pass parameters to the context object for get requests
         """
         print "get"
+        #~ print "static path"
+        #~ print settings.STATIC_ROOT
         #if ommited, get error "Generic detail view ActUpdate must be called with either an object pk or a slug."
         return self.render_to_response(self.get_context_data())
     
@@ -346,6 +360,12 @@ class ActUpdate(UpdateView):
         if "state" not in context:
             context['state']="display"
         
+        print "end get_context_data"
+
+        #prints are normally displayed (back to normal)
+        #COMMENT OUT FOR LOCAL TESTS ONLY
+        sys.stdout = sys.__stdout__
+        
         return context
 
 
@@ -360,15 +380,7 @@ class ActUpdate(UpdateView):
         #context: add add or modif to the forms being displayed / to be displayed
         mode, add_modif, act, context=add_modif_fct(request, context, Add, Modif, "act")
         
-        #save all prints to a log file
-        log_file_path=os.path.join(settings.PROJECT_ROOT, 'europolix.log')
-        #COMMENT OUT FOR LOCAL TESTS ONLY
-        #~ sys.stdout = open(log_file_path, "a")
-        print ""
-        print time.strftime("TODAY IS: %d/%m/%Y, CURRENT TIME IS: %H:%M:%S")
-        print ""
-        
-        print "begin post"
+        print "post"
         print "ACT", act
         print "ACTION",  add_modif
         print "USER", request.user.username
@@ -413,12 +425,6 @@ class ActUpdate(UpdateView):
         if request.is_ajax():
             #no act has been selected-> do nothing
             return HttpResponse(simplejson.dumps(""), mimetype="application/json")
-            
-        print "end post"
-
-        #prints are normally displayed (back to normal)
-        #COMMENT OUT FOR LOCAL TESTS ONLY
-        #~ sys.stdout = sys.__stdout__
 
         return self.render_to_response(self.get_context_data(**context))
 
