@@ -10,6 +10,10 @@ from common.functions import date_string_to_iso
 #save rapp
 from common.db import save_get_field_and_fk
 from act.models import Country, Person, Party
+#logging
+import logging
+# Get an instance of a logger
+logger = logging.getLogger(__name__)
 
 
 def get_nb_lectures(soup, suite_2e_lecture_pe):
@@ -488,8 +492,6 @@ def get_data_oeil(soup, act_ids, act=None):
     fields={}
     act=act_ids.act
     
-    print "begin get_data_oeil"
-
     #<table style="margin:0;" width="100%" id="key_players">
     soup_key_players=soup.find("table", {"id": "key_players"})
     #<div id="keyEvents" class="ep_borderbox">
@@ -498,10 +500,12 @@ def get_data_oeil(soup, act_ids, act=None):
     #nb_lectures
     fields['nb_lectures']=get_nb_lectures(soup_key_events, act.suite_2e_lecture_pe)
     print "nb_lectures:", fields['nb_lectures']
+    logger.debug("nb_lectures: "+ str(fields['nb_lectures']))
 
     #commission
     fields['commission'], searched_text=get_commission(soup_key_players, act_ids.no_unique_type, fields['nb_lectures'])
     print "commission:", fields['commission']
+    logger.debug("commission: "+ str(fields['commission']))
 
     #html content of the votes page
     vote_page_soup=get_vote_page(soup_key_events)
@@ -510,18 +514,22 @@ def get_data_oeil(soup, act_ids, act=None):
     #com_amdt_tabled
     fields['com_amdt_tabled']=get_com_amdt_tabled(vote_page_soup)
     print "com_amdt_tabled:", fields['com_amdt_tabled']
+    logger.debug("com_amdt_tabled: "+ str(fields['com_amdt_tabled']))
 
     #com_amdt_adopt
     fields['com_amdt_adopt']=get_com_amdt_adopt(vote_page_soup)
     print "com_amdt_adopt:", fields['com_amdt_adopt']
+    logger.debug("com_amdt_adopt: "+ str(fields['com_amdt_adopt']))
 
     #amdt_tabled
     fields['amdt_tabled']=get_amdt_tabled(vote_page_soup)
     print "amdt_tabled:", fields['amdt_tabled']
+    logger.debug("amdt_tabled: "+ str(fields['amdt_tabled']))
 
     #amdt_adopt
     fields['amdt_adopt']=get_amdt_adopt(vote_page_soup)
     print "amdt_adopt:", fields['amdt_adopt']
+    logger.debug("amdt_adopt: "+ str(fields['amdt_adopt']))
 
     #html content of the 2 tables of vote (Final vote and Final vote part two):
     vote_tables=get_vote_tables(vote_page_soup)
@@ -531,27 +539,32 @@ def get_data_oeil(soup, act_ids, act=None):
     #votes_for_1
     fields['votes_for_1']=get_vote(vote_table_1, "For")
     print "votes_for_1:", fields['votes_for_1']
+    logger.debug("votes_for_1: "+ str(fields['votes_for_1']))
 
     #votes_agst_1
     fields['votes_agst_1']=get_vote(vote_table_1, "Against")
     print "votes_agst_1:", fields['votes_agst_1']
+    logger.debug("votes_agst_1: "+ str(fields['votes_agst_1']))
 
     #votes_abs_1
     fields['votes_abs_1']=get_vote(vote_table_1, "Abstentions")
     print "votes_abs_1:", fields['votes_abs_1']
+    logger.debug("votes_abs_1: "+ str(fields['votes_abs_1']))
 
     #votes_for_2
     fields['votes_for_2']=get_vote(vote_table_2, "For")
     print "votes_for_2:", fields['votes_for_2']
+    logger.debug("votes_for_2: "+ str(fields['votes_for_2']))
 
     #votes_agst_2
     fields['votes_agst_2']=get_vote(vote_table_2, "Against")
     print "votes_agst_2:", fields['votes_agst_2']
+    logger.debug("votes_agst_2: "+ str(fields['votes_agst_2']))
 
     #votes_abs_2
     fields['votes_abs_2']=get_vote(vote_table_2, "Abstentions")
     print "votes_abs_2:", fields['votes_abs_2']
-
+    logger.debug("votes_abs_2: "+ str(fields['votes_abs_2']))
 
     #rapporteurs
     rapps_html=get_rapps_html(soup_key_players, searched_text)
@@ -564,14 +577,17 @@ def get_data_oeil(soup, act_ids, act=None):
             print rapp+": ", rapps[rapp].name
             print 'country_'+num+": ", rapps[rapp].country.country_code
             print 'party_'+num+": ", rapps[rapp].party.party
+            logger.debug("rapp: "+ rapps[rapp].name+", "+rapps[rapp].country.country_code+", "+rapps[rapp].party.party)
 
     #modif_propos
     fields['modif_propos']=get_modif_propos(soup_key_events)
     print "modif_propos:", fields['modif_propos']
+    logger.debug("modif_propos: "+ fields['modif_propos'])
 
     #sign_pecs
     fields['sign_pecs']=get_sign_pecs(soup_key_events, act_ids.no_unique_type)
     print "sign_pecs:", fields['sign_pecs']
+    logger.debug("sign_pecs: "+ sign_pecs)
 
 
     try:
@@ -583,11 +599,14 @@ def get_data_oeil(soup, act_ids, act=None):
     #get dg names
     dg_names=get_dg_names(soup_dg_resp)
     print "dg_names:", dg_names
+    logger.debug("dg_names: "+ dg_names)
 
     #get resp names
     resp_names=get_resp_names(soup_dg_resp)
     print "resp_names:", resp_names
+    logger.debug("resp_names: "+ resp_names)
 
     print "NB LECTURES OEIL", fields["nb_lectures"]
+    logger.debug("nb_lectures: "+ str(fields["nb_lectures"]))
 
     return fields, dg_names, resp_names
