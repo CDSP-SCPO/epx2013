@@ -321,6 +321,7 @@ class ActUpdate(UpdateView):
     
     #used for log only
     def dispatch(self, request, *args, **kwargs):
+        logger.debug('')
         logger.debug('dispatch (log)')
         #~ self.course = get_object_or_404(Class, pk=kwargs['class_id'])
         #save all prints to a log file
@@ -398,6 +399,10 @@ class ActUpdate(UpdateView):
         print "ACTION",  add_modif
         print "USER", request.user.username
         print ""
+        
+        logger.debug("ACT "+ act)
+        logger.debug("ACTION "+ add_modif)
+        logger.debug("USER "+ request.user.username)
 
         #if any of this key is present in the context dictionary -> no act display and return the errors with a json object
         #otherwise display act and return the html form of the act to validate or modif in a string format
