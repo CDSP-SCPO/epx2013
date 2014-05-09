@@ -169,16 +169,10 @@ function alternate_data_retrieval(xhr, button_name)
         
         setTimeout(function()
         {
-            alert("alternate data retrieval");
-            alert($("#releve_annee").text());
+            //~ alert("alternate data retrieval");
             
-            //check if the form was filled with the first ajax call
-            if($.trim($("#releve_annee").text())!="")
-            {
-                //first ajax called completed: nothing to do :)
-                alert("first ajax call executed :)");
-            }
-            else
+            //check if the form was filled with the first ajax call (if not, loading gif still turning)
+            if($("#loading_gif_"+button_name).is(":visible"))
             {
                 //first ajax called stuck: need alternate call
                  alert("first ajax call not executed :(");
@@ -212,6 +206,11 @@ function alternate_data_retrieval(xhr, button_name)
                     $("#loading_gif_"+button_name).hide();
                     //~ alert("add act display function success end");
                 })
+            }
+            else
+            {
+                //first ajax called completed: nothing to do :)
+                alert("first ajax call executed :)");
             }
         }, timer * 1000); 
     }
@@ -262,7 +261,6 @@ function display_or_update_act(button_name, event)
     
     /* if data retrieval was not triggered, try an alternative function */
     alternate_data_retrieval(xhr, button_name)
-    
 
     //don't submit the form
     return false;
