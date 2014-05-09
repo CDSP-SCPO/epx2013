@@ -316,16 +316,21 @@ class ActUpdate(UpdateView):
     form_template = 'act/form.html'
     
     #used for log only
-    def dispatch(self, *args, **kwargs):
+    def dispatch(self, request, *args, **kwargs):
         #~ self.course = get_object_or_404(Class, pk=kwargs['class_id'])
         #save all prints to a log file
         log_file_path=os.path.join(settings.PROJECT_ROOT, 'europolix.log')
         #COMMENT OUT FOR LOCAL TESTS ONLY
-        sys.stdout = open(log_file_path, "a")
+        #~ sys.stdout = open(log_file_path, "a")
         print ""
         print time.strftime("TODAY IS: %d/%m/%Y, CURRENT TIME IS: %H:%M:%S")
         print ""
-        return super(ActUpdate, self).dispatch(*args, **kwargs)
+        
+        #~ print request.GET.get('act_to_validate')
+        #~ if request.GET.get('act_to_validate') not in [None, ""]:
+            #~ History.objects.create(action="test", form="data", act=Act.objects.get(pk=1), user=User.objects.get(username="romain.lalande"))
+        
+        return super(ActUpdate, self).dispatch(request, *args, **kwargs)
 
 
     def get(self, request, *args, **kwargs):
@@ -374,13 +379,13 @@ class ActUpdate(UpdateView):
         """
         The form is posted
         """
+        print "post"
         context={}
         #add_modif=None, "add" or "modif"
         #act=act to validate / modify or None if no act is found (modification)
         #context: add add or modif to the forms being displayed / to be displayed
         mode, add_modif, act, context=add_modif_fct(request, context, Add, Modif, "act")
         
-        print "post"
         print "ACT", act
         print "ACTION",  add_modif
         print "USER", request.user.username
@@ -471,14 +476,63 @@ class ActUpdate(UpdateView):
         return context
 
 
-#~ def alternate_data_retrieval(request):
-    #~ """
-    #~ VIEW
-    #~ reset the act form (except add and modif)
-    #~ TEMPLATES
-    #~ act/form.html
-    #~ """
+@login_required
+def alternate_data_retrieval(request):
+    """
+    VIEW
+    reset the act form (except add and modif)
+    TEMPLATES
+    act/form.html
+    """
+    print 'alternate view'
+    context={}
+    context['display_name']=var_name_ids.var_name
+    context['display_name'].update(var_name_data.var_name)
+    context['form_template']='act/form.html'
+    
+    #get act
+    act_id=request.POST["act_id"]
+    act=Act.objects.get(pk=act_id)
+        
+    #retrieve the act ids for each source
+    act_ids=get_act_ids(act)
 
+    #"compute" the url of the eurlex, oeil and prelex page
+    urls=get_urls(act_ids["index"], act.url_prelex, act_ids["index"].dos_id)
+
+    #get data on eurlex, oeil and prelex
+    act.__dict__.update(get_data("eurlex", act_ids["eurlex"], urls["url_eurlex"], act)[0])
+    fields, dg_names_oeil, resp_names_oeil=get_data("oeil", act_ids["oeil"], urls["url_oeil"], act)
+    act.__dict__.update(fields)
+    nb_lectures=act.nb_lectures
+    #~ #prelex config_cons needs eurlex, gvt_compo needs oeil
+    fields, dg_names_prelex, resp_names_prelex=get_data("prelex", act_ids["prelex"], urls["url_prelex"], act)
+    act.__dict__.update(fields)
+    #nb_lectures already retrieved from oeil
+    act.nb_lectures=nb_lectures
+#~
+    #~ #store dg/resp from oeil and prelex to be displayed as text in the template
+    act, context["dg_names_oeil"], context["dg_names_prelex"]=store_dg_resp(act, dg_names_oeil, dg_names_prelex, "dg")
+    act, context["resp_names_oeil"], context["resp_names_prelex"]=store_dg_resp(act, resp_names_oeil, resp_names_prelex, "resp")
+#~
+    #~ #check multiple values for dgs with numbers
+    context["dg"], act=check_multiple_dgs(act)
+
+    form_data=ActForm(instance=act, initial={"releve_mois_init": act.releve_mois})
+    context["status"]="add"
+    context["urls"]=urls
+    context['act']=act
+    #COMMENT FOR TESTS ONLY
+    temp=get_data_others(act_ids["index"], act)
+    context['opals']=temp["opal"]
+    context['min_attends']=temp["min_attend"]
+    context["party_family"]=get_party_family({"1": act.resp_1_id, "2": act.resp_2_id, "3": act.resp_3_id})
+    context['act_ids']=act_ids
+    context['form_data']=form_data
+    
+    #display fields in template
+    return HttpResponse(render_to_string(context['form_template'], context, RequestContext(request)))
+   
 
 
 def reset_form(request):
