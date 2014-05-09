@@ -471,6 +471,15 @@ class ActUpdate(UpdateView):
         return context
 
 
+#~ def alternate_data_retrieval(request):
+    #~ """
+    #~ VIEW
+    #~ reset the act form (except add and modif)
+    #~ TEMPLATES
+    #~ act/form.html
+    #~ """
+
+
 
 def reset_form(request):
     """
