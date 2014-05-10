@@ -84,7 +84,7 @@ def add_modif_fct(request, response, Add, Modif, form):
     """
     print "add_modif_fct"
     logger.debug('add_modif_fct')
-    logger.debug('request.POST' + str(request.POST))
+    #~ logger.debug('request.POST' + str(request.POST))
     add_modif=mode=queryset=None
 
     #adding of an act (validation of a new act)

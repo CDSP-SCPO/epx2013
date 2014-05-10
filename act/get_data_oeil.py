@@ -577,17 +577,17 @@ def get_data_oeil(soup, act_ids, act=None):
             print rapp+": ", rapps[rapp].name
             print 'country_'+num+": ", rapps[rapp].country.country_code
             print 'party_'+num+": ", rapps[rapp].party.party
-            logger.debug("rapp: "+ rapps[rapp].name+", "+rapps[rapp].country.country_code+", "+rapps[rapp].party.party)
+            logger.debug("rapp: "+ str(rapps[rapp].name)+", "+str(rapps[rapp].country.country_code)+", "+str(rapps[rapp].party.party))
 
     #modif_propos
     fields['modif_propos']=get_modif_propos(soup_key_events)
     print "modif_propos:", fields['modif_propos']
-    logger.debug("modif_propos: "+ fields['modif_propos'])
+    logger.debug("modif_propos: "+ str(fields['modif_propos']))
 
     #sign_pecs
     fields['sign_pecs']=get_sign_pecs(soup_key_events, act_ids.no_unique_type)
     print "sign_pecs:", fields['sign_pecs']
-    logger.debug("sign_pecs: "+ sign_pecs)
+    logger.debug("sign_pecs: "+ str(fields['sign_pecs']))
 
 
     try:
@@ -599,12 +599,12 @@ def get_data_oeil(soup, act_ids, act=None):
     #get dg names
     dg_names=get_dg_names(soup_dg_resp)
     print "dg_names:", dg_names
-    logger.debug("dg_names: "+ dg_names)
+    logger.debug("dg_names: "+ str(dg_names))
 
     #get resp names
     resp_names=get_resp_names(soup_dg_resp)
     print "resp_names:", resp_names
-    logger.debug("resp_names: "+ resp_names)
+    logger.debug("resp_names: "+ str(resp_names))
 
     print "NB LECTURES OEIL", fields["nb_lectures"]
     logger.debug("nb_lectures: "+ str(fields["nb_lectures"]))
