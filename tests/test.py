@@ -1,6 +1,9 @@
 #-*- coding: utf-8 -*-
-from bs4 import BeautifulSoup
-import re
 import urllib
+import re
+from bs4 import BeautifulSoup
 
-print "%*HUPDQ\"
+url="http://www.europarl.europa.eu/oeil/popups/ficheprocedure.do?lang=en&reference=2003/0116(CNS)"
+soup=BeautifulSoup(urllib.urlopen(url))
+print "soup"
+print soup

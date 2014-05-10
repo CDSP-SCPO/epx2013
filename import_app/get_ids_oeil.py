@@ -1,7 +1,7 @@
 """
 get the ids from oeil
 """
-import urllib
+import urllib2
 import re
 from bs4 import BeautifulSoup
 import config_file as conf
@@ -58,14 +58,15 @@ def get_url_content_oeil(url):
     try:
         logger.debug("soup get_url_content_oeil to be processed")
         logger.debug(url)
-        soup=BeautifulSoup(urllib.urlopen(url))
+        print "url", url
+        soup=BeautifulSoup(urllib2.urlopen(url, timeout=10).read())
         logger.debug("soup oeil retrieved :)")
         if not (soup.title.string=="Procedure File: ERROR"):
             logger.debug("soup oeil: no error :)")
             url_content=soup
-    except:
-        logger.debug("no content for oeil url")
-        print "no content for oeil url"
+    except Exception, e:
+        logger.debug("no content for oeil url"+ str(e))
+        print "no content for oeil url", e
 
     logger.debug("end get_url_content_oeil")
     return url_content
