@@ -6,6 +6,11 @@ import re
 from bs4 import BeautifulSoup
 import config_file as conf
 
+import logging
+
+# Get an instance of a logger
+logger = logging.getLogger(__name__)
+
 
 def get_url_oeil(no_unique_type, no_unique_annee, no_unique_chrono):
     """
@@ -51,12 +56,16 @@ def get_url_content_oeil(url):
     """
     url_content=False
     try:
+        logger.debug("soup get_url_content_oeil to be processed")
+        logger.debug(url)
         soup=BeautifulSoup(urllib.urlopen(url))
         if not (soup.title.string=="Procedure File: ERROR"):
             url_content=soup
     except:
+        logger.debug("no content for oeil url")
         print "no content for oeil url"
 
+    logger.debug("end get_url_content_oeil")
     return url_content
 
 
