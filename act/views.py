@@ -134,7 +134,7 @@ def get_data(src, act_ids, url, act=None):
         else:
             setattr(act_ids, "url_exists", False)
             print "error while retrieving "+src+" url"
-             logger.debug("error while retrieving "+src+" url")
+            logger.debug("error while retrieving "+src+" url")
 
     #actualization url exist attribute
     logger.debug("act_ids to be saved")
