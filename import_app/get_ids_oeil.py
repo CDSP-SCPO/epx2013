@@ -60,7 +60,9 @@ def get_url_content_oeil(url):
         print "url", url
         logger.debug("html to be retrieved with urllib2 and a 10-second timeout")
         html=urllib2.urlopen(url, timeout=10).read()
-        logger.debug("soup get_url_content_oeil to be processed")
+        print "html retrieved"
+        #~ print html
+        logger.debug("soup oeil to be processed")
         soup=BeautifulSoup(html)
         logger.debug("soup oeil retrieved :)")
         if not (soup.title.string=="Procedure File: ERROR"):
