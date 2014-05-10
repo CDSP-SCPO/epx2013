@@ -61,6 +61,7 @@ def get_url_content_oeil(url):
         logger.debug("html to be retrieved with urllib2 and a 10-second timeout")
         html=urllib2.urlopen(url, timeout=10).read()
         print "html retrieved"
+        logger.debug("first 300 html charactters "+ html[:300])
         #~ print html
         logger.debug("soup oeil to be processed")
         soup=BeautifulSoup(html)
