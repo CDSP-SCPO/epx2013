@@ -1,7 +1,7 @@
 """
 get the ids from Prelex
 """
-import urllib
+import urllib2
 import re
 from bs4 import BeautifulSoup
 import config_file as conf
@@ -87,10 +87,13 @@ def get_url_content_prelex(url):
     """
     url_content=False
     try:
+        html=urlopen(url, timeout=10).read()
         #~ logger.debug("soup prelex to be processed")
-        #~ soup=BeautifulSoup(urllib.urlopen(url))
+        #~ soup=BeautifulSoup(html)
         logger.debug("soup prelex to be processed with html5 library")
-        soup=BeautifulSoup(urllib.urlopen(url), 'html5')
+        soup=BeautifulSoup(html, 'html5')
+        #~ logger.debug("soup prelex to be processed with lxml library")
+        #~ soup=BeautifulSoup(html, 'lxml')
         if not (soup.find(text='This page does not exists') or soup.find(text=re.compile('The document is not available in PreLex'))):
             url_content=soup
     except:

@@ -58,7 +58,7 @@ def get_url_content_oeil(url):
         logger.debug(url)
         print "url", url
         logger.debug("html to be retrieved with urllib2 and a 10-second timeout")
-        html=urllib2.urlopen(url, timeout=10).read()
+        html=urlopen(url, timeout=10).read()
         #~ print html
         print "html retrieved"
         logger.debug("first 300 html characters "+ html[:300])
@@ -66,6 +66,8 @@ def get_url_content_oeil(url):
         #~ soup=BeautifulSoup(html)
         logger.debug("soup oeil to be processed with html5 library")
         soup=BeautifulSoup(html, 'html5')
+        #~ logger.debug("soup oeil to be processed with lxml library")
+        #~ soup=BeautifulSoup(html, 'lxml')
         logger.debug("soup oeil retrieved :)")
         if not (soup.title.string=="Procedure File: ERROR"):
             logger.debug("soup oeil: no error :)")
