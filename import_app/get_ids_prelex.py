@@ -83,7 +83,10 @@ def get_url_content_prelex(url):
 	"""
 	url_content=False
 	try:
-		soup=BeautifulSoup(urllib.urlopen(url), 'html5')
+        logger.debug("soup prelex to be processed")
+        soup=BeautifulSoup(urllib.urlopen(url))
+        #~ logger.debug("soup prelex to be processed with html5 library")
+		#~ soup=BeautifulSoup(urllib.urlopen(url), 'html5')
 		if not (soup.find(text='This page does not exists') or soup.find(text=re.compile('The document is not available in PreLex'))):
 			url_content=soup
 	except:

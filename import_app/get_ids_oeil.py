@@ -62,8 +62,10 @@ def get_url_content_oeil(url):
         print "html retrieved"
         logger.debug("first 300 html characters "+ html[:300])
         #~ print html
-        logger.debug("soup oeil to be processed with html5 library")
-        soup=BeautifulSoup(html, 'html5')
+        logger.debug("soup oeil to be processed")
+        soup=BeautifulSoup(html)
+        #~ logger.debug("soup oeil to be processed with html5 library")
+        #~ soup=BeautifulSoup(html, 'html5')
         logger.debug("soup oeil retrieved :)")
         if not (soup.title.string=="Procedure File: ERROR"):
             logger.debug("soup oeil: no error :)")
