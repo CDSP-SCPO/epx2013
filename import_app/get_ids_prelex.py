@@ -90,8 +90,8 @@ def get_url_content_prelex(url):
         html=urllib2.urlopen(url, timeout=10).read()
         logger.debug("soup prelex to be processed with the default html parser")
         soup=BeautifulSoup(html, "html.parser")
-        logger.debug("soup prelex to be processed with html5 library")
-        soup=BeautifulSoup(html, 'html5')
+        #~ logger.debug("soup prelex to be processed with html5 library")
+        #~ soup=BeautifulSoup(html, 'html5')
         #~ logger.debug("soup prelex to be processed with lxml library")
         #~ soup=BeautifulSoup(html, 'lxml')
         if not (soup.find(text='This page does not exists') or soup.find(text=re.compile('The document is not available in PreLex'))):
