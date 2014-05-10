@@ -56,10 +56,12 @@ def get_url_content_oeil(url):
     """
     url_content=False
     try:
-        logger.debug("soup get_url_content_oeil to be processed")
         logger.debug(url)
         print "url", url
-        soup=BeautifulSoup(urllib2.urlopen(url, timeout=10).read())
+        logger.debug("html to be processed")
+        html=urllib2.urlopen(url, timeout=10).read()
+        logger.debug("soup get_url_content_oeil to be processed")
+        soup=BeautifulSoup(html)
         logger.debug("soup oeil retrieved :)")
         if not (soup.title.string=="Procedure File: ERROR"):
             logger.debug("soup oeil: no error :)")
