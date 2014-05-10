@@ -5,7 +5,6 @@ import urllib2
 import re
 from bs4 import BeautifulSoup
 import config_file as conf
-
 import logging
 
 # Get an instance of a logger
