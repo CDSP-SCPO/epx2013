@@ -58,7 +58,7 @@ def get_url_content_oeil(url):
     try:
         logger.debug(url)
         print "url", url
-        logger.debug("html to be processed")
+        logger.debug("html to be retrieved with urllib2 and a 10-second timeout")
         html=urllib2.urlopen(url, timeout=10).read()
         logger.debug("soup get_url_content_oeil to be processed")
         soup=BeautifulSoup(html)
