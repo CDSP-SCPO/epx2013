@@ -105,21 +105,25 @@ def get_data(src, act_ids, url, act=None):
     dg_names: list of dg names [list of strings]
     resp_names: list of resp names [list of strings]
     """
+    logger.debug('get_data')
     fields={}
     dg_names=[None]*2
     resp_names=[None]*3
 
     if src=="eurlex":
+        logger.debug("get_url_content_"+src)
         url_content=[eval("get_url_content_"+src)(url[0]), eval("get_url_content_"+src)(url[1])]
         if url_content[0]!=False:
              setattr(act_ids, "url_exists", True)
              fields=eval("get_data_"+src)(url_content)
         else:
             setattr(act_ids, "url_exists", False)
+            logger.debug("error while retrieving "+src+" url")
             print "error while retrieving "+src+" url"
 
     else:
         #oeil and eurlex
+        logger.debug("get_url_content_"+src)
         url_content=eval("get_url_content_"+src)(url)
         #act doesn't exist, problem on page or problem with the Internet connection
         if url_content!=False:
@@ -130,8 +134,10 @@ def get_data(src, act_ids, url, act=None):
         else:
             setattr(act_ids, "url_exists", False)
             print "error while retrieving "+src+" url"
+             logger.debug("error while retrieving "+src+" url")
 
     #actualization url exist attribute
+    logger.debug("act_ids to be saved")
     act_ids.save()
 
     return fields, dg_names, resp_names
