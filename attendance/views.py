@@ -88,7 +88,12 @@ class MinAttendUpdate(UpdateView):
             act_ids=post['act_to_validate'].split(",")
         else:
             act_ids=[post['releve_annee_modif'], post['releve_mois_modif'], post['no_ordre_modif']]
-        act_ids=ActIds.objects.get(src="index", act__releve_annee=act_ids[0], act__releve_mois=act_ids[1], act__no_ordre=act_ids[2])
+        try:
+            act_ids=ActIds.objects.get(src="index", act__releve_annee=act_ids[0], act__releve_mois=act_ids[1], act__no_ordre=act_ids[2])
+        except Exception, e:
+            print "exception get_act_ids", e
+            act_ids=None
+            
         return act_ids
 
     def post(self, request, *args, **kwargs):

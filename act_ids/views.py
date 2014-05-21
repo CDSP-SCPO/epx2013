@@ -133,7 +133,7 @@ def add_modif_fct(request, response, Add, Modif, form):
             if request.is_ajax():
                 response['modif_act_errors']=dict([(k, modif.error_class.as_text(v)) for k, v in modif.errors.items()])
             print "modif form not valid", modif.errors
-            logger.debug('modif form not valid' + modif.errors)
+            logger.debug('modif form not valid' + str(modif.errors))
 
     return mode, add_modif, queryset, response
 

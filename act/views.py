@@ -413,7 +413,7 @@ class ActUpdate(UpdateView):
         
         logger.debug("act: "+ str(act))
         logger.debug('mode: ' + mode)
-        logger.debug("add_modif: "+ add_modif)
+        logger.debug("add_modif: "+ str(add_modif))
         logger.debug("user: "+ request.user.username)
 
         #if any of this key is present in the context dictionary -> no act display and return the errors with a json object
