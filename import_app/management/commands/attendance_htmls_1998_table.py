@@ -240,14 +240,15 @@ class Command(NoArgsCommand):
         src_file="db"
         test=False
         
-        test=True
-        src_file="local"
+        #~ test=True
+        #~ src_file="local"
         
         #delete not validated acts
         #~ ImportMinAttend.objects.filter(validated=False).delete()
 
         #~ #get all the acts with a non null attendance_path
-        acts_ids=ActIds.objects.filter(src="index", act__releve_annee=1998, act__attendance_pdf__isnull=False)
+        #for 1998 or 2001
+        acts_ids=ActIds.objects.filter(src="index", act__releve_annee=2001, act__attendance_pdf__isnull=False)
 
         for act_ids in acts_ids:
 #~
