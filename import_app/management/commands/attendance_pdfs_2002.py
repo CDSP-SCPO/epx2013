@@ -391,7 +391,7 @@ class Command(NoArgsCommand):
 
 
         #~ #get all the acts with a non null attendance_path for the year 2002
-        acts_ids=ActIds.objects.filter(src="index", act__releve_annee=2002).exclude(act__attendance_pdf__isnull=True)
+        acts_ids=ActIds.objects.filter(src="index", act__releve_annee=2002, act__attendance_pdf__isnull=False)
         nb_acts=0
         for act_ids in acts_ids:
 #~

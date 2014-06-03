@@ -32,13 +32,6 @@ def save_fk_code_sect(instance, field):
     RETURN
     None
     """
-    #if there is no value for the foreign key field, try to get a value
-    #~ try:
-        #~ print "instance.pk", instance.pk
-        #~ print "getattr(instance, field)", getattr(instance, field)
-    #~ except Exception, e:
-        #~ print "exception 1", e
-
     if instance!=None and getattr(instance, field)==None:
         for index, item in list_reverse_enum(instance.code_sect):
             if item==".":

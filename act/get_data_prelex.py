@@ -475,8 +475,8 @@ def save_config_cons(code_sect_1):
     RETURN
     None
     """
-    #~ print "save_config_cons"
-    #~ print "code_sect_1.pk", code_sect_1.pk
+    print "save_config_cons"
+    #~ print "code_sect_1", code_sect_1
     save_fk_code_sect(code_sect_1, "config_cons")
 
 
@@ -612,6 +612,8 @@ def get_data_prelex(soup, act_ids, act):
     resp_names: list of resp names [list of strings]
     """
     fields={}
+    
+    print "get_data_prelex"
 
     #<table border="0" cellpadding="0" cellspacing="1">
     soup_table_dates=soup.find("table", {"cellspacing": "1"})

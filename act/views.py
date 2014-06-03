@@ -21,7 +21,7 @@ from import_app.get_ids_prelex import get_url_prelex, get_url_content_prelex
 #retrieve data
 from get_data_eurlex import get_data_eurlex
 from get_data_oeil import get_data_oeil
-from get_data_prelex import get_data_prelex, get_date_diff
+from get_data_prelex import get_data_prelex, get_date_diff, save_config_cons
 from get_data_others import get_data_others
 #redirect to login page if not logged
 from django.contrib.auth.decorators import login_required
@@ -109,9 +109,10 @@ def get_data(src, act_ids, url, act=None):
     fields={}
     dg_names=[None]*2
     resp_names=[None]*3
+    
+    logger.debug("get_url_content_"+src)
 
     if src=="eurlex":
-        logger.debug("get_url_content_"+src)
         url_content=[eval("get_url_content_"+src)(url[0]), eval("get_url_content_"+src)(url[1])]
         if url_content[0]!=False:
              setattr(act_ids, "url_exists", True)
@@ -123,7 +124,6 @@ def get_data(src, act_ids, url, act=None):
 
     else:
         #oeil and eurlex
-        logger.debug("get_url_content_"+src)
         url_content=eval("get_url_content_"+src)(url)
         #act doesn't exist, problem on page or problem with the Internet connection
         if url_content!=False:
@@ -135,6 +135,10 @@ def get_data(src, act_ids, url, act=None):
             setattr(act_ids, "url_exists", False)
             print "error while retrieving "+src+" url"
             logger.debug("error while retrieving "+src+" url")
+            #retrieve fields not related to the prelex page
+            if src=="prelex":
+                #config_cons
+                save_config_cons(act.code_sect_1_id)
 
     #actualization url exist attribute
     logger.debug("act_ids to be saved")
