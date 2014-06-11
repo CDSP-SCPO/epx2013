@@ -26,6 +26,7 @@ from django.utils import simplejson
 from django.http import HttpResponse
 from django.template.loader import render_to_string
 from common.db import save_get_field_and_fk
+import re
 
 
 def detect_delim(header):
@@ -189,7 +190,8 @@ def save_adopt_cs_pc(instance, field, values):
     RETURN
     None
     """
-    values=values.split(',')
+    #countries separated by a comma or a semi-column
+    values=re.split(';|,',values)
     #the instance must have an id to add many to many fields
     #~ instance.save()
     for value in values:
