@@ -6,6 +6,7 @@ import os
 import csv
 import re
 from django.conf import settings
+import sys
 
 
 def detect_delim(header):
@@ -27,7 +28,7 @@ def detect_delim(header):
     return ";"
 
 
-def save_adopt_cs(instance, field, values):
+def save_adopt_cs(instance, field, values, writer):
     """
     FUNCTION
     save the coutries for adopt_cs_contre, adopt_cs_abs
@@ -44,27 +45,52 @@ def save_adopt_cs(instance, field, values):
     #the instance must have an id to add many to many fields
     #~ instance.save()
     for value in values:
+        value=value.strip()
         if value!="":
             field_instance=getattr(instance, field)
             try:
-                field_instance.add(Country.objects.get(pk=value.strip()))
-                print instance
-                print "saving", field, value
-                print ""
+                country=Country.objects.get(country_code=value)
+
+                #check if the country does not exist already for the given adopt_cs variable and act
+                if country not in field_instance.all():
+                    
+                    #save the country in the database
+                    field_instance.add(country)
+                    
+                    #log inserted variables into a file
+                    row=[instance.releve_annee, instance.releve_mois, instance.no_ordre, "", "", "no"]
+                    if field=="adopt_cs_abs":
+                        row[3]=value
+                    else:
+                        row[4]=value
+                    if instance.validated==2:
+                        row[5]="yes"
+                    writer.writerow(row)
+                else:
+                    print instance, field, value, "already saved :)."
             except Exception, e:
-                print field+" already exists!", e
+                print "problem", instance, field, value, ": ", e
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+                print(exc_type, fname, exc_tb.tb_lineno)
 
 class Command(NoArgsCommand):
     """
-    import adopt_cs variables for non-validated acts if not imported yet (1997 only)
+    import adopt_cs variables if not already imported
     """
 
     def handle(self, **options):
 
-        #update attendance_pdf
+        #read index files
         path=settings.MEDIA_ROOT+"/import/"
-        #year 1997 only
-        years=[str(n) for n in range(1997, 1998)]
+        
+        #write new adopt_cs variables into a file
+        adopt_cs_file=os.path.dirname(__file__)+"/adopt_cs.csv"
+        writer=csv.writer(open(adopt_cs_file, 'w'))
+        header=["releve_annee", "releve_mois", "no_ordre", "adopt_cs_abs", "adopt_cs_contre", "validated?"]
+        writer.writerow(header)
+        
+        years=[str(n) for n in range(1996, 2013)]
         for year in years:
             path_file=path+"RMC_"+year+".csv"
             with open(path_file, 'r') as csv_file_temp:
@@ -84,14 +110,16 @@ class Command(NoArgsCommand):
                         no_ordre=int(row[2])
                         
                         try:
-                            #discard already validated acts
-                            act=Act.objects.get(releve_annee=releve_annee, releve_mois=releve_mois, no_ordre=no_ordre, validated__lt=2)
+                            act=Act.objects.get(releve_annee=releve_annee, releve_mois=releve_mois, no_ordre=no_ordre)
                             
                             #save adopt_cs variables if not already in the database
-                            save_adopt_cs(act, "adopt_cs_abs", row[5])
-                            save_adopt_cs(act, "adopt_cs_contre", row[6])
+                            save_adopt_cs(act, "adopt_cs_abs", row[5], writer)
+                            save_adopt_cs(act, "adopt_cs_contre", row[6], writer)
                         except Exception, e:
-                            print "act", releve_annee, releve_mois, no_ordre, "already validated!", e
-                        
-                        
+                            print "problem act", releve_annee, releve_mois, no_ordre, "already validated?", e
+                      
+                    #~ #TESTS ONLY
+                    #~ if row[5].strip()!="" or row[6].strip()!="":
+                        #~ break
+                #~ break
                       
