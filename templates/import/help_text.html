@@ -26,7 +26,7 @@
         {% elif form.file_to_import.value == "np" %}
             {{ display_name.case_nb }}, {{ display_name.no_celex }}, {{ display_name.np }}, {{ display_name.act_type }},  {{ display_name.act_date }}.
         {% elif form.file_to_import.value == "min_attend_insert" %}
-            {{ display_name.releve_annee }}, {{ display_name.releve_mois }}, {{ display_name.no_ordre }}, {{ display_name.no_celex }}, {{ display_name.inc }}, {{ display_name.country }},  {{ display_name.status }},  {{ display_name.verbatim }}.
+            {{ display_name.releve_annee }}, {{ display_name.releve_mois }}, {{ display_name.no_ordre }}, {{ display_name.no_celex }}, {{ display_name.country }},  {{ display_name.status }},  {{ display_name.verbatim }}.
         {% elif form.file_to_import.value == "min_attend_update" %}
             {{ display_name.no_celex }}, {{ display_name.country }},  {{ display_name.status }},  {{ display_name.verbatim }}.
         {% endif %}

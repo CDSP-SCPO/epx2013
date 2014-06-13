@@ -518,7 +518,11 @@ def get_data_min_attend_insert(row):
     #used to identify the row
     ids_row={}
     ids_row["no_celex"]=row[3].strip()
-    ids_row["country"]=row[4].strip()
+    country=row[4].strip()
+    #we need the country code
+    if len(country)>2:
+        country=Country.objects.get(country=country).country_code
+    ids_row["country"]=country
     ids_row["verbatim"]=row[6].strip()
 
     #extra fields to save if the act does not exist yet
@@ -526,8 +530,9 @@ def get_data_min_attend_insert(row):
     defaults["releve_annee"]=int(row[0])
     defaults["releve_mois"]=int(row[1])
     defaults["no_ordre"]=int(row[2])
-    defaults["status"]=row[5].strip()
-    defaults["validated"]=True
+    if row[5].strip()!="":
+        defaults["status"]=row[5].strip()
+    #~ defaults["validated"]=True
 
     #get instance or create instance if does not already exist
     instance, created = ImportMinAttend.objects.get_or_create(defaults=defaults, **ids_row)
@@ -558,7 +563,8 @@ def get_data_min_attend_update(row):
 
     #extra fields to save if the act does not exist yet
     defaults={}
-    defaults["status"]=row[2].strip()
+    if row[2].strip()!="":
+        defaults["status"]=row[2].strip()
     defaults["validated"]=True
 
     try:

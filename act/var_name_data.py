@@ -121,7 +121,6 @@ var_name["act_date"]="NPActivityDate"
 
 #MINISTERS' ATTENDANCE
 var_name["min_attend"]="MinistersAttendance"
-var_name["inc"]="Inc"
 var_name["status"]="Status"
 var_name["verbatim"]="Verbatim"
 #export file
