@@ -108,7 +108,7 @@ class Command(NoArgsCommand):
         #~ ImportMinAttend.objects.filter(validated=False).delete()
 
         #~ #get all the acts with a non null attendance_path
-        acts_ids=ActIds.objects.filter(src="index", act__releve_annee=1997, act__attendance_pdf__isnull=False)
+        acts_ids=ActIds.objects.filter(src="index", act__releve_annee=1997, act__releve_mois=12, act__attendance_pdf__isnull=False)
         
         #write ministers' attendance into a file
         attendance=os.path.dirname(__file__)+"/attendance_1997_dir.csv"
