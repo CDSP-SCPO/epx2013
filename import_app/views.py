@@ -565,7 +565,7 @@ def get_data_min_attend_update(row):
     defaults={}
     if row[2].strip()!="":
         defaults["status"]=row[2].strip()
-    defaults["validated"]=True
+    #~ defaults["validated"]=True
 
     try:
         if row[3].strip()=="":
