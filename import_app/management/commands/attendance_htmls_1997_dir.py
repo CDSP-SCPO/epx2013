@@ -108,7 +108,7 @@ class Command(NoArgsCommand):
         #~ ImportMinAttend.objects.filter(validated=False).delete()
 
         #~ #get all the acts with a non null attendance_path
-        acts_ids=ActIds.objects.filter(src="index", act__releve_annee=1997, act__releve_mois=12, act__attendance_pdf__isnull=False)
+        acts_ids=ActIds.objects.filter(src="index", act__releve_annee=1997, act__attendance_pdf__isnull=False)
         
         #write ministers' attendance into a file
         attendance=os.path.dirname(__file__)+"/attendance_1997_dir.csv"
@@ -119,7 +119,7 @@ class Command(NoArgsCommand):
         for act_ids in acts_ids:
 #~
             #http://www.consilium.europa.eu/uedocs/cms_data/docs/pressdata/en/ecofin/5923en8.htm
-            if "htm" in act_ids.act.attendance_pdf[-4:] and "/en/" in act_ids.act.attendance_pdf:
+            if "htm" in act_ids.act.attendance_pdf[-4:]:
 
                 already_imported=ImportMinAttend.objects.filter(no_celex=act_ids.no_celex, validated=True)
                 #~ #if the act has been imported and validated already, don't import it again

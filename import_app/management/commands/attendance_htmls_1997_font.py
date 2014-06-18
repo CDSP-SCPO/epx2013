@@ -130,7 +130,7 @@ class Command(NoArgsCommand):
 #~
             #http://www.consilium.europa.eu/uedocs/cms_data/docs/pressdata/en/ecofin/11825.en8.htm
             #http://www.consilium.europa.eu/uedocs/cms_data/docs/pressdata/en/ecofin/08171.en8.htm
-            if "htm" in act_ids.act.attendance_pdf[-4:] and "/en/" in act_ids.act.attendance_pdf:
+            if "htm" in act_ids.act.attendance_pdf[-4:]:
 
                 already_imported=ImportMinAttend.objects.filter(no_celex=act_ids.no_celex, validated=True)
                 #~ #if the act has been imported and validated already, don't import it again

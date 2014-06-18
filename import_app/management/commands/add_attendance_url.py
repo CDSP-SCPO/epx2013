@@ -58,7 +58,7 @@ class Command(NoArgsCommand):
                             print releve_annee, releve_mois, no_ordre
                             try:
                                 act=Act.objects.get(releve_annee=releve_annee, releve_mois=releve_mois, no_ordre=no_ordre)
-                                act.attendance_pdf=attendance_pdf
+                                act.attendance_pdf=attendance_pdf.replace("_pres", "_PRES")
                                 act.save()
                                 print act.attendance_pdf
                                 print ""
