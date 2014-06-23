@@ -3,6 +3,8 @@
 command to get the min_attend instances for acts with an attendance_pdf url
 """
 
+#DOES NOT WORK!!!
+
 from django.core.management.base import NoArgsCommand
 #new table
 from import_app.models import ImportMinAttend

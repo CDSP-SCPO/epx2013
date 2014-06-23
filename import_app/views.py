@@ -7,7 +7,7 @@ from forms import CSVUploadForm
 from models import CSVUpload
 #models
 from act_ids.models import ActIds
-from act.models import Act, ConfigCons, CodeSect, CodeAgenda, GvtCompo, Person, Country, Party, PartyFamily, DG, DGSigle, DGNb, NP, MinAttend
+from act.models import Act, ConfigCons, CodeSect, CodeAgenda, GvtCompo, Person, Country, Party, PartyFamily, DG, DGSigle, DGNb, NP, MinAttend, Verbatim, Status
 from import_app.models import ImportAdoptPC, ImportDosId, ImportNP, ImportMinAttend
 from common.db import save_get_object
 #manipulate csv files, path of the file to import, copy a list and use regex
@@ -523,7 +523,9 @@ def get_data_min_attend_insert(row):
     if len(country)>2:
         country=Country.objects.get(country=country).country_code
     ids_row["country"]=country
-    ids_row["verbatim"]=row[6].strip()
+    #remove extra blank spaces
+    ids_row["verbatim"]=' '.join(row[6].split())
+     
 
     #extra fields to save if the act does not exist yet
     defaults={}
@@ -558,24 +560,33 @@ def get_data_min_attend_update(row):
     country=row[1].strip()
     #we need the country code
     if len(country)>2:
-        country=Country.objects.get(country=country).country_code
-    ids_row["country"]=country
-
-    #extra fields to save if the act does not exist yet
-    defaults={}
-    if row[2].strip()!="":
-        defaults["status"]=row[2].strip()
-    #~ defaults["validated"]=True
-
+        country=Country.objects.get(country=country)
+    ids_row["country"]=country.country_code
+    
+    #verbatim
     try:
         if row[3].strip()=="":
             raise Exception("empty verbatim")
-        ids_row["verbatim"]=row[3].strip()
+        #remove extra blank spaces
+        ids_row["verbatim"]=' '.join(row[3].split())
     except Exception, e:
         print "no verbatim has been entered", e
         #AB or NA
-        ids_row["verbatim"]=defaults["status"]
+        ids_row["verbatim"]=""
 
+    #status
+    defaults={}
+    if row[2].strip()!="":
+        defaults["status"]=row[2].strip()
+    else:
+        #retrieves the status if the verbatim exists in the dictionary
+        try:
+            verbatim=Verbatim.objects.get(verbatim=ids_row["verbatim"])
+            defaults["status"]=Status.objects.get(verbatim=verbatim, country=country).status
+        except Exception, e:
+            #~ #pass
+            print "no status recorded yet for this verbatim", e
+        
     #get the releve_ids
     try:
         act=ActIds.objects.get(src="index", no_celex=ids_row["no_celex"]).act
@@ -584,11 +595,9 @@ def get_data_min_attend_update(row):
         defaults["no_ordre"]=act.no_ordre
     except Exception, e:
         print "the act does not exist yet", e
-
-
+    
     #get instance or create instance if does not already exist
     instance, created = ImportMinAttend.objects.get_or_create(defaults=defaults, **ids_row)
-
 
     msg=get_error_msg(ids_row)
     return instance, msg, not created
