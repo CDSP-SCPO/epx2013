@@ -2,7 +2,7 @@
 
 from django.core.management.base import NoArgsCommand
 from django.db import models
-from act.models import Act, MinAttend, Status, NP
+from act.models import Act, MinAttend, Status, NP, PartyFamily
 from act_ids.models import ActIds
 from django.db.models import Count
 import csv
@@ -59,6 +59,8 @@ def init_year_nb_lec(nb_lec=2, total=False):
 
 
 def init_cs_year(nb=1, total=False):
+    #use nb=2 to compute the percentage for each cell
+    #use total=True to compute the percentage of each cell compared to the total of the year
     res={}
     total_year={}
     for secteur in cs_list:
@@ -71,6 +73,7 @@ def init_cs_year(nb=1, total=False):
             if total:
                 total_year[year]=temp
             res[secteur][year]=temp
+            #ATTENTION! If nb=2 and total=True, the same list temp=[0,0] is used for total_year and res -> MUST USE A COPY OF THE LIST
             
     if total:
         return res, total_year
@@ -114,8 +117,10 @@ def get_year_nb_lec(res, total_year=False, variable=1):
                 res[year][nb_lec][1]+=1
                 res[year][nb_lec][0]+=temp
             else:
-                total_year[year]+=1
                 res[year][nb_lec]+=temp
+        #take into account nb_lec=3
+        if total_year!=False:
+            total_year[year]+=1
     print "res", res
     if not total_year:
         return res
@@ -276,51 +281,57 @@ def q2():
     writer.writerow(temp)
     writer.writerow("")
     print ""
+    
+
+def concordance_generale(resp_group, rapp_group):
+    question="Concordance PartyFamilyResp et GroupePolitiqueRapporteur ("+resp_group+") : Pourcentage sur la periode 1996-2012"
+    print question
+    
+    res=[0,0]
+    for act in Act.objects.filter(validated=2):
+        res[1]+=1
+        resps=[]
+        rapps=[]
+        
+        for i in range(1, 3):
+            i=str(i)
+            resp=getattr(act, "resp_"+i)
+            rapp=getattr(act, "rapp_"+i)
+            if resp!=None:
+                resps.append(resp)
+            if rapp!=None:
+                rapps.append(rapp)
+        
+        if (len(resps)>0) and (len(rapps)>0):
+            same=False
+            for resp in resps:
+                if same:
+                    break
+                for rapp in rapps:
+                    if PartyFamily.objects.get(country=resp.country, party=resp.party).party_family.strip()==resp_group and rapp.party.party.strip() in rapp_group:
+                        res[0]+=1
+                        same=True
+                        break
+    
+    print "res"
+    print res
+    #duree moyenne
+    res[0]=round(float(res[0])*100/res[1], 3)
+
+    writer.writerow([question])
+    writer.writerow([res[0]])
+    writer.writerow("")
+    print ""
 
 
 def q3():
-    #TODO
-    #Frequence de la concordance Com/rapporteur/presidence du Conseil pour les 3 grandes familles (PPE ,PSE, ALDE)
-    question="Frequence de la concordance Com/rapporteur/presidence du Conseil pour les 3 grandes familles (PPE ,PSE, ALDE)"
-    print question
-
-    writer.writerow([question])
-    writer.writerow("")
-    print ""
+    #pourcentage des actes quand PartyFamilyResp1 OU PartyFamilyResp2='Social Democracy' ET GroupePolitiqueRapporteur1 OU GroupePolitiqueRapporteur2= 'Progressive Alliance of Socialists and Democrats' OU 'Party of European Socialists' OU 'Socialist Group in the European Parliament »
+    concordance_generale("Social Democracy", ["Progressive Alliance of Socialists and Democrats", "Party of European Socialists", "Socialist Group in the European Parliament"])
 
 
 def q4():
-    #TODO
-    #Frequence de la concordance PE/Conseil
-    question="Frequence de la concordance PE/Conseil"
-    print question
-
-    writer.writerow([question])
-    writer.writerow("")
-    print ""
-
-
-def q5():
-    #TODO
-    #Fréquence de la concordance Commission/Conseil
-    question="Frequence de la concordance Commission/Conseil"
-    print question
-
-    writer.writerow([question])
-    writer.writerow("")
-    print ""
-
-
-def q6():
-    #TODO
-    #Frequence de la concordance Commission/PE
-    question="Frequence de la concordance Commission/PE"
-    print question
-
-
-    writer.writerow([question])
-    writer.writerow("")
-    print ""
+    #pourcentage des actes quand PartyFamilyResp1 OU PartyFamilyResp2='Conservative/Christian Democracy' ET GroupePolitiqueRapporteur1 OU GroupePolitiqueRapporteur2= 'Progressive Alliance of Socialists and Democrats' OU 'Party of European Socialists' OU 'Socialist Group in the European Parliament »
+    concordance_generale("Conservative/Christian Democracy", [u"European People's Party (Christian Democrats)", u"EPP - European People's Party (Christian Democrats)", u"European People's Party (Christian Democrats) and European Democrats"])
 
 
 def q7():
@@ -333,14 +344,14 @@ def q7():
     res_2=0
 
     #first lecture
-    lec_1=ActIds.objects.filter(src="index", act__validated=2, no_unique_type="COD", act__nb_lectures=1)
+    lec_1=ActIds.objects.filter(src="index", act__validated=2, no_unique_type="COD", act__nb_lectures=1, act__duree_tot_depuis_prop_com__isnull=False)
     for lec in lec_1:
         res_1+=lec.act.duree_tot_depuis_prop_com
     res_1=round(float(res_1)/lec_1.count(), 3)
     print "res_1", res_1
 
     #second lecture
-    lec_2=ActIds.objects.filter(act__validated=2, no_unique_type="COD", act__nb_lectures=2)
+    lec_2=ActIds.objects.filter(src="index", act__validated=2, no_unique_type="COD", act__nb_lectures=2, act__duree_tot_depuis_prop_com__isnull=False)
     for lec in lec_2:
         res_2+=lec.act.duree_tot_depuis_prop_com
     res_2=round(float(res_2)/lec_2.count(), 3)
@@ -743,53 +754,69 @@ def q22():
     print ""
 
 
-def q23():
-    #TODO
-    #Frequence de la concordance Com/rapporteur/presidence du Conseil pour les 3 grandes familles (PPE ,PSE, ALDE)
-    question="Frequence de la concordance Com/rapporteur/presidence du Conseil pour les 3 grandes familles (PPE ,PSE, ALDE) par année"
+def concordance_annee(resp_group, rapp_group):
+    question="Concordance PartyFamilyResp et GroupePolitiqueRapporteur ("+resp_group+") : Pourcentage par année"
     print question
+    res={}
+    for year in years_list:
+        res[year]=[0,0]
+        
+    for act in Act.objects.filter(validated=2):
+        year=str(act.releve_annee)
+        res[year][1]+=1
+        resps=[]
+        rapps=[]
+        
+        for i in range(1, 3):
+            i=str(i)
+            resp=getattr(act, "resp_"+i)
+            rapp=getattr(act, "rapp_"+i)
+            if resp!=None:
+                resps.append(resp)
+            if rapp!=None:
+                rapps.append(rapp)
+        
+        if (len(resps)>0) and (len(rapps)>0):
+            same=False
+            for resp in resps:
+                if same:
+                    break
+                for rapp in rapps:
+                    if PartyFamily.objects.get(country=resp.country, party=resp.party).party_family.strip()==resp_group and rapp.party.party.strip() in rapp_group:
+                        res[year][0]+=1
+                        same=True
+                        break
+    
+    print "res"
+    print res
+    #duree moyenne
+    for year in years_list:
+        if res[year][0]!=0:
+            res[year][0]=round(float(res[year][0])*100/res[year][1], 3)
 
     writer.writerow([question])
+    writer.writerow(years_list)
+    row=[]
+    for year in years_list:
+        row.append(res[year][0])
+    writer.writerow(row)
     writer.writerow("")
     print ""
+
+
+def q23():
+    #pourcentage des actes quand PartyFamilyResp1 OU PartyFamilyResp2='Social Democracy' ET GroupePolitiqueRapporteur1 OU GroupePolitiqueRapporteur2= 'Progressive Alliance of Socialists and Democrats' OU 'Party of European Socialists' OU 'Socialist Group in the European Parliament »
+    concordance_annee("Social Democracy", ["Progressive Alliance of Socialists and Democrats", "Party of European Socialists", "Socialist Group in the European Parliament"])
 
 
 def q24():
-    #TODO
-    #Frequence de la concordance PE/Conseil
-    question="Frequence de la concordance PE/Conseil par année"
-    print question
-
-    writer.writerow([question])
-    writer.writerow("")
-    print ""
-
-
-def q25():
-    #TODO
-    #Fréquence de la concordance Commission/Conseil
-    question="Frequence de la concordance Commission/Conseil par année"
-    print question
-
-    writer.writerow([question])
-    writer.writerow("")
-    print ""
-
-
-def q26():
-    #TODO
-    #Frequence de la concordance Commission/PE
-    question="Frequence de la concordance Commission/PE par année"
-    print question
-
-    writer.writerow([question])
-    writer.writerow("")
-    print ""
+    #pourcentage des actes quand PartyFamilyResp1 OU PartyFamilyResp2='Conservative/Christian Democracy' ET GroupePolitiqueRapporteur1 OU GroupePolitiqueRapporteur2= 'Progressive Alliance of Socialists and Democrats' OU 'Party of European Socialists' OU 'Socialist Group in the European Parliament »
+    concordance_annee("Conservative/Christian Democracy", [u"European People's Party (Christian Democrats)", u"EPP - European People's Party (Christian Democrats)", u"European People's Party (Christian Democrats) and European Democrats"])
 
 
 def q27():
     #pourcentage par annee de propositions modifiées par la Commission suivant le secteur
-    question="pourcentage des propositions modifiées par la Commission par secteur, en fonction des années"
+    question="pourcentage des propositions modifiées par la Commission par secteur, en fonction de l'année"
     print question
     res, total_year=init_cs_year(total=True)
 
@@ -844,8 +871,6 @@ def q31():
     question="DureeTotaleDepuisTransCons moyenne lorsque VotePublic=Y par secteur, en fonction de l'année"
     print question
     res=init_cs_year(nb=2)
-    
-    res=get_cs_year(res, variable="duree_tot_depuis_prop_com")
 
     for act in Act.objects.filter(validated=2, vote_public=True, duree_tot_depuis_trans_cons__isnull=False):
         cs=get_cs(act.code_sect_1.code_sect)
@@ -885,7 +910,7 @@ def q33():
 
 def q34():
     #pourcentage AdoptCSContre=Y
-    question="pourcentage AdoptCSContre=Y (parmi les actes du même secteur et de la même année) par secteur, en fonction de l'année"
+    question="pourcentage AdoptCSContre=Y (parmi les actes du même secteur et de la même année) par secteur et par année"
     print question
     res=init_cs_year(nb=2)
     
@@ -903,15 +928,21 @@ def q34():
 
 def q35(nb_em):
     #1/ %age AdoptCSContre=Y ET 1 EM.       2/%age AdoptCSContre=Y ET 2 EM.        3/%age AdoptCSContre=Y ET 3 EM
-    question="pourcentage AdoptCSContre=Y (parmi les actes du même secteur et de la même année) ET "+str(nb_em)+" EM par secteur, en fonction de l'année"
+    question="pourcentage AdoptCSContre=Y (parmi les actes du même secteur et de la même année) ET "+str(nb_em)+" EM par secteur et par année"
     print question
     res=init_cs_year(nb=2)
 
-    for act in Act.objects.filter(validated=2):
+    for act in Act.objects.filter(validated=2, code_sect_1__isnull=False):
         nb=len(act.adopt_cs_contre.all())
         if nb>0:
             cs=get_cs(act.code_sect_1.code_sect)
             year=str(act.releve_annee)
+            #~ if cs[:2]=="02" and year=="1996":
+                #~ print "cs", act.code_sect_1
+                #~ print "year", year
+                #~ print "act", act
+                #~ print "nb", nb
+                #~ print ""
             res[cs][year][1]+=1
             if nb==nb_em:
                 res[cs][year][0]+=1
@@ -922,7 +953,7 @@ def q35(nb_em):
 
 def q36():
     #DureeTotaleDepuisPropCom lorsque VotePublic=Y
-    question="DureeTotaleDepuisPropCom lorsque VotePublic=Y par secteur, en fonction de l'année"
+    question="DureeTotaleDepuisPropCom lorsque VotePublic=Y par secteur et par année"
     print question
     res=init_cs_year(nb=2)
     
@@ -938,7 +969,7 @@ def q36():
 
 def q37():
     #Nombre d’actes pour lesquels on a eu au moins une discussion en points B par année
-    question="Nombre d’actes pour lesquels on a eu au moins une discussion en points B par secteur, en fonction de l'année"
+    question="Nombre d’actes pour lesquels on a eu au moins une discussion en points B par secteur et par année"
     print question
     res=init_cs_year()
 
@@ -954,18 +985,22 @@ def q37():
 
 def q38():
     #pourcentage de ministres presents (M) et de RP (CS ou CS_PR) par secteurs et par annee
-    question="pourcentage de ministres presents (M) et de RP (CS ou CS_PR) selon les secteurs, par année (premier chiffre : pourcentage de M dans l'année ; deuxième chiffre : pourcentage de CS ou CS_PR dans l'année)"
+    question="pourcentage de ministres presents (M) et de RP (CS ou CS_PR) selon le secteur et l'année (premier chiffre : pourcentage de M du secteur par rapport au nombre de M dans l'année ; deuxième chiffre : pourcentage de CS ou CS_PR du secteur par rapport au nombre de  CS ou CS_PR dans l'année)"
     print question
-    res={}
-    total_year={}
+
     statuses={}
     statuses["M"]=0
     statuses["CS"]=1
     statuses["CS_PR"]=1
-    
-    res, total_year=init_cs_year(nb=2, total=True)
-  
-    for act in MinAttend.objects.filter(act__validated=2):
+    res={}
+    total_year={}
+    for secteur in cs_list:
+        res[secteur]={}
+        for year in years_list:
+            total_year[year]=[0,0]
+            res[secteur][year]=[0,0]
+
+    for act in MinAttend.objects.filter(act__validated=2, act__code_sect_1__isnull=False):
         status=Status.objects.get(verbatim=act.verbatim, country=act.country).status
         if status not in ["NA", "AB"]:
             cs=get_cs(act.act.code_sect_1.code_sect)
@@ -973,6 +1008,7 @@ def q38():
             total_year[year][statuses[status]]+=1
             res[cs][year][statuses[status]]+=1
     print "res", res
+    print "total_year", total_year
 
     writer.writerow([question])
     writer.writerow(years_list_zero)
@@ -990,55 +1026,101 @@ def q38():
         writer.writerow(row)
     writer.writerow("")
     print ""
+    
+    
+
+def concordance_annee_secteur_abs(resp_group, rapp_group):
+    #répartition pourcentage dans les secteurs (somme colonne différent 100%)
+    question="Concordance PartyFamilyResp et GroupePolitiqueRapporteur ("+resp_group+") : Pourcentage par secteur en fonction de l'année"
+    print question
+    res, total_year=init_cs_year(total=True)
+        
+    for act in Act.objects.filter(validated=2, code_sect_1__isnull=False):
+        cs=get_cs(act.code_sect_1.code_sect)
+        year=str(act.releve_annee)
+        total_year[year]+=1
+        resps=[]
+        rapps=[]
+        
+        for i in range(1, 3):
+            i=str(i)
+            resp=getattr(act, "resp_"+i)
+            rapp=getattr(act, "rapp_"+i)
+            if resp!=None:
+                resps.append(resp)
+            if rapp!=None:
+                rapps.append(rapp)
+        
+        if (len(resps)>0) and (len(rapps)>0):
+            same=False
+            for resp in resps:
+                if same:
+                    break
+                for rapp in rapps:
+                    if PartyFamily.objects.get(country=resp.country, party=resp.party).party_family.strip()==resp_group and rapp.party.party.strip() in rapp_group:
+                        res[cs][year]+=1
+                        same=True
+                        break
+    
+    print "res"
+    print res
+    
+    write_cs_year(question, res, total_year=total_year, percent=100)
+    
+
+
+def concordance_annee_secteur(resp_group, rapp_group):
+    #répartition pourcentage selon chaque année (somme colonne = 100%)
+    question="Concordance PartyFamilyResp et GroupePolitiqueRapporteur ("+resp_group+") : Pourcentage par secteur en fonction de l'année"
+    print question
+    res, total_year=init_cs_year(total=True)
+        
+    for act in Act.objects.filter(validated=2, code_sect_1__isnull=False):
+        cs=get_cs(act.code_sect_1.code_sect)
+        year=str(act.releve_annee)
+        resps=[]
+        rapps=[]
+        
+        for i in range(1, 3):
+            i=str(i)
+            resp=getattr(act, "resp_"+i)
+            rapp=getattr(act, "rapp_"+i)
+            if resp!=None:
+                resps.append(resp)
+            if rapp!=None:
+                rapps.append(rapp)
+        
+        if (len(resps)>0) and (len(rapps)>0):
+            same=False
+            for resp in resps:
+                if same:
+                    break
+                for rapp in rapps:
+                    if PartyFamily.objects.get(country=resp.country, party=resp.party).party_family.strip()==resp_group and rapp.party.party.strip() in rapp_group:
+                        res[cs][year]+=1
+                        total_year[year]+=1
+                        same=True
+                        break
+    
+    print "res"
+    print res
+    
+    write_cs_year(question, res, percent=100, total_year=total_year)
 
 
 def q39():
-    #TODO
-    #Frequence de la concordance Com/rapporteur/presidence du Conseil pour les 3 grandes familles (PPE ,PSE, ALDE)
-    question="Frequence de la concordance Com/rapporteur/presidence du Conseil pour les 3 grandes familles (PPE ,PSE, ALDE) par année"
-    print question
-
-    writer.writerow([question])
-    writer.writerow("")
-    print ""
+    #pourcentage des actes quand PartyFamilyResp1 OU PartyFamilyResp2='Social Democracy' ET GroupePolitiqueRapporteur1 OU GroupePolitiqueRapporteur2= 'Progressive Alliance of Socialists and Democrats' OU 'Party of European Socialists' OU 'Socialist Group in the European Parliament »
+    concordance_annee_secteur("Social Democracy", ["Progressive Alliance of Socialists and Democrats", "Party of European Socialists", "Socialist Group in the European Parliament"])
 
 
 def q40():
-    #TODO
-    #Frequence de la concordance PE/Conseil
-    question="Frequence de la concordance PE/Conseil par année"
-    print question
+    #pourcentage des actes quand PartyFamilyResp1 OU PartyFamilyResp2='Conservative/Christian Democracy' ET GroupePolitiqueRapporteur1 OU GroupePolitiqueRapporteur2= 'Progressive Alliance of Socialists and Democrats' OU 'Party of European Socialists' OU 'Socialist Group in the European Parliament »
+    concordance_annee_secteur("Conservative/Christian Democracy", [u"European People's Party (Christian Democrats)", u"EPP - European People's Party (Christian Democrats)", u"European People's Party (Christian Democrats) and European Democrats"])
 
-    writer.writerow([question])
-    writer.writerow("")
-    print ""
-
-
-def q41():
-    #TODO
-    #Fréquence de la concordance Commission/Conseil
-    question="Frequence de la concordance Commission/Conseil par année"
-    print question
-
-    writer.writerow([question])
-    writer.writerow("")
-    print ""
-
-
-def q42():
-    #TODO
-    #Frequence de la concordance Commission/PE
-    question="Frequence de la concordance Commission/PE par année"
-    print question
-
-    writer.writerow([question])
-    writer.writerow("")
-    print ""
-    
 
 def q43():
     #période 2010-2012 : %age d’actes ayant fait l’objet d’ interventions des parlements nationaux
-    question="période 2010-2012 : %age d’actes ayant fait l’objet d’ interventions des parlements nationaux"
+    question="période 2010-2012 : Pourcentage d’actes ayant fait l’objet d'interventions des parlements nationaux"
     print question
     res={}
     years_list_np=[n for n in range(2010, 2013)]
@@ -1078,17 +1160,13 @@ class Command(NoArgsCommand):
         q1()
         #~ #ventilation par domaines
         q2()
-        #~ #Frequence de la concordance Com/rapporteur/presidence du Conseil pour les 3 grandes familles (PPE ,PSE, ALDE)
+        #~ #Concordance PartyFamilyResp et GroupePolitiqueRapporteur (Social Democracy): Pourcentage sur la periode 1996-2012
         q3()
-        #~ #Frequence de la concordance PE/Conseil
+        #~ #Concordance PartyFamilyResp et GroupePolitiqueRapporteur (Conservative/Christian Democracy): Pourcentage sur la periode 1996-2012
         q4()
-        #~ #Fréquence de la concordance Commission/Conseil
-        q5()
-        #~ #Frequence de la concordance Commission/PE
-        q6()
-        #~ #durée moyenne des actes adoptés en 1e et en 2e lecture
+        #durée moyenne des actes adoptés en 1e et en 2e lecture
         q7()
-        #~ #durée moyenne entre transmission au conseil et adoption pour les actes qui ont donné lieu à un vote public
+        #durée moyenne entre transmission au conseil et adoption pour les actes qui ont donné lieu à un vote public
         q8()
 #~ 
 #~ 
@@ -1122,23 +1200,19 @@ class Command(NoArgsCommand):
         q21()
         #~ #pourcentage de ministres presents (M) et de RP (CS ou CS_PR)? par annee ET par secteurs
         q22()
-         #~ #Frequence de la concordance Com/rapporteur/presidence du Conseil pour les 3 grandes familles (PPE ,PSE, ALDE)
+        #~ #Concordance PartyFamilyResp et GroupePolitiqueRapporteur (Social Democracy): Pourcentage par année
         q23()
-        #~ #Frequence de la concordance PE/Conseil
+        #~ #Concordance PartyFamilyResp et GroupePolitiqueRapporteur (Conservative/Christian Democracy): Pourcentage par année
         q24()
-        #~ #Fréquence de la concordance Commission/Conseil
-        q25()
-        #~ #Frequence de la concordance Commission/PE
-        q26()
 #~ 
 #~ 
         #~ #PAR SECTEUR ET PAR ANNEE
 #~ 
         #~ #% age de propositions modifiées par la Commission
-        #~ #q27()
-        #~ #durée moyenne d’adoption
-        #~ #q28()
-        #~ #% age d’actes adoptés en 1e et 2e lecture
+        q27()
+        #durée moyenne d’adoption
+        q28()
+        #% age d’actes adoptés en 1e et 2e lecture
         q29()
         #~ #durée moyenne des actes adoptés en 1e et en 2e lecture
         q30()
@@ -1150,7 +1224,7 @@ class Command(NoArgsCommand):
         q32("EPAmdtTabled", "amdt_tabled")
         q32("EPAmdtAdopt", "amdt_adopt")
         #~ #Vote?
-        #~ #q33()
+        q33()
         #~ #%age de votes négatifs par Etat membre
         q34()
         #~ #% age de votes négatifs isolés, de 2 Etats, de 3 Etats
@@ -1163,15 +1237,11 @@ class Command(NoArgsCommand):
         q37()
         #~ #pourcentage de ministres presents (M) et de RP (CS ou CS_PR)? par annee ET par secteurs
         q38()
-         #~ #Frequence de la concordance Com/rapporteur/presidence du Conseil pour les 3 grandes familles (PPE ,PSE, ALDE)
+        #~ #Concordance PartyFamilyResp et GroupePolitiqueRapporteur (Social Democracy): Pourcentage par année et par secteur
         q39()
-        #~ #Frequence de la concordance PE/Conseil
+        #~ #Concordance PartyFamilyResp et GroupePolitiqueRapporteur (Conservative/Christian Democracy): Pourcentage par année et par secteur
         q40()
-        #~ #Fréquence de la concordance Commission/Conseil
-        q41()
-        #~ #Frequence de la concordance Commission/PE
-        q42()
-        
-        
-        #période 2010-2012 : %age d’actes ayant fait l’objet d’ interventions des parlements nationaux
+        #~ 
+        #~ 
+        #~ #période 2010-2012 : %age d’actes ayant fait l’objet d’ interventions des parlements nationaux
         q43()

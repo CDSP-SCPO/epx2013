@@ -35,7 +35,7 @@ class Command(NoArgsCommand):
         #update attendance_pdf
         path=settings.MEDIA_ROOT+"/import/"
         #~ path="/home/rom/Documents/jobs/SciencesPo/europolix/import/csv/"
-        years=[str(n) for n in range(1997, 1998)]
+        years=[str(n) for n in range(1996, 1997)]
         for year in years:
             path_file=path+"RMC_"+year+".csv"
             with open(path_file, 'r') as csv_file_temp:
@@ -53,12 +53,13 @@ class Command(NoArgsCommand):
                         releve_annee=int(row[0])
                         releve_mois=int(row[1])
                         no_ordre=int(row[2])
-                        attendance_pdf=row[18].strip().strip(".").lower()
-                        if attendance_pdf not in ["", "na"]:
+                        attendance_pdf=row[18].strip().strip(".")
+                        attendance_pdf_lc=attendance_pdf.lower()
+                        if attendance_pdf_lc not in ["", "na"]:
                             print releve_annee, releve_mois, no_ordre
                             try:
                                 act=Act.objects.get(releve_annee=releve_annee, releve_mois=releve_mois, no_ordre=no_ordre)
-                                act.attendance_pdf=attendance_pdf.replace("_pres", "_PRES")
+                                act.attendance_pdf=attendance_pdf
                                 act.save()
                                 print act.attendance_pdf
                                 print ""
