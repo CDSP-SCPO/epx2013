@@ -215,6 +215,31 @@ s   field: name of the field ("dg" or "resp") [string]
     return act, oeil_dic, prelex_dic
 
 
+def get_adopt_variables(act):
+    """
+    FUNCTION
+    get data for adopt variables (adopt_cs_contre, adopt_pc_contre, adopt_cs_abs, adopt_pc_abs) from the database
+    PARAMETERS
+    act: instance of the data of the act [Act model instance]
+    RETURN
+    adopts: adopt variables [dictionary]
+    """
+    adopts={}
+    names=["adopt_cs_contre", "adopt_pc_contre", "adopt_cs_abs", "adopt_pc_abs"]
+    #for each variable:
+    for name in names:
+        countries=getattr(act, name).all()
+        #for each of the country drop down lists
+        for index in range(len(countries)):
+            adopts[name+"_"+str(index+1)]=countries[index]
+        
+    print "adopts"
+    print adopts
+    print ""
+
+    return adopts
+
+
 def get_data_all(context, add_modif, act, POST):
     """
     FUNCTION
@@ -224,7 +249,6 @@ def get_data_all(context, add_modif, act, POST):
     add_modif: "add" if the form is in add mode, "modif" otherwise [string]
     act: instance of the data of the act [Act model instance]
     POST: request.POST object [dictionary]
-    
     RETURN
     context: update of the variables to be displayed in the html form [dictionary]
     """
@@ -235,9 +259,6 @@ def get_data_all(context, add_modif, act, POST):
     #"compute" the url of the eurlex, oeil and prelex page
     urls=get_urls(act_ids["index"], act.url_prelex, act_ids["index"].dos_id)
     
-    #default state: display the act
-    if "state" not in "display":
-        context["state"]="display"
 
     #an act has been selected in the drop down list -> the related data is displayed
     #if state different of modif, save and ongoing and if the act is not being modified
@@ -270,14 +291,19 @@ def get_data_all(context, add_modif, act, POST):
         #~ #check multiple values for dgs with numbers
         context["dg"], act=check_multiple_dgs(act)
 
+    #we have selected an act in the drop down list or clicked on the modification button
     if "add_act" in POST or "modif_act" in POST:
+        
+        #display adopt variables (countries in the drop down lists)
+        adopts=get_adopt_variables(act)
+
         if "add_act" in POST:
-            form_data=ActForm(instance=act, initial={"releve_mois_init": act.releve_mois})
+            adopts["releve_mois_init"]=act.releve_mois
+            form_data=ActForm(instance=act, initial=adopts)
             context["status"]="add"
         else:
-            form_data=ActForm(instance=act)
+            form_data=ActForm(instance=act, initial=adopts)
             context["status"]="modif"
-
     else:
         form_data=ActForm(POST, instance=act)
 
@@ -433,9 +459,14 @@ class ActUpdate(UpdateView):
                 #saves the act
                 if 'save_act' in request.POST:
                     if form_data.is_valid():
-                        context=self.form_valid(act, context, add_modif)
+                        context=self.form_valid(form_data, act, context, add_modif)
                     else:
                         context=self.form_invalid(form_data, context)
+                
+                
+                #default state: display the act
+                if "state" not in context:
+                    context["state"]="display"
                         
                 #displays the retrieved data of the act to validate / modify
                 #(selection of an act in the add / modif form  with no form error)
@@ -466,7 +497,7 @@ class ActUpdate(UpdateView):
         return self.render_to_response(self.get_context_data(**context))
 
 
-    def form_valid(self, act, context, add_modif):
+    def form_valid(self, form_data, act, context, add_modif):
         """
         Called if all forms are valid.
         """
@@ -476,18 +507,25 @@ class ActUpdate(UpdateView):
         act.validated=2
         act.notes=self.request.POST['notes']
         act.save()
+        
+        #save adopt variables
+        names=["adopt_cs_contre", "adopt_pc_contre", "adopt_cs_abs", "adopt_pc_abs"]
+        for name in names:
+            #remove "old" countries of adopt variables for the given act
+            field=getattr(act, name)
+            field.clear()
+            for nb in range(8):
+                form_field=form_data.cleaned_data[name+"_"+str(nb+1)]
+                if form_field!=None:
+                    #save "new" countries of adopt variables
+                    field.add(form_field)
+                
         context["state"]="saved"
         context["msg"]="The act " + str(act) + " has been validated!"
         context["msg_class"]="success_msg"
         
         #save in history
         History.objects.create(action=add_modif, form="data", act=act, user=self.request.user)
-
-        #empty forms
-        #~ if not self.request.is_ajax():
-            #~ context['form_data'] = ActForm()
-            #~ context['add'] = Add()
-            #~ context['modif'] = Modif()
 
         return context
 
@@ -506,64 +544,6 @@ class ActUpdate(UpdateView):
         state="ongoing"
 
         return context
-
-
-@login_required
-def alternate_data_retrieval(request):
-    """
-    VIEW
-    reset the act form (except add and modif)
-    TEMPLATES
-    act/form2.html
-    """
-    print 'alternate view'
-    context={}
-    context=init_context(context)
-    context['form_template']='act/form2.html'
-    
-    #get act
-    act_id=request.POST["act_to_validate"]
-    act=Act.objects.get(pk=act_id)
-        
-    #retrieve the act ids for each source
-    act_ids=get_act_ids(act)
-
-    #"compute" the url of the eurlex, oeil and prelex page
-    urls=get_urls(act_ids["index"], act.url_prelex, act_ids["index"].dos_id)
-
-    #get data on eurlex, oeil and prelex
-    act.__dict__.update(get_data("eurlex", act_ids["eurlex"], urls["url_eurlex"], act)[0])
-    fields, dg_names_oeil, resp_names_oeil=get_data("oeil", act_ids["oeil"], urls["url_oeil"], act)
-    act.__dict__.update(fields)
-    nb_lectures=act.nb_lectures
-    #~ #prelex config_cons needs eurlex, gvt_compo needs oeil
-    fields, dg_names_prelex, resp_names_prelex=get_data("prelex", act_ids["prelex"], urls["url_prelex"], act)
-    act.__dict__.update(fields)
-    #nb_lectures already retrieved from oeil
-    act.nb_lectures=nb_lectures
-#~
-    #~ #store dg/resp from oeil and prelex to be displayed as text in the template
-    act, context["dg_names_oeil"], context["dg_names_prelex"]=store_dg_resp(act, dg_names_oeil, dg_names_prelex, "dg")
-    act, context["resp_names_oeil"], context["resp_names_prelex"]=store_dg_resp(act, resp_names_oeil, resp_names_prelex, "resp")
-#~
-    #~ #check multiple values for dgs with numbers
-    context["dg"], act=check_multiple_dgs(act)
-
-    form_data=ActForm(instance=act, initial={"releve_mois_init": act.releve_mois})
-    context["status"]="add"
-    context["urls"]=urls
-    context['act']=act
-    #COMMENT FOR TESTS ONLY
-    temp=get_data_others(act_ids["index"], act)
-    context['opals']=temp["opal"]
-    context['min_attends']=temp["min_attend"]
-    context["party_family"]=get_party_family({"1": act.resp_1_id, "2": act.resp_2_id, "3": act.resp_3_id})
-    context['act_ids']=act_ids
-    context['form_data']=form_data
-    
-    #display fields in template
-    return HttpResponse(render_to_string(context['form_template'], context, RequestContext(request)))
-   
 
 
 def reset_form(request):

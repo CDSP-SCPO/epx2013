@@ -87,16 +87,31 @@
 
 
 /*display person related fields*/
-#eurlex_table select, #oeil_table select, .prelex_table select, .update_fields, .update_btn
+#eurlex_table select, #oeil_table select, #prelex_table_1 select, .update_fields, .update_btn
 {
     float: left;
     margin-top: 2px;
 }
 
-#eurlex_table select, #oeil_table select, .prelex_table select
+#eurlex_table select, #oeil_table select, #prelex_table_1 select
 {
     width: 40%;
     padding-left: 5px;
+}
+
+
+/* drop down lists for adopt_ fields */
+#prelex_table_2 select
+{
+    width: 20%;
+    margin-top: 2px;
+
+}
+
+#id_adopt_cs_contre_5, #id_adopt_cs_contre_6, #id_adopt_cs_contre_7, #id_adopt_cs_contre_8, #id_adopt_pc_contre_5, #id_adopt_pc_contre_6, #id_adopt_pc_contre_7, #id_adopt_pc_contre_8, #id_adopt_cs_abs_5, #id_adopt_cs_abs_6, #id_adopt_cs_abs_7, #id_adopt_cs_abs_8, #id_adopt_pc_abs_5, #id_adopt_pc_abs_6, #id_adopt_pc_abs_7, #id_adopt_pc_abs_8
+{
+    margin-top: 3px !important;
+    margin-bottom: 4px;
 }
 
 /* foreign key fields on the right of drop down lists */
@@ -188,4 +203,10 @@
 {
     font-weight: bold;
     width: 1000px;
+}
+
+/* drop down list of all the countries, used to display adopt variables */
+#id_countries
+{
+    display: none;
 }

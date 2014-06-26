@@ -10,6 +10,8 @@ function reset_act_form(result, mode)
 
         /* if javascript activated, hide person update button (act data) */
         $('.update_person').hide();
+        //display button to choose countries for adopt variables
+        display_adopt_variables();
     }
     else
     {
@@ -27,8 +29,12 @@ function reset_act_form(result, mode)
                 /* if javascript activated, hide person update button (act data) */
                 $('.update_person').hide();
             }
+            
+            //display button to choose countries for adopt variables
+            display_adopt_variables();
         });
     }
+    
 }
 
 
@@ -100,6 +106,25 @@ function display_or_update_result(result, action)
             reset_act_form(result, "display");
         }
     }
+    
+    var adopts=["cs_contre", "pc_contre", "cs_abs", "pc_abs"]
+    //populate the multiple select list (gentleSelect plugin) with the countries selected in the drop down lists, for each adopt variables
+    $.each(adopts , function(i) 
+    { 
+        txt=""
+        $(".adopt_"+adopts[i]+"_ :selected").each(function(index) 
+        {
+            //~ console.log(i, adopts[i]);
+            if(this.value!="")
+            {
+                 $("#"+adopts[i]+"_div .gentleselect-dialog li:contains("+$(this).text()+")").toggleClass("selected");
+                txt+=$(this).text()+", "
+            }
+        });
+            if(txt!="")
+                $("#"+adopts[i]+"_div .gentleselect-label").html(txt.slice(0, -2));
+    });
+  
 }
 
 
@@ -158,66 +183,6 @@ $('#act_form').on('click', '#modif_act, #update_act', function(event)
 });
 
 
-
-/* if data retrieval is no triggered (no answer from the view, no answer from ajax), try an alternate view to get data of the act */
-function alternate_data_retrieval(xhr, button_name)
-{
-    //only on data form and if an act has been selected in the drop down list
-    if($('#act_form').hasClass('data') && $('#id_act_to_validate').val()!="") 
-    {
-        //if no answer after 20 seconds, trigger the alternate data retrieval
-        timer=20
-        
-        setTimeout(function()
-        {
-            //~ alert("alternate data retrieval");
-            
-            //check if the form was filled with the first ajax call (if not, loading gif still turning)
-            if($("#loading_gif_"+button_name).is(":visible"))
-            {
-                //first ajax called stuck: need alternate call
-                 alert("first ajax call not executed :(");
-                
-                //stop previous ajax call
-                xhr.abort();
-                
-                //~ alert($('#alternate_data_retrieval').text());
-                
-                //let's try the alternate view
-                act_to_validate=$( "#id_act_to_validate" ).val();
-                form_data="act_to_validate="+act_to_validate;
-                
-                //second ajax call
-                xhr=$.ajax
-                ({
-                    type: "POST",
-                    url: $('#alternate_data_retrieval').text(),
-                    //~ dataType: 'html',
-                    data: form_data
-                })
-                .done(function(result) 
-                {
-                    //if an act has been selected, either from the add form or the modif form
-                    if (result!="")
-                    {
-                        //display or mpdify an act
-                        display_or_update_result(result, button_name);
-                    }
-                    //hide loading gif
-                    $("#loading_gif_"+button_name).hide();
-                    //~ alert("add act display function success end");
-                })
-            }
-            else
-            {
-                //first ajax called completed: nothing to do :)
-                alert("first ajax call executed :)");
-            }
-        }, timer * 1000); 
-    }
-   
-}
-
 /* display/modif or update the ids/datas of the selected act */
 function display_or_update_act(button_name, event)
 {
@@ -226,7 +191,7 @@ function display_or_update_act(button_name, event)
 
     //show loading gif
     $("#loading_gif_"+button_name).show();
-
+    
     form=$('#act_form');
     var form_data=form.serialize();
     form_data+="&"+button_name+"=''";
@@ -242,8 +207,6 @@ function display_or_update_act(button_name, event)
     })
     .done(function(result) 
     {
-        //~ alert("ajax success");
-        //~ alert("add act display function success beginning");
         //if an act has been selected, either from the add form or the modif form
         if (result!="")
         {
@@ -260,9 +223,6 @@ function display_or_update_act(button_name, event)
         window.console&&console.log("ajax failure!");
     });
     
-    /* if data retrieval was not triggered, try an alternative function */
-    //~ alternate_data_retrieval(xhr, button_name)
-
     //don't submit the form
     return false;
 }
@@ -288,6 +248,27 @@ function save_act_form(form, button, event)
     {
         $(this).remove();
     });
+    
+    var adopts=["cs_contre", "pc_contre", "cs_abs", "pc_abs"]
+    //populate drop down lists of adopt variables with the countries chosen in the multiple select list, for each adopt variable
+    $.each(adopts , function(i) 
+    { 
+        //~ console.log(i);
+        //get all the countries to be selected
+        countries=$("#"+adopts[i]+"_div .gentleselect-label").html().split(",");
+        
+        //unselect previous countries
+        $( ".adopt_"+adopts[i]+"_" ).val([])
+        
+        //select new countries
+        $.each(countries , function(nb) 
+        { 
+            //~ console.log("#id_adopt_"+adopts[i]+"_"+(nb+1));
+            //~ console.log("'"+$.trim(countries[nb])+"'");
+            $("#id_adopt_"+adopts[i]+"_"+(nb+1)+" option:contains("+$.trim(countries[nb])+")").prop('selected',true);
+        });
+    });
+
     var form_data=form.serialize();
     form_data+="&"+button.attr("id")+"=''";
     $.ajax
@@ -485,4 +466,31 @@ $('#act_form').on('click', '.add_dg_js, .add_rapp_js, .add_resp_js', function()
         .end()
         .find("#var_id").html(field_id)
     });
+});
+
+$(document).on('load', '#act_form', function()
+{
+    alert("load");
+});
+
+/* bind the event to update resps with the associated drop down list */
+$('#act_form').on('change', '#resp_1_id, #resp_2_id, #resp_3_id', function()
+{
+    update_person(this.id, this.value, "resp");
+});
+
+
+/* display select button with hidden drop down lists for adopt variables */
+function display_adopt_variables()
+{
+    $('#cs_contre, #pc_contre, #cs_abs, #pc_abs').html($('#id_countries').html());
+    $('#cs_contre').gentleSelect();
+    $('#pc_contre').gentleSelect();
+    $('#cs_abs').gentleSelect();
+    $('#pc_abs').gentleSelect();
+}
+
+$(document).ready(function() 
+{
+    display_adopt_variables();   
 });

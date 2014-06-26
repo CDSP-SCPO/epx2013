@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from django import forms
-from models import Act, Person, CodeSect, DG
+from models import Act, Person, CodeSect, DG, Country
 #modif form: add non field error
 from django.forms.util import ErrorList
 from django.core.exceptions import ValidationError
@@ -101,10 +101,16 @@ class ActForm(forms.ModelForm):
     resp_2=forms.ModelChoiceField(queryset=Person.objects.order_by('name').filter(src="resp"), empty_label="Select a " + var_name_data.var_name["resp"], widget=forms.Select(attrs={'id': 'resp_2_id', 'name': "resp_2_id",}), required=False)
     resp_3=forms.ModelChoiceField(queryset=Person.objects.order_by('name').filter(src="resp"), empty_label="Select a " + var_name_data.var_name["resp"], widget=forms.Select(attrs={'id': 'resp_3_id', 'name': "resp_3_id",}), required=False)
 
+    #create fake fields so each adopt field is called in the forloop in template
     adopt_cs_contre=forms.CharField(required=False)
     adopt_pc_contre=forms.CharField(required=False)
     adopt_cs_abs=forms.CharField(required=False)
     adopt_pc_abs=forms.CharField(required=False)
+    
+    #hidden control used to populate gentleSelect selects when ajax
+    countries=forms.ModelMultipleChoiceField(queryset=Country.objects.all(), required=False)
+    
+    
     gvt_compo=forms.CharField(required=False)
 
     #transform textbox to textarea
@@ -112,19 +118,42 @@ class ActForm(forms.ModelForm):
 
     class Meta:
         model=Act
-        #fields NOT used for the validation
+        #fields NOT used for the validation and not displayed in the form
         exclude=('id', 'releve_annee', 'releve_mois', 'no_ordre', 'titre_rmc', 'council_path', 'attendance_pdf', 'date_doc', 'url_prelex', "validated")
-
-    #trim trailing spaces
+    
+    
+    #dynamically create drop down lists for adopt_cs and adopt_pc fields
+    def __init__(self, *args, **kwargs):
+        super(ActForm, self).__init__(*args, **kwargs)
+        names=["adopt_cs_contre_", "adopt_pc_contre_", "adopt_cs_abs_", "adopt_pc_abs_"]
+        cs_contre, pc_contre, cs_abs, pc_abs=([] for i in range(4))
+        lists=[cs_contre, pc_contre, cs_abs, pc_abs]
+        #for each variable:
+        for index in range(len(names)):
+            #for each of the 8 drop down lists
+            for nb in range(1,9):
+                #add drop down list to the list of fields
+                self.fields[names[index]+str(nb)]=forms.ModelChoiceField(queryset=Country.objects.order_by('country').all(), empty_label="Select a country", required=False)
+                self.fields[names[index]+str(nb)].widget.attrs.update({'class' : names[index]})
+                lists[index].append(self[names[index]+str(nb)])
+        
+        #loop over each set of adopt drop down lists in the template
+        self.cs_contre=cs_contre
+        self.pc_contre=pc_contre
+        self.cs_abs=cs_abs
+        self.pc_abs=pc_abs
+        
+        
     def clean(self):
         cleaned_data=super(ActForm, self).clean()
+        
+        #trim trailing spaces
         for k in cleaned_data:
             try:
                 #only strings
                 cleaned_data[k]=cleaned_data[k].strip()
             except:
                 pass
-
 
         #drop down lists validation: check code_sects, rapps, dgs, resps
         fields={"code_sect": 5, "rapp": 6, "dg": 3, "resp": 4}
@@ -138,8 +167,23 @@ class ActForm(forms.ModelForm):
         #assignate all the errors to the non field errors
         if msg:
             self._errors['__all__']=ErrorList(msg)
+        
+        #check errors adopt drop down lists
+        names=["adopt_cs_contre", "adopt_pc_contre", "adopt_cs_abs", "adopt_pc_abs"]
+        #for each variable:
+        for name in names:
+            adopts=[]
+            #for each of the country drop down lists
+            for index in range(8):
+                adopt=cleaned_data.get(name+"_"+str(index+1))
+                print adopt
+                if adopt!=None:
+                    #~ #if the same country has been selected twice: error
+                    if adopt in adopts:
+                        self._errors[name]=ErrorList(["You have selected the country " + adopt.country + " more than once!"])
+                    else:
+                        adopts.append(adopt)
 
-        # Always return the full collection of cleaned data.
         return cleaned_data
 
 

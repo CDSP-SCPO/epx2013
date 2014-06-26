@@ -13,3 +13,12 @@ $('.add_rapp_js').show();
 /* add resp link */
 $('.add_resp_no_js').hide();
 $('.add_resp_js').show();
+
+/* hide drop down lists for adopt fields */
+$.each(["adopt_cs_contre_", "adopt_pc_contre_", "adopt_cs_abs_", "adopt_pc_abs_"], function( index, name ) 
+{
+    for (var n = 1; n < 9; n++)
+    {
+         $('#id_'+name+n).hide();
+    }
+});

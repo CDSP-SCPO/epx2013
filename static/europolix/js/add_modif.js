@@ -10,6 +10,23 @@ $("#id_no_ordre_modif").keypress(function(event)
     }
 });
 
+$("#id_releve_annee_modif").keyup(function() 
+{
+    if($(this).val().length == 4) 
+    {
+       $("#id_releve_mois_modif").focus();  
+    }
+});
+
+$("#id_releve_mois_modif").keyup(function() 
+{
+    if($(this).val().length == 2) 
+    {
+       $("#id_no_ordre_modif").focus();  
+    }
+});
+
+
 
 //onchange of releve_annee_modif, releve_mois_modif or no_ordre_modif in modif form
 $("#id_releve_annee_modif, #id_releve_mois_modif, #id_no_ordre_modif").change(function()

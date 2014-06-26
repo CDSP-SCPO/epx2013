@@ -203,7 +203,7 @@
 </table>
 
 <!-- prelex validation tables -->
-<table class="prelex_table table table-bordered table-hover table-condensed">
+<table id="prelex_table_1" class="table table-bordered table-hover table-condensed">
 
     <!-- link view to update dg data -->
     <div id="dg" style="display:none">{% url update_dg %}</div>
@@ -306,7 +306,7 @@
 
 <!-- prelex validation tables -->
 <!-- prelex data split in two tables -> 2d table starts with the field rejet_conseil  -->
-<table class="prelex_table table table-bordered table-hover table-condensed">
+<table id="prelex_table_2"  class="table table-bordered table-hover table-condensed">
     {% for field in form_data %}
         {% if field.name in vars_prelex_2 %}
 
@@ -360,12 +360,53 @@
                         </div>
 
                     <!-- adopt_cs_contre, adopt_cs_abs, adopt_pc_contre, adopt_pc_abs -->
-                    {% elif  field.name == "adopt_cs_contre" or field.name == "adopt_cs_abs" or "adopt_pc_" in field.name %}
-                        {% with instance=act|get_instance:field.name %}
-                            {% for adopt in instance.all %}
-                                {{ adopt.country_code }}{% if not forloop.last %};&nbsp;{% endif %}
-                            {% endfor %}
-                        {% endwith %}
+                    
+                    <!-- hidden control to get the list of countries -->
+                    <div id="countries">{{ form_data.countries }}</div> 
+                    
+                    {% elif  field.name == "adopt_cs_contre" %}
+                        <div class="fieldWrapper"><div class="row-fluid">{{ field.errors }}</div></div>
+                        <!-- drop down lists -->
+                        {% for adopt in form_data.cs_contre %}
+                            {{ adopt }}
+                        {% endfor %}
+                        <!-- ajax drop down list -->
+                        <div id="cs_contre_div" class="fieldWrapper">
+                            <select id="cs_contre" multiple="multiple" style="display: none;"></select>
+                        </div>
+                        
+                    {% elif  field.name == "adopt_cs_abs" %}
+                        <div class="fieldWrapper"><div class="row-fluid">{{ field.errors }}</div></div>
+                        <!-- drop down lists -->
+                        {% for adopt in form_data.cs_abs %}
+                            {{ adopt }}  
+                        {% endfor %}
+                        <!-- ajax drop down list -->
+                        <div id="cs_abs_div" class="fieldWrapper">
+                            <select id="cs_abs" multiple="multiple" style="display: none;"></select>
+                        </div>
+                        
+                     {% elif  field.name == "adopt_pc_abs" %}
+                        <div class="fieldWrapper"><div class="row-fluid">{{ field.errors }}</div></div>
+                        <!-- drop down lists -->
+                        {% for adopt in form_data.pc_abs %}
+                            {{ adopt }}
+                        {% endfor %}
+                        <!-- ajax drop down list -->
+                        <div id="pc_abs_div" class="fieldWrapper">
+                            <select id="pc_abs" multiple="multiple" style="display: none;"></select>
+                        </div>
+                    
+                     {% elif  field.name == "adopt_pc_contre" %}
+                        <div class="fieldWrapper"><div class="row-fluid">{{ field.errors }}</div></div>
+                        <!-- drop down lists -->
+                        {% for adopt in form_data.pc_contre %}
+                            {{ adopt }}
+                        {% endfor %}
+                        <!-- ajax drop down list -->
+                        <div id="pc_contre_div" class="fieldWrapper">
+                            <select id="pc_contre" multiple="multiple" style="display: none;"></select>
+                        </div>
 
                     {% else %}
                         <!-- all the other fields -->
