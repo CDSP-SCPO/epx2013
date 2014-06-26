@@ -40,10 +40,10 @@ displays the data of a given act (data for the statistical analysis displays dat
 
 		<!-- modal -->
 		{% include "modal.html" %}
-
-		<!-- js and jquery related to the act ids and data applications -->
-		<script type="text/javascript" src="{{ STATIC_URL }}europolix/js/act.js?{% now 'U' %}"></script>
+        
         <!-- drop down list for adopt variables -->
         <script type="text/javascript" src="{{ STATIC_URL }}jquery_gentleSelect/jquery-gentleSelect-min.js"></script>
+		<!-- js and jquery related to the act ids and data applications -->
+		<script type="text/javascript" src="{{ STATIC_URL }}europolix/js/act.js?{% now 'U' %}"></script>
 	</div>
 {% endblock %}

@@ -253,7 +253,6 @@ function save_act_form(form, button, event)
     //populate drop down lists of adopt variables with the countries chosen in the multiple select list, for each adopt variable
     $.each(adopts , function(i) 
     { 
-        //~ console.log(i);
         //get all the countries to be selected
         countries=$("#"+adopts[i]+"_div .gentleselect-label").html().split(",");
         
@@ -263,8 +262,6 @@ function save_act_form(form, button, event)
         //select new countries
         $.each(countries , function(nb) 
         { 
-            //~ console.log("#id_adopt_"+adopts[i]+"_"+(nb+1));
-            //~ console.log("'"+$.trim(countries[nb])+"'");
             $("#id_adopt_"+adopts[i]+"_"+(nb+1)+" option:contains("+$.trim(countries[nb])+")").prop('selected',true);
         });
     });
