@@ -110,7 +110,7 @@ def add_modif_fct(request, response, Add, Modif, form):
             if request.is_ajax():
                 response['add_act_errors']=dict([(k, add.error_class.as_text(v)) for k, v in add.errors.items()])
             print "add form not valid", add.errors
-            logger.debug('add form not valid' + add.errors)
+            logger.debug('add form not valid' + str(add.errors))
 
     #modification of an act -> display
     elif "modif_act" in request.POST or request.POST["modif_button_clicked"]=="yes" or request.POST["releve_annee_modif"]!="":

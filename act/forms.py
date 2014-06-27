@@ -108,7 +108,7 @@ class ActForm(forms.ModelForm):
     adopt_pc_abs=forms.CharField(required=False)
     
     #hidden control used to populate gentleSelect selects when ajax
-    countries=forms.ModelMultipleChoiceField(queryset=Country.objects.all(), required=False)
+    countries=forms.ModelMultipleChoiceField(queryset=Country.objects.only("country_code"), required=False)
     
     
     gvt_compo=forms.CharField(required=False)
@@ -125,6 +125,9 @@ class ActForm(forms.ModelForm):
     #dynamically create drop down lists for adopt_cs and adopt_pc fields
     def __init__(self, *args, **kwargs):
         super(ActForm, self).__init__(*args, **kwargs)
+        #don't display the country, just its code
+        self.fields["countries"].label_from_instance = lambda obj: "%s" % obj.country_code
+                
         names=["adopt_cs_contre_", "adopt_pc_contre_", "adopt_cs_abs_", "adopt_pc_abs_"]
         cs_contre, pc_contre, cs_abs, pc_abs=([] for i in range(4))
         lists=[cs_contre, pc_contre, cs_abs, pc_abs]
@@ -133,7 +136,9 @@ class ActForm(forms.ModelForm):
             #for each of the 8 drop down lists
             for nb in range(1,9):
                 #add drop down list to the list of fields
-                self.fields[names[index]+str(nb)]=forms.ModelChoiceField(queryset=Country.objects.order_by('country').all(), empty_label="Select a country", required=False)
+                self.fields[names[index]+str(nb)]=forms.ModelChoiceField(queryset=Country.objects.only("country_code"), empty_label="Select a country", required=False)
+                #don't display the country, just its code
+                self.fields[names[index]+str(nb)].label_from_instance = lambda obj: "%s" % obj.country_code
                 self.fields[names[index]+str(nb)].widget.attrs.update({'class' : names[index]})
                 lists[index].append(self[names[index]+str(nb)])
         

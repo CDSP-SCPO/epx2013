@@ -10,22 +10,29 @@ $("#id_no_ordre_modif").keypress(function(event)
     }
 });
 
-$("#id_releve_annee_modif").keyup(function() 
+$("#id_releve_annee_modif").keypress(function() 
 {
-    if($(this).val().length == 4) 
+    if($(this).val().length == 3) 
     {
        $("#id_releve_mois_modif").focus();  
     }
 });
 
-$("#id_releve_mois_modif").keyup(function() 
+$("#id_releve_mois_modif").keypress(function() 
 {
-    if($(this).val().length == 2) 
+    if($(this).val().length == 1) 
     {
        $("#id_no_ordre_modif").focus();  
     }
 });
 
+$("#id_releve_mois_modif").keyup(function() 
+{
+    if($(this).val().length == 1 && $(this).val()>1)
+    {
+       $("#id_no_ordre_modif").focus();  
+    }
+});
 
 
 //onchange of releve_annee_modif, releve_mois_modif or no_ordre_modif in modif form

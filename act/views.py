@@ -442,7 +442,7 @@ class ActUpdate(UpdateView):
         print ""
         
         logger.debug("act: "+ str(act))
-        logger.debug('mode: ' + mode)
+        logger.debug('mode: ' + str(mode))
         logger.debug("add_modif: "+ str(add_modif))
         logger.debug("user: "+ request.user.username)
 
