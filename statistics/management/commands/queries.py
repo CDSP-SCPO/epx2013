@@ -131,13 +131,16 @@ def get_year_nb_lec(res, total_year=False, variable=1):
 def get_cs_year(res, variable=1):
     for act in Act.objects.filter(validated=2):
         if variable==1 or getattr(act, variable)!=None:
-            cs=get_cs(act.code_sect_1.code_sect)
-            year=str(act.releve_annee)
-            res[cs][year][1]+=1
-            value=1
-            if variable!=1:
-                value=getattr(act, variable)
-            res[cs][year][0]+=value
+            for nb in range(1,5):
+                code_sect=getattr(act, "code_sect_"+str(nb))
+                if code_sect!=None:
+                    cs=get_cs(code_sect.code_sect)
+                    year=str(act.releve_annee)
+                    res[cs][year][1]+=1
+                    value=1
+                    if variable!=1:
+                        value=getattr(act, variable)
+                    res[cs][year][0]+=value
     print "res", res
     return res
 
@@ -148,17 +151,22 @@ def get_cs_year_nb_lec(res, total_year=False, variable=1):
         nb_lec=act.act.nb_lectures
         if nb_lec<3:
             nb_lec=nb_lec-1
-            cs=get_cs(act.act.code_sect_1.code_sect)
-            if variable!=1:
-                temp=getattr(act.act, variable)
-            else:
-                temp=1
-            if not total_year:
-                res[cs][year][nb_lec][1]+=1
-                res[cs][year][nb_lec][0]+=temp
-            else:
-                total_year[year][nb_lec]+=1
-                res[cs][year][nb_lec]+=temp
+            
+            for nb in range(1,5):
+                code_sect=getattr(act.act, "code_sect_"+str(nb))
+                if code_sect!=None:
+                    cs=get_cs(code_sect.code_sect)
+            
+                    if variable!=1:
+                        temp=getattr(act.act, variable)
+                    else:
+                        temp=1
+                    if not total_year:
+                        res[cs][year][nb_lec][1]+=1
+                        res[cs][year][nb_lec][0]+=temp
+                    else:
+                        total_year[year][nb_lec]+=1
+                        res[cs][year][nb_lec]+=temp
     print "res", res
     if not total_year:
         return res
@@ -268,9 +276,12 @@ def q2():
     for secteur in cs_list:
         res[secteur]=0
 
-    for act in Act.objects.filter(validated=2, code_sect_1__isnull=False):
-        cs=get_cs(act.code_sect_1.code_sect)
-        res[cs]+=1
+    for act in Act.objects.filter(validated=2):
+        for nb in range(1,5):
+            code_sect=getattr(act, "code_sect_"+str(nb))
+            if code_sect!=None:
+                cs=get_cs(code_sect.code_sect)
+                res[cs]+=1
     print "res", res
 
     writer.writerow([question])
@@ -409,9 +420,12 @@ def q10():
     print question
     res=init_cs_year()
 
-    for act in Act.objects.filter(validated=2, code_sect_1__isnull=False):
-        cs=get_cs(act.code_sect_1.code_sect)
-        res[cs][str(act.releve_annee)]+=1
+    for act in Act.objects.filter(validated=2):
+        for nb in range(1,5):
+            code_sect=getattr(act, "code_sect_"+str(nb))
+            if code_sect!=None:
+                cs=get_cs(code_sect.code_sect)
+                res[cs][str(act.releve_annee)]+=1
     print "res", res
 
     write_cs_year(question, res)
@@ -820,12 +834,15 @@ def q27():
     print question
     res, total_year=init_cs_year(total=True)
 
-    for act in Act.objects.filter(validated=2, code_sect_1__isnull=False):
-        cs=get_cs(act.code_sect_1.code_sect)
-        year=str(act.releve_annee)
-        if act.modif_propos:
-            total_year[year]+=1
-            res[cs][year]+=1
+    for act in Act.objects.filter(validated=2):
+        for nb in range(1,5):
+            code_sect=getattr(act, "code_sect_"+str(nb))
+            if code_sect!=None:
+                cs=get_cs(code_sect.code_sect)
+                year=str(act.releve_annee)
+                if act.modif_propos:
+                    total_year[year]+=1
+                    res[cs][year]+=1
     print "res", res
 
     write_cs_year(question, res, total_year=total_year, percent=100)
@@ -873,10 +890,13 @@ def q31():
     res=init_cs_year(nb=2)
 
     for act in Act.objects.filter(validated=2, vote_public=True, duree_tot_depuis_trans_cons__isnull=False):
-        cs=get_cs(act.code_sect_1.code_sect)
-        year=str(act.releve_annee)
-        res[cs][year][1]+=1
-        res[cs][year][0]+=act.duree_tot_depuis_trans_cons
+        for nb in range(1,5):
+            code_sect=getattr(act, "code_sect_"+str(nb))
+            if code_sect!=None:
+                cs=get_cs(code_sect.code_sect)
+                year=str(act.releve_annee)
+                res[cs][year][1]+=1
+                res[cs][year][0]+=act.duree_tot_depuis_trans_cons
     print "res", res
 
     write_cs_year(question, res, nb=2)
@@ -900,9 +920,12 @@ def q33():
     res=init_cs_year()
 
     for act in Act.objects.filter(validated=2, vote_public=True):
-        cs=get_cs(act.code_sect_1.code_sect)
-        year=str(act.releve_annee)
-        res[cs][year]+=1
+        for nb in range(1,5):
+            code_sect=getattr(act, "code_sect_"+str(nb))
+            if code_sect!=None:
+                cs=get_cs(code_sect.code_sect)
+                year=str(act.releve_annee)
+                res[cs][year]+=1
     print "res", res
 
     write_cs_year(question, res)
@@ -915,12 +938,15 @@ def q34():
     res=init_cs_year(nb=2)
     
     for act in Act.objects.filter(validated=2):
-        cs=get_cs(act.code_sect_1.code_sect)
-        year=str(act.releve_annee)
-        res[cs][year][1]+=1
-        #check if there is at least one country
-        if act.adopt_cs_contre.exists():
-            res[cs][year][0]+=1
+        for nb in range(1,5):
+            code_sect=getattr(act, "code_sect_"+str(nb))
+            if code_sect!=None:
+                cs=get_cs(code_sect.code_sect)
+                year=str(act.releve_annee)
+                res[cs][year][1]+=1
+                #check if there is at least one country
+                if act.adopt_cs_contre.exists():
+                    res[cs][year][0]+=1
     print "res", res
 
     write_cs_year(question, res, percent=100, nb=2)
@@ -932,20 +958,17 @@ def q35(nb_em):
     print question
     res=init_cs_year(nb=2)
 
-    for act in Act.objects.filter(validated=2, code_sect_1__isnull=False):
-        nb=len(act.adopt_cs_contre.all())
-        if nb>0:
-            cs=get_cs(act.code_sect_1.code_sect)
-            year=str(act.releve_annee)
-            #~ if cs[:2]=="02" and year=="1996":
-                #~ print "cs", act.code_sect_1
-                #~ print "year", year
-                #~ print "act", act
-                #~ print "nb", nb
-                #~ print ""
-            res[cs][year][1]+=1
-            if nb==nb_em:
-                res[cs][year][0]+=1
+    for act in Act.objects.filter(validated=2):
+        nb_contre=len(act.adopt_cs_contre.all())
+        if nb_contre>0:
+            for nb in range(1,5):
+                code_sect=getattr(act, "code_sect_"+str(nb))
+                if code_sect!=None:
+                    cs=get_cs(code_sect.code_sect)
+                    year=str(act.releve_annee)
+                    res[cs][year][1]+=1
+                    if nb_contre==nb_em:
+                        res[cs][year][0]+=1
     print "res", res
 
     write_cs_year(question, res, percent=100, nb=2)
@@ -958,10 +981,13 @@ def q36():
     res=init_cs_year(nb=2)
     
     for act in Act.objects.filter(validated=2, vote_public=True, duree_tot_depuis_prop_com__isnull=False):
-        cs=get_cs(act.code_sect_1.code_sect)
-        year=str(act.releve_annee)
-        res[cs][str(act.releve_annee)][1]+=1
-        res[cs][str(act.releve_annee)][0]+=act.duree_tot_depuis_prop_com
+        for nb in range(1,5):
+            code_sect=getattr(act, "code_sect_"+str(nb))
+            if code_sect!=None:
+                cs=get_cs(code_sect.code_sect)
+                year=str(act.releve_annee)
+                res[cs][str(act.releve_annee)][1]+=1
+                res[cs][str(act.releve_annee)][0]+=act.duree_tot_depuis_prop_com
     print "res", res
 
     write_cs_year(question, res, nb=2)
@@ -975,9 +1001,12 @@ def q37():
 
     for act in Act.objects.filter(validated=2, nb_point_b__isnull=False):
         if act.nb_point_b>0:
-            cs=get_cs(act.code_sect_1.code_sect)
-            year=str(act.releve_annee)
-            res[cs][year]+=1
+            for nb in range(1,5):
+                code_sect=getattr(act, "code_sect_"+str(nb))
+                if code_sect!=None:
+                    cs=get_cs(code_sect.code_sect)
+                    year=str(act.releve_annee)
+                    res[cs][year]+=1
     print "res", res
 
     write_cs_year(question, res)
@@ -1000,13 +1029,16 @@ def q38():
             total_year[year]=[0,0]
             res[secteur][year]=[0,0]
 
-    for act in MinAttend.objects.filter(act__validated=2, act__code_sect_1__isnull=False):
+    for act in MinAttend.objects.filter(act__validated=2):
         status=Status.objects.get(verbatim=act.verbatim, country=act.country).status
         if status not in ["NA", "AB"]:
-            cs=get_cs(act.act.code_sect_1.code_sect)
-            year=str(act.act.releve_annee)
-            total_year[year][statuses[status]]+=1
-            res[cs][year][statuses[status]]+=1
+            for nb in range(1,5):
+                code_sect=getattr(act.act, "code_sect_"+str(nb))
+                if code_sect!=None:
+                    cs=get_cs(code_sect.code_sect)
+                    year=str(act.act.releve_annee)
+                    total_year[year][statuses[status]]+=1
+                    res[cs][year][statuses[status]]+=1
     print "res", res
     print "total_year", total_year
 
@@ -1035,32 +1067,35 @@ def concordance_annee_secteur_abs(resp_group, rapp_group):
     print question
     res, total_year=init_cs_year(total=True)
         
-    for act in Act.objects.filter(validated=2, code_sect_1__isnull=False):
-        cs=get_cs(act.code_sect_1.code_sect)
-        year=str(act.releve_annee)
-        total_year[year]+=1
-        resps=[]
-        rapps=[]
-        
-        for i in range(1, 3):
-            i=str(i)
-            resp=getattr(act, "resp_"+i)
-            rapp=getattr(act, "rapp_"+i)
-            if resp!=None:
-                resps.append(resp)
-            if rapp!=None:
-                rapps.append(rapp)
-        
-        if (len(resps)>0) and (len(rapps)>0):
-            same=False
-            for resp in resps:
-                if same:
-                    break
-                for rapp in rapps:
-                    if PartyFamily.objects.get(country=resp.country, party=resp.party).party_family.strip()==resp_group and rapp.party.party.strip() in rapp_group:
-                        res[cs][year]+=1
-                        same=True
-                        break
+    for act in Act.objects.filter(validated=2):
+        for nb in range(1,5):
+            code_sect=getattr(act, "code_sect_"+str(nb))
+            if code_sect!=None:
+                cs=get_cs(code_sect.code_sect)
+                year=str(act.releve_annee)
+                total_year[year]+=1
+                resps=[]
+                rapps=[]
+                
+                for i in range(1, 3):
+                    i=str(i)
+                    resp=getattr(act, "resp_"+i)
+                    rapp=getattr(act, "rapp_"+i)
+                    if resp!=None:
+                        resps.append(resp)
+                    if rapp!=None:
+                        rapps.append(rapp)
+                
+                if (len(resps)>0) and (len(rapps)>0):
+                    same=False
+                    for resp in resps:
+                        if same:
+                            break
+                        for rapp in rapps:
+                            if PartyFamily.objects.get(country=resp.country, party=resp.party).party_family.strip()==resp_group and rapp.party.party.strip() in rapp_group:
+                                res[cs][year]+=1
+                                same=True
+                                break
     
     print "res"
     print res
@@ -1075,32 +1110,35 @@ def concordance_annee_secteur(resp_group, rapp_group):
     print question
     res, total_year=init_cs_year(total=True)
         
-    for act in Act.objects.filter(validated=2, code_sect_1__isnull=False):
-        cs=get_cs(act.code_sect_1.code_sect)
-        year=str(act.releve_annee)
-        resps=[]
-        rapps=[]
-        
-        for i in range(1, 3):
-            i=str(i)
-            resp=getattr(act, "resp_"+i)
-            rapp=getattr(act, "rapp_"+i)
-            if resp!=None:
-                resps.append(resp)
-            if rapp!=None:
-                rapps.append(rapp)
-        
-        if (len(resps)>0) and (len(rapps)>0):
-            same=False
-            for resp in resps:
-                if same:
-                    break
-                for rapp in rapps:
-                    if PartyFamily.objects.get(country=resp.country, party=resp.party).party_family.strip()==resp_group and rapp.party.party.strip() in rapp_group:
-                        res[cs][year]+=1
-                        total_year[year]+=1
-                        same=True
-                        break
+    for act in Act.objects.filter(validated=2):
+        for nb in range(1,5):
+            code_sect=getattr(act, "code_sect_"+str(nb))
+            if code_sect!=None:
+                cs=get_cs(code_sect.code_sect)
+                year=str(act.releve_annee)
+                resps=[]
+                rapps=[]
+                
+                for i in range(1, 3):
+                    i=str(i)
+                    resp=getattr(act, "resp_"+i)
+                    rapp=getattr(act, "rapp_"+i)
+                    if resp!=None:
+                        resps.append(resp)
+                    if rapp!=None:
+                        rapps.append(rapp)
+                
+                if (len(resps)>0) and (len(rapps)>0):
+                    same=False
+                    for resp in resps:
+                        if same:
+                            break
+                        for rapp in rapps:
+                            if PartyFamily.objects.get(country=resp.country, party=resp.party).party_family.strip()==resp_group and rapp.party.party.strip() in rapp_group:
+                                res[cs][year]+=1
+                                total_year[year]+=1
+                                same=True
+                                break
     
     print "res"
     print res
@@ -1157,91 +1195,91 @@ class Command(NoArgsCommand):
         writer.writerow([""])
 
         #proportion d’actes avec plusieurs codes sectoriels
-        q1()
-        #~ #ventilation par domaines
-        q2()
-        #~ #Concordance PartyFamilyResp et GroupePolitiqueRapporteur (Social Democracy): Pourcentage sur la periode 1996-2012
-        q3()
-        #~ #Concordance PartyFamilyResp et GroupePolitiqueRapporteur (Conservative/Christian Democracy): Pourcentage sur la periode 1996-2012
-        q4()
+        #~ q1()
+        #ventilation par domaines
+        #~ q2()
+        #Concordance PartyFamilyResp et GroupePolitiqueRapporteur (Social Democracy): Pourcentage sur la periode 1996-2012
+        #~ q3()
+        #Concordance PartyFamilyResp et GroupePolitiqueRapporteur (Conservative/Christian Democracy): Pourcentage sur la periode 1996-2012
+        #~ q4()
+        #~ #durée moyenne des actes adoptés en 1e et en 2e lecture
+        #~ q7()
+        #~ #durée moyenne entre transmission au conseil et adoption pour les actes qui ont donné lieu à un vote public
+        #~ q8()
+
+
+        #PAR ANNEE
+
+        #production législative
+        #~ q9()
+        #ventilation par domaines
+        #~ q10()
+        #pourcentage de propositions modifiées par la Commission
+        #~ q11()
+        #~ #durée moyenne d’adoption
+        #~ q12()
+        #pourcentage d’actes adoptés en 1e et 2e lecture
+        #~ q13()
         #durée moyenne des actes adoptés en 1e et en 2e lecture
-        q7()
+        #~ q14()
         #durée moyenne entre transmission au conseil et adoption pour les actes qui ont donné lieu à un vote public
-        q8()
-#~ 
-#~ 
-        #~ #PAR ANNEE
-#~ 
-        #~ #production législative
-        q9()
-        #~ #ventilation par domaines
-        q10()
-        #~ #pourcentage de propositions modifiées par la Commission
-        q11()
-        #durée moyenne d’adoption
-        q12()
-        #~ #pourcentage d’actes adoptés en 1e et 2e lecture
-        q13()
+        #~ q15()
+        #nombre moyen d’amendements déposés/adoptés
+        #~ q16()
+        #vote?
+        #~ q17()
+        #pourcentage AdoptCSContre=Y
+        #~ q18()
+        #~ #1/ %age AdoptCSContre=Y ET 1 EM.       2/%age AdoptCSContre=Y ET 2 EM.        3/%age AdoptCSContre=Y ET 3 EM
+        #~ q19()
+        #Durée moyenne des actes soumis à un vote
+        #~ q20()
+        #Nombre d’actes pour lesquels on a eu au moins une discussion en points B
+        #~ q21()
+        #pourcentage de ministres presents (M) et de RP (CS ou CS_PR)? par annee
+        #~ q22()
+        #Concordance PartyFamilyResp et GroupePolitiqueRapporteur (Social Democracy): Pourcentage par année
+        #~ q23()
+        #Concordance PartyFamilyResp et GroupePolitiqueRapporteur (Conservative/Christian Democracy): Pourcentage par année
+        #~ q24()
+
+
+        #PAR SECTEUR ET PAR ANNEE
+
+        #% age de propositions modifiées par la Commission
+        #~ q27()
+        #~ #durée moyenne d’adoption
+        #~ q28()
+        #~ #% age d’actes adoptés en 1e et 2e lecture
+        #~ q29()
         #~ #durée moyenne des actes adoptés en 1e et en 2e lecture
-        q14()
+        #~ q30()
         #~ #durée moyenne entre transmission au conseil et adoption pour les actes qui ont donné lieu à un vote public
-        q15()
+        #~ q31()
         #~ #nombre moyen d’amendements déposés/adoptés
-        q16()
-        #~ #vote?
-        q17()
-        #~ #pourcentage AdoptCSContre=Y
-        q18()
-        #1/ %age AdoptCSContre=Y ET 1 EM.       2/%age AdoptCSContre=Y ET 2 EM.        3/%age AdoptCSContre=Y ET 3 EM
-        q19()
-        #~ #Durée moyenne des actes soumis à un vote
-        q20()
-        #~ #Nombre d’actes pour lesquels on a eu au moins une discussion en points B
-        q21()
-        #~ #pourcentage de ministres presents (M) et de RP (CS ou CS_PR)? par annee ET par secteurs
-        q22()
-        #~ #Concordance PartyFamilyResp et GroupePolitiqueRapporteur (Social Democracy): Pourcentage par année
-        q23()
-        #~ #Concordance PartyFamilyResp et GroupePolitiqueRapporteur (Conservative/Christian Democracy): Pourcentage par année
-        q24()
-#~ 
-#~ 
-        #~ #PAR SECTEUR ET PAR ANNEE
-#~ 
-        #~ #% age de propositions modifiées par la Commission
-        q27()
-        #durée moyenne d’adoption
-        q28()
-        #% age d’actes adoptés en 1e et 2e lecture
-        q29()
-        #~ #durée moyenne des actes adoptés en 1e et en 2e lecture
-        q30()
-        #~ #durée moyenne entre transmission au conseil et adoption pour les actes qui ont donné lieu à un vote public
-        q31()
-        #~ #nombre moyen d’amendements déposés/adoptés
-        q32("EPComAmdtTabled", "com_amdt_tabled")
-        q32("EPComAmdtAdopt", "com_amdt_adopt")
-        q32("EPAmdtTabled", "amdt_tabled")
-        q32("EPAmdtAdopt", "amdt_adopt")
+        #~ q32("EPComAmdtTabled", "com_amdt_tabled")
+        #~ q32("EPComAmdtAdopt", "com_amdt_adopt")
+        #~ q32("EPAmdtTabled", "amdt_tabled")
+        #~ q32("EPAmdtAdopt", "amdt_adopt")
         #~ #Vote?
-        q33()
+        #~ q33()
         #~ #%age de votes négatifs par Etat membre
-        q34()
-        #~ #% age de votes négatifs isolés, de 2 Etats, de 3 Etats
-        q35(1)
-        q35(2)
-        q35(3)
+        #~ q34()
+        #% age de votes négatifs isolés, de 2 Etats, de 3 Etats
+        #~ q35(1)
+        #~ q35(2)
+        #~ q35(3)
         #~ #Durée moyenne des actes soumis à un vote
-        q36()
+        #~ q36()
         #~ #Nombre d’actes pour lesquels on a eu au moins une discussion en points B
-        q37()
-        #~ #pourcentage de ministres presents (M) et de RP (CS ou CS_PR)? par annee ET par secteurs
+        #~ q37()
+        #pourcentage de ministres presents (M) et de RP (CS ou CS_PR)? par annee ET par secteurs
         q38()
-        #~ #Concordance PartyFamilyResp et GroupePolitiqueRapporteur (Social Democracy): Pourcentage par année et par secteur
+        #Concordance PartyFamilyResp et GroupePolitiqueRapporteur (Social Democracy): Pourcentage par année et par secteur
         q39()
-        #~ #Concordance PartyFamilyResp et GroupePolitiqueRapporteur (Conservative/Christian Democracy): Pourcentage par année et par secteur
+        #Concordance PartyFamilyResp et GroupePolitiqueRapporteur (Conservative/Christian Democracy): Pourcentage par année et par secteur
         q40()
-        #~ 
-        #~ 
-        #~ #période 2010-2012 : %age d’actes ayant fait l’objet d’ interventions des parlements nationaux
-        q43()
+        
+        
+        #période 2010-2012 : %age d’actes ayant fait l’objet d’ interventions des parlements nationaux
+        #~ q43()
