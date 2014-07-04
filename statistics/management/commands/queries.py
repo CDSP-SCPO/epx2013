@@ -1264,22 +1264,22 @@ class Command(NoArgsCommand):
         #~ #Vote?
         #~ q33()
         #~ #%age de votes négatifs par Etat membre
-        #~ q34()
-        #% age de votes négatifs isolés, de 2 Etats, de 3 Etats
-        #~ q35(1)
-        #~ q35(2)
-        #~ q35(3)
+        q34()
+        #~ #% age de votes négatifs isolés, de 2 Etats, de 3 Etats
+        q35(1)
+        q35(2)
+        q35(3)
         #~ #Durée moyenne des actes soumis à un vote
         #~ q36()
         #~ #Nombre d’actes pour lesquels on a eu au moins une discussion en points B
         #~ q37()
         #pourcentage de ministres presents (M) et de RP (CS ou CS_PR)? par annee ET par secteurs
-        q38()
-        #Concordance PartyFamilyResp et GroupePolitiqueRapporteur (Social Democracy): Pourcentage par année et par secteur
+        #~ q38()
+        #~ #Concordance PartyFamilyResp et GroupePolitiqueRapporteur (Social Democracy): Pourcentage par année et par secteur
         q39()
         #Concordance PartyFamilyResp et GroupePolitiqueRapporteur (Conservative/Christian Democracy): Pourcentage par année et par secteur
         q40()
-        
+        #~ 
         
         #période 2010-2012 : %age d’actes ayant fait l’objet d’ interventions des parlements nationaux
         #~ q43()

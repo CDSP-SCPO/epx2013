@@ -249,22 +249,25 @@ function save_act_form(form, button, event)
         $(this).remove();
     });
     
-    var adopts=["cs_contre", "pc_contre", "cs_abs", "pc_abs"]
-    //populate drop down lists of adopt variables with the countries chosen in the multiple select list, for each adopt variable
-    $.each(adopts , function(i) 
-    { 
-        //get all the countries to be selected
-        countries=$("#"+adopts[i]+"_div .gentleselect-label").html().split(",");
-        
-        //unselect previous countries
-        $( ".adopt_"+adopts[i]+"_" ).val([])
-        
-        //select new countries
-        $.each(countries , function(nb) 
+    if(form.hasClass( "data"))
+    {
+        var adopts=["cs_contre", "pc_contre", "cs_abs", "pc_abs"]
+        //populate drop down lists of adopt variables with the countries chosen in the multiple select list, for each adopt variable
+        $.each(adopts , function(i) 
         { 
-            $("#id_adopt_"+adopts[i]+"_"+(nb+1)+" option:contains("+$.trim(countries[nb])+")").prop('selected',true);
+            //get all the countries to be selected
+            countries=$("#"+adopts[i]+"_div .gentleselect-label").html().split(",");
+            
+            //unselect previous countries
+            $( ".adopt_"+adopts[i]+"_" ).val([])
+            
+            //select new countries
+            $.each(countries , function(nb) 
+            { 
+                $("#id_adopt_"+adopts[i]+"_"+(nb+1)+" option:contains("+$.trim(countries[nb])+")").prop('selected',true);
+            });
         });
-    });
+    }
 
     var form_data=form.serialize();
     form_data+="&"+button.attr("id")+"=''";
