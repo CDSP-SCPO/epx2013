@@ -120,7 +120,15 @@ class MinAttendUpdate(UpdateView):
 
                 #set the number of forms to the number of ministers + 3 extra form to fill if needed
                 MinAttendFormSet = modelformset_factory(self.model, form=self.form_class, extra=len(attendances), max_num=len(attendances)+self.nb_extra_forms, can_delete=True)
-                formset = MinAttendFormSet(request.POST, queryset=attendances)
+                
+                if "add_act" in request.POST or "modif_act" in request.POST:
+                    formset=MinAttendFormSet(queryset=attendances)
+                    if "add_act" in request.POST:
+                        context["status"]="add"
+                    else:
+                        context["status"]="modif"
+                else:
+                    formset = MinAttendFormSet(request.POST, queryset=attendances)
 
                 #saves the ministers' attendances
                 if 'save_attendance' in request.POST:
@@ -148,18 +156,19 @@ class MinAttendUpdate(UpdateView):
                 if not any(key in context for key in keys) or not request.is_ajax() and context["state"]!="saved":
                     print 'act_to_validate display'
                     #get the data of the act
-                    if "add_act" in request.POST or "modif_act" in request.POST:
-                        formset=MinAttendFormSet(queryset=attendances)
-                        if "add_act" in request.POST:
-                            context["status"]="add"
-                        else:
-                            context["status"]="modif"
+                    #~ if "add_act" in request.POST or "modif_act" in request.POST:
+                        #~ formset=MinAttendFormSet(queryset=attendances)
+                        #~ if "add_act" in request.POST:
+                            #~ context["status"]="add"
+                        #~ else:
+                            #~ context["status"]="modif"
 
                     #display an error message in the template if there is no minister' s attendance for the act
                     attendance=False
                     for att in attendances:
                         if att.status not in ["AB", "NA"]:
                             attendance=True
+                            break
 
                     context['formset']=formset
                     context['act_ids']=act_ids
