@@ -3,7 +3,6 @@ from django import forms
 from models import Act, Person, CodeSect, DG, Country
 #modif form: add non field error
 from django.forms.util import ErrorList
-from django.core.exceptions import ValidationError
 #variables names
 import var_name_data
 #reverse list with original index

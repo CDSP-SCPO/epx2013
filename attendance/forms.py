@@ -1,10 +1,10 @@
 from django import forms
 from import_app.models import ImportMinAttend
-from act.models import Country, Status
+from act.models import Country, Status, Verbatim
 #variables names
 import act.var_name_data as var_name_data
 from django.forms.util import ErrorList
-from django.core.exceptions import ValidationError, ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
 
 
 class ImportMinAttendForm(forms.ModelForm):
@@ -19,12 +19,6 @@ class ImportMinAttendForm(forms.ModelForm):
         model=ImportMinAttend
         #fields used for the validation and order
         fields = ('country', 'status', 'verbatim')
-
-
-    def clean(self):
-        #call status clean method
-        self.cleaned_data["status"]=self.clean_status()
-        return self.cleaned_data
 
     def clean_country(self):
         #avoid validation error
@@ -41,6 +35,25 @@ class ImportMinAttendForm(forms.ModelForm):
         if self["status"].value()!="":
             del self._errors["status"]
         return self["status"].value()
+    
+    def clean(self):
+        form_data = self.cleaned_data
+        #call status clean method
+        form_data["status"]=self.clean_status()
+        
+        #check that no other status is recorded in the db for the given country and verbatim
+        if form_data["status"]!="":
+            try:
+                country=Country.objects.get(country_code=form_data["country"])
+                verbatim=Verbatim.objects.get(verbatim=form_data["verbatim"])
+                status_recorded=Status.objects.get(country=country, verbatim=verbatim).status
+                if status_recorded!=form_data["status"]:
+                    raise forms.ValidationError("The country '"+ country.country + "' and the verbatim '" + verbatim.verbatim + "' are already associated to the status '"+status_recorded + "'! Please change the status from '" + form_data["status"] + "' to '" + status_recorded + "' before saving the form again.")
+            except ObjectDoesNotExist, e:
+                print "status not yet recorded", e
+                
+        return form_data
+    
 
     def save(self, *args, **kwargs):
         #if extra forms, add ids
@@ -120,7 +133,6 @@ class Modif(forms.Form):
         no_ordre_modif=self.cleaned_data.get("no_ordre_modif")
 
         try:
-            #~ print ImportMinAttend.objects.get(releve_annee=releve_annee_modif, releve_mois=releve_mois_modif, no_ordre=no_ordre_modif, validated=True).query
             act=ImportMinAttend.objects.get(releve_annee=releve_annee_modif, releve_mois=releve_mois_modif, no_ordre=no_ordre_modif, validated=True)
         except ObjectDoesNotExist, e:
             #~ print "pb find act", e

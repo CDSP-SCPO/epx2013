@@ -121,12 +121,14 @@ class MinAttendUpdate(UpdateView):
                 #set the number of forms to the number of ministers + 3 extra form to fill if needed
                 MinAttendFormSet = modelformset_factory(self.model, form=self.form_class, extra=len(attendances), max_num=len(attendances)+self.nb_extra_forms, can_delete=True)
                 
+                #if display of attendances for the first time
                 if "add_act" in request.POST or "modif_act" in request.POST:
                     formset=MinAttendFormSet(queryset=attendances)
                     if "add_act" in request.POST:
                         context["status"]="add"
                     else:
                         context["status"]="modif"
+                #if display of attendances for the second time (update or errors)
                 else:
                     formset = MinAttendFormSet(request.POST, queryset=attendances)
 
