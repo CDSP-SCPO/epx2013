@@ -85,14 +85,13 @@ class MinAttendUpdate(UpdateView):
         """
         #if adding ministers's attendance for an act
         if add_modif=="add":
-            act_ids=post['act_to_validate'].split(",")
+            act_ids=act_ids=ActIds.objects.get(src="index", act__pk=post['act_to_validate'])
         else:
-            act_ids=[post['releve_annee_modif'], post['releve_mois_modif'], post['no_ordre_modif']]
-        try:
-            act_ids=ActIds.objects.get(src="index", act__releve_annee=act_ids[0], act__releve_mois=act_ids[1], act__no_ordre=act_ids[2])
-        except Exception, e:
-            print "exception get_act_ids", e
-            act_ids=None
+            try:
+                act_ids=ActIds.objects.get(src="index", act__releve_annee=post['releve_annee_modif'], act__releve_mois=post['releve_mois_modif'], act__no_ordre=post['no_ordre_modif'])
+            except Exception, e:
+                print "exception get_act_ids", e
+                act_ids=None
             
         return act_ids
 
@@ -157,13 +156,6 @@ class MinAttendUpdate(UpdateView):
 
                 if not any(key in context for key in keys) or not request.is_ajax() and context["state"]!="saved":
                     print 'act_to_validate display'
-                    #get the data of the act
-                    #~ if "add_act" in request.POST or "modif_act" in request.POST:
-                        #~ formset=MinAttendFormSet(queryset=attendances)
-                        #~ if "add_act" in request.POST:
-                            #~ context["status"]="add"
-                        #~ else:
-                            #~ context["status"]="modif"
 
                     #display an error message in the template if there is no minister' s attendance for the act
                     attendance=False
@@ -211,7 +203,8 @@ class MinAttendUpdate(UpdateView):
                 #if the form has been changed
                 if form.has_changed():
                     #update status in ImportMinAttend with same verbatim and empty status
-                    for instance in ImportMinAttend.objects.filter(verbatim=form.cleaned_data["verbatim"], status=None):
+                    instances=ImportMinAttend.objects.filter(verbatim=form.cleaned_data["verbatim"], country=Country.objects.get(country_code=form.cleaned_data["country"]).country, status=None)
+                    for instance in instances:
                         print "instance ImportMinAttend", instance.pk
                         instance.status=form.cleaned_data["status"]
                         instance.save()
@@ -226,6 +219,10 @@ class MinAttendUpdate(UpdateView):
             #forms to be deleted
             else:
                 ImportMinAttend.objects.get(id=form.instance.pk).delete()
+        
+        #validate the attendances of the act
+        act_ids.act.validated_attendance=1
+        act_ids.act.save()
 
         #update dictionary (Verbatim and status models) and save attendances in MinAttend
         link_act_min_attend(act_ids)

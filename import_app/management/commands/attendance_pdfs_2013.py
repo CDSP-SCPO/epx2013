@@ -373,72 +373,67 @@ class Command(NoArgsCommand):
         #delete not validated acts
         #~ ImportMinAttend.objects.filter(validated=False).delete()
 
-        #~ #get all the acts with a non null attendance_path
-        acts_ids=ActIds.objects.filter(src="index", act__attendance_pdf__isnull=False,  act__releve_annee=2013)
+        #~ #get all the acts with a non null attendance_path and attendances not yet validated
+        acts_ids=ActIds.objects.filter(src="index", act__attendance_pdf__isnull=False, act__validated_attendance=0,  act__releve_annee=2013)
         for act_ids in acts_ids:
-            
             ok=False
-            already_imported=ImportMinAttend.objects.filter(no_celex=act_ids.no_celex, validated=True)
-            #~ #if the act has been imported and validated already, don't import it again
-            if not already_imported:
-                act=act_ids.act
+            act=act_ids.act
+
 #~ #~
-                #TEST ONLY
-                #~ act.attendance_pdf="http://www.consilium.europa.eu/uedocs/cms_data/docs/pressdata/en/intm/110310.pdf"
+            #TEST ONLY
+            #~ act.attendance_pdf="http://www.consilium.europa.eu/uedocs/cms_data/docs/pressdata/en/intm/110310.pdf"
 #~ #~
-                print ""
-                print "act", act
-                print act.attendance_pdf
-                print ""
+            print ""
+            print "act", act
+            print act.attendance_pdf
+            print ""
+            
+            #new attendance pdf document?
+            if act_ids.act.attendance_pdf not in urls:
                 
-                #new attendance pdf document?
-                if act_ids.act.attendance_pdf not in urls:
+                #~ #get the pdf
+                try:
+                    file_object = urllib2.urlopen(act.attendance_pdf)
+                except Exception, e:
+                    #wait a few seconds
+                    print e
+                    print ""
+                    time.sleep(3)
+                    file_object = urllib2.urlopen(act.attendance_pdf)
+
+                #read the pdf and assign its text to a string
+                string=pdf_to_string(file_object)
+                participants=get_participants(string)
+                readable=False
+                for participant in participants:
+                    #for some acts in 2002, countries are not read properly
+                    if "Belgium" in participant:
+                        readable=True
+                        break
+
+                if readable:
+                    #format the string variable to get the countries and verbatims only
+                    #~ #participants=file_to_string(file_path+file_name+".txt")
+                    participants=format_participants(participants, country_list)
+                    countries=get_countries(participants, country_list)
+                    verbatims=get_verbatims(countries, country_list)
                     
-                    #~ #get the pdf
-                    try:
-                        file_object = urllib2.urlopen(act.attendance_pdf)
-                    except Exception, e:
-                        #wait a few seconds
-                        print e
-                        print ""
-                        time.sleep(3)
-                        file_object = urllib2.urlopen(act.attendance_pdf)
-
-                    #read the pdf and assign its text to a string
-                    string=pdf_to_string(file_object)
-                    participants=get_participants(string)
-                    readable=False
-                    for participant in participants:
-                        #for some acts in 2002, countries are not read properly
-                        if "Belgium" in participant:
-                            readable=True
-                            break
-
-                    if readable:
-                        #format the string variable to get the countries and verbatims only
-                        #~ #participants=file_to_string(file_path+file_name+".txt")
-                        participants=format_participants(participants, country_list)
-                        countries=get_countries(participants, country_list)
-                        verbatims=get_verbatims(countries, country_list)
-                        
-                        urls[act.attendance_pdf]=verbatims
-                        ok=True
-                    else:
-                        print "countries not readable"
-                        nb_pbs+=1
-    #~             
-                #html page already retrieved
-                else:
-                    verbatims=urls[act.attendance_pdf]
+                    urls[act.attendance_pdf]=verbatims
                     ok=True
-                
+                else:
+                    print "countries not readable"
+                    nb_pbs+=1
+#~             
+            #html page already retrieved
             else:
-                print "already imported"
-                    
+                verbatims=urls[act.attendance_pdf]
+                ok=True
+       
+                
             #if the verbatims have been extracted
             if ok:
                 #remove non validated ministers' attendances
-                ImportMinAttend.objects.filter(no_celex=act_ids.no_celex, validated=False).delete()
+                ImportMinAttend.objects.filter(no_celex=act_ids.no_celex).delete()
     #~ #~
                 for country in verbatims:
                     status=None
@@ -456,6 +451,10 @@ class Command(NoArgsCommand):
                     except IntegrityError as e:
                         pass
                         #print "integrity error", e
+                    
+                #validate attendance in act table
+                act.validated_attendance=1
+                act.save()
         #~ #~
                 #TEST ONLY
                 #~ break

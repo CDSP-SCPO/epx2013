@@ -239,6 +239,8 @@ class Act(models.Model):
     #validated=1 if the ids of the act have been validated but not its data
     #validated=2 if the ids AND data of the act have been validated
     validated=models.IntegerField(max_length=1, default=0, db_index=True)
+    #1 if the attendances of the act have been validated, 0 otherwise
+    validated_attendance=models.BooleanField(default=False, db_index=True)
 
     #joined primary keys
     class Meta:

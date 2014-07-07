@@ -60,39 +60,41 @@ def link_act_min_attend(act_ids):
     min_attend_dic: min_attend variables [dictionary]
     """
     min_attend_dic={}
-    #retrieve all the rows of the act from the ImportMinAttend table
-    min_attends=ImportMinAttend.objects.filter(no_celex=act_ids.no_celex, validated=True)
-    attendance=False
-    #for each country and each verbatim fill the association
-    for min_attend in min_attends:
-        #get or create the verbatim with its status if it does not exist in the Vernatim model
-        verbatim, created = Verbatim.objects.get_or_create(verbatim=min_attend.verbatim)
-        #fill status table
-        status, created = Status.objects.get_or_create(verbatim=verbatim, country=Country.objects.get(country_code=min_attend.country), status=min_attend.status)
+    #if the attendances of the act have been validated already
+    if act_ids.act.validated_attendance:
+        #retrieve all the rows of the act from the ImportMinAttend table
+        min_attends=ImportMinAttend.objects.filter(no_celex=act_ids.no_celex)
+        attendance=False
+        #for each country and each verbatim fill the association
+        for min_attend in min_attends:
+            #get or create the verbatim with its status if it does not exist in the Vernatim model
+            verbatim, created = Verbatim.objects.get_or_create(verbatim=min_attend.verbatim)
+            #fill status table
+            status, created = Status.objects.get_or_create(verbatim=verbatim, country=Country.objects.get(country_code=min_attend.country), status=min_attend.status)
 
-        #store data in a dictionary
-        country=min_attend.country
-        #initialization
-        if country not in min_attend_dic:
-            min_attend_dic[country]=""
-        min_attend_dic[country]+=min_attend.status+"; "
+            #store data in a dictionary
+            country=min_attend.country
+            #initialization
+            if country not in min_attend_dic:
+                min_attend_dic[country]=""
+            min_attend_dic[country]+=min_attend.status+"; "
 
-        try:
-            MinAttend.objects.create(act=act_ids.act, country=Country.objects.get(pk=min_attend.country), verbatim=verbatim)
-        except Exception, e:
-            print "min_attend already exists!", e
+            try:
+                MinAttend.objects.create(act=act_ids.act, country=Country.objects.get(pk=min_attend.country), verbatim=verbatim)
+            except Exception, e:
+                print "min_attend already exists!", e
 
-        #check if there is at least one status different from AB and NA -> check if there are attendances for the act
-        if min_attend.status not in ["AB", "NA"]:
-            attendance=True
+            #check if there is at least one status different from AB and NA -> check if there are attendances for the act
+            if min_attend.status not in ["AB", "NA"]:
+                attendance=True
 
-    #if no status different from AB or NA found, consider there is no attendance for this act and empty the dictionary
-    if not attendance:
-        min_attend_dic={}
+        #if no status different from AB or NA found, consider there is no attendance for this act and empty the dictionary
+        if not attendance:
+            min_attend_dic={}
 
-    #remove last "; "
-    for country in min_attend_dic:
-        min_attend_dic[country]=min_attend_dic[country][:-2]
+        #remove last "; "
+        for country in min_attend_dic:
+            min_attend_dic[country]=min_attend_dic[country][:-2]
 
     return min_attend_dic
 

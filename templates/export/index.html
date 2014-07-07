@@ -17,30 +17,15 @@ displays the export page
 
 				<div class="row-fluid">
 					You can download all the acts of the database on this page. <br />
-					Please select the sort variable, the sort direction and click on the submit button. The acts will be downloaded in the csv format (can be open with excel or calc).
+					Please click on the submit button and wait for the acts to be downloaded in the csv format (can be open with excel or calc).
 				</div>
 
 				<br />
 
 				<div class="row-fluid">
-					<div id="id___all___errors" class="row-fluid">{{ form.non_field_errors }}</div>
-				</div>
-
-				{% for field in form %}
-					<div class="row-fluid">
-						<div class="span4">
-							<div class="fieldWrapper">
-								<div id="id_{{ field.name }}_errors" class="row-fluid">{{ field.errors }}</div>
-								<div class="row-fluid">{{ field }}</div>
-							</div>
-						</div>
-					</div>
-				{% endfor %}
-
-				<div class="row-fluid">
-					<div class="span4">
+					<div class="span12">
 						<div class="fieldWrapper center">
-							<button type="submit" id="export_button" class="btn btn-primary" data-loading-text="Loading...">EXPORT</button>
+							<button type="submit" id="export_button" class="btn btn-primary" data-loading-text="Loading...">EXPORT ALL THE VALIDATED ACTS</button>
 						</div>
 					</div>
 				</div>

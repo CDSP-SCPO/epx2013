@@ -203,9 +203,12 @@ class Modif(forms.Form):
         no_ordre_modif=self.cleaned_data.get("no_ordre_modif")
 
         try:
-            act=Act.objects.get(releve_annee=releve_annee_modif, releve_mois=releve_mois_modif, no_ordre=no_ordre_modif, validated__gt=0)
-        except:
-            self._errors['__all__']=ErrorList([u"The act you are looking for has not been validated yet!"])
+            act=Act.objects.get(releve_annee=releve_annee_modif, releve_mois=releve_mois_modif, no_ordre=no_ordre_modif)
+            if act.validated==0:
+                self._errors['__all__']=ErrorList([u"The act you are looking for has not been validated yet!"])
+                return False
+        except Exception, e:
+            self._errors['__all__']=ErrorList([u"The act you are looking for doesn't exist in our database!"])
             return False
 
         # form valid -> return True

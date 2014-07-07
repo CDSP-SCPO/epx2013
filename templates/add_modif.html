@@ -9,11 +9,7 @@
         <div class="row-fluid"><h4>Act to validate</h4></div>
         <br />
         <div id="acts_nb" class="row-fluid">
-            {% if attendance_form %}
-                {{ add.act_to_validate.field.choices|length|add:"-1" }}
-            {% else %}
-                {{ add.act_to_validate.field.choices.queryset.all|length }}
-            {% endif %}
+            {{ add.act_to_validate.field.choices.queryset.all|length }}
              act(s) to validate!
         </div>
         <div id="id_add_act__all__errors" class="row-fluid modif_errors">{{ add.non_field_errors }}</div>

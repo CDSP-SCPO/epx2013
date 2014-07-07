@@ -118,7 +118,7 @@ class ActForm(forms.ModelForm):
     class Meta:
         model=Act
         #fields NOT used for the validation and not displayed in the form
-        exclude=('id', 'releve_annee', 'releve_mois', 'no_ordre', 'titre_rmc', 'council_path', 'attendance_pdf', 'date_doc', 'url_prelex', "validated")
+        exclude=('id', 'releve_annee', 'releve_mois', 'no_ordre', 'titre_rmc', 'council_path', 'attendance_pdf', 'date_doc', 'url_prelex', "validated", "validated_attendance")
     
     
     #dynamically create drop down lists for adopt_cs and adopt_pc fields
@@ -224,10 +224,12 @@ class Modif(forms.Form):
         no_ordre_modif=self.cleaned_data.get("no_ordre_modif")
 
         try:
-            act=Act.objects.get(releve_annee=releve_annee_modif, releve_mois=releve_mois_modif, no_ordre=no_ordre_modif, validated=2)
-        except:
-            print "pb find act"
-            self._errors['__all__']=ErrorList([u"The act you are looking for has not been validated yet!"])
+            act=Act.objects.get(releve_annee=releve_annee_modif, releve_mois=releve_mois_modif, no_ordre=no_ordre_modif)
+            if act.validated<2:
+                self._errors['__all__']=ErrorList([u"The act you are looking for has not been validated yet!"])
+                return False
+        except Exception, e:
+            self._errors['__all__']=ErrorList([u"The act you are looking for doesn't exist in our database!"])
             return False
 
         # form valid -> return True

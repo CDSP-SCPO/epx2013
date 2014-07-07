@@ -52,11 +52,10 @@ def get_ordered_queryset(releve_mois, releve_annee, no_ordre, validated=False):
     releve_mois: releve_mois variable [int]
     releve_annee: releve_annee variable [int]
     no_ordre: no_ordre variable [int]
-    validated: validated value [boolean]
     RETURN
     sorted queryset [Queryset object]
     """
-    queryset_no_order=ImportMinAttend.objects.filter(releve_annee=releve_mois, releve_mois=releve_annee, no_ordre=no_ordre, validated=validated)
+    queryset_no_order=ImportMinAttend.objects.filter(releve_annee=releve_mois, releve_mois=releve_annee, no_ordre=no_ordre)
     queryset=queryset_no_order.filter(status=None).order_by("country")
     #must hit the database to have _result_cache work
     len(queryset)
@@ -99,12 +98,11 @@ def add_modif_fct(request, response, Add, Modif, form):
             add_modif="add"
             act_to_validate=add.cleaned_data['act_to_validate']
             #get the primary key
+            act_ids=act_to_validate.pk
+            queryset=Act.objects.get(id=act_ids)
             if form=="attendance_form":
-                act_ids=act_to_validate.split(",")
-                queryset=get_ordered_queryset(int(act_ids[0]), int(act_ids[1]), int(act_ids[2]))
-            else:
-                act_ids=act_to_validate.pk
-                queryset=Act.objects.get(id=act_ids)
+                queryset=get_ordered_queryset(queryset.releve_annee, queryset.releve_mois, queryset.no_ordre)
+                
         #empty selection for the drop down list
         else:
             if request.is_ajax():
@@ -126,7 +124,7 @@ def add_modif_fct(request, response, Add, Modif, form):
             releve_mois_modif=modif.cleaned_data['releve_mois_modif']
             no_ordre_modif=modif.cleaned_data['no_ordre_modif']
             if form=="attendance_form":
-                queryset=get_ordered_queryset(releve_annee_modif, releve_mois_modif, no_ordre_modif, True)
+                queryset=get_ordered_queryset(releve_annee_modif, releve_mois_modif, no_ordre_modif)
             else:
                 queryset=Act.objects.get(releve_annee=releve_annee_modif, releve_mois=releve_mois_modif, no_ordre=no_ordre_modif)
         else:

@@ -534,7 +534,6 @@ def get_data_min_attend_insert(row):
     defaults["no_ordre"]=int(row[2])
     if row[5].strip()!="":
         defaults["status"]=row[5].strip()
-    #~ defaults["validated"]=True
 
     #get instance or create instance if does not already exist
     instance, created = ImportMinAttend.objects.get_or_create(defaults=defaults, **ids_row)
