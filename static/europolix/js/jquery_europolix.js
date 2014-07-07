@@ -184,7 +184,9 @@ function load_content($a, event)
 //create an iframe in the current form
 function iframe_creation()
 {
-    var iframe=$('<iframe name="postiframe" id="postiframe" style="display: none" />');
+    //~ var iframe=$('<iframe name="postiframe" id="postiframe" style="display: none" />');
+    //ajax cross-sites security issue
+    var iframe=$('<iframe name="postiframe" id="postiframe" style="display: none"></iframe>');
     //remove the previous iframe if more than one click on the submit button
     $("#"+$(iframe).attr("id")).remove();
     //append the iframe to the html page
@@ -226,7 +228,7 @@ function send_file(form, link, file, callback)
     {
         acts_nb=$("#acts_nb").val();
         var result={
-        "msg": acts_nb+" act(s) are being downloaded...",
+        "msg": acts_nb+" acts are being downloaded...",
         "msg_class": "success_msg"
         };
 
