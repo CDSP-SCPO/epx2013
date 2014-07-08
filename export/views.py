@@ -92,17 +92,19 @@ def get_headers(excl_fields_act_ids, excl_fields_act):
 
 
 #SLOW
-def get_validated_acts(excl_fields_act_ids, excl_fields_act):
+def get_save_acts(excl_fields_act_ids, excl_fields_act, writer):
     """
     FUNCTION
-    return all the validated acts of the model
+    get all the validated acts of the mdb and save them into a file
     PARAMETERS
     excl_fields_act_ids: fields not to be exported (ActIds) [list of strings]
     excl_fields_act: fields not to be exported (Act) [list of strings]
+    writer: object to write in the csv file [Writer object]
     RETURNS
-    acts: validated acts and relative data [list of Act model instances]
+    None
     """
     tic=time.time()
+    
     
     #querysets
     qs_act=Act.objects.defer("id",  'date_doc', "url_prelex", "validated", "validated_attendance").filter(validated=2).prefetch_related("gvt_compo", "adopt_cs_contre", "adopt_cs_abs", "adopt_pc_contre", "adopt_pc_abs").prefetch_related("gvt_compo__party")
@@ -121,9 +123,7 @@ def get_validated_acts(excl_fields_act_ids, excl_fields_act):
     names_actids=[field.name for field in ActIds()._meta.fields if field.name not in excl_fields_act_ids]
     names_act=[field.name for field in Act()._meta.fields if field.name not in excl_fields_act]
     names_act_m2m=[field.name for field in Act()._meta.many_to_many]
-    
-    #list of acts
-    acts=[]
+
     nb=0
 
     for act in qs_act:
@@ -229,12 +229,11 @@ def get_validated_acts(excl_fields_act_ids, excl_fields_act):
         fields.append(temp_fields["verbatim"][:-2])
         fields.append(temp_fields["status"][:-2])
         
-        acts.append(fields)
+        #write act in file
+        writer.writerow(fields)
     
     tac=time.time()
     print "time", tac-tic
-
-    return acts
 
 
 #VERY SLOW!
@@ -364,27 +363,6 @@ def get_validated_acts(excl_fields_act_ids, excl_fields_act):
 
 
 
-def qs_to_csv_file(headers, acts, outfile_path):
-    """
-    FUNCTION
-    saves a query set in a csv file on the server
-    PARAMETERS
-    headers: list of headers [list of strings]
-    acts: list of acts [list of Act model instances]
-    outfile_path: path of the file to save [string]
-    RETURNS
-    none
-    """
-    writer=csv.writer(open(outfile_path, 'w'),  delimiter=';', quotechar='"', quoting=csv.QUOTE_ALL)
-
-    #write headers
-    writer.writerow(headers)
-
-    #write every acts in the db
-    for act in acts:
-        writer.writerow(act)
-
-
 def send_file(request, file_server, file_client):
     """
     FUNCTION
@@ -428,10 +406,13 @@ def export(request):
         excl_fields_act_ids=["id", 'src', "url_exists", 'act']
         excl_fields_act=["id",  'date_doc', "url_prelex", "validated", "validated_attendance"]
         headers=get_headers(excl_fields_act_ids, excl_fields_act)
-        #fetch every acts in the db
-        acts=get_validated_acts(excl_fields_act_ids, excl_fields_act)
-        #save into csv file
-        qs_to_csv_file(headers, acts, dir_server+file_name)
+        #file to write in
+        writer=csv.writer(open(dir_server+file_name, 'w'),  delimiter=';', quotechar='"', quoting=csv.QUOTE_ALL)
+        #write headers
+        writer.writerow(headers)
+        #fetch all the acts of the db and save them into the csv file
+        get_save_acts(excl_fields_act_ids, excl_fields_act, writer)
+
         print "csv export"
         return send_file(request, dir_server+file_name, file_name)
 
