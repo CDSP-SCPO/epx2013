@@ -251,7 +251,7 @@ def get_data_dos_id(row):
 def get_data_act(row):
     """
     FUNCTION
-    get a string (row from csv file) and put its content into an instance of Act
+    get a string (row from index file) and put its content into an instance of Act/ActIds
     PARAMETERS
     row: row from the csv file [row object]
     RETURN
@@ -345,7 +345,7 @@ def get_save_act_ids(acts_ids):
 
         #get ids
         #eurlex
-        act_ids["eurlex"].__dict__.update(get_ids.check_get_ids_eurlex(act_ids["index"].no_celex))
+        act_ids["eurlex"].__dict__.update(get_ids.check_get_ids_eurlex(act_ids["index"].no_celex.strip()))
         #~ act_ids["eurlex"].__dict__.update(get_ids.check_get_ids_eurlex(act_ids["index"].no_celex))
 
         #oeil
