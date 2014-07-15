@@ -116,7 +116,7 @@ def get_data(src, act_ids, url, act=None):
         url_content=[eval("get_url_content_"+src)(url[0]), eval("get_url_content_"+src)(url[1])]
         if url_content[0]!=False:
              setattr(act_ids, "url_exists", True)
-             fields=eval("get_data_"+src)(url_content)
+             fields=eval("get_data_"+src)(url_content, act_ids.no_celex)
         else:
             setattr(act_ids, "url_exists", False)
             logger.debug("error while retrieving "+src+" url")
@@ -335,7 +335,7 @@ def init_context(context):
     context['display_name'].update(var_name_data.var_name)
     #one table (used to display one source) displays a subset of variables of the Act model only -> create list to loop over each subset
     #-> one table for eurlex, one for oeil and two for prelex
-    context["vars_eurlex"]=["titre_en", "code_sect_1", "code_sect_2", "code_sect_3", "code_sect_4", "rep_en_1", "rep_en_2", "rep_en_3", "rep_en_4", "type_acte", "base_j"]
+    context["vars_eurlex"]=["titre_en", "code_sect_1", "code_sect_2", "code_sect_3", "code_sect_4", "rep_en_1", "rep_en_2", "rep_en_3", "rep_en_4", "type_acte", "base_j", "nb_mots"]
     context["vars_oeil"]=["commission", "com_amdt_tabled", "com_amdt_adopt", "amdt_tabled", "amdt_adopt", "votes_for_1", "votes_agst_1", "votes_abs_1", "votes_for_2", "votes_agst_2", "votes_abs_2", "rapp_1", "rapp_2", "rapp_3", "rapp_4", "rapp_5", "modif_propos", "nb_lectures", "sign_pecs"]
     context["vars_prelex_1"]=["adopt_propos_origine", "com_proc", "dg_1", "dg_2", "resp_1", "resp_2", "resp_3", "transm_council", "cons_b", "nb_point_b", "adopt_conseil", "nb_point_a", "council_a"]
     context["vars_prelex_2"]=["rejet_conseil", "chgt_base_j", "duree_adopt_trans", "duree_proc_depuis_prop_com", "duree_proc_depuis_trans_cons", "duree_tot_depuis_prop_com", "duree_tot_depuis_trans_cons", "vote_public", "adopt_cs_regle_vote", "adopt_cs_contre", "adopt_cs_abs", "adopt_pc_contre", "adopt_pc_abs", "adopt_ap_contre", "adopt_ap_abs", "dde_em", "split_propos", "proc_ecrite", "suite_2e_lecture_pe", "gvt_compo"]

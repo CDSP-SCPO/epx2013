@@ -28,6 +28,7 @@ for index in xrange(1,5):
     var_name["rep_en_"+num]="RepEn"+num
 var_name["type_acte"]="TypeActe"
 var_name["base_j"]="BaseJuridique"
+var_name["nb_mots"]="NombreMots"
 
 #oeil
 var_name["commission"]="CommissionPE"

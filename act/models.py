@@ -173,6 +173,7 @@ class Act(models.Model):
     base_j=models.CharField(max_length=300, blank=True, null=True, default=None)
     #used for gvt_compo when propos_origine= "EM", "CONS", "BCE", "CJUE"
     date_doc=models.DateField(max_length=10, blank=True, null=True, default=None)
+    nb_mots=models.IntegerField(max_length=6, blank=False, null=False)
 
     #OEIL
     commission=models.CharField(max_length=10, blank=True, null=True, default=None)

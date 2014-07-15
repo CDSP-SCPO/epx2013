@@ -4,10 +4,12 @@
 get data from Eurlex (data for the statistical analysis)
 """
 import re
+import urllib
 from bs4 import BeautifulSoup
 from act.models import CodeSect
 from common.functions import list_reverse_enum, date_string_to_iso
 from common.db import save_fk_code_sect, save_get_object
+from import_app import config_file as conf
 
 
 #All the fields are extracted from the "ALL" tab except the directory code section (code_sect and rep_en variables): for some acts, the variables are extracted from the "Procedure" tab, for others they are extracted from the "ALL" tab.
@@ -317,12 +319,62 @@ def get_date_doc(soup):
 #not NULL
 
 
-def get_data_eurlex(soups):
+def visible(element):
+    #~ print "element", element
+    #~ print ""
+    if element.parent.name in ['style', 'script', '[document]', 'head', 'title']:
+        return False
+    #remove '\n'
+    elif element.encode('utf-8').strip()=='':
+        return False
+    elif re.match('<!--.*-->', element.encode('utf-8')):
+        return False
+    return True
+    
+
+def get_nb_mots(no_celex):
+    """
+    FUNCTION
+    get the number of words of the text of the act from the eurlex url
+    PARAMETERS
+    no_celex: no_celex of the act [string]
+    RETURN
+    nb_mots [string]
+    """
+    #http://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:31996R0122&from=EN
+    #http://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:32006L0031&from=EN
+    #http://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:32010R0053&from=EN
+    url=conf.url_text_act
+    url=url.replace("NOCELEX", no_celex, 1)
+    print url
+    soup=BeautifulSoup(urllib.urlopen(url))
+    try:
+        #page not found
+        #http://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:32004R0854&from=EN
+        if soup.title.string=="The requested document does not exist. - EUR-Lex":
+            print None
+            return None
+    except Exception, e:
+        #http://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:32006D1982&from=EN
+        print "link to 2 documents (STATEMENTS)", e
+        return None
+    texts = soup.findAll(text=True)
+    visible_texts = filter(visible, texts)
+    nb_mots=0
+    for text in visible_texts:
+        nb_mots+=len(text.split())
+    print nb_mots
+    return nb_mots
+
+
+
+def get_data_eurlex(soups, no_celex):
     """
     FUNCTION
     get all data from the eurlex url
     PARAMETERS
     soups: eurlex url content from the all and his tab [list of BeautifulSoup objects]
+    no_celex: no_celex of the act [string]
     RETURN
     data: retrieved data from eurlex [dictionary]
     """
@@ -371,5 +423,9 @@ def get_data_eurlex(soups):
     #date_doc
     data['date_doc']=get_date_doc(soup)
     print "date_doc:", data['date_doc']
+    
+    #nb_mots
+    data['nb_mots']=get_nb_mots(no_celex)
+    print "nb_mots:", data['nb_mots']
 
     return data

@@ -2,7 +2,7 @@
 
 from django.core.management.base import NoArgsCommand
 from django.db import models
-from act.models import Act, MinAttend, Status, NP, PartyFamily
+from act.models import Act, MinAttend, Status, NP, PartyFamily, Country
 from act_ids.models import ActIds
 from django.db.models import Count
 import csv
@@ -12,16 +12,14 @@ import datetime
 
 
 #year and code sectoriel lists
+countries=Country.objects.values_list("country_code", flat=True)
 years_list=[str(n) for n in range(1996, 2013)]
 years_list_zero=list(years_list)
 years_list_zero.insert(0, "")
-#~ cs_1=["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20"]
-cs_1=[str(n) for n in range(1, 21)]
-for index in range(len(cs_1)):
-    if len(cs_1[index])==1:
-        cs_1[index]="0"+cs_1[index]
-cs_2=["05.20", "15.10", "19.20", "19.30"]
-cs_list=cs_1+cs_2
+cs_list=[str(n) for n in range(1, 21)]
+for index in range(len(cs_list)):
+    if len(cs_list[index])==1:
+        cs_list[index]="0"+cs_list[index]
 
 #write results in file
 path=settings.PROJECT_ROOT+'/statistics/management/commands/queries.csv'
@@ -29,15 +27,26 @@ writer=csv.writer(open(path, 'w'))
 
 
 def get_cs(cs):
-    if cs[:5] in cs_2:
-        cs=cs[:5]
-    elif cs[:2] in cs_1:
+    if cs[:2] in cs_list:
         cs=cs[:2]
     else:
         cs=None
     return cs
 
 
+
+def init_year()
+    res={}
+    for year in years_list:
+        res[year]=[0,0]
+    return res
+
+
+def init_res():
+    res={}
+    for cs in cs_list:
+        res[cs]=[0,0]
+    return res
 
 
 def init_year_nb_lec(nb_lec=2, total=False):
@@ -58,7 +67,7 @@ def init_year_nb_lec(nb_lec=2, total=False):
     return res
 
 
-def init_cs_year(nb=1, total=False):
+def init_cs_year(nb=1, total=False, amdt=False):
     #use nb=2 to compute the percentage for each cell
     #use total=True to compute the percentage of each cell compared to the total of the year
     res={}
@@ -71,14 +80,16 @@ def init_cs_year(nb=1, total=False):
             else:
                 temp=[0,0]
             if total:
-                total_year[year]=temp
+                if amdt==True:
+                    total_year[year]=0
+                else:
+                    total_year[year]=temp
             res[secteur][year]=temp
             #ATTENTION! If nb=2 and total=True, the same list temp=[0,0] is used for total_year and res -> MUST USE A COPY OF THE LIST
             
     if total:
         return res, total_year
-    else:
-        return res
+    return res
 
 
 def init_cs_year_nb_lec(nb_lec=2, total=False):
@@ -88,12 +99,8 @@ def init_cs_year_nb_lec(nb_lec=2, total=False):
         res[cs]={}
         for year in years_list:
             res[cs][year]={}
-            for i in range(nb_lec):
-                if total:
-                    temp=0
-                else:
-                    temp=[0,0]
-                res[cs][year][i]=temp
+            for i in range(1, nb_lec+1):
+                res[cs][year][i]=0
     if total:
         for year in years_list:
             total_year[year]=[0]*nb_lec
@@ -102,6 +109,31 @@ def init_cs_year_nb_lec(nb_lec=2, total=False):
         return res
 
 
+
+def get_year(res, variable):
+    for act in Act.objects.filter(validated=2):
+        field=getattr(act, variable)
+        if field != None:
+            year=str(act.releve_annee)
+            res[year][0]+=field
+            res[year][1]+=1
+    print "res", res
+
+
+def get_res(res, variable):
+    
+    field=getattr(act, variable)
+        if field != None:
+            
+     for act in Act.objects.filter(validated=2):
+        
+            for nb in range(1,5):
+                code_sect=getattr(act, "code_sect_"+str(nb))
+                if code_sect!=None:
+                    cs=get_cs(code_sect.code_sect)
+                    res[cs][0]+=act.nb_mots
+                    res[cs][1]+=1
+    print "res", res
 
 
 def get_year_nb_lec(res, total_year=False, variable=1):
@@ -128,7 +160,7 @@ def get_year_nb_lec(res, total_year=False, variable=1):
     return res, total_year
 
 
-def get_cs_year(res, variable=1):
+def get_cs_year(res, variable=1, total_year=False):
     for act in Act.objects.filter(validated=2):
         if variable==1 or getattr(act, variable)!=None:
             for nb in range(1,5):
@@ -141,7 +173,12 @@ def get_cs_year(res, variable=1):
                     if variable!=1:
                         value=getattr(act, variable)
                     res[cs][year][0]+=value
+                    if total_year:
+                        #~ print "total_year", total_year
+                        total_year[year]+=value
     print "res", res
+    if total_year:
+        return res, total_year
     return res
 
 
@@ -149,8 +186,7 @@ def get_cs_year_nb_lec(res, total_year=False, variable=1):
     for act in ActIds.objects.filter(src="index", act__validated=2,  no_unique_type="COD", act__nb_lectures__isnull=False):
         year=str(act.act.releve_annee)
         nb_lec=act.act.nb_lectures
-        if nb_lec<3:
-            nb_lec=nb_lec-1
+        if nb_lec<3 and nb_lec>0 :
             
             for nb in range(1,5):
                 code_sect=getattr(act.act, "code_sect_"+str(nb))
@@ -162,8 +198,9 @@ def get_cs_year_nb_lec(res, total_year=False, variable=1):
                     else:
                         temp=1
                     if not total_year:
-                        res[cs][year][nb_lec][1]+=1
-                        res[cs][year][nb_lec][0]+=temp
+                        #~ print "nb_lec", nb_lec
+                        #~ print "res", res
+                        res[cs][year][nb_lec]+=1
                     else:
                         total_year[year][nb_lec]+=1
                         res[cs][year][nb_lec]+=temp
@@ -174,6 +211,35 @@ def get_cs_year_nb_lec(res, total_year=False, variable=1):
     return res, total_year
 
 
+
+def write_year(question, res):
+    writer.writerow([question])
+    writer.writerow(years_list)
+    row=[]
+    for year in years_list:    
+        if res[year][0]==0:
+            temp=0
+        else:
+            temp=round(float(res[year][0])/res[year][1], 3)
+        row.append(temp)
+    writer.writerow(row)
+    writer.writerow("")
+    print ""
+
+
+def write_cs(question, res):
+    writer.writerow([question])
+    writer.writerow(cs_list)
+    row=[]
+    for cs in cs_list:    
+        if res[cs][0]==0:
+            temp=0
+        else:
+            temp=round(float(res[cs][0])/res[cs][1], 3)
+        row.append(temp)
+    writer.writerow(row)
+    writer.writerow("")
+    print ""
 
 
 def write_year_nb_lec(question, res, total_year=False, nb_lec=2, percent=1):
@@ -198,17 +264,21 @@ def write_year_nb_lec(question, res, total_year=False, nb_lec=2, percent=1):
     print ""
 
 
-def write_cs_year(question, res, total_year=False, percent=1, nb=1):
+def write_cs_year(question, res, total_year=False, percent=1, nb=1, amdt=False):
     writer.writerow([question])
     writer.writerow(years_list_zero)
     for cs in cs_list:
         row=[cs]
         for year in years_list:
-            if total_year!=False:
-                if res[cs][year]==0:
-                    res_year=0
+            if total_year:
+                if amdt:
+                    #display sum of each year for amdt
+                    res_year=res[cs][year][0]
                 else:
-                    res_year=round(float(res[cs][year])*percent/total_year[year],3)
+                    if res[cs][year]==0:
+                        res_year=0
+                    else:
+                        res_year=round(float(res[cs][year])*percent/total_year[year],3)
             else:
                 if nb==1:
                     res_year=res[cs][year]
@@ -218,6 +288,12 @@ def write_cs_year(question, res, total_year=False, percent=1, nb=1):
                     else:
                         res_year=round(float(res[cs][year][0])*percent/res[cs][year][1],3)
             row.append(res_year)
+        writer.writerow(row)
+    #write sum each column
+    if amdt:
+        row=["Total"]
+        for year in years_list:
+            row.append(total_year[year])
         writer.writerow(row)
     writer.writerow("")
     print ""
@@ -230,19 +306,22 @@ def write_cs_year_nb_lec(question, res, total_year=False, nb_lec=2, percent=1):
         row=[cs]
         for year in years_list:
             res_year=""
-            for nb in range(nb_lec):
-                if not total_year:
-                    if res[cs][year][nb][0]==0:
-                        temp=0
-                    else:
-                        temp=round(float(res[cs][year][nb][0])*percent/res[cs][year][nb][1],3)
+            
+            if not total_year:
+                if res[cs][year][1]==0 and res[cs][year][2]==0:
+                    res[cs][year][1]=0
+                    res[cs][year][2]=0
+                elif res[cs][year][1]==0:
+                    res[cs][year][2]=100
+                elif res[cs][year][2]==0:
+                    res[cs][year][1]=100
                 else:
-                    if res[cs][year][nb]==0:
-                        temp=0
-                    else:
-                        temp=round(float(res[cs][year][nb])*percent/total_year[year][nb],3)
-                res_year+=str(temp)+ " / "
-            row.append(res_year[:-3])
+                    #both 1st and 2 lecture are different from zero
+                    total=res[cs][year][1]+res[cs][year][2]
+                    res[cs][year][1]=round(float(res[cs][year][1])*percent/total,3)
+                    res[cs][year][2]=round(float(res[cs][year][2])*percent/total,3)
+                
+            row.append(str(res[cs][year][1]) + "/" + str(res[cs][year][2]))
         writer.writerow(row)
     writer.writerow("")
     print ""
@@ -492,9 +571,7 @@ def q13():
     print question
     nb_lec=2
     res, total_year=init_year_nb_lec(total=True)
-
     res, total_year=get_year_nb_lec(res, total_year=total_year)
-   
     write_year_nb_lec(question, res, total_year=total_year, percent=100)
 
 
@@ -504,9 +581,7 @@ def q14():
     print question
     nb_lec=2
     res=init_year_nb_lec()
-
     res=get_year_nb_lec(res, variable="duree_tot_depuis_prop_com")
-
     write_year_nb_lec(question, res)
 
 
@@ -853,22 +928,18 @@ def q28():
     question="DureeTotaleDepuisPropCom moyenne par secteur, en fonction de l'année"
     print question
     res=init_cs_year(nb=2)
-
     res=get_cs_year(res, variable="duree_tot_depuis_prop_com")
-    
     write_cs_year(question, res, percent=1, nb=2)
 
 
 def q29():
     #Pourcentage d'actes NoUniqueType=COD adoptés en 1ère et 2ème lecture.
-    question="Pourcentage d'actes NoUniqueType=COD adoptés en 1ère et 2ème lecture par secteur, en fonction de l'année (1ère lecture / 2ème lecture)"
+    question="Pourcentage d'actes NoUniqueType=COD adoptés en 1ère et 2ème lecture parmi les actes du même secteur et de la même année (% 1ère lecture / % 2ème lecture)"
     print question
     nb_lec=2
-    res, total_year=init_cs_year_nb_lec(total=True)
-
-    res, total_year=get_cs_year_nb_lec(res, total_year=total_year)
-   
-    write_cs_year_nb_lec(question, res, total_year=total_year, percent=100)
+    res=init_cs_year_nb_lec()
+    res=get_cs_year_nb_lec(res)
+    write_cs_year_nb_lec(question, res, percent=100)
 
 
 def q30():
@@ -877,9 +948,7 @@ def q30():
     print question
     nb_lec=2
     res=init_cs_year_nb_lec()
-
     res=get_cs_year_nb_lec(res, variable="duree_tot_depuis_prop_com")
-
     write_cs_year_nb_lec(question, res)
     
 
@@ -906,11 +975,9 @@ def q32(display_name, variable_name):
     #nombre moyen de EPComAmdtTabled, EPComAmdtAdopt, EPAmdtTabled, EPAmdtAdopt
     question="nombre moyen de " +display_name+ " par secteur, en fonction de l'année"
     print question
-    res=init_cs_year(nb=2)
-    
-    res=get_cs_year(res, variable=variable_name)
-
-    write_cs_year(question, res, nb=2)
+    res, total_year=init_cs_year(nb=2, total=True, amdt=True)
+    res, total_year=get_cs_year(res, variable=variable_name, total_year=total_year)
+    write_cs_year(question, res, total_year=total_year, nb=2, amdt=True)
 
 
 def q33():
@@ -930,14 +997,8 @@ def q33():
 
     write_cs_year(question, res)
 
-
-def q34():
-    #pourcentage AdoptCSContre=Y
-    question="pourcentage AdoptCSContre=Y (parmi les actes du même secteur et de la même année) par secteur et par année"
-    print question
-    res=init_cs_year(nb=2)
-    
-    for act in Act.objects.filter(validated=2):
+def percent_adopt_cs(res, adopt_variable, regle_vote):
+    for act in Act.objects.filter(validated=2, adopt_cs_regle_vote=regle_vote):
         for nb in range(1,5):
             code_sect=getattr(act, "code_sect_"+str(nb))
             if code_sect!=None:
@@ -945,21 +1006,24 @@ def q34():
                 year=str(act.releve_annee)
                 res[cs][year][1]+=1
                 #check if there is at least one country
-                if act.adopt_cs_contre.exists():
+                if getattr(act, adopt_variable).exists():
                     res[cs][year][0]+=1
     print "res", res
+    return res
 
-    write_cs_year(question, res, percent=100, nb=2)
-
-
-def q35(nb_em):
-    #1/ %age AdoptCSContre=Y ET 1 EM.       2/%age AdoptCSContre=Y ET 2 EM.        3/%age AdoptCSContre=Y ET 3 EM
-    question="pourcentage AdoptCSContre=Y (parmi les actes du même secteur et de la même année) ET "+str(nb_em)+" EM par secteur et par année"
+def q34():
+    #pourcentage AdoptCSContre=Y
+    question="pourcentage AdoptCSContre=Y (parmi les actes AdoptCSRegleVote=V du même secteur et de la même année) par secteur et par année"
     print question
     res=init_cs_year(nb=2)
+    res=percent_adopt_cs(res, "adopt_cs_contre", "V")
+    write_cs_year(question, res, percent=100, nb=2)
+    
 
-    for act in Act.objects.filter(validated=2):
-        nb_contre=len(act.adopt_cs_contre.all())
+
+def percent_nb_em_adopt_cs(res, adopt_variable, regle_vote, nb_em):
+    for act in Act.objects.filter(validated=2, adopt_cs_regle_vote=regle_vote):
+        nb_contre=len(getattr(act, adopt_variable).all())
         if nb_contre>0:
             for nb in range(1,5):
                 code_sect=getattr(act, "code_sect_"+str(nb))
@@ -970,7 +1034,14 @@ def q35(nb_em):
                     if nb_contre==nb_em:
                         res[cs][year][0]+=1
     print "res", res
+    return res
 
+def q35(nb_em):
+    #1/ %age AdoptCSContre=Y ET 1 EM.       2/%age AdoptCSContre=Y ET 2 EM.        3/%age AdoptCSContre=Y ET 3 EM
+    question="pourcentage "+str(nb_em)+" EM (parmi les actes AdoptCSContre=Y et AdoptCSRegleVote=V du même secteur et de la même année) par secteur et par année"
+    print question
+    res=init_cs_year(nb=2)
+    res=percent_nb_em_adopt_cs(res, "adopt_cs_contre", "V", nb_em)
     write_cs_year(question, res, percent=100, nb=2)
 
 
@@ -994,27 +1065,28 @@ def q36():
     
 
 def q37():
-    #Nombre d’actes pour lesquels on a eu au moins une discussion en points B par année
-    question="Nombre d’actes pour lesquels on a eu au moins une discussion en points B par secteur et par année"
+    question="Pourcentage d’actes pour lesquels on a eu au moins une discussion en points B, en fonction de l'année, par secteur et par année"
     print question
-    res=init_cs_year()
+    res, total_year=init_cs_year(total=True)
+    print total_year
 
     for act in Act.objects.filter(validated=2, nb_point_b__isnull=False):
         if act.nb_point_b>0:
+            year=str(act.releve_annee)
+            #for each code sectoriel
             for nb in range(1,5):
                 code_sect=getattr(act, "code_sect_"+str(nb))
                 if code_sect!=None:
+                    total_year[year]+=1
                     cs=get_cs(code_sect.code_sect)
-                    year=str(act.releve_annee)
                     res[cs][year]+=1
     print "res", res
 
-    write_cs_year(question, res)
+    write_cs_year(question, res, total_year=total_year, percent=100)
     
 
 def q38():
-    #pourcentage de ministres presents (M) et de RP (CS ou CS_PR) par secteurs et par annee
-    question="pourcentage de ministres presents (M) et de RP (CS ou CS_PR) selon le secteur et l'année (premier chiffre : pourcentage de M du secteur par rapport au nombre de M dans l'année ; deuxième chiffre : pourcentage de CS ou CS_PR du secteur par rapport au nombre de  CS ou CS_PR dans l'année)"
+    question="pourcentage de ministres presents (M) et de RP (CS ou CS_PR) selon le pays et l'année (premier chiffre : pourcentage de M  par rapport au pays et à l'année ; deuxième chiffre : pourcentage de CS ou CS_PR par rapport au pays et à l'année)"
     print question
 
     statuses={}
@@ -1022,37 +1094,35 @@ def q38():
     statuses["CS"]=1
     statuses["CS_PR"]=1
     res={}
-    total_year={}
-    for secteur in cs_list:
-        res[secteur]={}
+    total_cell={}
+    for country in countries:
+        res[country]={}
+        total_cell[country]={}
         for year in years_list:
-            total_year[year]=[0,0]
-            res[secteur][year]=[0,0]
+            total_cell[country][year]=0
+            res[country][year]=[0,0]
 
-    for act in MinAttend.objects.filter(act__validated=2):
+    for act in MinAttend.objects.filter(act__validated_attendance=True).exclude(act__releve_annee=2013):
         status=Status.objects.get(verbatim=act.verbatim, country=act.country).status
+        country=act.country.country_code
         if status not in ["NA", "AB"]:
-            for nb in range(1,5):
-                code_sect=getattr(act.act, "code_sect_"+str(nb))
-                if code_sect!=None:
-                    cs=get_cs(code_sect.code_sect)
-                    year=str(act.act.releve_annee)
-                    total_year[year][statuses[status]]+=1
-                    res[cs][year][statuses[status]]+=1
+            year=str(act.act.releve_annee)
+            total_cell[country][year]+=1
+            res[country][year][statuses[status]]+=1
     print "res", res
-    print "total_year", total_year
+    print "total_cell", total_cell
 
     writer.writerow([question])
     writer.writerow(years_list_zero)
-    for cs in cs_list:
-        row=[cs]
+    for country in countries:
+        row=[country]
         for year in years_list:
             res_year=""
             for index in range(2):
-                if res[cs][year][index]==0:
+                if res[country][year][index]==0:
                     temp=0
                 else:
-                    temp=round(float(res[cs][year][index])*100/total_year[year][index],3)
+                    temp=round(float(res[country][year][index])*100/total_cell[country][year],3)
                 res_year+=str(temp)+ " / "
             row.append(res_year[:-3])
         writer.writerow(row)
@@ -1185,7 +1255,268 @@ def q43():
     writer.writerow(row)
     writer.writerow("")
     print ""
+
+
+def q44():
+    question="pourcentage AdoptCSContre=Y (parmi les actes AdoptCSRegleVote=U du même secteur et de la même année) par secteur et par année"
+    print question
+    res=init_cs_year(nb=2)
+    res=percent_adopt_cs(res, "adopt_cs_contre", "U")
+    write_cs_year(question, res, percent=100, nb=2)
+
+
+def q45(nb_em):
+    question="pourcentage "+str(nb_em)+" EM (parmi les actes AdoptCSContre=Y et AdoptCSRegleVote=U du même secteur et de la même année) par secteur et par année"
+    print question
+    res=init_cs_year(nb=2)
+    res=percent_nb_em_adopt_cs(res, "adopt_cs_contre", "U", nb_em)
+    write_cs_year(question, res, percent=100, nb=2)
+
+
+def q46():
+    question="pourcentage AdoptCSAbs=Y (parmi les actes AdoptCSRegleVote=U du même secteur et de la même année) par secteur et par année"
+    print question
+    res=init_cs_year(nb=2)
+    res=percent_adopt_cs(res, "adopt_cs_abs", "U")
+    write_cs_year(question, res, percent=100, nb=2)
+
+
+def q47(nb_em):
+    question="pourcentage "+str(nb_em)+" EM (parmi les actes AdoptCSAbs=Y et AdoptCSRegleVote=U du même secteur et de la même année) par secteur et par année"
+    print question
+    res=init_cs_year(nb=2)
+    res=percent_nb_em_adopt_cs(res, "adopt_cs_abs", "U", nb_em)
+    write_cs_year(question, res, percent=100, nb=2)
+
+
+def q48():
+    question="DureeTotaleDepuisTransCons moyenne pour les actes avec au moins une discussion en point B, par année"
+    print question
+    res={}
+    for year in years_list:
+        res[year]=[0,0]
+
+    for act in Act.objects.filter(validated=2, nb_point_b__isnull=False, duree_tot_depuis_trans_cons__isnull=False):
+        if act.nb_point_b>0:
+            year=str(act.releve_annee)
+            res[year][0]+=act.duree_tot_depuis_trans_cons
+            res[year][1]+=1
+        
+    print "res", res
+
+    writer.writerow([question])
+    writer.writerow(years_list)
+    row=[]
+    for year in years_list:    
+        if res[year][0]==0:
+            res_year=0
+        else:
+            res_year=round(float(res[year][0])/res[year][1], 3)
+        row.append(res_year)
+    writer.writerow(row)
+    writer.writerow("")
+    print ""
     
+
+def q49():
+    question="DureeTotaleDepuisTransCons moyenne pour les actes avec au moins une discussion en point B, par secteur"
+    print question
+    res={}
+    for cs in cs_list:
+        res[cs]=[0,0]
+
+    for act in Act.objects.filter(validated=2, nb_point_b__isnull=False, duree_tot_depuis_trans_cons__isnull=False):
+        if act.nb_point_b>0:
+            for nb in range(1,5):
+                code_sect=getattr(act, "code_sect_"+str(nb))
+                if code_sect!=None:
+                    cs=get_cs(code_sect.code_sect)
+                    res[cs][0]+=act.duree_tot_depuis_trans_cons
+                    res[cs][1]+=1
+        
+    print "res", res
+
+    writer.writerow([question])
+    writer.writerow(cs_list)
+    row=[]
+    for cs in cs_list:    
+        if res[cs][0]==0:
+            res_cs=0
+        else:
+            res_cs=round(float(res[cs][0])/res[cs][1], 3)
+        row.append(res_cs)
+    writer.writerow(row)
+    writer.writerow("")
+    print ""
+
+
+def q50():
+    question="DureeTotaleDepuisTransCons moyenne pour les actes avec au moins une discussion en point B, par secteur et par année"
+    print question
+    res=init_cs_year(nb=2)
+
+    for act in Act.objects.filter(validated=2, nb_point_b__isnull=False, duree_tot_depuis_trans_cons__isnull=False):
+        if act.nb_point_b>0:
+            for nb in range(1,5):
+                code_sect=getattr(act, "code_sect_"+str(nb))
+                if code_sect!=None:
+                    cs=get_cs(code_sect.code_sect)
+                    year=str(act.releve_annee)
+                    res[cs][year][0]+=act.duree_tot_depuis_trans_cons
+                    res[cs][year][1]+=1
+        
+    print "res", res
+
+    write_cs_year(question, res, nb=2)
+    
+
+    question="DureeTotaleDepuisTransCons moyenne pour les actes avec au moins une discussion en point B, par année"
+    print question
+    res={}
+    for year in years_list:
+        res[year]=[0,0]
+
+    for act in Act.objects.filter(validated=2, nb_point_b__isnull=False, duree_tot_depuis_trans_cons__isnull=False):
+        if act.nb_point_b>0:
+            year=str(act.releve_annee)
+            res[year][0]+=act.duree_tot_depuis_trans_cons
+            res[year][1]+=1
+        
+    print "res", res
+
+    writer.writerow([question])
+    writer.writerow(years_list)
+    row=[]
+    for year in years_list:    
+        if res[year][0]==0:
+            res_year=0
+        else:
+            res_year=round(float(res[year][0])/res[year][1], 3)
+        row.append(res_year)
+    writer.writerow(row)
+    writer.writerow("")
+    print ""
+
+
+def q51(adopt_cs_regle_vote):
+    question="DureeTotaleDepuisTransCons moyenne lorsque AdoptCSRegleVote="+adopt_cs_regle_vote+", par année"
+    print question
+    res={}
+    for year in years_list:
+        res[year]=[0,0]
+
+    for act in Act.objects.filter(validated=2, adopt_cs_regle_vote=adopt_cs_regle_vote, duree_tot_depuis_trans_cons__isnull=False):
+        if act.nb_point_b>0:
+            year=str(act.releve_annee)
+            res[year][0]+=act.duree_tot_depuis_trans_cons
+            res[year][1]+=1
+        
+    print "res", res
+
+    writer.writerow([question])
+    writer.writerow(years_list)
+    row=[]
+    for year in years_list:    
+        if res[year][0]==0:
+            res_year=0
+        else:
+            res_year=round(float(res[year][0])/res[year][1], 3)
+        row.append(res_year)
+    writer.writerow(row)
+    writer.writerow("")
+    print ""
+    
+
+def q52(adopt_cs_regle_vote):
+    question="DureeTotaleDepuisTransCons moyenne lorsque AdoptCSRegleVote="+adopt_cs_regle_vote+", par secteur"
+    print question
+    res={}
+    for cs in cs_list:
+        res[cs]=[0,0]
+
+    for act in Act.objects.filter(validated=2, adopt_cs_regle_vote=adopt_cs_regle_vote, duree_tot_depuis_trans_cons__isnull=False):
+        if act.nb_point_b>0:
+            for nb in range(1,5):
+                code_sect=getattr(act, "code_sect_"+str(nb))
+                if code_sect!=None:
+                    cs=get_cs(code_sect.code_sect)
+                    res[cs][0]+=act.duree_tot_depuis_trans_cons
+                    res[cs][1]+=1
+        
+    print "res", res
+
+    writer.writerow([question])
+    writer.writerow(cs_list)
+    row=[]
+    for cs in cs_list:    
+        if res[cs][0]==0:
+            res_cs=0
+        else:
+            res_cs=round(float(res[cs][0])/res[cs][1], 3)
+        row.append(res_cs)
+    writer.writerow(row)
+    writer.writerow("")
+    print ""
+
+
+def q53(adopt_cs_regle_vote):
+    question="DureeTotaleDepuisTransCons moyenne lorsque AdoptCSRegleVote="+adopt_cs_regle_vote+", par secteur et par année"
+    print question
+    res=init_cs_year(nb=2)
+
+    for act in Act.objects.filter(validated=2, adopt_cs_regle_vote=adopt_cs_regle_vote, duree_tot_depuis_trans_cons__isnull=False):
+        if act.nb_point_b>0:
+            for nb in range(1,5):
+                code_sect=getattr(act, "code_sect_"+str(nb))
+                if code_sect!=None:
+                    cs=get_cs(code_sect.code_sect)
+                    year=str(act.releve_annee)
+                    res[cs][year][0]+=act.duree_tot_depuis_trans_cons
+                    res[cs][year][1]+=1
+        
+    print "res", res
+
+    write_cs_year(question, res, nb=2)
+
+
+def q54():
+    question="Nombre de mots moyen des textes des actes, par année"
+    print question
+    res=init_year()
+    get_year(res, "nb_mots")
+    write_year(question, res)
+    
+
+def q55():
+    question="Nombre de mots moyen des textes des actes, par secteur"
+    print question
+    res=init_res()
+
+   
+    
+    write_cs(question, res)
+   
+
+def q56():
+    question="Nombre de mots moyen des textes des actes, par secteur et par année"
+    print question
+    res=init_cs_year(nb=2)
+
+    for act in Act.objects.filter(validated=2, nb_mots__isnull=False):
+        if act.nb_point_b>0:
+            for nb in range(1,5):
+                code_sect=getattr(act, "code_sect_"+str(nb))
+                if code_sect!=None:
+                    cs=get_cs(code_sect.code_sect)
+                    year=str(act.releve_annee)
+                    res[cs][year][0]+=act.nb_mots
+                    res[cs][year][1]+=1
+        
+    print "res", res
+
+    write_cs_year(question, res, nb=2)
+    
+
     
 class Command(NoArgsCommand):
     def handle(self, **options):
@@ -1261,25 +1592,63 @@ class Command(NoArgsCommand):
         #~ q32("EPComAmdtAdopt", "com_amdt_adopt")
         #~ q32("EPAmdtTabled", "amdt_tabled")
         #~ q32("EPAmdtAdopt", "amdt_adopt")
-        #~ #Vote?
+        #Vote?
         #~ q33()
-        #~ #%age de votes négatifs par Etat membre
-        q34()
-        #~ #% age de votes négatifs isolés, de 2 Etats, de 3 Etats
-        q35(1)
-        q35(2)
-        q35(3)
-        #~ #Durée moyenne des actes soumis à un vote
+        #%age de votes négatifs par Etat membre
+        #~ q34()
+        #% age de votes négatifs isolés, de 2 Etats, de 3 Etats
+        #~ q35(1)
+        #~ q35(2)
+        #~ q35(3)
+        #Durée moyenne des actes soumis à un vote
         #~ q36()
-        #~ #Nombre d’actes pour lesquels on a eu au moins une discussion en points B
+        #~ #Pourcentage d’actes pour lesquels on a eu au moins une discussion en points B
         #~ q37()
-        #pourcentage de ministres presents (M) et de RP (CS ou CS_PR)? par annee ET par secteurs
+        #~ #pourcentage de ministres presents (M) et de RP (CS ou CS_PR)? par annee ET par secteurs
         #~ q38()
-        #~ #Concordance PartyFamilyResp et GroupePolitiqueRapporteur (Social Democracy): Pourcentage par année et par secteur
-        q39()
-        #Concordance PartyFamilyResp et GroupePolitiqueRapporteur (Conservative/Christian Democracy): Pourcentage par année et par secteur
-        q40()
+        #Concordance PartyFamilyResp et GroupePolitiqueRapporteur (Social Democracy): Pourcentage par année et par secteur
+        #~ q39()
+        #~ #Concordance PartyFamilyResp et GroupePolitiqueRapporteur (Conservative/Christian Democracy): Pourcentage par année et par secteur
+        #~ q40()
         #~ 
         
         #période 2010-2012 : %age d’actes ayant fait l’objet d’ interventions des parlements nationaux
         #~ q43()
+        
+        #~ #pourcentage AdoptCSContre=Y (parmi les actes AdoptCSRegleVote=U du même secteur et de la même année) par secteur et par année
+        #~ q44()
+        #pourcentage 1/2/3 EM (parmi les actes AdoptCSContre=Y et AdoptCSRegleVote=U du même secteur et de la même année) par secteur et par année
+        #~ q45(1)
+        #~ q45(2)
+        #~ q45(3)
+         #pourcentage AdoptCSAbs=Y (parmi les actes AdoptCSRegleVote=U du même secteur et de la même année) par secteur et par année
+        #~ q46()
+        #~ #pourcentage 1/2/3 EM (parmi les actes AdoptCSAbs=Y et AdoptCSRegleVote=U du même secteur et de la même année) par secteur et par année
+        #~ q47(1)
+        #~ q47(2)
+        #~ q47(3)
+        #DureeTotaleDepuisTransCons moyenne pour actes avec au moins une discussion en point B par année
+        #~ q48()
+        #DureeTotaleDepuisTransCons moyenne pour actes avec au moins une discussion en point B par secteur
+        #~ q49()
+        #~ #DureeTotaleDepuisTransCons moyenne pour les actes avec au moins une discussion en point B, par secteur et par année
+        #~ q50()
+       #DureeTotaleDepuisTransCons moyenne lorsque AdoptCSRegleVote=U par année  
+        #~ q51("U")
+        #~ q51("V")
+        #~ #DureeTotaleDepuisTransCons moyenne lorsque AdoptCSRegleVote=U par secteur
+        #~ q52("U")
+        #~ q52("V")
+        #DureeTotaleDepuisTransCons moyenne lorsque AdoptCSRegleVote=U, par secteur et par année
+        #~ q53("U")
+        #~ q53("V")
+        #Nombre de mots moyen des textes des actes, par année
+        q54()
+        #Nombre de mots moyen des textes des actes, par secteur
+        q55()
+        #Nombre de mots moyen des textes des actes, par secteur et par année
+        q56()
+        
+        
+        
+        #29,32,34,35,37,38,44,..., end
