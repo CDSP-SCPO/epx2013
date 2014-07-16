@@ -276,12 +276,12 @@ def get_data_all(context, add_modif, act, POST):
         logger.debug('prelex to be processed')
         print "prelex to be processed"
         act.__dict__.update(fields)
-        nb_lectures=act.nb_lectures
+        #~ nb_lectures=act.nb_lectures
         #~ #prelex config_cons needs eurlex, gvt_compo needs oeil
         fields, dg_names_prelex, resp_names_prelex=get_data("prelex", act_ids["prelex"], urls["url_prelex"], act)
         act.__dict__.update(fields)
         #nb_lectures already retrieved from oeil
-        act.nb_lectures=nb_lectures
+        #~ act.nb_lectures=nb_lectures
 #~
         #~ #store dg/resp from oeil and prelex to be displayed as text in the template
         logger.debug('dg and resp to be processed')

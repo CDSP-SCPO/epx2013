@@ -147,6 +147,9 @@ class ActForm(forms.ModelForm):
         self.cs_abs=cs_abs
         self.pc_abs=pc_abs
         
+        #nb_mots not editable
+        self.fields["nb_mots"].widget.attrs['readonly'] = True
+        
         
     def clean(self):
         cleaned_data=super(ActForm, self).clean()

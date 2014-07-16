@@ -334,7 +334,8 @@ def get_cons_b(soup, propos_origine):
             cons_b_temp=""
             for tables in soup.find_all(text=re.compile('ITEM "B" ON COUNCIL AGENDA')):
                 cons_b_temp+=tables.find_parent('table').find(text=re.compile("SUBJECT")).find_next("font", {"size":-2}).get_text().strip()+'; '
-            cons_b=cons_b_temp[:-2]
+            if cons_b_temp!="":
+                cons_b=cons_b_temp[:-2]
     except:
         print "no nb_point_b!"
 
@@ -346,7 +347,31 @@ def get_cons_b(soup, propos_origine):
 #~ if propos_origine=="CONS", filled manually
 
 
-def get_adopt_conseil(soup, suite_2e_lecture_pe, split_propos, nb_lectures, no_unique_type):
+def get_split_propos(soup, split_propos):
+    """
+    FUNCTION
+    update the split_propos variable if wrong from the prelex url
+    PARAMETERS
+    soup: prelex url content [BeautifulSoup object]
+    split_propos: split_propos variable [boolean]
+    RETURN
+    split_propos: split_propos variable [boolean]
+    """ 
+    #if split proposition, do nothing
+    if not split_propos:
+        #otherwise, check on the prelex bandeau if there are many no celex -> indicated split propos
+        nb_no_celex=len(soup.find_all(text=re.compile("Community legislation in force")))
+        if nb_no_celex==1:
+            print "just one no celex"
+            split_propos=False
+        elif nb_no_celex>1:
+            print "many no celex"
+            split_propos=True
+            
+    return split_propos
+    
+
+def get_adopt_conseil(soup, suite_2e_lecture_pe, split_propos, nb_lectures):
     """
     FUNCTION
     get the adopt_conseil variable from the prelex url
@@ -355,7 +380,6 @@ def get_adopt_conseil(soup, suite_2e_lecture_pe, split_propos, nb_lectures, no_u
     suite_2e_lecture_pe: suite_2e_lecture_pe variable [boolean]
     split_propos: split_propos variable [boolean]
     nb_lectures: nb_lectures variable [int]
-    no_unique_type: no_unique_type variable [string]
     RETURN
     adopt_conseil: adopt_conseil variable [date]
     """
@@ -480,38 +504,38 @@ def save_config_cons(code_sect_1):
     save_fk_code_sect(code_sect_1, "config_cons")
 
 
-def get_nb_lectures(soup, no_unique_type, split_propos):
-    """
-    FUNCTION
-    get the nb_lectures variable from the prelex url
-    PARAMETERS
-    soup: prelex url content [BeautifulSoup object]
-    no_unique_type: no_unique_type variable [string]
-    split_propos: split_propos variable [boolean]
-    RETURN
-    nb_lectures variable [int]
-    """
-    if no_unique_type!="COD":
-        return None
-
-    #proposition not splited
-    if split_propos==False:
-        if soup.find(text=re.compile('EP opinion 3rd rdg'))>0 or soup.find(text=re.compile('EP decision 3rd rdg'))>0 or soup.find(text=re.compile('EP decision on 3rd rdg'))>0:
-            return 3
-        if soup.find(text=re.compile('EP opinion 2nd rdg'))>0:
-            return 2
-        if soup.find(text=re.compile('EP opinion 1st rdg'))>0:
-            return 1
-        return 0
-
-    #proposition is splited
-    if soup.find(text=re.compile('EP: position, 3rd reading'))>0 or soup.find(text=re.compile('EP: decision, 3rd reading'))>0 or soup.find(text=re.compile('EP: legislative resolution, 3rd reading'))>0:
-        return 3
-    if soup.find(text=re.compile('EP: position, 2nd reading'))>0:
-        return 2
-    if soup.find(text=re.compile('EP: position, 1st reading'))>0:
-        return 1
-    return 0
+#~ def get_nb_lectures(soup, no_unique_type, split_propos):
+    #~ """
+    #~ FUNCTION
+    #~ get the nb_lectures variable from the prelex url
+    #~ PARAMETERS
+    #~ soup: prelex url content [BeautifulSoup object]
+    #~ no_unique_type: no_unique_type variable [string]
+    #~ split_propos: split_propos variable [boolean]
+    #~ RETURN
+    #~ nb_lectures variable [int]
+    #~ """
+    #~ if no_unique_type!="COD":
+        #~ return None
+#~ 
+    #~ #proposition not splited
+    #~ if split_propos==False:
+        #~ if soup.find(text=re.compile('EP opinion 3rd rdg'))>0 or soup.find(text=re.compile('EP decision 3rd rdg'))>0 or soup.find(text=re.compile('EP decision on 3rd rdg'))>0:
+            #~ return 3
+        #~ if soup.find(text=re.compile('EP opinion 2nd rdg'))>0:
+            #~ return 2
+        #~ if soup.find(text=re.compile('EP opinion 1st rdg'))>0:
+            #~ return 1
+        #~ return 0
+#~ 
+    #~ #proposition is splited
+    #~ if soup.find(text=re.compile('EP: position, 3rd reading'))>0 or soup.find(text=re.compile('EP: decision, 3rd reading'))>0 or soup.find(text=re.compile('EP: legislative resolution, 3rd reading'))>0:
+        #~ return 3
+    #~ if soup.find(text=re.compile('EP: position, 2nd reading'))>0:
+        #~ return 2
+    #~ if soup.find(text=re.compile('EP: position, 1st reading'))>0:
+        #~ return 1
+    #~ return 0
 
 #Possible values
 #1, 2, 3 ou NULL
@@ -702,11 +726,15 @@ def get_data_prelex(soup, act_ids, act):
     print "cons_b:", fields['cons_b']
 
     #nb_lectures -> ALREADY IN OEIL -> used only for adopt_conseil!
-    fields['nb_lectures']=get_nb_lectures(soup, act_ids.no_unique_type, act.split_propos)
+    #~ fields['nb_lectures']=get_nb_lectures(soup, act_ids.no_unique_type, act.split_propos)
     #~ print "nb_lectures:", fields['nb_lectures']
+    
+    #check and update split_propos
+    fields['split_propos']=get_split_propos(soup, act.split_propos)
+    print "split_propos:", fields['split_propos']
 
     #adopt_conseil
-    fields['adopt_conseil']=get_adopt_conseil(soup, act.suite_2e_lecture_pe, act.split_propos, fields['nb_lectures'], act_ids.no_unique_type)
+    fields['adopt_conseil']=get_adopt_conseil(soup, act.suite_2e_lecture_pe, fields['split_propos'], act.nb_lectures)
     print "adopt_conseil:", fields['adopt_conseil']
 
     #nb_point_a
@@ -755,8 +783,6 @@ def get_data_prelex(soup, act_ids, act):
     if adopt_pc!=None:
         print "adopt_pc_contre:", adopt_pc.adopt_pc_contre
         print "adopt_pc_abs:", adopt_pc.adopt_pc_abs
-
-    print "NB LECTURES PRELEX", fields["nb_lectures"]
 
     #~ return fields
     return fields, dgs_temp, resp_names

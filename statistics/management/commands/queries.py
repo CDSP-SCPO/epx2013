@@ -10,6 +10,13 @@ from django.conf import settings
 from collections import OrderedDict
 import datetime
 
+#display decimals with comma
+#DOES NOT WORK
+import locale
+locale.setlocale(locale.LC_ALL, 'fr_FR.UTF-8')
+#~ print locale.getlocale()
+#~ print locale.format("%10.2f", 0.123) 
+
 
 #year and code sectoriel lists
 countries=Country.objects.values_list("country_code", flat=True)
@@ -23,6 +30,7 @@ for index in range(len(cs_list)):
 
 #write results in file
 path=settings.PROJECT_ROOT+'/statistics/management/commands/queries.csv'
+#~ writer=csv.writer(open(path, 'w'), delimiter=";")
 writer=csv.writer(open(path, 'w'))
 
 
@@ -35,7 +43,7 @@ def get_cs(cs):
 
 
 
-def init_year()
+def init_year():
     res={}
     for year in years_list:
         res[year]=[0,0]
@@ -110,7 +118,7 @@ def init_cs_year_nb_lec(nb_lec=2, total=False):
 
 
 
-def get_year(res, variable):
+def get_by_year(res, variable):
     for act in Act.objects.filter(validated=2):
         field=getattr(act, variable)
         if field != None:
@@ -118,22 +126,21 @@ def get_year(res, variable):
             res[year][0]+=field
             res[year][1]+=1
     print "res", res
+    return res
 
 
-def get_res(res, variable):
-    
-    field=getattr(act, variable)
+def get_by_cs(res, variable):
+    for act in Act.objects.filter(validated=2):
+        field=getattr(act, variable)
         if field != None:
-            
-     for act in Act.objects.filter(validated=2):
-        
             for nb in range(1,5):
                 code_sect=getattr(act, "code_sect_"+str(nb))
                 if code_sect!=None:
                     cs=get_cs(code_sect.code_sect)
-                    res[cs][0]+=act.nb_mots
+                    res[cs][0]+=field
                     res[cs][1]+=1
     print "res", res
+    return res
 
 
 def get_year_nb_lec(res, total_year=False, variable=1):
@@ -158,11 +165,12 @@ def get_year_nb_lec(res, total_year=False, variable=1):
         return res
     print "total", total_year
     return res, total_year
+    
 
-
-def get_cs_year(res, variable=1, total_year=False):
+def get_by_cs_year(res, variable=1, total_year=False):
     for act in Act.objects.filter(validated=2):
-        if variable==1 or getattr(act, variable)!=None:
+        field=getattr(act, variable)
+        if variable==1 or field!=None:
             for nb in range(1,5):
                 code_sect=getattr(act, "code_sect_"+str(nb))
                 if code_sect!=None:
@@ -171,7 +179,7 @@ def get_cs_year(res, variable=1, total_year=False):
                     res[cs][year][1]+=1
                     value=1
                     if variable!=1:
-                        value=getattr(act, variable)
+                        value=field
                     res[cs][year][0]+=value
                     if total_year:
                         #~ print "total_year", total_year
@@ -182,7 +190,7 @@ def get_cs_year(res, variable=1, total_year=False):
     return res
 
 
-def get_cs_year_nb_lec(res, total_year=False, variable=1):
+def get_by_cs_year_nb_lec(res, total_year=False, variable=1):
     for act in ActIds.objects.filter(src="index", act__validated=2,  no_unique_type="COD", act__nb_lectures__isnull=False):
         year=str(act.act.releve_annee)
         nb_lec=act.act.nb_lectures
@@ -212,17 +220,37 @@ def get_cs_year_nb_lec(res, total_year=False, variable=1):
 
 
 
-def write_year(question, res):
+def write_year(question, res, nb_var=1):
     writer.writerow([question])
-    writer.writerow(years_list)
     row=[]
-    for year in years_list:    
-        if res[year][0]==0:
-            temp=0
-        else:
-            temp=round(float(res[year][0])/res[year][1], 3)
-        row.append(temp)
-    writer.writerow(row)
+    if nb_var==1:
+        #one line to display
+        writer.writerow(years_list)
+        for year in years_list:  
+            if res[year][0]==0:
+                temp=0
+            else:
+                temp=round(float(res[year][0])/res[year][1], 3) 
+            row.append(temp)
+        writer.writerow(row)
+    else:
+        #nb=2, display two lines with two variables
+        writer.writerow(years_list_zero)
+        for nb in range(nb_var):
+            if nb==0:
+                row=["1 BJ"]
+            else:
+                row=["Plusieurs BJ"]
+            
+            for year in years_list:
+                if res[year][nb]==0:
+                    temp=0
+                else:
+                    total=res[year][0]+res[year][1]
+                    temp=round(float(res[year][nb])*100/total, 3) 
+                row.append(temp)
+            writer.writerow(row)
+        
     writer.writerow("")
     print ""
 
@@ -928,7 +956,7 @@ def q28():
     question="DureeTotaleDepuisPropCom moyenne par secteur, en fonction de l'année"
     print question
     res=init_cs_year(nb=2)
-    res=get_cs_year(res, variable="duree_tot_depuis_prop_com")
+    res=get_by_cs_year(res, variable="duree_tot_depuis_prop_com")
     write_cs_year(question, res, percent=1, nb=2)
 
 
@@ -938,7 +966,7 @@ def q29():
     print question
     nb_lec=2
     res=init_cs_year_nb_lec()
-    res=get_cs_year_nb_lec(res)
+    res=get_by_cs_year_nb_lec(res)
     write_cs_year_nb_lec(question, res, percent=100)
 
 
@@ -948,7 +976,7 @@ def q30():
     print question
     nb_lec=2
     res=init_cs_year_nb_lec()
-    res=get_cs_year_nb_lec(res, variable="duree_tot_depuis_prop_com")
+    res=get_by_cs_year_nb_lec(res, variable="duree_tot_depuis_prop_com")
     write_cs_year_nb_lec(question, res)
     
 
@@ -976,7 +1004,7 @@ def q32(display_name, variable_name):
     question="nombre moyen de " +display_name+ " par secteur, en fonction de l'année"
     print question
     res, total_year=init_cs_year(nb=2, total=True, amdt=True)
-    res, total_year=get_cs_year(res, variable=variable_name, total_year=total_year)
+    res, total_year=get_by_cs_year(res, variable=variable_name, total_year=total_year)
     write_cs_year(question, res, total_year=total_year, nb=2, amdt=True)
 
 
@@ -1483,17 +1511,15 @@ def q54():
     question="Nombre de mots moyen des textes des actes, par année"
     print question
     res=init_year()
-    get_year(res, "nb_mots")
+    res=get_by_year(res, variable="nb_mots")
     write_year(question, res)
     
 
 def q55():
     question="Nombre de mots moyen des textes des actes, par secteur"
     print question
-    res=init_res()
-
-   
-    
+    res=init_cs()
+    res=get_by_cs(res, variable="nb_mots")
     write_cs(question, res)
    
 
@@ -1501,20 +1527,28 @@ def q56():
     question="Nombre de mots moyen des textes des actes, par secteur et par année"
     print question
     res=init_cs_year(nb=2)
-
-    for act in Act.objects.filter(validated=2, nb_mots__isnull=False):
-        if act.nb_point_b>0:
-            for nb in range(1,5):
-                code_sect=getattr(act, "code_sect_"+str(nb))
-                if code_sect!=None:
-                    cs=get_cs(code_sect.code_sect)
-                    year=str(act.releve_annee)
-                    res[cs][year][0]+=act.nb_mots
-                    res[cs][year][1]+=1
-        
-    print "res", res
-
+    res=get_by_cs_year(res, variable="nb_mots")
     write_cs_year(question, res, nb=2)
+
+
+def q57():
+    question="pourcentage d'actes avec plusieurs bases juridiques dans la production législative, par année"
+    print question
+    res=init_year()
+    
+    for act in Act.objects.filter(validated=2, base_j__isnull=False):
+        if act.base_j.strip()!="":
+            nb_bj=act.base_j.count(';')
+            #if more than one BJ, assignate to "many BJ" catageory
+            if nb_bj>0:
+                nb_bj=1
+            year=str(act.releve_annee)
+            res[year][nb_bj]+=1
+    print "res", res
+    
+    write_year(question, res, nb_var=2)
+    
+    
     
 
     
@@ -1643,11 +1677,13 @@ class Command(NoArgsCommand):
         #~ q53("U")
         #~ q53("V")
         #Nombre de mots moyen des textes des actes, par année
-        q54()
-        #Nombre de mots moyen des textes des actes, par secteur
-        q55()
-        #Nombre de mots moyen des textes des actes, par secteur et par année
-        q56()
+        #~ q54()
+        #~ #Nombre de mots moyen des textes des actes, par secteur
+        #~ q55()
+        #~ #Nombre de mots moyen des textes des actes, par secteur et par année
+        #~ q56()
+        
+        q57()
         
         
         
