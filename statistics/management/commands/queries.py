@@ -220,7 +220,7 @@ def get_by_cs_year_nb_lec(res, total_year=False, variable=1):
 
 
 
-def write_year(question, res, nb_var=1):
+def write_year(question, res, nb_var=1, percent=1):
     writer.writerow([question])
     row=[]
     if nb_var==1:
@@ -230,7 +230,7 @@ def write_year(question, res, nb_var=1):
             if res[year][0]==0:
                 temp=0
             else:
-                temp=round(float(res[year][0])/res[year][1], 3) 
+                temp=round(float(res[year][0])*percent/res[year][1], 3) 
             row.append(temp)
         writer.writerow(row)
     else:
@@ -238,7 +238,7 @@ def write_year(question, res, nb_var=1):
         writer.writerow(years_list_zero)
         for nb in range(nb_var):
             if nb==0:
-                row=["1 BJ"]
+                row=["Une BJ"]
             else:
                 row=["Plusieurs BJ"]
             
@@ -871,16 +871,22 @@ def q22():
     print ""
 
 
-def concordance_annee(resp_group, rapp_group):
-    question="Concordance PartyFamilyResp et GroupePolitiqueRapporteur ("+resp_group+") : Pourcentage par année"
+def concordance_annee(resp_group, rapp_group, percent=100, variable=1):
+
+    if variable!=1:
+        question="DureeTotaleDepuisPropCom moyenne des actes pour lesquels il y a concordance des PartyFamilyResp et GroupePolitiqueRapporteur ("+resp_group+")"
+    else:
+        question="Concordance PartyFamilyResp et GroupePolitiqueRapporteur ("+resp_group+") : Pourcentage par année"
     print question
     res={}
     for year in years_list:
         res[year]=[0,0]
         
     for act in Act.objects.filter(validated=2):
+        if variable==1:
+            res[year][1]+=1
+            
         year=str(act.releve_annee)
-        res[year][1]+=1
         resps=[]
         rapps=[]
         
@@ -900,7 +906,11 @@ def concordance_annee(resp_group, rapp_group):
                     break
                 for rapp in rapps:
                     if PartyFamily.objects.get(country=resp.country, party=resp.party).party_family.strip()==resp_group and rapp.party.party.strip() in rapp_group:
-                        res[year][0]+=1
+                        if variable==1:
+                            res[year][0]+=1
+                        else:
+                            res[year][0]+=getattr(act, variable)
+                            res[year][1]+=1
                         same=True
                         break
     
@@ -909,7 +919,7 @@ def concordance_annee(resp_group, rapp_group):
     #duree moyenne
     for year in years_list:
         if res[year][0]!=0:
-            res[year][0]=round(float(res[year][0])*100/res[year][1], 3)
+            res[year][0]=round(float(res[year][0])*percent/res[year][1], 3)
 
     writer.writerow([question])
     writer.writerow(years_list)
@@ -1531,25 +1541,226 @@ def q56():
     write_cs_year(question, res, nb=2)
 
 
-def q57():
-    question="pourcentage d'actes avec plusieurs bases juridiques dans la production législative, par année"
+def q57(cs="all", name="ALL"):
+    if cs=="all":
+        question="pourcentage d'actes avec plusieurs bases juridiques dans la production législative, par année"
+        percent=1
+        nb_var=2
+    else:
+        question="pourcentage d'actes avec au moins un code sectoriel="+name+" dans la production législative, par année"
+        percent=100
+        nb_var=1
     print question
     res=init_year()
     
-    for act in Act.objects.filter(validated=2, base_j__isnull=False):
+    for act in Act.objects.filter(validated=2):
+        if act.base_j.strip()!="":
+            year=str(act.releve_annee)
+            if cs=="all":
+                nb_bj=act.base_j.count(';')
+                #if more than one BJ, assignate to "many BJ" catageory
+                if nb_bj>0:
+                    nb_bj=1
+                res[year][nb_bj]+=1
+            else:
+                res[year][1]+=1
+                for nb in range(1,5):
+                    code_sect=getattr(act, "code_sect_"+str(nb))
+                    if code_sect!=None and get_cs(code_sect.code_sect)==cs:
+                        res[year][0]+=1
+                        break
+                
+    print "res", res
+    
+    write_year(question, res, nb_var=nb_var, percent=percent)
+    
+
+def q58():
+    #DureeTotaleDepuisPropCom moyenne des actes pour lesquels il y a concordance des PartyFamilyResp et GroupePolitiqueRapporteur ("Social Democracy")
+    concordance_annee("Social Democracy", ["Progressive Alliance of Socialists and Democrats", "Party of European Socialists", "Socialist Group in the European Parliament"], percent=1, variable="duree_tot_depuis_prop_com")
+    
+
+def q59(cs, name):
+    question="impact du nombre de bases juridiques sur la durée de la procédure"
+    print question
+    res_cs=[0,0]
+    res_bj=[0,0]
+    res_cs_bj=[0,0]
+
+    for act in Act.objects.filter(validated=2, duree_tot_depuis_prop_com__isnull=False):
+        ok=0
+        #DureeTotDepuisPropCom moyenne pour les actes avec un code sectoriel Marché intérieur
+        for nb in range(1,5):
+            code_sect=getattr(act, "code_sect_"+str(nb))
+            if code_sect!=None and get_cs(code_sect.code_sect)==cs:
+                res_cs[0]+=act.duree_tot_depuis_prop_com
+                res_cs[1]+=1
+                ok+=1
+                break
+
+        #DureeTotDepuisPropCom moyenne pour les actes avec plusieurs bases juridiques
+        if act.base_j.count(';')>0:
+            res_bj[0]+=act.duree_tot_depuis_prop_com
+            res_bj[1]+=1
+            ok+=1
+        
+        #DureeTotDepuisPropCom moyenne pour les actes avec plusieurs bases juridiques et un code sectoriel Marché intérieur
+        if ok==2:
+            res_cs_bj[0]+=act.duree_tot_depuis_prop_com
+            res_cs_bj[1]+=1
+        
+    
+    writer.writerow([question])
+
+    #DureeTotDepuisPropCom moyenne pour les actes avec un code sectoriel Marché intérieur
+    if res_cs[0]==0:
+        temp=0
+    else:
+        temp=round(float(res_cs[0])/res_cs[1], 3) 
+    writer.writerow(["DureeTotDepuisPropCom moyenne pour les actes avec un code sectoriel "+name, temp])
+    
+    #DureeTotDepuisPropCom moyenne pour les actes avec plusieurs bases juridiques
+    if res_cs[0]==0:
+        temp=0
+    else:
+        temp=round(float(res_bj[0])/res_bj[1], 3) 
+    writer.writerow(["DureeTotDepuisPropCom moyenne pour les actes avec plusieurs bases juridiques", temp])
+    
+    #DureeTotDepuisPropCom moyenne pour les actes avec plusieurs bases juridiques et un code sectoriel Marché intérieur
+    if res_cs[0]==0:
+        temp=0
+    else:
+        temp=round(float(res_cs_bj[0])/res_cs_bj[1], 3) 
+    writer.writerow(["DureeTotDepuisPropCom moyenne pour les actes avec plusieurs bases juridiques et un code sectoriel "+name, temp])
+    
+        
+    writer.writerow("")
+    print ""
+
+
+def nb_bj_cs(cs, name, variable, type_var, question):
+    question=question+" en fonction du nombre de bases juridiques et du secteur"
+    print question
+    #first line: 1 BJ; second line: many BJ
+    #first column: only one cs (13); second column: all cs
+    res=[[0,0], [0,0]]       
+    #~ count=0
+
+    for act in Act.objects.filter(validated=2):
+        ok=False
+        if type_var=="bool" and getattr(act, variable)==True:
+            ok=True
+        elif type_var=="int" and getattr(act, variable)>0:
+            ok=True
+        
+        if ok:
+            if act.base_j.strip()!="":
+                nb_bj=act.base_j.count(';')
+                #if more than one BJ, assignate to "many BJ" catageory
+                if nb_bj>0:
+                    nb_bj=1
+                    res[nb_bj][1]+=1
+                else:
+                    #only one BJ
+                    res[nb_bj][1]+=1
+           
+                #for specific cs in parameter
+                for nb in range(1,5):
+                    code_sect=getattr(act, "code_sect_"+str(nb))
+                    if code_sect!=None and get_cs(code_sect.code_sect)==cs:
+                        res[nb_bj][0]+=1
+                        #~ if nb_bj==0:
+                            #~ print act.releve_annee, act.releve_mois, act.no_ordre, act.nb_point_b, act.base_j, act.code_sect_1_id, act.code_sect_2_id, act.code_sect_3_id, act.code_sect_4_id, act.validated
+                            #~ count+=1
+                        break
+                
+    print "res", res
+    #~ print "count", count
+    
+    writer.writerow([question])
+    writer.writerow(["", "CS="+name, "Tous les CS"])
+    writer.writerow(["Une BJ", res[0][0], res[0][1]])
+    writer.writerow(["Plusieurs BJ", res[1][0], res[1][1]])
+    writer.writerow("")
+    print ""
+
+
+def q60():
+    question="Nombre de discussions en point b"
+    nb_bj_cs("13", "Marché intérieur", "nb_point_b", "int", question)
+
+
+def q61():
+    question="Nombre d'actes avec un vote public"
+    nb_bj_cs("13", "Marché intérieur", "vote_public", "bool", question)
+    
+    
+def q62(cs, name):
+    question="Pourcentages d'actes NoUniqueType=COD adoptés en 1ère lecture en fonction du nombre de base juridiques et du code sectoriel"
+    print question
+    #first line: 1 BJ; second line: many BJ
+    #first column: only one cs (13); second column: all cs
+    #first zero: nb acts; second_zero: total
+    res=[[[0,0],[0,0]], [[0,0],[0,0]]]
+    #~ count=0     
+
+    for act_ids in ActIds.objects.filter(act__validated=2, src="index"):
+        act=act_ids.act
         if act.base_j.strip()!="":
             nb_bj=act.base_j.count(';')
             #if more than one BJ, assignate to "many BJ" catageory
             if nb_bj>0:
                 nb_bj=1
-            year=str(act.releve_annee)
-            res[year][nb_bj]+=1
+            
+            if act.releve_annee==2004 and act.releve_mois==3 and act.no_ordre==36:
+                print "nb_bj", nb_bj
+       
+            #for specific cs in parameter
+            nb_cs=1
+            for nb in range(1,5):
+                code_sect=getattr(act, "code_sect_"+str(nb))
+                if code_sect!=None and get_cs(code_sect.code_sect)==cs:
+                    nb_cs=0
+                    break
+                    
+            #count total
+            res[nb_bj][nb_cs][1]+=1
+            if nb_cs==0:
+                #if the act has a code sectoriel="13", it has to be counted for the "all cs" column too
+                res[nb_bj][1][1]+=1
+            
+            #count number of acts
+            if act_ids.no_unique_type=="COD" and act.nb_lectures==1:
+                res[nb_bj][nb_cs][0]+=1
+                if nb_cs==0:
+                    #if the act has a code sectoriel="13", it has to be counted for the "all cs" column too
+                    res[nb_bj][1][0]+=1
+                
+                #~ if nb_bj==0 and nb_cs==1:
+                    #~ print act.releve_annee, act.releve_mois, act.no_ordre, act_ids.no_unique_type, act_ids.src, act.nb_lectures, act.base_j, act.code_sect_1_id, act.validated
+                    #~ count+=1
+                
     print "res", res
+    #~ print "count", count
     
-    write_year(question, res, nb_var=2)
-    
-    
-    
+    writer.writerow([question])
+    writer.writerow(["", "CS="+name, "Tous les CS"])
+    for nb_bj in range(2):
+        if nb_bj==0:
+            row=["Une BJ"]
+        else:
+            row=["Plusieurs BJ"]
+        for nb_cs in range(2):
+            if res[nb_bj][nb_cs][0]==0:
+                temp=0
+            else:
+                temp=round(float(res[nb_bj][nb_cs][0])*100/res[nb_bj][nb_cs][1], 3)
+            row.append(temp)
+        writer.writerow(row)
+    writer.writerow("")
+    print ""
+
+
 
     
 class Command(NoArgsCommand):
@@ -1655,7 +1866,7 @@ class Command(NoArgsCommand):
         #~ q45(1)
         #~ q45(2)
         #~ q45(3)
-         #pourcentage AdoptCSAbs=Y (parmi les actes AdoptCSRegleVote=U du même secteur et de la même année) par secteur et par année
+        #pourcentage AdoptCSAbs=Y (parmi les actes AdoptCSRegleVote=U du même secteur et de la même année) par secteur et par année
         #~ q46()
         #~ #pourcentage 1/2/3 EM (parmi les actes AdoptCSAbs=Y et AdoptCSRegleVote=U du même secteur et de la même année) par secteur et par année
         #~ q47(1)
@@ -1682,9 +1893,20 @@ class Command(NoArgsCommand):
         #~ q55()
         #~ #Nombre de mots moyen des textes des actes, par secteur et par année
         #~ q56()
-        
+        #pourcentage d'actes avec plusieurs bases juridiques dans la production législative, par année
         q57()
+        q57("13", "Marché intérieur")
+        #DureeTotaleDepuisPropCom moyenne des actes pour lesquels il y a concordance des PartyFamilyResp et GroupePolitiqueRapporteur ("Social Democracy")
+        #~ q58()
+        #impact du nombre de bases juridiques sur la durée de la procédure
+        q59("13", "Marché intérieur")
+        #impact du nombre de bases juridiques sur la nombre de points b
+        q60()
+        #~ #Nombre d'actes avec un vote public
+        q61()
+        #Pourcentages d'actes adoptés en 1ère lecture en fonction du nombre de base juridiques et du code sectoriel
+        q62("13", "Marché intérieur")
         
         
         
-        #29,32,34,35,37,38,44,..., end
+        #57, 59 till end
