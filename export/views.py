@@ -291,7 +291,9 @@ def export(request):
         response["acts_nb"]=Act.objects.filter(validated=2).count()
     
     #display latest_export
-    files=glob.glob("media/export/acts_*.txt")
+    files=glob.glob(settings.MEDIA_ROOT+"/export/acts_*.txt")
+    print "files"
+    print files
     #~ date=str(datetime.date.today())
     dates=[]
     for f in files:
@@ -300,9 +302,12 @@ def export(request):
         dates.append(fname.split("_")[1].split(".")[0])
 
     #latest date
-    date=max(dates)
-    response["latest_export_date"]=date
-    response["latest_export_file"]=settings.MEDIA_URL+"export/acts_"+date+".txt"
+    try:
+        date=max(dates)
+        response["latest_export_date"]=date
+        response["latest_export_file"]=settings.MEDIA_URL+"export/acts_"+date+".txt"
+    except Exception, e:
+        print e
     
 
     #displays the page (GET) or POST if javascript disabled
