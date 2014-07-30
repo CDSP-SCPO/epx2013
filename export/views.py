@@ -214,6 +214,11 @@ def get_save_acts(excl_fields_act_ids, excl_fields_act, writer):
         fields.append(temp_fields["status"][:-2])
         
         #write act in file
+        for i in range(len(fields)):
+            try:
+                fields[i]=fields[i].encode("utf-8")
+            except Exception, e:
+                print e
         writer.writerow(fields)
     
     tac=time.time()

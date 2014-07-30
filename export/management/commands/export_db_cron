@@ -1,1 +1,1 @@
-* * * * * ls >> /data/www/europolix/export/management/commands/export_db_cron_log
+0 23 * * 7 cd /data/www/europolix && python2.7 manage.py export_db
