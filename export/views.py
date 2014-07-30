@@ -25,6 +25,11 @@ from django.http import HttpResponse
 #display processing time
 import time
 
+#file pattern matching
+import glob
+import datetime
+import re
+
 
 def get_headers(excl_fields_act_ids, excl_fields_act):
     """
@@ -218,7 +223,7 @@ def get_save_acts(excl_fields_act_ids, excl_fields_act, writer):
             try:
                 fields[i]=fields[i].encode("utf-8")
             except Exception, e:
-                print e
+                pass
         writer.writerow(fields)
     
     tac=time.time()
@@ -228,12 +233,11 @@ def get_save_acts(excl_fields_act_ids, excl_fields_act, writer):
 
 
 
-def send_file(request, file_server, file_client):
+def send_file(file_server, file_client):
     """
     FUNCTION
     downloads a file from the server
     PARAMETERS
-    request: html request [HttpRequest object]
     file_server: name of the file on the server side [string]
     file_client: name of the file on the client side [string]
     RETURNS
@@ -279,13 +283,27 @@ def export(request):
         get_save_acts(excl_fields_act_ids, excl_fields_act, writer)
 
         print "csv export"
-        return send_file(request, dir_server+file_name, file_name)
+        return send_file(dir_server+file_name, file_name)
 
     #GET
     else:
         #fill the hidden input field with the number of acts to export
         response["acts_nb"]=Act.objects.filter(validated=2).count()
+    
+    #display latest_export
+    files=glob.glob("media/export/acts_*.txt")
+    #~ date=str(datetime.date.today())
+    dates=[]
+    for f in files:
+        fpath, fname = os.path.split(f)
+        #~ print "date"
+        dates.append(fname.split("_")[1].split(".")[0])
 
+    #latest date
+    date=max(dates)
+    response["latest_export_date"]=date
+    response["latest_export_file"]=settings.MEDIA_URL+"export/acts_"+date+".txt"
+    
 
     #displays the page (GET) or POST if javascript disabled
     return render_to_response('export/index.html', response, context_instance=RequestContext(request))

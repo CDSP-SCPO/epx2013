@@ -36,11 +36,21 @@ displays the export page
 				<br />
 
 				<!-- success or error message -->
-				<div  class="row-fluid">
+				<div class="row-fluid">
 					<div id="msg" class="{{ msg_class }}">
 						{{ msg }}
 					</div>
 				</div>
+                
+                <br />
+                
+                <!-- get latest export -->
+				<div class="row-fluid">
+					<div id="latest_export">
+						<a href="{{ latest_export_file }}" target="_blank">Get the latest export of the database (retrieved on {{ latest_export_date }})</a>.
+					</div>
+				</div>
+                
 			</fieldset>
 		</form>
 

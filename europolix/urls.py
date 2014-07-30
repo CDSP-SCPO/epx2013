@@ -41,8 +41,14 @@ urlpatterns=patterns('',
 )+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT, show_indexes=True)
 
 if settings.DEBUG:
+    #display static files on the web (images)
     urlpatterns +=patterns('',
         (r'^static/(?P<path>.*)$', 'django.views.static.serve',
         {'document_root': settings.STATIC_ROOT, 'show_indexes': True})
-)
+    )
+    #display media files on the web (latest database export)
+    urlpatterns = patterns('',
+        url(r'^media/(?P<path>.*)$', 'django.views.static.serve',
+    {'document_root': settings.MEDIA_ROOT, 'show_indexes': True}),
+    ) + urlpatterns
 
