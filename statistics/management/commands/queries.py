@@ -8,7 +8,7 @@ from django.db.models import Count
 import csv
 from django.conf import settings
 from collections import OrderedDict
-import datetime
+from datetime import datetime
 
 #display decimals with comma
 #DOES NOT WORK
@@ -43,17 +43,25 @@ def get_cs(cs):
 
 
 
-def init_year():
+def init_year(nb_vars=2):
     res={}
     for year in years_list:
-        res[year]=[0,0]
+        if nb_vars==2:
+            temp=[0,0]
+        else:
+            temp=0
+        res[year]=temp
     return res
 
 
-def init_res():
+def init_cs(nb_vars=2):
     res={}
     for cs in cs_list:
-        res[cs]=[0,0]
+        if nb_vars==2:
+            temp=[0,0]
+        else:
+            temp=0
+        res[cs]=temp
     return res
 
 
@@ -118,27 +126,48 @@ def init_cs_year_nb_lec(nb_lec=2, total=False):
 
 
 
-def get_by_year(res, variable):
-    for act in Act.objects.filter(validated=2):
+def get_by_year(res, variable, excluded_values=[None], nb_vars=2, filter_variables={}):
+    #get variable if not None or custom excluded values
+    for act in Act.objects.filter(validated=2, **filter_variables):
         field=getattr(act, variable)
-        if field != None:
+        if field not in excluded_values:
             year=str(act.releve_annee)
-            res[year][0]+=field
+            if nb_vars==2:
+                res[year][0]+=field
+                res[year][1]+=1
+            else:
+                res[year]+=field
+    print "res", res
+    return res
+    
+def get_by_year_variable(Model, res, filter_variables, variable):
+    #get variable if not None and use filter variables
+    for act in Model.objects.filter(**filter_variables):
+        if Model==ActIds:
+            act=act.act
+        value=getattr(act, variable)
+        if value != None:
+            year=str(act.releve_annee)
+            res[year][0]+=value
             res[year][1]+=1
     print "res", res
     return res
+    
 
-
-def get_by_cs(res, variable):
-    for act in Act.objects.filter(validated=2):
+def get_by_cs(res, variable, excluded_values=[None], nb_vars=2, filter_variables={}):
+    for act in Act.objects.filter(validated=2, **filter_variables):
         field=getattr(act, variable)
-        if field != None:
+        if field not in excluded_values:
             for nb in range(1,5):
                 code_sect=getattr(act, "code_sect_"+str(nb))
                 if code_sect!=None:
                     cs=get_cs(code_sect.code_sect)
-                    res[cs][0]+=field
-                    res[cs][1]+=1
+                    if nb_vars==2:
+                        res[cs][0]+=field
+                        res[cs][1]+=1
+                    else:
+                        res[cs]+=field
+                        
     print "res", res
     return res
 
@@ -167,23 +196,24 @@ def get_year_nb_lec(res, total_year=False, variable=1):
     return res, total_year
     
 
-def get_by_cs_year(res, variable=1, total_year=False):
-    for act in Act.objects.filter(validated=2):
-        field=getattr(act, variable)
-        if variable==1 or field!=None:
+def get_by_cs_year(res, variable=1, total_year=False, excluded_values=[None], nb_vars=2, filter_variables={}):
+    value=1
+    for act in Act.objects.filter(validated=2, **filter_variables):
+        if variable!=1:
+            value=getattr(act, variable)
+        if variable==1 or value not in excluded_values:
             for nb in range(1,5):
                 code_sect=getattr(act, "code_sect_"+str(nb))
                 if code_sect!=None:
                     cs=get_cs(code_sect.code_sect)
                     year=str(act.releve_annee)
-                    res[cs][year][1]+=1
-                    value=1
-                    if variable!=1:
-                        value=field
-                    res[cs][year][0]+=value
-                    if total_year:
-                        #~ print "total_year", total_year
-                        total_year[year]+=value
+                    if nb_vars==2:
+                        res[cs][year][1]+=1
+                        res[cs][year][0]+=value
+                        if total_year:
+                            total_year[year]+=value
+                    else:
+                        res[cs][year]+=value
     print "res", res
     if total_year:
         return res, total_year
@@ -220,17 +250,21 @@ def get_by_cs_year_nb_lec(res, total_year=False, variable=1):
 
 
 
-def write_year(question, res, nb_var=1, percent=1):
+def write_year(question, res, nb_vars=2, percent=1, bj=False):
     writer.writerow([question])
     row=[]
-    if nb_var==1:
-        #one line to display
+    if not bj:
         writer.writerow(years_list)
-        for year in years_list:  
-            if res[year][0]==0:
-                temp=0
+        for year in years_list: 
+            #compute avg or percentage (two variables: total and number)
+            if nb_vars==2: 
+                if res[year][0]==0:
+                    temp=0
+                else:
+                    temp=round(float(res[year][0])*percent/res[year][1], 3) 
             else:
-                temp=round(float(res[year][0])*percent/res[year][1], 3) 
+                #no avg to compute
+                temp=res[year]
             row.append(temp)
         writer.writerow(row)
     else:
@@ -255,15 +289,18 @@ def write_year(question, res, nb_var=1, percent=1):
     print ""
 
 
-def write_cs(question, res):
+def write_cs(question, res, nb_vars=2):
     writer.writerow([question])
     writer.writerow(cs_list)
     row=[]
-    for cs in cs_list:    
-        if res[cs][0]==0:
-            temp=0
+    for cs in cs_list:
+        if nb_vars==2:    
+            if res[cs][0]==0:
+                temp=0
+            else:
+                temp=round(float(res[cs][0])/res[cs][1], 3)
         else:
-            temp=round(float(res[cs][0])/res[cs][1], 3)
+            temp=res[cs]
         row.append(temp)
     writer.writerow(row)
     writer.writerow("")
@@ -1761,6 +1798,227 @@ def q62(cs, name):
     print ""
 
 
+def nb_mots_type_acte(type_acte):
+    question="Nombre de mots moyen pour les actes de type "+type_acte+", par année" 
+    print question 
+    res=init_year()
+    res=get_by_year_variable(Act, res, {"validated": 2, "type_acte": type_acte}, "nb_mots")
+    write_year(question, res)
+
+
+def q63():
+    type_actes=["CS DEC", "CS DVE", "CS REG", "DEC", "DVE", "REG", "CS DEC W/O ADD"]
+    for type_acte in type_actes:
+        nb_mots_type_acte(type_acte)
+
+
+
+def nb_mots_no_unique_type(no_unique_type):
+    question="Nombre de mots moyen pour les actes de NoUniqueType "+no_unique_type+", par année" 
+    print question 
+    res=init_year()
+    res=get_by_year_variable(ActIds, res, {"act__validated": 2, "src": "index", "no_unique_type": no_unique_type}, "nb_mots")
+    write_year(question, res)
+
+
+def q64():
+    no_unique_types=["COD", "CNS", "SYN", "CS"]
+    for no_unique_type in no_unique_types:
+        nb_mots_no_unique_type(no_unique_type)
+        
+
+def q65():
+    question="Nombre total de points B, par année" 
+    print question 
+    res=init_year(nb_vars=1)
+    res=get_by_year(res, "nb_point_b", excluded_values=[None, 0], nb_vars=1)
+    write_year(question, res, nb_vars=1)
+    
+    
+def q66():
+    question="Nombre total de points B par secteur" 
+    print question 
+    res=init_cs(nb_vars=1)
+    res=get_by_cs(res, "nb_point_b", excluded_values=[None, 0], nb_vars=1)
+    write_cs(question, res, nb_vars=1)
+    
+    
+def q67():
+    question="Nombre total de points B par année et par secteur" 
+    print question 
+    res=init_cs_year()
+    res=get_by_cs_year(res, variable="nb_point_b", excluded_values=[None, 0], nb_vars=1)
+    write_cs_year(question, res)
+    
+    
+def q68():
+    question="Nombre total de points B pour les actes avec un vote public, par année"
+    print question 
+    res=init_year(nb_vars=1)
+    res=get_by_year(res, "nb_point_b", excluded_values=[None, 0], nb_vars=1, filter_variables={"vote_public": True})
+    write_year(question, res, nb_vars=1)
+  
+    
+    
+def q69():
+    question="Nombre total de points B pour les actes avec un vote public, par secteur"
+    print question 
+    res=init_cs(nb_vars=1)
+    res=get_by_cs(res, "nb_point_b", excluded_values=[None, 0], nb_vars=1, filter_variables={"vote_public": True})
+    write_cs(question, res, nb_vars=1)
+
+
+
+def q70():
+    question="Nombre total de points B pour les actes avec un vote public, par année et par secteur"
+    print question 
+    res=init_cs_year()
+    res=get_by_cs_year(res, variable="nb_point_b", excluded_values=[None, 0], nb_vars=1, filter_variables={"vote_public": True})
+    write_cs_year(question, res)
+
+
+
+def str_to_date(string):
+    return datetime.strptime(string, '%Y-%m-%d').date()
+
+periodes_list=("pré-élargissement (1)","pré-élargissement (2)","post-élargissement","post-Lisbonne","crise")
+nb_periodes=len(periodes_list)
+periodes=[None]*nb_periodes
+periodes[0]=(str_to_date("1996-1-1"), str_to_date("1999-6-30"))
+periodes[1]=(str_to_date("1999-7-1"), str_to_date("2004-4-30"))
+periodes[2]=(str_to_date("2004-5-1"), str_to_date("2009-1-31"))
+periodes[3]=(str_to_date("2009-2-1"), str_to_date("2012-12-31"))
+periodes[4]=(str_to_date("2008-09-15"), str_to_date("2012-12-31"))
+# Post-Lisbonne : 01/02/2009 – 31/12/2013
+# Crise : 15-09_2008 (Faillite Lehman Brothers) -31/12/2013
+
+
+def queries_periodes(question, Model, filter_variables={}, exclude_variables={}, filter_total={}, avg_variable=None, percent=100, query=None):
+    print question
+    res=[[None for x in range(2)] for y in range(nb_periodes)]
+    
+    for index in range(len(periodes)):
+        
+        if query=="repr_perm":
+            res[index][0]=0
+            res[index][1]=0
+            for act in Model.objects.filter(act__validated=2, act__adopt_conseil__gte=periodes[index][0], act__adopt_conseil__lte=periodes[index][1]):
+                #~ print act.id
+                status=Status.objects.get(verbatim=act.verbatim, country=act.country).status
+                if status not in ["NA", "AB"]:
+                    res[index][1]+=1
+                    if status in ["CS", "CS_PR"]:
+                        res[index][0]+=1
+        else:
+            #percentage among all the acts
+            if percent==100:
+                if query=="adopt_cs_contre":
+                    res[index][0]=Model.objects.filter(validated=2, adopt_conseil__gte=periodes[index][0], adopt_conseil__lte=periodes[index][1], **filter_variables).annotate(nb_countries=Count('adopt_cs_contre')).filter(nb_countries__gte=2).count()
+                else:
+                    if Model==Act:
+                        res[index][0]=Model.objects.filter(validated=2, adopt_conseil__gte=periodes[index][0], adopt_conseil__lte=periodes[index][1], **filter_variables).exclude(**exclude_variables).count()
+                    else:
+                        res[index][0]=Model.objects.filter(act__validated=2, src="index", act__adopt_conseil__gte=periodes[index][0], act__adopt_conseil__lte=periodes[index][1], **filter_variables).exclude(**exclude_variables).count()
+                res[index][1]=Act.objects.filter(validated=2, adopt_conseil__gte=periodes[index][0], adopt_conseil__lte=periodes[index][1], **filter_total).count()
+            else:
+                #average
+                res[index][0]=0
+                for act in Model.objects.filter(validated=2, adopt_conseil__gte=periodes[index][0], adopt_conseil__lte=periodes[index][1], **filter_variables).exclude(**exclude_variables):
+                    res[index][0]+=getattr(act, avg_variable)
+                res[index][1]=Act.objects.filter(validated=2, adopt_conseil__gte=periodes[index][0], adopt_conseil__lte=periodes[index][1], **filter_total).exclude(**exclude_variables).count()
+    
+    print "res"
+    print res
+    
+    writer.writerow([question])
+    writer.writerow(periodes_list)
+    row=[]
+    for index in range(nb_periodes):
+        if res[index][0]==0:
+            temp=0
+        else:
+            temp=round(float(res[index][0])*percent/res[index][1], 3)
+        row.append(temp)
+    writer.writerow(row)
+    writer.writerow("")
+    print ""
+
+
+def q71():
+    #actes pour lesquels ProposOrigine="COM" et ComProc="Written procedure"
+    question="pourcentage de propositions de la Commission adoptées par procédure écrite"
+    queries_periodes(question, ActIds, filter_variables={"propos_origine": "COM", "act__com_proc": "Written procedure"})
+
+
+def q72():
+    question="pourcentage de textes adoptés en « points A » au Conseil"
+    queries_periodes(question, Act, filter_variables={"nb_point_a__isnull": False}, exclude_variables={"nb_point_a": 0})
+    
+    
+def q73():
+    question="nombre moyen de points B"
+    filter_variables={"nb_point_b__gte": 1}
+    queries_periodes(question, Act, filter_variables=filter_variables, filter_total=filter_variables, avg_variable="nb_point_b", percent=1)
+    
+    
+def q74():
+    question="pourcentage de textes adoptés en 1ère lecture au Parlement Européen"
+    queries_periodes(question, ActIds, filter_variables={"no_unique_type": "COD", "act__nb_lectures": 1})
+    
+    
+def q75():
+    question="Nombre moyen de EPComAmdtTabled"
+    filter_variables={"com_amdt_tabled__isnull": False}
+    queries_periodes(question, Act, filter_variables=filter_variables, exclude_variables={"com_amdt_tabled": 0}, filter_total=filter_variables, avg_variable="com_amdt_tabled", percent=1)
+    
+    question="Nombre moyen de EPAmdtTabled"
+    filter_variables={"amdt_tabled__isnull": False}
+    queries_periodes(question, Act, filter_variables=filter_variables, exclude_variables={"amdt_tabled": 0}, filter_total=filter_variables, avg_variable="amdt_tabled", percent=1)
+    
+    
+    
+def q76():
+    question="pourcentage moyen de représentants permanents par acte"
+    queries_periodes(question, MinAttend, query="repr_perm")
+    
+    
+    
+def q77():
+    question="pourcentage d’actes pour lesquels VotePublic=Y ET AdoptCSRegleVote=V"
+    queries_periodes(question, Act, filter_variables={"vote_public": True, "adopt_cs_regle_vote": "V"})
+    
+    question="pourcentage d’actes pour lesquels AdoptCSContre=Y ET AdoptCSRegleVote=V"
+    #~ if act.adopt_cs_contre.exists():
+    queries_periodes(question, Act, filter_variables={"adopt_cs_regle_vote": "V"}, exclude_variables={"adopt_cs_contre": None})
+        
+    question="pourcentage d’actes pour lesquels AdoptCSAbs=Y ET AdoptCSRegleVote=V"
+    queries_periodes(question, Act, filter_variables={"adopt_cs_regle_vote": "V"}, exclude_variables={"adopt_cs_abs": None})
+    
+    
+def q78():
+    question="durée moyenne par acte"
+    filter_variables={"duree_tot_depuis_prop_com__isnull": False}
+    queries_periodes(question, Act, filter_variables=filter_variables, filter_total=filter_variables, avg_variable="duree_tot_depuis_prop_com", percent=1)
+    
+    
+    
+def q79():
+    question="pourcentage d’actes adoptés en 2ème lecture"
+    queries_periodes(question, ActIds, filter_variables={"no_unique_type": "COD", "act__nb_lectures": 2})
+    
+    
+def q80():
+    question="pourcentage d’actes avec au moins 1 point B"
+    queries_periodes(question, Act, filter_variables={"nb_point_b__gt": 0})
+    
+    
+    
+def q81():
+    #% d’actes avec AdoptCSRegleVote=V ET Nombre d’EM opposes ( AdoptCSContre=Y) superieur ou egal a 2
+    question="pourcentage d’actes adoptés avec opposition d'au moins deux états, parmi les actes pour lesquels AdoptCSRegleVote=V"
+    filter_variables={"adopt_cs_regle_vote": "V"}
+    queries_periodes(question, Act, filter_variables=filter_variables, filter_total=filter_variables, query="adopt_cs_contre")
+    
 
     
 class Command(NoArgsCommand):
@@ -1872,6 +2130,7 @@ class Command(NoArgsCommand):
         #~ q47(1)
         #~ q47(2)
         #~ q47(3)
+        
         #DureeTotaleDepuisTransCons moyenne pour actes avec au moins une discussion en point B par année
         #~ q48()
         #DureeTotaleDepuisTransCons moyenne pour actes avec au moins une discussion en point B par secteur
@@ -1887,26 +2146,78 @@ class Command(NoArgsCommand):
         #DureeTotaleDepuisTransCons moyenne lorsque AdoptCSRegleVote=U, par secteur et par année
         #~ q53("U")
         #~ q53("V")
+        
         #Nombre de mots moyen des textes des actes, par année
         #~ q54()
         #~ #Nombre de mots moyen des textes des actes, par secteur
         #~ q55()
         #~ #Nombre de mots moyen des textes des actes, par secteur et par année
         #~ q56()
+        
         #pourcentage d'actes avec plusieurs bases juridiques dans la production législative, par année
-        q57()
-        q57("13", "Marché intérieur")
+        #~ q57()
+        #~ q57("13", "Marché intérieur")
         #DureeTotaleDepuisPropCom moyenne des actes pour lesquels il y a concordance des PartyFamilyResp et GroupePolitiqueRapporteur ("Social Democracy")
         #~ q58()
         #impact du nombre de bases juridiques sur la durée de la procédure
-        q59("13", "Marché intérieur")
-        #impact du nombre de bases juridiques sur la nombre de points b
-        q60()
-        #~ #Nombre d'actes avec un vote public
-        q61()
-        #Pourcentages d'actes adoptés en 1ère lecture en fonction du nombre de base juridiques et du code sectoriel
-        q62("13", "Marché intérieur")
+        #~ q59("13", "Marché intérieur")
+        #~ #impact du nombre de bases juridiques sur la nombre de points b
+        #~ q60()
+        #Nombre d'actes avec un vote public
+        #~ q61()
+        #~ #Pourcentages d'actes adoptés en 1ère lecture en fonction du nombre de base juridiques et du code sectoriel
+        #~ q62("13", "Marché intérieur")
         
+        #Nombre de mots moyen suivant le type de l'acte, par année
+        #~ q63()
+        #~ #Nombre de mots moyen suivant le NoUniqueType, par année
+        #~ q64()
+       
+        #Nombre de points B par année
+        #~ q65()
+        #Nombre de points B par secteur
+        #~ q66()
+        #Nombre de points B par année et par secteur
+        #~ q67()
+        #~ #Nombre de points B pour les actes avec un vote public, par année
+        #~ q68()
+        #~ #Nombre de points B pour les actes avec un vote public, par secteur
+        #~ q69()
+        #~ #Nombre de points B pour les actes avec un vote public, par année et par secteur
+        #~ q70()
+        
+        #pourcentages d propositions de la Commission adoptées par procédure écrite
+        q71()
+        #~ #pourcentage de textes adoptés en « points A » au Conseil
+        q72()
+        #~ #nombre de moyen de points B par texte
+        q73()
+        #~ #pourcentage de textes adoptés en 1ère lecture au Parlement Européen
+        q74()
+        #~ #nombre moyen d’amendements déposés
+        q75()
+        #~ #% moyen de représentants permanents par acte
+        q76()
+        #~ 
+        #~ #% ages moyens de votes publics, vote contre, abstentions là où VMQ est possible
+        q77()
+        #~ #durée moyenne par acte
+        q78()
+        #~ #% d’actes adoptés en 2ème lecture
+        q79()
+        #~ #% d’actes avec au moins 1 point B
+        q80()
+        #% d’actes adoptés avec opposition de 2 ou 3 Etats ou plus par rapport au nombre total d’actes où VMQ aurait été possible
+        q81()
+
+ 
+# Pré-élargissement:  1996– 30/06/99 (1ere legislature)  -et 1/07/99 -30/04/2004
+# Post-élargissement :  01/05/2004 – 31/01/2009
+# Post-Lisbonne : 01/02/2009 – 31/12/2013
+# Crise : 15-09_2008 (Faillite Lehman Brothers) -31/12/2013
+
+
+
         
         
         #57, 59 till end
