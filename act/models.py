@@ -23,8 +23,6 @@ class Party(models.Model):
     instances of party variables
     """
     party=models.CharField(max_length=70, unique=True)
-    #if party_family None: party comes from rapp (oeil); otherwise comes from resp (prelex) or gvt_compo
-    #~ country=models.ManyToManyField(Country, through='PartyFamily')
 
     def __unicode__(self):
         return u"%s" % self.party

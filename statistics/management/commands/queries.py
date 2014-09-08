@@ -1828,7 +1828,7 @@ def q64():
         
 
 def q65():
-    question="Nombre total de points B, par année" 
+    question="Nombre total de points B par année" 
     print question 
     res=init_year(nb_vars=1)
     res=get_by_year(res, "nb_point_b", excluded_values=[None, 0], nb_vars=1)
@@ -1881,7 +1881,7 @@ def q70():
 def str_to_date(string):
     return datetime.strptime(string, '%Y-%m-%d').date()
 
-periodes_list=("pré-élargissement (1)","pré-élargissement (2)","post-élargissement","post-Lisbonne","crise")
+periodes_list=("pré-élargissement (1/1/96 - 30/6/99)","pré-élargissement (1/7/99 - 30/04/04)","post-élargissement (1/5/04 - 31/1/09)","post-Lisbonne (1/2/09 - 31/12/12)","crise (15/9/08 - 31/12/12)")
 nb_periodes=len(periodes_list)
 periodes=[None]*nb_periodes
 periodes[0]=(str_to_date("1996-1-1"), str_to_date("1999-6-30"))
@@ -1893,7 +1893,7 @@ periodes[4]=(str_to_date("2008-09-15"), str_to_date("2012-12-31"))
 # Crise : 15-09_2008 (Faillite Lehman Brothers) -31/12/2013
 
 
-def queries_periodes(question, Model, filter_variables={}, exclude_variables={}, filter_total={}, avg_variable=None, percent=100, query=None):
+def queries_periodes(question, Model, filter_variables={}, exclude_variables={}, filter_total={}, avg_variable=None, percent=100, query=None, adopt_cs={}):
     print question
     res=[[None for x in range(2)] for y in range(nb_periodes)]
     
@@ -1913,13 +1913,19 @@ def queries_periodes(question, Model, filter_variables={}, exclude_variables={},
             #percentage among all the acts
             if percent==100:
                 if query=="adopt_cs_contre":
-                    res[index][0]=Model.objects.filter(validated=2, adopt_conseil__gte=periodes[index][0], adopt_conseil__lte=periodes[index][1], **filter_variables).annotate(nb_countries=Count('adopt_cs_contre')).filter(nb_countries__gte=2).count()
+                    res[index][0]=Model.objects.filter(validated=2, adopt_conseil__gte=periodes[index][0], adopt_conseil__lte=periodes[index][1], **filter_variables).annotate(nb_countries=Count(query)).filter(**adopt_cs).count()
                 else:
                     if Model==Act:
                         res[index][0]=Model.objects.filter(validated=2, adopt_conseil__gte=periodes[index][0], adopt_conseil__lte=periodes[index][1], **filter_variables).exclude(**exclude_variables).count()
                     else:
                         res[index][0]=Model.objects.filter(act__validated=2, src="index", act__adopt_conseil__gte=periodes[index][0], act__adopt_conseil__lte=periodes[index][1], **filter_variables).exclude(**exclude_variables).count()
-                res[index][1]=Act.objects.filter(validated=2, adopt_conseil__gte=periodes[index][0], adopt_conseil__lte=periodes[index][1], **filter_total).count()
+                
+                #total
+                if query=="COD":
+                    res[index][1]=ActIds.objects.filter(act__validated=2, src="index", no_unique_type="COD", act__adopt_conseil__gte=periodes[index][0], act__adopt_conseil__lte=periodes[index][1], **filter_total).count()
+                else:
+                    res[index][1]=Act.objects.filter(validated=2, adopt_conseil__gte=periodes[index][0], adopt_conseil__lte=periodes[index][1], **filter_total).count()
+                    
             else:
                 #average
                 res[index][0]=0
@@ -1946,78 +1952,81 @@ def queries_periodes(question, Model, filter_variables={}, exclude_variables={},
 
 def q71():
     #actes pour lesquels ProposOrigine="COM" et ComProc="Written procedure"
-    question="pourcentage de propositions de la Commission adoptées par procédure écrite"
+    question="Pourcentage d'actes provenant de la Commission et adoptés par procédure écrite"
     queries_periodes(question, ActIds, filter_variables={"propos_origine": "COM", "act__com_proc": "Written procedure"})
 
 
 def q72():
-    question="pourcentage de textes adoptés en « points A » au Conseil"
-    queries_periodes(question, Act, filter_variables={"nb_point_a__isnull": False}, exclude_variables={"nb_point_a": 0})
+    question="Pourcentage d'actes avec au moins un point A"
+    queries_periodes(question, Act, filter_variables={"nb_point_a__gte": 1})
     
     
 def q73():
-    question="nombre moyen de points B"
+    question="Nombre moyen de points B"
     filter_variables={"nb_point_b__gte": 1}
     queries_periodes(question, Act, filter_variables=filter_variables, filter_total=filter_variables, avg_variable="nb_point_b", percent=1)
     
     
 def q74():
-    question="pourcentage de textes adoptés en 1ère lecture au Parlement Européen"
-    queries_periodes(question, ActIds, filter_variables={"no_unique_type": "COD", "act__nb_lectures": 1})
+    question="Pourcentage d'actes adoptés en 1ère lecture parmi les actes de codécision"
+    queries_periodes(question, ActIds, filter_variables={"act__nb_lectures": 1, "no_unique_type": "COD"}, query="COD")
     
     
 def q75():
-    question="Nombre moyen de EPComAmdtTabled"
+    question="Nombre moyen d’amendements déposés par la commission parlementaire du PE saisie au fond"
     filter_variables={"com_amdt_tabled__isnull": False}
     queries_periodes(question, Act, filter_variables=filter_variables, exclude_variables={"com_amdt_tabled": 0}, filter_total=filter_variables, avg_variable="com_amdt_tabled", percent=1)
     
-    question="Nombre moyen de EPAmdtTabled"
+    question="Nombre moyen d’amendements déposés au PE"
     filter_variables={"amdt_tabled__isnull": False}
     queries_periodes(question, Act, filter_variables=filter_variables, exclude_variables={"amdt_tabled": 0}, filter_total=filter_variables, avg_variable="amdt_tabled", percent=1)
     
     
     
 def q76():
-    question="pourcentage moyen de représentants permanents par acte"
+    question="Pourcentage moyen de représentants permanents par acte"
     queries_periodes(question, MinAttend, query="repr_perm")
     
     
     
 def q77():
-    question="pourcentage d’actes pour lesquels VotePublic=Y ET AdoptCSRegleVote=V"
-    queries_periodes(question, Act, filter_variables={"vote_public": True, "adopt_cs_regle_vote": "V"})
+    question="Pourcentage d’actes adoptés avec un vote public, parmi les actes avec une majorité qualifiée lors de l'adoption au conseil"
+    queries_periodes(question, Act, filter_variables={"vote_public": True, "adopt_cs_regle_vote": "V"}, filter_total={"adopt_cs_regle_vote": "V"})
     
-    question="pourcentage d’actes pour lesquels AdoptCSContre=Y ET AdoptCSRegleVote=V"
-    #~ if act.adopt_cs_contre.exists():
-    queries_periodes(question, Act, filter_variables={"adopt_cs_regle_vote": "V"}, exclude_variables={"adopt_cs_contre": None})
+    question="Pourcentage d’actes adoptés avec avec opposition d'exactement un état, parmi les actes avec une majorité qualifiée lors de l'adoption au conseil"
+    queries_periodes(question, Act, filter_variables={"adopt_cs_regle_vote": "V"}, filter_total={"adopt_cs_regle_vote": "V"}, query="adopt_cs_contre", adopt_cs={"nb_countries": "1"})
+    
+    question="Pourcentage d’actes adoptés avec opposition d'au moins deux états, parmi les actes avec une majorité qualifiée lors de l'adoption au conseil"
+    queries_periodes(question, Act, filter_variables={"adopt_cs_regle_vote": "V"}, filter_total={"adopt_cs_regle_vote": "V"}, query="adopt_cs_contre", adopt_cs={"nb_countries__gte": "2"})
         
-    question="pourcentage d’actes pour lesquels AdoptCSAbs=Y ET AdoptCSRegleVote=V"
-    queries_periodes(question, Act, filter_variables={"adopt_cs_regle_vote": "V"}, exclude_variables={"adopt_cs_abs": None})
+    question="Pourcentage d’actes adoptés avec abstention d'au moins un état, parmi les actes avec une majorité qualifiée lors de l'adoption au conseil"
+    queries_periodes(question, Act, filter_variables={"adopt_cs_regle_vote": "V"}, exclude_variables={"adopt_cs_abs": None}, filter_total={"adopt_cs_regle_vote": "V"})
     
     
 def q78():
-    question="durée moyenne par acte"
+    question="Durée moyenne par acte"
     filter_variables={"duree_tot_depuis_prop_com__isnull": False}
     queries_periodes(question, Act, filter_variables=filter_variables, filter_total=filter_variables, avg_variable="duree_tot_depuis_prop_com", percent=1)
     
     
     
 def q79():
-    question="pourcentage d’actes adoptés en 2ème lecture"
-    queries_periodes(question, ActIds, filter_variables={"no_unique_type": "COD", "act__nb_lectures": 2})
+    question="Pourcentage d’actes adoptés en 2ème lecture parmi les actes de codécision"
+    filter_variables={"no_unique_type": "COD"}
+    queries_periodes(question, ActIds, filter_variables={"act__nb_lectures": 2, "no_unique_type": "COD"}, query="COD")
     
     
 def q80():
-    question="pourcentage d’actes avec au moins 1 point B"
-    queries_periodes(question, Act, filter_variables={"nb_point_b__gt": 0})
+    question="Pourcentage d’actes avec au moins un point B"
+    queries_periodes(question, Act, filter_variables={"nb_point_b__gte": 1})
     
     
     
 def q81():
     #% d’actes avec AdoptCSRegleVote=V ET Nombre d’EM opposes ( AdoptCSContre=Y) superieur ou egal a 2
-    question="pourcentage d’actes adoptés avec opposition d'au moins deux états, parmi les actes pour lesquels AdoptCSRegleVote=V"
+    question="Pourcentage d’actes adoptés avec opposition d'au moins deux états, parmi les actes avec une majorité qualifiée lors de l'adoption au conseil"
     filter_variables={"adopt_cs_regle_vote": "V"}
-    queries_periodes(question, Act, filter_variables=filter_variables, filter_total=filter_variables, query="adopt_cs_contre")
+    queries_periodes(question, Act, filter_variables=filter_variables, filter_total=filter_variables, query="adopt_cs_contre", adopt_cs={"nb_countries__gte": "2"})
     
 
     
@@ -2187,37 +2196,25 @@ class Command(NoArgsCommand):
         #~ q70()
         
         #pourcentages d propositions de la Commission adoptées par procédure écrite
-        q71()
-        #~ #pourcentage de textes adoptés en « points A » au Conseil
-        q72()
-        #~ #nombre de moyen de points B par texte
-        q73()
+        #~ q71()
+        #pourcentage de textes adoptés en « points A » au Conseil
+        #~ q72()
+        #nombre de moyen de points B par texte
+        #~ q73()
         #~ #pourcentage de textes adoptés en 1ère lecture au Parlement Européen
         q74()
         #~ #nombre moyen d’amendements déposés
-        q75()
-        #~ #% moyen de représentants permanents par acte
-        q76()
-        #~ 
-        #~ #% ages moyens de votes publics, vote contre, abstentions là où VMQ est possible
+        #~ q75()
+        #% moyen de représentants permanents par acte
+        #~ q76()
+        
+        #% ages moyens de votes publics, vote contre, abstentions là où VMQ est possible
         q77()
-        #~ #durée moyenne par acte
-        q78()
-        #~ #% d’actes adoptés en 2ème lecture
+        #durée moyenne par acte
+        #~ q78()
+        #% d’actes adoptés en 2ème lecture
         q79()
-        #~ #% d’actes avec au moins 1 point B
-        q80()
-        #% d’actes adoptés avec opposition de 2 ou 3 Etats ou plus par rapport au nombre total d’actes où VMQ aurait été possible
-        q81()
-
- 
-# Pré-élargissement:  1996– 30/06/99 (1ere legislature)  -et 1/07/99 -30/04/2004
-# Post-élargissement :  01/05/2004 – 31/01/2009
-# Post-Lisbonne : 01/02/2009 – 31/12/2013
-# Crise : 15-09_2008 (Faillite Lehman Brothers) -31/12/2013
-
-
-
-        
-        
-        #57, 59 till end
+        #% d’actes avec au moins 1 point B
+        #~ q80()
+        #~ #% d’actes adoptés avec opposition de 2 ou 3 Etats ou plus par rapport au nombre total d’actes où VMQ aurait été possible
+        #~ q81()

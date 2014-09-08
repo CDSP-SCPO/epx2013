@@ -370,7 +370,7 @@ def get_split_propos(soup, split_propos):
             
     return split_propos
     
-
+    
 def get_adopt_conseil(soup, suite_2e_lecture_pe, split_propos, nb_lectures):
     """
     FUNCTION
@@ -391,12 +391,15 @@ def get_adopt_conseil(soup, suite_2e_lecture_pe, split_propos, nb_lectures):
             try:
                 #~ http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=en&DosId=156619
                 date_table_soup=soup.find("b", text="EP opinion 2nd rdg").find_parent("table")
-                #check table contains "Approval without amendment"
-                approval=date_table_soup.find(text="Approval without amendment")
-                #check next table title is "Signature by EP and Council"
-                next_table_title=date_table_soup.find_next("table").find(text="Signature by EP and Council")
-                #if conditions are met, then get the date
-                adopt_conseil=date_table_soup.find("b").get_text()
+                # "Approval without amendment"
+                if date_table_soup.find(text="Approval without amendment"):
+                    #if conditions are met, then get the date
+                    adopt_conseil=date_table_soup.find("b").get_text()
+                # "Approval with amendment"
+                else:
+                    date_table_soup=soup.find("b", text="Council approval 2nd rdg").find_parent("table")
+                    adopt_conseil=date_table_soup.find("b").get_text()
+               
             except Exception, e:
                 print "pb AdoptionConseil (case split_propos==0)", e
         elif nb_lectures==3:
@@ -406,7 +409,6 @@ def get_adopt_conseil(soup, suite_2e_lecture_pe, split_propos, nb_lectures):
             next_table_title=date_table_soup.find_next("table").find(text="Signature by EP and Council")
             #if conditions are met, then get the date
             adopt_conseil=date_table_soup.find("b").get_text()
-            #~ return soup.find("a", text=re.compile("Council decision at 3rd rdg")).find_next('br').next.strip()
 
     # if there is no  2d Lecture at PE
     if adopt_conseil==None and suite_2e_lecture_pe==False:

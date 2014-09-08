@@ -123,7 +123,7 @@ def get_data(src, act_ids, url, act=None):
             print "error while retrieving "+src+" url"
 
     else:
-        #oeil and eurlex
+        #oeil and prelex
         url_content=eval("get_url_content_"+src)(url)
         #act doesn't exist, problem on page or problem with the Internet connection
         if url_content!=False:

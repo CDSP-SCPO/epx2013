@@ -16,42 +16,44 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def get_nb_lectures(soup, suite_2e_lecture_pe):
+def get_nb_lectures(soup, suite_2e_lecture_pe, no_unique_type):
     """
     FUNCTION
     get the nb_lectures variable from the oeil url
     PARAMETERS
     soup: oeil url content [BeautifulSoup object]
     suite_2e_lecture_pe: suite_2e_lecture_pe variable [boolean]
+    no_unique_type: no_unique_type variable [string]
     RETURN
     nb_lectures [int]
     """
-    try:
-        #search in the key event table only
-        key_events_soup=soup.find("a", {"class": "expand_button"}, text="Key events").find_next("table")
+    #nb_lectures none if no_unique_type!= COD or SYN
+    if no_unique_type in ["COD", "SYN"]:
+        try:
+            #search in the key event table only
+            key_events_soup=soup.find("a", {"class": "expand_button"}, text="Key events").find_next("table")
 
-        #3d lecture
-        if key_events_soup.find(text=re.compile('Decision by Council, 3rd rdg'))>0 or key_events_soup.find(text=re.compile('Decision by Council, 3rd reading'))>0:
-            return 3
+            #3d lecture
+            if key_events_soup.find(text=re.compile('Decision by Council, 3rd rdg'))>0 or key_events_soup.find(text=re.compile('Decision by Council, 3rd reading'))>0:
+                return 3
 
-        #2d lecture
-        #if suite_2e_lecture_pe=Yes
-        if suite_2e_lecture_pe==True:
-            pattern="Decision by Parliament, 2nd reading"
-        #if suite_2e_lecture_pe=No
-        else:
-            pattern="Act approved by Council, 2nd reading"
-        if key_events_soup.find(text=re.compile(pattern))>0:
-            return 2
+            #2d lecture
+            #if suite_2e_lecture_pe=Yes
+            if suite_2e_lecture_pe==True:
+                pattern="Decision by Parliament, 2nd reading"
+            #if suite_2e_lecture_pe=No
+            else:
+                pattern="Act approved by Council, 2nd reading"
+            if key_events_soup.find(text=re.compile(pattern))>0:
+                return 2
 
-        #1st lecture
-        if key_events_soup.find(text=re.compile("Act adopted by Council after Parliament's 1st reading"))>0 or key_events_soup.find(text=re.compile("Committee referral announced in Parliament, 1st reading/single reading"))>0:
-            return 1
-
-        return None
-    except:
-        print  "no nb_lectures!"
-        return None
+            #1st lecture
+            if key_events_soup.find(text=re.compile("Act adopted by Council after Parliament's 1st reading"))>0 or key_events_soup.find(text=re.compile("Committee referral announced in Parliament, 1st reading/single reading"))>0:
+                return 1
+        except:
+            print  "no nb_lectures!"
+        
+    return None
 
 #possible values: 1, 2, 3 or NULL
 #3: "Decision by Council, 3rd rdg ou reading"
@@ -498,7 +500,7 @@ def get_data_oeil(soup, act_ids, act=None):
     soup_key_events=soup.find("div", {"id": "keyEvents"})
 
     #nb_lectures
-    fields['nb_lectures']=get_nb_lectures(soup_key_events, act.suite_2e_lecture_pe)
+    fields['nb_lectures']=get_nb_lectures(soup_key_events, act.suite_2e_lecture_pe, act_ids.no_unique_type)
     print "nb_lectures:", fields['nb_lectures']
     logger.debug("nb_lectures: "+ str(fields['nb_lectures']))
 
