@@ -87,7 +87,7 @@ def link_act_min_attend(act_ids):
             #check if there is at least one status different from AB and NA -> check if there are attendances for the act
             if min_attend.status not in ["AB", "NA"]:
                 attendance=True
-
+    
         #if no status different from AB or NA found, consider there is no attendance for this act and empty the dictionary
         if not attendance:
             min_attend_dic={}

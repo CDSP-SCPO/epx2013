@@ -5,6 +5,7 @@ from django.db import models
 from act.models import Act, MinAttend, Status, NP, PartyFamily, Country
 from act_ids.models import ActIds
 from django.db.models import Count
+from django.db.models import Sum
 import csv
 from django.conf import settings
 from collections import OrderedDict
@@ -140,12 +141,12 @@ def get_by_year(res, variable, excluded_values=[None], nb_vars=2, filter_variabl
     print "res", res
     return res
     
-def get_by_year_variable(Model, res, filter_variables, variable):
+def get_by_year_variable(Model, res, filter_vars, var, exclude_vars={}):
     #get variable if not None and use filter variables
-    for act in Model.objects.filter(**filter_variables):
+    for act in Model.objects.filter(**filter_vars).exclude(**exclude_vars):
         if Model==ActIds:
             act=act.act
-        value=getattr(act, variable)
+        value=getattr(act, var)
         if value != None:
             year=str(act.releve_annee)
             res[year][0]+=value
@@ -250,7 +251,14 @@ def get_by_cs_year_nb_lec(res, total_year=False, variable=1):
 
 
 
-def write_year(question, res, nb_vars=2, percent=1, bj=False):
+def write_res(question, res):
+    writer.writerow([question])
+    writer.writerow([res])
+    writer.writerow("")
+    print res
+    print ""
+
+def write_year(question, res, nb_vars=2, percent=1, bj=False, query=""):
     writer.writerow([question])
     row=[]
     if not bj:
@@ -261,6 +269,9 @@ def write_year(question, res, nb_vars=2, percent=1, bj=False):
                 if res[year][0]==0:
                     temp=0
                 else:
+                    #indice de contrainte legislative -> nombre mots total * nb actes et non nombre mots total / nb actes
+                    if query=="nb_mots":
+                        res[year][1]=float(1)/res[year][1]
                     temp=round(float(res[year][0])*percent/res[year][1], 3) 
             else:
                 #no avg to compute
@@ -1805,11 +1816,34 @@ def nb_mots_type_acte(type_acte):
     res=get_by_year_variable(Act, res, {"validated": 2, "type_acte": type_acte}, "nb_mots")
     write_year(question, res)
 
-
 def q63():
     type_actes=["CS DEC", "CS DVE", "CS REG", "DEC", "DVE", "REG", "CS DEC W/O ADD"]
     for type_acte in type_actes:
         nb_mots_type_acte(type_acte)
+        
+    
+def nb_mots_type_acte_bis(type_actes):
+    str_list=str(type_actes)
+    question="Total nombre de mots * nombre d'actes de type "+str_list
+    print question 
+    nb=0
+    res=0
+    for act in Act.objects.filter(validated=2, type_acte__in=type_actes, nb_mots__isnull=False):
+        nb+=1
+        res+=act.nb_mots
+    res=res*nb
+    write_res(question, res)
+    
+    question="Total nombre de mots * nombre d'actes de type "+str_list+", par année" 
+    print question 
+    res=init_year()
+    res=get_by_year_variable(Act, res, {"validated": 2, "type_acte__in": type_actes, "nb_mots__isnull": False}, "nb_mots")
+    write_year(question, res, query="nb_mots")
+        
+def q63_bis():
+    type_actes=[["CS DVE", "DVE"], ["CS DEC CAD", "CS DEC", "DEC", "CS DEC W/O ADD"], ["CS REG", "REG"]]
+    for type_acte in type_actes:
+        nb_mots_type_acte_bis(type_acte)
 
 
 
@@ -1820,11 +1854,52 @@ def nb_mots_no_unique_type(no_unique_type):
     res=get_by_year_variable(ActIds, res, {"act__validated": 2, "src": "index", "no_unique_type": no_unique_type}, "nb_mots")
     write_year(question, res)
 
-
 def q64():
     no_unique_types=["COD", "CNS", "SYN", "CS"]
     for no_unique_type in no_unique_types:
         nb_mots_no_unique_type(no_unique_type)
+
+
+def nb_mots_no_unique_type_bis(key, no_unique_types):
+    str_list=str(no_unique_types)
+    nb=0
+    res=0
+    if key=="include":
+        txt=" = "
+        nb_actes=ActIds.objects.filter(act__validated=2, src="index", no_unique_type__in=no_unique_types, act__nb_mots__isnull=False)
+        for act in ActIds.objects.filter(act__validated=2, src="index", no_unique_type__in=no_unique_types, act__nb_mots__isnull=False):
+            nb+=1
+            res+=act.act.nb_mots
+    else:
+        txt=" <> "
+        nb_actes=ActIds.objects.filter(act__validated=2, src="index", act__nb_mots__isnull=False).exclude(no_unique_type__in=no_unique_types)
+        for act in ActIds.objects.filter(act__validated=2, src="index", act__nb_mots__isnull=False).exclude(no_unique_type__in=no_unique_types):
+            nb+=1
+            res+=act.act.nb_mots
+    
+    question="Total nombre de mots * nombre d'actes de NoUniqueType"+txt+str_list
+    print question 
+    
+    
+    res=res*nb
+    write_res(question, res)
+    
+    res=init_year()
+    question="Total nombre de mots * nombre d'actes de NoUniqueType"+txt+str_list+", par année" 
+    print question 
+    if key=="include":
+        txt=" = "
+        res=get_by_year_variable(ActIds, res, {"act__validated": 2, "src": "index", "no_unique_type__in": no_unique_types}, "nb_mots")
+    else:
+        txt=" <> "
+        res=get_by_year_variable(ActIds, res, {"act__validated": 2, "src": "index"}, "nb_mots", exclude_vars={"no_unique_type__in": no_unique_types})
+        
+    write_year(question, res, query="nb_mots")
+    
+def q64_bis():
+    no_unique_types={"include": ["COD"], "exclude": ["COD"]}
+    for key, no_unique_type in no_unique_types.iteritems():
+        nb_mots_no_unique_type_bis(key, no_unique_type)
         
 
 def q65():
@@ -2179,8 +2254,10 @@ class Command(NoArgsCommand):
         
         #Nombre de mots moyen suivant le type de l'acte, par année
         #~ q63()
-        #~ #Nombre de mots moyen suivant le NoUniqueType, par année
+        q63_bis()
+        #Nombre de mots moyen suivant le NoUniqueType, par année
         #~ q64()
+        q64_bis()
        
         #Nombre de points B par année
         #~ q65()
@@ -2202,18 +2279,18 @@ class Command(NoArgsCommand):
         #nombre de moyen de points B par texte
         #~ q73()
         #~ #pourcentage de textes adoptés en 1ère lecture au Parlement Européen
-        q74()
-        #~ #nombre moyen d’amendements déposés
+        #~ q74()
+        #nombre moyen d’amendements déposés
         #~ q75()
         #% moyen de représentants permanents par acte
         #~ q76()
-        
-        #% ages moyens de votes publics, vote contre, abstentions là où VMQ est possible
-        q77()
-        #durée moyenne par acte
+        #~ 
+        #~ #% ages moyens de votes publics, vote contre, abstentions là où VMQ est possible
+        #~ q77()
+        #~ #durée moyenne par acte
         #~ q78()
-        #% d’actes adoptés en 2ème lecture
-        q79()
+        #~ #% d’actes adoptés en 2ème lecture
+        #~ q79()
         #% d’actes avec au moins 1 point B
         #~ q80()
         #~ #% d’actes adoptés avec opposition de 2 ou 3 Etats ou plus par rapport au nombre total d’actes où VMQ aurait été possible

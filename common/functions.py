@@ -36,14 +36,21 @@ def date_split_to_iso(year, month, day):
 	RETURN
 	date in the iso format [date]
 	"""
-	new_date=date(int(year), int(month), int(day)).isoformat()
-	return new_date
+	year=int(year)
+	month=int(month)
+	day=int(day)
+	if month>12:
+		#month and day are reversed
+		temp=month
+		month=day
+		day=temp
+	return date(year, month, day).isoformat()
 
 
 def date_string_to_iso(string):
 	"""
 	FUNCTION
-	transform a string date to the iso format ('YYYY-MM-DD')
+	transform a string date (American format with "/" or French format) to the iso format ('YYYY-MM-DD')
 	PARAMETERS
 	string: string date to convert [string]
 	RETURN

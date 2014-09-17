@@ -9,7 +9,8 @@ from models import CSVUpload
 from act_ids.models import ActIds
 from act.models import Act, ConfigCons, CodeSect, CodeAgenda, GvtCompo, Person, Country, Party, PartyFamily, DG, DGSigle, DGNb, NP, MinAttend, Verbatim, Status
 from import_app.models import ImportAdoptPC, ImportDosId, ImportNP, ImportMinAttend
-from common.db import save_get_object
+from common.db import save_get_object, save_get_field_and_fk
+from common.functions import date_string_to_iso
 #manipulate csv files, path of the file to import, copy a list and use regex
 import csv, os, copy, re
 #cross validation functions and get data from eurlex, oeil, prelex
@@ -25,8 +26,6 @@ from django.db.models.loading import get_model
 from django.utils import simplejson
 from django.http import HttpResponse
 from django.template.loader import render_to_string
-from common.db import save_get_field_and_fk
-import re
 
 
 def detect_delim(header):
@@ -428,8 +427,8 @@ def get_data_gvt_compo(row):
     """
     #used to identify the row
     ids_row={}
-    ids_row["start_date"]=row[0].strip().replace("/", "-")
-    ids_row["end_date"]=row[1].strip().replace("/", "-")
+    ids_row["start_date"]=date_string_to_iso(row[0].strip())
+    ids_row["end_date"]=date_string_to_iso(row[1].strip())
 
     #extra fields to save if the act does not exist yet
     defaults={}

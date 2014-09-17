@@ -124,7 +124,12 @@ class Command(NoArgsCommand):
 #~
 #~
         #update min_attend for validated acts
-        act_ids=ActIds.objects.filter(src="index", act__validated=2)
-        for act_id in act_ids:
-            print act_id.act
-            link_act_min_attend(act_id)
+        #~ act_ids=ActIds.objects.filter(src="index", act__validated=2)
+        #~ for act_id in act_ids:
+            #~ print act_id.act
+            #~ link_act_min_attend(act_id)
+
+        #trim spaces for no_celex in ImportMinAttend
+        for act in ImportMinAttend.objects.all():
+            act.no_celex=act.no_celex.strip()
+            act.save()
