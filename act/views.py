@@ -312,6 +312,7 @@ def get_data_all(context, add_modif, act, POST):
     #COMMENT FOR TESTS ONLY
     temp=get_data_others(act_ids["index"], act)
     context['opals']=temp["opal"]
+    context['gvt_compos']=temp["gvt_compo"]
     context['min_attends']=temp["min_attend"]
     context["party_family"]=get_party_family({"1": act.resp_1_id, "2": act.resp_2_id, "3": act.resp_3_id})
     context['act_ids']=act_ids

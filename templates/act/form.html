@@ -326,37 +326,32 @@
                     <!-- gvt_compo -->
                     {% if field.name == "gvt_compo" %}
                         <div class="fieldWrapper gvt_compo_table_div">
-                            {% with gvt_compo_instances=act.gvt_compo.all %}
-                                {% if gvt_compo_instances %}
-                                    <table id="gvt_compo" class="table table-bordered table-condensed">
-                                        <!-- column names -->
+                            {% if gvt_compos %}
+                                <table id="gvt_compo" class="table table-bordered table-condensed">
+                                    <!-- column names -->
+                                    <tr>
+                                        <td class="table_column_title">{{ display_name.country }}</td>
+                                        <td class="table_column_title">{{ display_name.party }}</td>
+                                    </tr>
+
+                                    {% for country, parties in gvt_compos.items %}
                                         <tr>
-                                            <td class="table_column_title">{{ display_name.country }}</td>
-                                            <td class="table_column_title">{{ display_name.party }}</td>
+                                            <td>{{ country }}</td>
+
+                                            <td class="second_column_others">
+                                                {% if parties != "" %}
+                                                     {{ parties }}
+                                                <!-- no party -->
+                                                {% else %}
+                                                    None
+                                                {% endif %}
+                                            </td>
                                         </tr>
-
-                                        {% for gvt_compo_instance in gvt_compo_instances %}
-                                            <tr>
-                                                <td>{{ gvt_compo_instance.country.country_code }}</td>
-
-                                                <td class="second_column_others">
-                                                    {% for party in gvt_compo_instance.party.all %}
-                                                        {{ party.party }} ({% get_party_family gvt_compo_instance.country party %})
-                                                        {% if not forloop.last %}
-                                                            ;&nbsp;
-                                                        {% endif %}
-                                                    <!-- no party -->
-                                                    {% empty %}
-                                                        None
-                                                    {% endfor %}
-                                                </td>
-                                            </tr>
-                                        {% endfor %}
-                                    </table>
-                                {% else %}
-                                    <span class="empty">Sorry, no match.</span>
-                                {% endif %}
-                            {% endwith %}
+                                    {% endfor %}
+                                </table>
+                            {% else %}
+                                <span class="empty">Sorry, no match.</span>
+                            {% endif %}
                         </div>
 
                     <!-- adopt_cs_contre, adopt_cs_abs, adopt_pc_contre, adopt_pc_abs -->

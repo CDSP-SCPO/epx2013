@@ -429,14 +429,11 @@ def get_data_gvt_compo(row):
     ids_row={}
     ids_row["start_date"]=date_string_to_iso(row[0].strip())
     ids_row["end_date"]=date_string_to_iso(row[1].strip())
-
-    #extra fields to save if the act does not exist yet
-    defaults={}
     gvt_compos=row[2].split(":")
-    defaults["country"]=Country.objects.get(country_code=gvt_compos[0].strip())
+    ids_row["country"]=Country.objects.get(country_code=gvt_compos[0].strip())
 
     #get instance or create instance if does not already exist
-    instance, created = GvtCompo.objects.get_or_create(defaults=defaults, **ids_row)
+    instance, created = GvtCompo.objects.get_or_create(**ids_row)
     exist=not created
 
     #if the row didn't exist, save the related models
@@ -453,7 +450,7 @@ def get_data_gvt_compo(row):
 
         #save party and party_family
         data={}
-        data["country"]=defaults["country"]
+        data["country"]=ids_row["country"]
         for index in xrange(len(partys)):
             #save party
             data["party"]=save_get_object(Party, {"party": partys[index]})

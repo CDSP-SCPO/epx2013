@@ -3,11 +3,30 @@
 """
 get government composition from the file Composition politique gvts nationaux 93-12.csv (NationGvtPoliticalComposition) and opal variables
 """
-from act.models import GvtCompo, Country, NP, MinAttend, Verbatim, Status
+from act.models import GvtCompo, Country, NP, MinAttend, Verbatim, Status, PartyFamily
 from import_app.models import ImportNP, ImportMinAttend
 from bs4 import BeautifulSoup
 import re
 
+
+def get_date(act_ids, act):
+    """
+    FUNCTION
+    get the date to be used to get the governments composition
+    PARAMETERS
+    act_ids: instance of the ids of the act [ActIds model instance]
+    act: instance of an act [Act model instance]
+    RETURN
+    date: date for the gvts composition [Date]
+    """
+    date=None
+    if act.adopt_conseil!=None:
+        date=act.adopt_conseil
+    elif act.sign_pecs!=None:
+        date=act.sign_pecs
+    elif act_ids.propos_origine in ["EM", "CONS", "BCE", "CJUE"]:
+        date=act.date_doc
+    return date
 
 
 def link_act_gvt_compo(act_ids, act):
@@ -21,19 +40,8 @@ def link_act_gvt_compo(act_ids, act):
     None
     """
     #take the right date field
-    date=None
-    if act.adopt_conseil!=None:
-        date=act.adopt_conseil
-        print "act.adopt_conseil", act.adopt_conseil
-    #if no adopt_conseil, take sign_pecs
-    elif act.sign_pecs!=None:
-        date=act.sign_pecs
-        print "act.sign_pecs", act.sign_pecs
-    elif act_ids.propos_origine in ["EM", "CONS", "BCE", "CJUE"]:
-        date=act.date_doc
-        print "act.date_doc", act.date_doc
+    date=get_date(act_ids, act)
 
-    print "date", date
     if date==None:
         return None
 
@@ -47,6 +55,47 @@ def link_act_gvt_compo(act_ids, act):
             print "gvt compo already exists!", e
     else:
         print "gvt compo: no matching date"
+
+
+
+def get_gvt_compo(act_ids, act):
+    """
+    FUNCTION
+    get all the governments composition of the given act
+    PARAMETERS
+    act_ids: instance of the ids of the act [ActIds model instance]
+    act: instance of an act [Act model instance]
+    RETURN
+    gvt_compo_dic: governements composition [Dictionary]
+    """
+    gvt_compo_dic={}
+    #take the right date field
+    date=get_date(act_ids, act)
+
+    if date!=None:
+        #get all the rows from GvtCompo for which start_date<adoptionConseil<end_date
+        gvt_compos=GvtCompo.objects.filter(start_date__lte=date, end_date__gte=date)
+
+        #put the countries, parties and party families in a dictionary
+        for gvt_compo in gvt_compos:
+            country=gvt_compo.country
+            country_code=country.country_code
+            #initialization
+            if country_code not in gvt_compo_dic:
+                gvt_compo_dic[country_code]=""
+
+            for party in gvt_compo.party.all():
+                party_family=PartyFamily.objects.get(country=country, party=party).party_family
+                gvt_compo_dic[country_code]+=party.party+" ("+party_family+"); "
+
+        #remove last "; "
+        for country in gvt_compo_dic:
+            gvt_compo_dic[country]=gvt_compo_dic[country][:-2]
+            
+        else:
+            print "gvt compo: no matching date"
+
+    return gvt_compo_dic
 
 
 
@@ -156,6 +205,9 @@ def get_data_others(act_ids, act):
 
     #link the act with the gvt_compo variables
     link_act_gvt_compo(act_ids, act)
+
+    #get the gvts composition of the act
+    fields["gvt_compo"]=get_gvt_compo(act_ids, act)
 
     #link the act with the min_attend variables  and return those variables in a special format to make their display easier in the template
     fields["min_attend"]=link_act_min_attend(act_ids)

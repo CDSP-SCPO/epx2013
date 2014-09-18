@@ -73,7 +73,7 @@ class GvtCompo(models.Model):
     party=models.ManyToManyField(Party)
 
     class Meta:
-        unique_together=(("start_date", "end_date"), )
+        unique_together=(("start_date", "end_date", "country"), )
 
 
 class DGSigle(models.Model):
