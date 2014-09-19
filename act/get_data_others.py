@@ -26,6 +26,7 @@ def get_date(act_ids, act):
         date=act.sign_pecs
     elif act_ids.propos_origine in ["EM", "CONS", "BCE", "CJUE"]:
         date=act.date_doc
+    print "date gvt_compo", date
     return date
 
 

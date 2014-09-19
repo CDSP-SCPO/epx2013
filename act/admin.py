@@ -1,5 +1,5 @@
 from django.contrib import admin
-from models import Act, DGSigle, DG
+from models import Act, DGSigle, DG, GvtCompo
 """
 administration of Act, DGSigle and DG models
 """
@@ -36,4 +36,16 @@ class DGAdmin(admin.ModelAdmin):
 	search_fields=('dg_sigle', 'dg',)
 
 admin.site.register(DG, DGAdmin)
+
+
+class GvtCompoAdmin(admin.ModelAdmin):
+	"""
+	details the GvtCompo model administration
+	"""
+	list_display=('start_date', 'end_date', 'country',)
+	list_filter=('start_date', 'end_date', 'country',)
+	ordering=('start_date', 'end_date', 'country',)
+	search_fields=('start_date', 'end_date', 'country__country_code',)
+
+admin.site.register(GvtCompo, GvtCompoAdmin)
 
