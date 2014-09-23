@@ -134,8 +134,12 @@ class Command(NoArgsCommand):
             #~ act.no_celex=act.no_celex.strip()
             #~ act.save()
 
+        i=0
         #update party family of rapporteurs
         for rapp in Person.objects.filter(src="rapp"):
+            i+=1
+            print "i", i
+            print "name", rapp.name
             country=rapp.country
             party=rapp.party
             try:
