@@ -4,8 +4,8 @@ command to recreate the min_attend instances for validated acts
 """
 from django.core.management.base import NoArgsCommand
 #new table
-from act.models import Verbatim, Status, Country, Act
-from import_app.models import ImportMinAttend
+from act.models import Verbatim, Status, Country, Act, Person, PartyFamily
+from import_app.models import ImportMinAttend, ImportRappPartyFamily
 from act_ids.models import ActIds
 from act.get_data_others import link_act_min_attend
 import os
@@ -130,6 +130,13 @@ class Command(NoArgsCommand):
             #~ link_act_min_attend(act_id)
 
         #trim spaces for no_celex in ImportMinAttend
-        for act in ImportMinAttend.objects.all():
-            act.no_celex=act.no_celex.strip()
-            act.save()
+        #~ for act in ImportMinAttend.objects.all():
+            #~ act.no_celex=act.no_celex.strip()
+            #~ act.save()
+
+        #update party family of rapporteurs
+        for rapp in Person.objects.filter(src="rapp"):
+            country=rapp.country
+            party=rapp.party
+            party_family=ImportRappPartyFamily.objects.get(party=party).party_family
+            PartyFamily.objects.get_or_create(party=party, country=country, party_family=party_family)
