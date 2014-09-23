@@ -60,6 +60,7 @@ def get_headers(excl_fields_act_ids, excl_fields_act):
                 index=field.name[-1]
                 headers.append(var_name_data.var_name["rapp_country_"+index])
                 headers.append(var_name_data.var_name["rapp_party_"+index])
+                headers.append(var_name_data.var_name["rapp_party_family_"+index])
             #Responsibles (Person) and related (prelex)
             elif "resp_" in field.name:
                 index=field.name[-1]
@@ -147,9 +148,11 @@ def get_save_acts(excl_fields_act_ids, excl_fields_act, writer):
                         party=temp.party
                         fields.append(country.country_code)
                         fields.append(party.party)
-                        if "resp_" in field.name:
-                            #party_family
+                        try:
                             fields.append(PartyFamily.objects.get(party=party, country=country).party_family)
+                        except Exception, e:
+                            print e
+                            fields.append(None)
                     else:
                         if "resp_" in field.name:
                             temp=[None]*4

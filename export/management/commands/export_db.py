@@ -35,5 +35,5 @@ class Command(NoArgsCommand):
         display="csv export: "+ today
         print display
         # Get an instance of a logger
-        logger = logging.getLogger(__name__)
-        logger.debug(display)
+        #~ logger = logging.getLogger(__name__)
+        #~ logger.debug(display)

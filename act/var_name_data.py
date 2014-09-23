@@ -52,6 +52,7 @@ for index in xrange(1,6):
     var_name["rapp_party_"+num]="GroupePolitiqueRapporteur"+num
     var_name["rapp_"+num]="RapporteurPE"+num
     var_name["rapp_country_"+num]="EtatMbRapport"+num
+    var_name["rapp_party_family_"+num]="PartyFamilyRapp"+num
 var_name["modif_propos"]="ModifPropos"
 var_name["nb_lectures"]="NombreLectures"
 var_name["sign_pecs"]="SignPECS"
