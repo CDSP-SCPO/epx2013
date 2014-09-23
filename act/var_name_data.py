@@ -46,6 +46,7 @@ var_name["rapp_party"]="GroupePolitiqueRapporteur*"
 var_name["rapp_party_"]="GroupePolitiqueRapporteur"
 var_name["rapp_country"]="EtatMbRapport*"
 var_name["rapp_country_"]="EtatMbRapport"
+var_name["rapp_party_family_"]="PartyFamilyRapp"
 for index in xrange(1,6):
     num=str(index)
     var_name["rapp_party_"+num]="GroupePolitiqueRapporteur"+num

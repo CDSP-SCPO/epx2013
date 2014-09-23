@@ -8,7 +8,7 @@ from models import CSVUpload
 #models
 from act_ids.models import ActIds
 from act.models import Act, ConfigCons, CodeSect, CodeAgenda, GvtCompo, Person, Country, Party, PartyFamily, DG, DGSigle, DGNb, NP, MinAttend, Verbatim, Status
-from import_app.models import ImportAdoptPC, ImportDosId, ImportNP, ImportMinAttend
+from import_app.models import ImportAdoptPC, ImportDosId, ImportNP, ImportMinAttend, ImportRappPartyFamily
 from common.db import save_get_object, save_get_field_and_fk
 from common.functions import date_string_to_iso
 #manipulate csv files, path of the file to import, copy a list and use regex
@@ -598,6 +598,32 @@ def get_data_min_attend_update(row):
     return instance, msg, not created
 
 
+def get_data_rapp_party_family(row):
+    """
+    FUNCTION
+    get a string (row from csv file) and put its content into an instance of ImportRappPartyFamily
+    PARAMETERS
+    row: row from the csv file [row object]
+    RETURN
+    instance: instance of the model with the extracted data [ImportRappPartyFamily model instance]
+    msg: id of the row, used to display an error message [string]
+    exist (not created): True if the instance already exists, False otherwise [boolean]
+    """
+    #used to identify the row
+    ids_row={}
+    ids_row["party"]=row[0].strip()
+
+    #extra fields to save if the act does not exist yet
+    defaults={}
+    defaults["party_family"]=row[1].strip()
+
+    #get instance or create instance if does not already exist
+    instance, created = ImportRappPartyFamily.objects.get_or_create(defaults=defaults, **ids_row)
+
+    msg=get_error_msg(ids_row)
+    return instance, msg, not created
+
+
 def import_table(csv_file, import_type):
     """
     FUNCTION
@@ -707,8 +733,8 @@ def import_view(request):
             rows_saved=[]
             rows_not_saved=[]
 
-            #importation of dos_id, act, adopt_pc, gvt_compo, np or min_attend file
-            if file_to_import in ["dos_id","act","adopt_pc","gvt_compo", "np", "min_attend_insert", "min_attend_update"]:
+            #importation of data to be saved in one table only: dos_id, act, adopt_pc, gvt_compo, np or min_attend file
+            if file_to_import in ["dos_id","act","adopt_pc","gvt_compo", "np", "min_attend_insert", "min_attend_update", "rapp_party_family"]:
                 rows_saved, rows_not_saved=import_table(path, file_to_import)
                 if file_to_import=="act":
                     #save retrieved ids

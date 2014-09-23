@@ -35,7 +35,7 @@ class PartyFamily(models.Model):
     """
     party = models.ForeignKey(Party)
     country = models.ForeignKey(Country)
-    party_family = models.CharField(max_length=30)
+    party_family = models.CharField(max_length=50)
 
     def __unicode__(self):
         return u"%s" % self.party_family

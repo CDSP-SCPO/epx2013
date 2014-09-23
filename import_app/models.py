@@ -94,3 +94,12 @@ class ImportMinAttend(models.Model):
     class Meta:
         #ALTER TABLE `europolix`.`import_app_importminattend` ADD INDEX (no_celex, country, verbatim(255));
         unique_together=(("no_celex", "country", "verbatim"), )
+
+
+class ImportRappPartyFamily(models.Model):
+    """
+    MODEL
+    tempory model: correspondance between parties and party families for rapporteurs
+    """
+    party=models.CharField(max_length=70, unique=True, blank=False, null=False)
+    party_family=models.CharField(max_length=50, blank=False, null=False)

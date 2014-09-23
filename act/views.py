@@ -240,6 +240,21 @@ def get_adopt_variables(act):
     return adopts
 
 
+def check_update(POST):
+    """
+    FUNCTION
+    check if we are updating a field of the act form (code_sect, rapp or resp)
+    PARAMETERS
+    POST: request.POST object [dictionary]
+    RETURN
+    True if a field is being updated and False otherwise [Boolean]
+    """
+    for key in POST:
+        if key.startswith('update'):
+            return True
+    return False
+
+
 def get_data_all(context, add_modif, act, POST):
     """
     FUNCTION
@@ -589,8 +604,11 @@ def update_person(request):
         context["country"]=instance.country.pk
         party=instance.party
         context["party"]=party.party
-        if request.POST["src"]=="resp":
+        try:
             context["party_family"]=PartyFamily.objects.only("party_family").get(party=party, country=context["country"]).party_family
+        except Exception, e:
+            print "no party family for the party of the rapporteur yet", e
+            context["party_family"]=None
     else:
         context["country"]=None
         context["party"]=None

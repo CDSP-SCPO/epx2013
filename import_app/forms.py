@@ -31,6 +31,7 @@ def get_choices(group=""):
     choices: list of available choices [list of tuples]
     """
     choices=[("","Select the import")]
+    #imports available to the admin only
     if group=="admin":
         choices.append(('act', 'Import acts to validate'))
         choices.append(('dos_id', 'Import '+var_name_ids.var_name['dos_id']))
@@ -42,7 +43,9 @@ def get_choices(group=""):
         choices.append(('gvt_compo', 'Import '+var_name_data.var_name['gvt_compo']))
         choices.append(('np', 'Import opal file (NP variables)'))
         choices.append(('min_attend_insert', 'Import new Attendance of ministers'))
+        choices.append(('rapp_party_family', 'Import party families of Rapporteurs'))
 
+    #import available to everyone (except temporary persons)
     choices.append(('min_attend_update', 'Update Attendance of ministers'))
 
     return choices
@@ -51,14 +54,8 @@ def get_choices(group=""):
 class CSVUploadForm(forms.Form):
     """
     FORM
-    upload a csv file containing either prelex unique ids (disId) or acts to validate
+    upload a csv file containing data to import
     """
-
-    file_to_import_choices_not_admin=(
-        ("","Select the import"),
-        ('min_attend_update', 'Update Attendance of ministers'),
-    )
-
     file_to_import=forms.ChoiceField(choices=get_choices())
 
     csv_file=forms.FileField(validators=[ext_validation])
@@ -67,8 +64,8 @@ class CSVUploadForm(forms.Form):
         model=CSVUpload
 
     def __init__(self, user, *args, **kwargs):
+        #show all the different imports to the administrator only
         self.user = user
         super(CSVUploadForm, self).__init__(*args, **kwargs)
         if self.user.is_superuser:
             self.fields['file_to_import'].choices = get_choices("admin")
-            #~ self.fields['file_to_import'] = forms.ChoiceField(choices=file_to_import_choices_admin)

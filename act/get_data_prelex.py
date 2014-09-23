@@ -506,54 +506,6 @@ def save_config_cons(code_sect_1):
     save_fk_code_sect(code_sect_1, "config_cons")
 
 
-#~ def get_nb_lectures(soup, no_unique_type, split_propos):
-    #~ """
-    #~ FUNCTION
-    #~ get the nb_lectures variable from the prelex url
-    #~ PARAMETERS
-    #~ soup: prelex url content [BeautifulSoup object]
-    #~ no_unique_type: no_unique_type variable [string]
-    #~ split_propos: split_propos variable [boolean]
-    #~ RETURN
-    #~ nb_lectures variable [int]
-    #~ """
-    #~ if no_unique_type!="COD":
-        #~ return None
-#~ 
-    #~ #proposition not splited
-    #~ if split_propos==False:
-        #~ if soup.find(text=re.compile('EP opinion 3rd rdg'))>0 or soup.find(text=re.compile('EP decision 3rd rdg'))>0 or soup.find(text=re.compile('EP decision on 3rd rdg'))>0:
-            #~ return 3
-        #~ if soup.find(text=re.compile('EP opinion 2nd rdg'))>0:
-            #~ return 2
-        #~ if soup.find(text=re.compile('EP opinion 1st rdg'))>0:
-            #~ return 1
-        #~ return 0
-#~ 
-    #~ #proposition is splited
-    #~ if soup.find(text=re.compile('EP: position, 3rd reading'))>0 or soup.find(text=re.compile('EP: decision, 3rd reading'))>0 or soup.find(text=re.compile('EP: legislative resolution, 3rd reading'))>0:
-        #~ return 3
-    #~ if soup.find(text=re.compile('EP: position, 2nd reading'))>0:
-        #~ return 2
-    #~ if soup.find(text=re.compile('EP: position, 1st reading'))>0:
-        #~ return 1
-    #~ return 0
-
-#Possible values
-#1, 2, 3 ou NULL
-#~ NULL if NoUniqueType !=COD
-#~ if NoUniqueType=COD and if the proposition is not splitted:
-    #~ if page contains "EP opinion 3rd rdg" or "EP decision 3rd rdg" -> nombreLectures=3
-    #~ if page contains "EP opinion 2nd rdg" -> nombreLectures=2
-    #~ if page contains "EP opinion 1st rdg" -> nombreLectures=1
-    #~ otherwise error
-#~ if NoUniqueType=COD and if the proposition is splitted:
-    #~ if page contains "EP: position, 3rd reading" or "EP: decision, 3rd reading" or "EP: legislative resolution, 3rd reading" -> nombreLectures=3
-    #~ if page contains "EP: position, 2nd reading" -> nombreLectures=2
-    #~ if page contains "EP: position, 1st reading" -> nombreLectures=1
-    #~ otherwise error
-
-
 def get_date_diff(date_1, date_2):
     """
     FUNCTION

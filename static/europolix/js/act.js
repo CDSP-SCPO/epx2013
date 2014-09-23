@@ -363,11 +363,7 @@ function update_person(name, value, src)
             id=name.slice(-4,-3);
             $("#"+src+"_country_"+id).text(result.country);
             $("#"+src+"_party_"+id).text(result.party);
-            if (src=="resp")
-            {
-                /* party_family only for resps */
-                $("#"+src+"_party_family_"+id).text(result.party_family);
-            }
+            $("#"+src+"_party_family_"+id).text(result.party_family);
         }
     });
 }
@@ -391,7 +387,7 @@ function update_dg(name, value)
 }
 
 
-/* make an image rotate for a few seconds */
+/* make an image rotate for a few seconds (used for the loading wheel) */
 function rotation(element)
 {
 

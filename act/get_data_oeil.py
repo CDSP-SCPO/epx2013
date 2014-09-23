@@ -9,7 +9,8 @@ import urllib
 from common.functions import date_string_to_iso
 #save rapp
 from common.db import save_get_field_and_fk
-from act.models import Country, Person, Party
+from act.models import Country, Person, Party, PartyFamily
+from import_app.models import ImportRappPartyFamily
 #logging
 import logging
 # Get an instance of a logger
@@ -344,6 +345,24 @@ def get_party(rapp_data):
 #can be NULL
 
 
+def save_party_family(party, country):
+    """
+    FUNCTION
+    save the party_family of the rapporteur into the PartyFamily model
+    PARAMETERS
+    party: party instance [Party model instance]
+    country: country instance [Country model instance]
+    RETURN
+    None
+    """
+    print "save_party_family"
+    try:
+        party_family=ImportRappPartyFamily.objects.get(party=party).party_family
+        PartyFamily.objects.get_or_create(party=party, country=country, party_family=party_family)
+    except Exception, e:
+        print "save_party_family exception", e
+
+
 #external table
 def get_rapp(rapp_data):
     """
@@ -576,6 +595,8 @@ def get_data_oeil(soup, act_ids, act=None):
         if rapps[rapp]!=None:
             fields[rapp]=rapps[rapp]
             num=rapp[-4]
+            #save party family
+            save_party_family(rapps[rapp].party, rapps[rapp].country)
             print rapp+": ", rapps[rapp].name
             print 'country_'+num+": ", rapps[rapp].country.country_code
             print 'party_'+num+": ", rapps[rapp].party.party
