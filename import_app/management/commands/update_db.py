@@ -139,4 +139,7 @@ class Command(NoArgsCommand):
             country=rapp.country
             party=rapp.party
             party_family=ImportRappPartyFamily.objects.get(party=party).party_family
-            PartyFamily.objects.get_or_create(party=party, country=country, party_family=party_family)
+            try:
+                PartyFamily.objects.get_or_create(party=party, country=country, party_family=party_family)
+            except Exception, e:
+                print e
