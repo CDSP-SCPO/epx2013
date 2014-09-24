@@ -35,7 +35,9 @@ import sys
 import os
 import time
 import logging
-
+#convert unicode to dict
+from ast import literal_eval
+ 
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
 
@@ -277,7 +279,8 @@ def get_data_all(context, add_modif, act, POST):
 
     #an act has been selected in the drop down list -> the related data is displayed
     #if state different of modif, save and ongoing and if the act is not being modified
-    if context["state"]=="display" and add_modif=="add":
+    #not check_update(POST): not updating a code_sect, rapp or resp
+    if context["state"]=="display" and add_modif=="add" and not check_update(POST):
         print "data retrieval"
         logger.debug('data retrieval')
         #retrieve all the data from all the sources
@@ -305,20 +308,27 @@ def get_data_all(context, add_modif, act, POST):
 #~
         #~ #check multiple values for dgs with numbers
         context["dg"], act=check_multiple_dgs(act)
+    else:
+        #get information about dg and resp when updating a field
+        #literal_eval to convert unicode dic to dic
+        context["dg_names_oeil"]=literal_eval(POST["hidden_dg_oeil_dic"])
+        context["dg_names_prelex"]=literal_eval(POST["hidden_dg_prelex_dic"])
+        context["resp_names_oeil"]=literal_eval(POST["hidden_resp_oeil_dic"])
+        context["resp_names_prelex"]=literal_eval(POST["hidden_resp_prelex_dic"])
+        context["dg"]=literal_eval(POST["hidden_dg_dic"])
 
     #we have selected an act in the drop down list or clicked on the modification button
     if "add_act" in POST or "modif_act" in POST:
-        
         #display adopt variables (countries in the drop down lists)
         adopts=get_adopt_variables(act)
 
         if "add_act" in POST:
             adopts["releve_mois_init"]=act.releve_mois
             form_data=ActForm(instance=act, initial=adopts)
-            context["status"]="add"
+            #~ context["status"]="add"
         else:
             form_data=ActForm(instance=act, initial=adopts)
-            context["status"]="modif"
+            #~ context["status"]="modif"
     else:
         form_data=ActForm(POST, instance=act)
 

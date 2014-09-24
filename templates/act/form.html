@@ -216,6 +216,13 @@
     <!-- link view to add a resp -->
     <div id="link_add_resp" style="display:none">{% url form_add field='resp' %}</div>
 
+    <input id="hidden_dg_oeil_dic" name="hidden_dg_oeil_dic" type="hidden" value="{{dg_names_oeil}}"></input>
+    <input id="hidden_dg_prelex_dic" name="hidden_dg_prelex_dic" type="hidden" value="{{dg_names_prelex}}"></input>
+    <input id="hidden_resp_oeil_dic" name="hidden_resp_oeil_dic" type="hidden" value="{{resp_names_oeil}}"></input>
+    <input id="hidden_resp_prelex_dic" name="hidden_resp_prelex_dic" type="hidden" value="{{resp_names_prelex}}"></input>
+    <input id="hidden_dg_dic" name="hidden_dg_dic" type="hidden" value="{{dg}}"></input>
+
+
     {% for field in form_data %}
         {% if field.name in vars_prelex_1 %}
 
@@ -225,8 +232,6 @@
                     <div class="fieldWrapper">
                         <div id="id_{{ field.name }}_errors" class="row-fluid">{{ field.errors }}</div>
 
-                        <!-- many resp and dg messages: only when add a new act -->
-                        {% if status == "add" %}
                             <!--dg: original values and message if more than one possible dg -->
                             {% if field.name|slice:":3" == 'dg_' %}
                                 {% with index=field.name|slice:"-1:" %}
@@ -261,8 +266,7 @@
                                     </div>
                                 {% endwith %}
                             {% endif %}
-                        {% endif %}
-
+                            
                         <div class="row-fluid {% if field.name == 'adopt_conseil' %}reload{% endif %}" style="position: relative">
                             {{ field }}
                             {% if field.name == 'adopt_conseil' %}<img id="update_durations" src="{{STATIC_URL}}europolix/img/reload.png" class="reload_img" alt="update duration fields" title="update duration fields">{% endif %}
