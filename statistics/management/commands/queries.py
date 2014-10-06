@@ -15,13 +15,12 @@ from datetime import datetime
 #DOES NOT WORK
 import locale
 locale.setlocale(locale.LC_ALL, 'fr_FR.UTF-8')
-#~ print locale.getlocale()
-#~ print locale.format("%10.2f", 0.123) 
 
 
 #year and code sectoriel lists
 countries=Country.objects.values_list("country_code", flat=True)
-years_list=[str(n) for n in range(1996, 2013)]
+years_list=[str(n) for n in range(1996, 2014)]
+months_list=[str(n) for n in range(1, 13)]
 years_list_zero=list(years_list)
 years_list_zero.insert(0, "")
 cs_list=[str(n) for n in range(1, 21)]
@@ -55,7 +54,20 @@ def init_year(nb_vars=2):
     return res
 
 
+def init_month(nb_vars=2):
+    res={}
+    for month in months_list:
+        if nb_vars==2:
+            temp=[0,0]
+        else:
+            temp=0
+        res[month]=temp
+    return res
+
+
+
 def init_cs(nb_vars=2):
+    #nb_vars=2 for computation percents
     res={}
     for cs in cs_list:
         if nb_vars==2:
@@ -84,16 +96,21 @@ def init_year_nb_lec(nb_lec=2, total=False):
     return res
 
 
-def init_cs_year(nb=1, total=False, amdt=False):
+def init_cs_year(nb=1, total=False, amdt=False, titles_list=False):
     #use nb=2 to compute the percentage for each cell
     #use total=True to compute the percentage of each cell compared to the total of the year
+    #titles_list: initialize empty list
     res={}
     total_year={}
     for secteur in cs_list:
         res[secteur]={}
         for year in years_list:
             if nb==1:
-                temp=0
+                if titles_list:
+                    #use copy of the empty list, not its reference
+                    temp=list([])
+                else:
+                    temp=0
             else:
                 temp=[0,0]
             if total:
@@ -198,6 +215,7 @@ def get_year_nb_lec(res, total_year=False, variable=1):
     
 
 def get_by_cs_year(res, variable=1, total_year=False, excluded_values=[None], nb_vars=2, filter_variables={}):
+    #nb_vars=2: counter of nb acts concerned
     value=1
     for act in Act.objects.filter(validated=2, **filter_variables):
         if variable!=1:
@@ -300,7 +318,7 @@ def write_year(question, res, nb_vars=2, percent=1, bj=False, query=""):
     print ""
 
 
-def write_cs(question, res, nb_vars=2):
+def write_cs(question, res, nb_vars=2, percent=1):
     writer.writerow([question])
     writer.writerow(cs_list)
     row=[]
@@ -309,7 +327,7 @@ def write_cs(question, res, nb_vars=2):
             if res[cs][0]==0:
                 temp=0
             else:
-                temp=round(float(res[cs][0])/res[cs][1], 3)
+                temp=round(float(res[cs][0])*percent/res[cs][1], 3)
         else:
             temp=res[cs]
         row.append(temp)
@@ -340,7 +358,8 @@ def write_year_nb_lec(question, res, total_year=False, nb_lec=2, percent=1):
     print ""
 
 
-def write_cs_year(question, res, total_year=False, percent=1, nb=1, amdt=False):
+def write_cs_year(question, res, total_year=False, percent=1, nb=1, amdt=False, query=""):
+    #nb=2: counter of nb acts concerned
     writer.writerow([question])
     writer.writerow(years_list_zero)
     for cs in cs_list:
@@ -362,6 +381,9 @@ def write_cs_year(question, res, total_year=False, percent=1, nb=1, amdt=False):
                     if res[cs][year][0]==0:
                         res_year=0
                     else:
+                        #indice de contrainte legislative -> nombre mots total * nb actes et non nombre mots total / nb actes
+                        if query=="nb_mots":
+                            res[cs][year][1]=float(1)/res[cs][year][1]
                         res_year=round(float(res[cs][year][0])*percent/res[cs][year][1],3)
             row.append(res_year)
         writer.writerow(row)
@@ -924,7 +946,10 @@ def concordance_annee(resp_group, rapp_group, percent=100, variable=1):
     if variable!=1:
         question="DureeTotaleDepuisPropCom moyenne des actes pour lesquels il y a concordance des PartyFamilyResp et GroupePolitiqueRapporteur ("+resp_group+")"
     else:
-        question="Concordance PartyFamilyResp et GroupePolitiqueRapporteur ("+resp_group+") : Pourcentage par année"
+        if resp_group=="any" and rapp_group=="any":
+            question="Pourcentage discordance PartyFamilyRappPE1 et PartyFamilyRespPropos1, par année"
+        else:
+            question="Concordance PartyFamilyResp et GroupePolitiqueRapporteur ("+resp_group+") : Pourcentage par année"
     print question
     res={}
     for year in years_list:
@@ -935,33 +960,45 @@ def concordance_annee(resp_group, rapp_group, percent=100, variable=1):
             res[year][1]+=1
             
         year=str(act.releve_annee)
-        resps=[]
-        rapps=[]
-        
-        for i in range(1, 3):
-            i=str(i)
-            resp=getattr(act, "resp_"+i)
-            rapp=getattr(act, "rapp_"+i)
-            if resp!=None:
-                resps.append(resp)
-            if rapp!=None:
-                rapps.append(rapp)
-        
-        if (len(resps)>0) and (len(rapps)>0):
-            same=False
-            for resp in resps:
-                if same:
-                    break
-                for rapp in rapps:
-                    if PartyFamily.objects.get(country=resp.country, party=resp.party).party_family.strip()==resp_group and rapp.party.party.strip() in rapp_group:
-                        if variable==1:
-                            res[year][0]+=1
-                        else:
-                            res[year][0]+=getattr(act, variable)
-                            res[year][1]+=1
-                        same=True
+
+        #count any political family for the rapp1 and resp1 (different only)
+        if resp_group=="any" and rapp_group=="any":
+            rapp=act.rapp_1
+            resp=act.resp_1
+            if rapp!=None and resp!=None:
+                rapp_pf=PartyFamily.objects.get(country=rapp.country, party=rapp.party).party_family.strip().encode("utf-8")
+                resp_pf=PartyFamily.objects.get(country=resp.country, party=resp.party).party_family.strip().encode("utf-8")
+                if rapp_pf!=resp_pf:
+                    res[year][0]+=1
+
+        else:
+            #count political families in parameter for all rapps and resps (same only)
+            resps=[]
+            rapps=[]
+            for i in range(1, 3):
+                i=str(i)
+                resp=getattr(act, "resp_"+i)
+                rapp=getattr(act, "rapp_"+i)
+                if resp!=None:
+                    resps.append(resp)
+                if rapp!=None:
+                    rapps.append(rapp)
+            
+            if (len(resps)>0) and (len(rapps)>0):
+                same=False
+                for resp in resps:
+                    if same:
                         break
-    
+                    for rapp in rapps:
+                        if PartyFamily.objects.get(country=resp.country, party=resp.party).party_family.strip()==resp_group and rapp.party.party.strip() in rapp_group:
+                            if variable==1:
+                                res[year][0]+=1
+                            else:
+                                res[year][0]+=getattr(act, variable)
+                                res[year][1]+=1
+                            same=True
+                            break
+        
     print "res"
     print res
     #duree moyenne
@@ -1083,7 +1120,8 @@ def q33():
 
     write_cs_year(question, res)
 
-def percent_adopt_cs(res, adopt_variable, regle_vote):
+
+def percent_adopt_cs_year(res, adopt_variable, regle_vote):
     for act in Act.objects.filter(validated=2, adopt_cs_regle_vote=regle_vote):
         for nb in range(1,5):
             code_sect=getattr(act, "code_sect_"+str(nb))
@@ -1102,7 +1140,7 @@ def q34():
     question="pourcentage AdoptCSContre=Y (parmi les actes AdoptCSRegleVote=V du même secteur et de la même année) par secteur et par année"
     print question
     res=init_cs_year(nb=2)
-    res=percent_adopt_cs(res, "adopt_cs_contre", "V")
+    res=percent_adopt_cs_year(res, "adopt_cs_contre", "V")
     write_cs_year(question, res, percent=100, nb=2)
     
 
@@ -1220,6 +1258,7 @@ def q38():
 def concordance_annee_secteur_abs(resp_group, rapp_group):
     #répartition pourcentage dans les secteurs (somme colonne différent 100%)
     question="Concordance PartyFamilyResp et GroupePolitiqueRapporteur ("+resp_group+") : Pourcentage par secteur en fonction de l'année"
+
     print question
     res, total_year=init_cs_year(total=True)
         
@@ -1262,7 +1301,11 @@ def concordance_annee_secteur_abs(resp_group, rapp_group):
 
 def concordance_annee_secteur(resp_group, rapp_group):
     #répartition pourcentage selon chaque année (somme colonne = 100%)
-    question="Concordance PartyFamilyResp et GroupePolitiqueRapporteur ("+resp_group+") : Pourcentage par secteur en fonction de l'année"
+    if resp_group=="any" and rapp_group=="any":
+        question="Pourcentage discordance PartyFamilyRappPE1 et PartyFamilyRespPropos1, par année et secteur"
+    else:
+        question="Concordance PartyFamilyResp et GroupePolitiqueRapporteur ("+resp_group+") : Pourcentage par secteur en fonction de l'année"
+            
     print question
     res, total_year=init_cs_year(total=True)
         
@@ -1272,29 +1315,43 @@ def concordance_annee_secteur(resp_group, rapp_group):
             if code_sect!=None:
                 cs=get_cs(code_sect.code_sect)
                 year=str(act.releve_annee)
-                resps=[]
-                rapps=[]
-                
-                for i in range(1, 3):
-                    i=str(i)
-                    resp=getattr(act, "resp_"+i)
-                    rapp=getattr(act, "rapp_"+i)
-                    if resp!=None:
-                        resps.append(resp)
-                    if rapp!=None:
-                        rapps.append(rapp)
-                
-                if (len(resps)>0) and (len(rapps)>0):
-                    same=False
-                    for resp in resps:
-                        if same:
-                            break
-                        for rapp in rapps:
-                            if PartyFamily.objects.get(country=resp.country, party=resp.party).party_family.strip()==resp_group and rapp.party.party.strip() in rapp_group:
-                                res[cs][year]+=1
-                                total_year[year]+=1
-                                same=True
+
+                #count any political family for the rapp1 and resp1 (different only)
+                if resp_group=="any" and rapp_group=="any":
+                    rapp=act.rapp_1
+                    resp=act.resp_1
+                    if rapp!=None and resp!=None:
+                        rapp_pf=PartyFamily.objects.get(country=rapp.country, party=rapp.party).party_family.strip().encode("utf-8")
+                        resp_pf=PartyFamily.objects.get(country=resp.country, party=resp.party).party_family.strip().encode("utf-8")
+                        if rapp_pf!=resp_pf:
+                            res[cs][year]+=1
+                            total_year[year]+=1
+
+                else:
+                    #count political families in parameter for all rapps and resps (same only)
+                    resps=[]
+                    rapps=[]
+                    
+                    for i in range(1, 3):
+                        i=str(i)
+                        resp=getattr(act, "resp_"+i)
+                        rapp=getattr(act, "rapp_"+i)
+                        if resp!=None:
+                            resps.append(resp)
+                        if rapp!=None:
+                            rapps.append(rapp)
+                    
+                    if (len(resps)>0) and (len(rapps)>0):
+                        same=False
+                        for resp in resps:
+                            if same:
                                 break
+                            for rapp in rapps:
+                                if PartyFamily.objects.get(country=resp.country, party=resp.party).party_family.strip()==resp_group and rapp.party.party.strip() in rapp_group:
+                                    res[cs][year]+=1
+                                    total_year[year]+=1
+                                    same=True
+                                    break
     
     print "res"
     print res
@@ -1347,7 +1404,7 @@ def q44():
     question="pourcentage AdoptCSContre=Y (parmi les actes AdoptCSRegleVote=U du même secteur et de la même année) par secteur et par année"
     print question
     res=init_cs_year(nb=2)
-    res=percent_adopt_cs(res, "adopt_cs_contre", "U")
+    res=percent_adopt_cs_year(res, "adopt_cs_contre", "U")
     write_cs_year(question, res, percent=100, nb=2)
 
 
@@ -1363,7 +1420,7 @@ def q46():
     question="pourcentage AdoptCSAbs=Y (parmi les actes AdoptCSRegleVote=U du même secteur et de la même année) par secteur et par année"
     print question
     res=init_cs_year(nb=2)
-    res=percent_adopt_cs(res, "adopt_cs_abs", "U")
+    res=percent_adopt_cs_year(res, "adopt_cs_abs", "U")
     write_cs_year(question, res, percent=100, nb=2)
 
 
@@ -2102,7 +2159,252 @@ def q81():
     question="Pourcentage d’actes adoptés avec opposition d'au moins deux états, parmi les actes avec une majorité qualifiée lors de l'adoption au conseil"
     filter_variables={"adopt_cs_regle_vote": "V"}
     queries_periodes(question, Act, filter_variables=filter_variables, filter_total=filter_variables, query="adopt_cs_contre", adopt_cs={"nb_countries__gte": "2"})
+
+
+
+def liste_titre_actes_cs(cs, cs_list):
+    question="Liste des actes dont un des 4 codes sectoriels commence par "+cs
+    print question 
+    year_min=1996
+    year_max=2012
+    res=init_cs_year(titles_list=True)
     
+    for act in Act.objects.filter(validated=2, releve_annee__gte=year_min, releve_annee__lte=year_max):
+        #loop over the 4 possible cs
+        for nb in range(1,5):
+            code_sect=getattr(act, "code_sect_"+str(nb))
+            if code_sect!=None:
+                cs_act=get_cs(code_sect.code_sect)
+                if cs_act==cs:
+                    year=str(act.releve_annee)
+                    res[cs][year].append([act.releve_annee, act.releve_mois, act.no_ordre, act.titre_rmc.encode("utf-8")])
+                    break
+
+    #~ print "res"
+    #~ print res
+
+    writer.writerow("")
+    writer.writerow([question])
+    
+    writer.writerow(["CS "+cs])
+    for year in years_list:
+        if res[cs][year]:
+            writer.writerow(["YEAR "+year])
+            for act in res[cs][year]:
+                writer.writerow(act)
+        
+
+def q82():
+    #Liste des actes avec leur titre pour la période 1996-2012 lorsque l’un des 4 codes sectoriels comprend le code suivant (2 premiers chiffres)
+    css=["19", "15", "03", "13", "05"]
+    for cs in css:
+        liste_titre_actes_cs(cs, css)
+    writer.writerow("")
+    print ""
+
+
+
+def q83():
+    #Nb de mots x Nb d’actes par année, pour les secteurs
+    question="Total nombre de mots * nombre d'actes par code sectoriel et par année"
+    print question 
+    res=init_cs_year(nb=2)
+    res=get_by_cs_year(res, variable="nb_mots", nb_vars=2, filter_variables={"nb_mots__isnull": False})
+    write_cs_year(question, res, nb=2, query="nb_mots")
+
+
+
+def concordance_cs(resp_group, rapp_group):
+    #répartition pourcentage selon chaque année (somme colonne = 100%)
+    question="Pourcentage discordance PartyFamilyRappPE1 et PartyFamilyRespPropos1, par secteur"
+    print question
+    res=init_cs(nb_vars=2)
+        
+    for act in Act.objects.filter(validated=2):
+        for nb in range(1,5):
+            code_sect=getattr(act, "code_sect_"+str(nb))
+            if code_sect!=None:
+                cs=get_cs(code_sect.code_sect)
+                res[cs][1]+=1
+
+                #count any political family for the rapp1 and resp1 (different only)
+                if resp_group=="any" and rapp_group=="any":
+                    rapp=act.rapp_1
+                    resp=act.resp_1
+                    if rapp!=None and resp!=None:
+                        rapp_pf=PartyFamily.objects.get(country=rapp.country, party=rapp.party).party_family.strip().encode("utf-8")
+                        resp_pf=PartyFamily.objects.get(country=resp.country, party=resp.party).party_family.strip().encode("utf-8")
+                        if rapp_pf!=resp_pf:
+                            res[cs][0]+=1
+                            
+    
+    print "res"
+    print res
+    
+    write_cs(question, res, nb_vars=2, percent=100)
+
+
+def q84_cs():
+    concordance_cs(resp_group="any", rapp_group="any")
+    
+def q84_year():
+    concordance_annee(resp_group="any", rapp_group="any")
+
+def q84_cs_year():
+    concordance_annee_secteur(resp_group="any", rapp_group="any")
+
+
+def nb_actes_type_acte(question_types, types):
+    question="Nombre de "+question_types+", pour certains secteurs, par année"
+    print question 
+    res=init_cs_year()
+    res=get_by_cs_year(res, nb_vars=1, filter_variables={"type_acte__in": types})
+    write_cs_year(question, res)
+
+        
+def q85():
+    question_types="CS DVE+DVE"
+    types=["CS DVE", "DVE"]
+    nb_actes_type_acte(question_types, types)
+
+
+def q86():
+    question_types="CS REG+REG"
+    types=["CS REG", "REG"]
+    nb_actes_type_acte(question_types, types)
+    
+
+    
+def q87():
+    question_types="CS DEC+DEC+CS DEC W/O ADD"
+    types=["CS DEC", "DEC", "CS DEC W/O ADD"]
+    nb_actes_type_acte(question_types, types)
+
+
+def percent_adopt_cs(res, adopt_variable, regle_vote):
+    for act in Act.objects.filter(validated=2, adopt_cs_regle_vote=regle_vote):
+        for nb in range(1,5):
+            code_sect=getattr(act, "code_sect_"+str(nb))
+            if code_sect!=None:
+                cs=get_cs(code_sect.code_sect)
+                res[cs][1]+=1
+                #check if there is at least one country
+                if getattr(act, adopt_variable).exists():
+                    res[cs][0]+=1
+                    
+    print "res", res
+    return res
+
+def percent_adopt_year(res, adopt_variable, regle_vote):
+    for act in Act.objects.filter(validated=2, adopt_cs_regle_vote=regle_vote):
+        year=str(act.releve_annee)
+        res[year][1]+=1
+        #check if there is at least one country
+        if getattr(act, adopt_variable).exists():
+            res[year][0]+=1
+            
+    print "res", res
+    return res
+    
+ 
+def q88_cs():
+    question="pourcentage AdoptCSContre=Y (parmi les actes AdoptCSRegleVote=V) par secteur"
+    print question
+    res=init_cs()
+    res=percent_adopt_cs(res, "adopt_cs_contre", "V")
+    write_cs(question, res, percent=100)
+    
+def q88_year():
+    question="pourcentage AdoptCSContre=Y (parmi les actes AdoptCSRegleVote=V) par année"
+    print question
+    res=init_year()
+    res=percent_adopt_year(res, "adopt_cs_contre", "V")
+    write_year(question, res, percent=100)
+    
+def q88_cs_year():
+    question="pourcentage AdoptCSContre=Y (parmi les actes AdoptCSRegleVote=V du même secteur et de la même année) par secteur et par année"
+    print question
+    res=init_cs_year(nb=2)
+    res=percent_adopt_cs_year(res, "adopt_cs_contre", "V")
+    write_cs_year(question, res, percent=100, nb=2)
+
+    
+    
+def q89_cs():
+    question="pourcentage AdoptCSAbs=Y (parmi les actes AdoptCSRegleVote=U) par secteur"
+    print question
+    res=init_cs()
+    res=percent_adopt_cs(res, "adopt_cs_abs", "U")
+    write_cs(question, res, percent=100)
+    
+def q89_year():
+    question="pourcentage AdoptCSAbs=Y (parmi les actes AdoptCSRegleVote=U) par année"
+    print question
+    res=init_year()
+    res=percent_adopt_year(res, "adopt_cs_abs", "U")
+    write_year(question, res, percent=100)
+    
+def q89_cs_year():
+    question="pourcentage AdoptCSAbs=Y (parmi les actes AdoptCSRegleVote=U du même secteur et de la même année) par secteur et par année"
+    print question
+    res=init_cs_year(nb=2)
+    res=percent_adopt_cs_year(res, "adopt_cs_abs", "U")
+    write_cs_year(question, res, percent=100, nb=2)
+
+
+def get_by_month(res, variable, nb_vars=2, filter_variables={}):
+    #nb_vars=2: counter of nb acts concerned
+    for act_id in ActIds.objects.filter(src="index", act__validated=2, **filter_variables):
+        act=act_id.act
+        value=getattr(act, variable)
+        if value>0:
+            month=str(act.releve_mois)
+            if nb_vars==2:
+                res[month][1]+=1
+                res[month][0]+=value
+            else:
+                res[month]+=value
+                
+    print "res", res
+    return res
+
+
+def write_month(question, res, percent=1, nb_vars=1, query=""):
+    #nb=2: counter of nb acts concerned
+    writer.writerow([question])
+    writer.writerow(months_list)
+    row=[]
+    for month in months_list:
+        if nb_vars==1:
+            res_month=res[month]
+        elif nb_vars==2:
+            if res[month][0]==0:
+                res_month=0
+            else:
+                #indice de contrainte legislative -> nombre mots total * nb actes et non nombre mots total / nb actes
+                if query=="nb_mots":
+                    res[month][1]=float(1)/res[month][1]
+                res_month=round(float(res[month][0])*percent/res[month][1],3)
+        row.append(res_month)
+        
+    writer.writerow(row)
+    writer.writerow("")
+    print ""
+    
+def nb_mots_2009(filter_variables={}, q=""):
+    #Nb de mots x Nb d’actes par année, pour les secteurs
+    question="Total nombre de mots * nombre d'actes de 2009, "+q+"par mois"
+    print question 
+    res=init_month()
+    res=get_by_month(res, "nb_mots", filter_variables=filter_variables)
+    write_month(question, res, nb_vars=2, query="nb_mots")
+    
+def q90_mois():
+    nb_mots_2009(filter_variables={"act__releve_annee": 2009})
+
+def q90_mois_nut():
+    nb_mots_2009(filter_variables={"act__releve_annee": 2009, "no_unique_type": "COD"}, q="pour les actes de NoUniqueType=COD, ")
+
 
     
 class Command(NoArgsCommand):
@@ -2254,10 +2556,10 @@ class Command(NoArgsCommand):
         
         #Nombre de mots moyen suivant le type de l'acte, par année
         #~ q63()
-        q63_bis()
-        #Nombre de mots moyen suivant le NoUniqueType, par année
+        #~ q63_bis()
+        #~ #Nombre de mots moyen suivant le NoUniqueType, par année
         #~ q64()
-        q64_bis()
+        #~ q64_bis()
        
         #Nombre de points B par année
         #~ q65()
@@ -2295,3 +2597,36 @@ class Command(NoArgsCommand):
         #~ q80()
         #~ #% d’actes adoptés avec opposition de 2 ou 3 Etats ou plus par rapport au nombre total d’actes où VMQ aurait été possible
         #~ q81()
+
+        #Liste des actes avec leur titre pour la période 1996-2012 lorsque l’un des 4 codes sectoriels comprend le code suivant
+        #~ q82()
+        #Nb de mots x Nb d’actes par année, pour les secteurs
+        #~ q83()
+        
+        #Pourcentage de textes lorsque PartyFamilyRapporteurPE1 DIFFERENTE de PartyFamilyRespPropos1
+        #~ q84_cs()
+        #~ q84_year()
+        #~ q84_cs_year()
+
+        #Nombre de CS DVE+DVE, pour certains secteurs, par année
+        #~ q85()
+#~ 
+        #~ #Nombre de CS REG+REG, pour certains secteurs, par année
+        #~ q86()
+#~ 
+        #~ #Nombre de CS DEC+DEC+CS DEC W/O ADD, pour certains secteurs, par année
+        #~ q87()
+
+        #pourcentage AdoptCSContre=Y (parmi les actes AdoptCSRegleVote=V du meme secteur et de la meme annee) 
+        #~ q88_cs()
+        #~ q88_year()
+        #~ q88_cs_year()
+
+        #8. pourcentage ADoptCSAbs=Y (parmi les actes AdoptCSRegleVote=U du meme secteur et de la meme annee)
+        #~ q89_cs()
+        #~ q89_year()
+        #~ q89_cs_year()
+
+        #Nombre de textes x Nombre de mots Pour l’année 2009 uniquement par mois
+        q90_mois()
+        q90_mois_nut()
