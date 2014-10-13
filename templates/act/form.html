@@ -232,41 +232,45 @@
                     <div class="fieldWrapper">
                         <div id="id_{{ field.name }}_errors" class="row-fluid">{{ field.errors }}</div>
 
-                            <!--dg: original values and message if more than one possible dg -->
-                            {% if field.name|slice:":3" == 'dg_' %}
-                                {% with index=field.name|slice:"-1:" %}
-                                    <div class="row-fluid">
-                                        {% with dg_prelex=dg_names_prelex|get_value:index dg_oeil=dg_names_oeil|get_value:index %}
-                                            {% if dg_prelex != dg_oeil %}
-                                                <span class="error_msg">
-                                            {% else %}
-                                                <span>
-                                            {% endif %}
-                                            Value found on prelex: {{ dg_prelex }}; Value found on oeil: {{ dg_oeil }}.</span>
-                                            {% if dg and dg|get_value:index %}
-                                                <strong class="data_msg">
-                                                    More than one possible value. Please choose among: {{ dg|get_value:index }}
-                                                </strong>
-                                            {% endif %}
-                                        {% endwith %}
-                                    </div>
-                                {% endwith %}
-                            <!--resp: original values  -->
-                            {% elif field.name|slice:":5" == 'resp_' %}
-                                {% with index=field.name|slice:"-1:" %}
-                                    <div class="row-fluid">
-                                        {% with resp_prelex=resp_names_prelex|get_value:index resp_oeil=resp_names_oeil|get_value:index %}
-                                            {% if resp_prelex != resp_oeil %}
-                                                <span class="error_msg">
-                                            {% else %}
-                                                <span>
-                                            {% endif %}
-                                            Value found on prelex: {{ resp_prelex }}; Value found on oeil: {{ resp_oeil }}.
-                                        {% endwith %}
-                                    </div>
-                                {% endwith %}
+                            <!-- disply different values for dgs and resps ONLY for add -->
+                            {% if add_modif == "add" %}
+                                <!--dg: original values and message if more than one possible dg -->
+                                {% if field.name|slice:":3" == 'dg_' %}
+                                    {% with index=field.name|slice:"-1:" %}
+                                        <div class="row-fluid">
+                                            {% with dg_prelex=dg_names_prelex|get_value:index dg_oeil=dg_names_oeil|get_value:index %}
+                                                {% if dg_prelex != dg_oeil %}
+                                                    <span class="error_msg">
+                                                {% else %}
+                                                    <span>
+                                                {% endif %}
+                                                Value found on prelex: {{ dg_prelex }}; Value found on oeil: {{ dg_oeil }}.</span>
+                                                {% if dg and dg|get_value:index %}
+                                                    <strong class="data_msg">
+                                                        More than one possible value. Please choose among: {{ dg|get_value:index }}
+                                                    </strong>
+                                                {% endif %}
+                                            {% endwith %}
+                                        </div>
+                                    {% endwith %}
+                                    
+                                <!--resp: original values  -->
+                                {% elif field.name|slice:":5" == 'resp_' %}
+                                    {% with index=field.name|slice:"-1:" %}
+                                        <div class="row-fluid">
+                                            {% with resp_prelex=resp_names_prelex|get_value:index resp_oeil=resp_names_oeil|get_value:index %}
+                                                {% if resp_prelex != resp_oeil %}
+                                                    <span class="error_msg">
+                                                {% else %}
+                                                    <span>
+                                                {% endif %}
+                                                Value found on prelex: {{ resp_prelex }}; Value found on oeil: {{ resp_oeil }}.
+                                            {% endwith %}
+                                        </div>
+                                    {% endwith %}
+                                {% endif %}
                             {% endif %}
-                            
+                                
                         <div class="row-fluid {% if field.name == 'adopt_conseil' %}reload{% endif %}" style="position: relative">
                             {{ field }}
                             {% if field.name == 'adopt_conseil' %}<img id="update_durations" src="{{STATIC_URL}}europolix/img/reload.png" class="reload_img" alt="update duration fields" title="update duration fields">{% endif %}

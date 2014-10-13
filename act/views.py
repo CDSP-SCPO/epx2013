@@ -311,11 +311,19 @@ def get_data_all(context, add_modif, act, POST):
     else:
         #get information about dg and resp when updating a field
         #literal_eval to convert unicode dic to dic
-        context["dg_names_oeil"]=literal_eval(POST["hidden_dg_oeil_dic"])
-        context["dg_names_prelex"]=literal_eval(POST["hidden_dg_prelex_dic"])
-        context["resp_names_oeil"]=literal_eval(POST["hidden_resp_oeil_dic"])
-        context["resp_names_prelex"]=literal_eval(POST["hidden_resp_prelex_dic"])
-        context["dg"]=literal_eval(POST["hidden_dg_dic"])
+        names={"dg_names_oeil": "hidden_dg_oeil_dic", "dg_names_prelex": "hidden_dg_prelex_dic", "resp_names_oeil": "hidden_resp_oeil_dic", "resp_names_prelex": "hidden_resp_prelex_dic", "dg": "hidden_dg_dic"}
+        for name in names:
+            try:
+                context[name]=literal_eval(POST[names[name]])
+            except Exception, e:
+                print "pb literal_eval", names[name], e
+                context[name]={}
+#~ 
+        #~ context["dg_names_oeil"]=literal_eval(POST["hidden_dg_oeil_dic"])
+        #~ context["dg_names_prelex"]=literal_eval(POST["hidden_dg_prelex_dic"])
+        #~ context["resp_names_oeil"]=literal_eval(POST["hidden_resp_oeil_dic"])
+        #~ context["resp_names_prelex"]=literal_eval(POST["hidden_resp_prelex_dic"])
+        #~ context["dg"]=literal_eval(POST["hidden_dg_dic"])
 
     #we have selected an act in the drop down list or clicked on the modification button
     if "add_act" in POST or "modif_act" in POST:
@@ -504,6 +512,7 @@ class ActUpdate(UpdateView):
                     context=get_data_all(context, add_modif, act, self.request.POST)
 
                 context['mode']=mode
+                context['add_modif']=add_modif
             
             if request.is_ajax():
                 #save act (with or without errors) or act display and modif (with errors)
