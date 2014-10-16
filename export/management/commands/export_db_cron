@@ -1,1 +1,1 @@
-0 23 * * 7 cd /data/www/europolix && sudo python2.7 manage.py export_db
+0 23 * * 7 cd /data/www/europolix && python2.7 manage.py export_db

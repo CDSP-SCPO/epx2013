@@ -3,7 +3,6 @@ from django.core.management.base import NoArgsCommand
 from django.conf import settings
 from export.views import get_headers, get_save_acts
 import datetime
-import logging
 import os
 import csv
 
@@ -32,8 +31,5 @@ class Command(NoArgsCommand):
         #fetch all the acts of the db and save them into the csv file
         get_save_acts(excl_fields_act_ids, excl_fields_act, writer)
 
-        display="csv export: "+ today
-        print display
-        # Get an instance of a logger
-        #~ logger = logging.getLogger(__name__)
-        #~ logger.debug(display)
+        #~ display="csv export: "+ today
+        #~ print display

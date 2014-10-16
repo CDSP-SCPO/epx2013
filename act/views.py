@@ -309,6 +309,7 @@ def get_data_all(context, add_modif, act, POST):
         #~ #check multiple values for dgs with numbers
         context["dg"], act=check_multiple_dgs(act)
     else:
+        #on ADD
         #get information about dg and resp when updating a field
         #literal_eval to convert unicode dic to dic
         names={"dg_names_oeil": "hidden_dg_oeil_dic", "dg_names_prelex": "hidden_dg_prelex_dic", "resp_names_oeil": "hidden_resp_oeil_dic", "resp_names_prelex": "hidden_resp_prelex_dic", "dg": "hidden_dg_dic"}
