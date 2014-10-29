@@ -3,40 +3,51 @@
 command to get the min_attend instances for acts with an attendance_pdf url
 """
 
-#PACKAGE TO INSTALL
-#poppler-utils
+#PACKAGE TO DOWNLOAD AND INSTALL
+#pdf-miner https://pypi.python.org/pypi/pdfminer/
+
+import sys
+from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
+from pdfminer.pdfpage import PDFPage
+from pdfminer.converter import XMLConverter, HTMLConverter, TextConverter
+from pdfminer.layout import LAParams
+from cStringIO import StringIO
+import urllib2
+import time
 
 from django.core.management.base import NoArgsCommand
 #new table
 from import_app.models import ImportMinAttend
 from act_ids.models import ActIds
 from act.models import Country, Verbatim, Status
-import urllib, urllib2, time, os, tempfile, subprocess
 from django.db import IntegrityError
 
 
-def pdf_to_string(file_object):
-    """
-    FUNCTION
-    get the text of a pdf and put it in a string variable
-    PARAMETERS
-    file_object: pdf file wrapped in a python file object [File object]
-    RETURN
-    string: extracted text [string]
-    """
-    pdfData = file_object.read()
 
-    tf = tempfile.NamedTemporaryFile()
-    tf.write(pdfData)
-    tf.seek(0)
 
-    outputTf = tempfile.NamedTemporaryFile()
+def pdf_to_string(data):
 
-    if (len(pdfData) > 0) :
-        out, err = subprocess.Popen(["pdftotext", "-layout", tf.name, outputTf.name ]).communicate()
-        return outputTf.read()
-    else :
-        return None
+    fp = StringIO(data)
+    rsrcmgr = PDFResourceManager()
+    retstr = StringIO()
+    codec = 'utf-8'
+    laparams = LAParams()
+    device = TextConverter(rsrcmgr, retstr, codec=codec, laparams=laparams)
+    # Create a PDF interpreter object.
+    interpreter = PDFPageInterpreter(rsrcmgr, device)
+    # Process each page contained in the document.
+
+    for page in PDFPage.get_pages(fp):
+        interpreter.process_page(page)
+        data =  retstr.getvalue()
+
+    #~ print "pdf_to_string"
+    #~ print data
+    #~ print ""
+    
+    return data
+
+
 
 
 def find_nth(string, substring, n):
@@ -66,33 +77,63 @@ def get_participants(string):
     RETURN
     string: participant part [string]
     """
-
+    #~ print "inside get participants"
+    #~ print string
+    #~ print "end"
     begin=end=-1
+    participants=["PARTICIPA(cid:6)TS", "PARTICIPANTS", "PARTICIPA TS"]
+    for participant in participants:
+        print participant
+        begin=find_nth(string, participant, 2)
+        if begin!=-1:
+            break
 
-    #Belgium
-    begin=string.find("%HOJLXP")
+    #TOBACCO: http://www.consilium.europa.eu/uedocs/cms_data/docs/pressdata/en/agricult/70070.pdf
+    items=["ITEMS DEBATED", "TOBACCO"]
+    for item in items:
+        end=string.find(item, begin)
+        if end!=-1:
+            break
 
-    print "begin", begin
-    #if no begin found, go to then begin of the string
-    if begin==-1:
-        begin=0
+    participants=string[begin:end].split('\n')
+    #~ print "get_participants"
+    #~ print participants
+    return participants
 
-    #Commission
-    end=string.find("&RPPLVVLRQ", begin)
 
-    print "end", end
-    #if no end found, go to then end of the string
-    if end==-1:
-        end=len(string)-begin-1
 
-    return string[begin:end].split('\n')
+def string_to_file(string, path):
+    """
+    FUNCTION
+    save a string into a txt file
+    PARAMETERS
+    string: string to save [string]
+    path: path of the file to use [string]
+    RETURN
+    None
+    """
+    with open(path, "w") as text_file:
+        text_file.write(string)
 
+
+def file_to_string(path):
+    """
+    FUNCTION
+    get the text of a txt file
+    PARAMETERS
+    path: path of the file to use [string]
+    RETURN
+    participants: text of the file split at each line break [list of strings]
+    """
+    with open(path) as string:
+        participants=string.read().split('\n')
+    return participants
 
 
 def capitalized_word(words, display=False):
     """
     FUNCTION
-    check if there is at least one capitalized word in a group of words
+    check if there is at least one capitalized word in a group of words (used to detect ministers's names)
     PARAMETERS
     words: group of words to check [string]
     RETURN
@@ -120,10 +161,6 @@ def capitalized_word(words, display=False):
     return False
 
 
-def format_country(country):
-    return country.split(" ")[0].replace("\x1d", "").strip().replace(":", "")
-
-
 def format_participants(participants, country_list):
     """
     FUNCTION
@@ -136,7 +173,7 @@ def format_participants(participants, country_list):
     new_participants: participants part (countries, ministers' names and verbatims)  [list of strings]
     """
     new_participants=[]
-
+#~ 
     #~ print "begin participants"
     #~ print participants
     #~ print ""
@@ -147,19 +184,9 @@ def format_participants(participants, country_list):
         #remove empty items
         if participant!="":
             #~ print "participant", participant
-            if participant[:2].lower() in ["mr", "ms", "mme"] or capitalized_word(participant):
+            if participant[:2].lower() in ["mr", "ms"] or capitalized_word(participant):
                 for i in range(len(participant)):
-                    #http://www.consilium.europa.eu/uedocs/cms_data/docs/pressdata/en/trans/72370.pdf
-                    #long name so only one space between name and verbatim
-                    long_name="Ms Melanie SCHULTZ van HAEGEN-MAAS GEESTERANUS"
-                    if long_name in participant:
-                        #add Mr or Ms
-                        new_participants.append(long_name)
-                        #add verbatim
-                        verbatim_index=participant.index(long_name)+len(long_name)
-                        new_participants.append(participant[verbatim_index:].strip())
-                        break
-                    elif participant[i]==" " and participant[i+1]==" ":
+                    if participant[i]==" " and participant[i+1]==" ":
                         #add Mr or Ms
                         new_participants.append(participant[:i].strip())
                         #add verbatim
@@ -169,21 +196,20 @@ def format_participants(participants, country_list):
                     new_participants.append(participant)
             else:
                 new_participants.append(participant)
-#~ #~
+
     #~ print "begin new_participants"
     #~ print new_participants
     #~ print ""
 
-    index_belgium=0
     #start the list with the first participant (Belgium)
     for participant in new_participants:
-        if format_country(participant)=="%HOJLXP":
+        if participant.strip() in ["Belgium", "Belgium:", "Belgium :"]:
             index_belgium=new_participants.index(participant)
             break
 
     new_participants=new_participants[index_belgium:]
-
-    #~ print "begin new_participants WITH header / footer"
+#~ 
+    #~ print "begin new_participants"
     #~ print new_participants
     #~ print ""
 
@@ -191,37 +217,32 @@ def format_participants(participants, country_list):
     begin=end=-1
     for i in range(len(new_participants)):
         #'Ms Audron MORNIEN', 'Deputy minister for Social Security and Labour', '16611/2/09 REV 2 (en) (Presse 348)                                                                             5', 'E', '30.XI-1.XII.2009', 'Luxembourg:', 'Mr Mars DIBO'
-        if any(char.isdigit() for char in new_participants[i].strip()) and format_country(new_participants[i]) not in country_list:
+        if any(char.isdigit() for char in new_participants[i].strip()):
             if begin==-1:
                 begin=i
-                print "BEGIN OK"
-                print new_participants[i].strip()
 
         #new page starts with a minister's name from a country started on the previous page
         #http://www.consilium.europa.eu/uedocs/cms_data/docs/pressdata/en/gena/87078.pdf
         #or new page starts with a new country
-        if begin!=-1 and (new_participants[i].lstrip()[:2].lower() in ["mr", "ms", "mme"] or capitalized_word(new_participants[i], True) or format_country(new_participants[i]) in country_list):
-            print "PB"
-            print new_participants[i]
-            print new_participants[i-5:i+5]
-            capitalized_word(new_participants[i], True)
-            print ""
+        if begin!=-1 and (new_participants[i].lstrip()[:2].lower() in ["mr", "ms"] or capitalized_word(new_participants[i]) or new_participants[i].split(":")[0].strip() in country_list):
+            #~ print "PB"
+            #~ print new_participants[i]
+            #~ print new_participants[i-5:i+5]
+            #~ capitalized_word(new_participants[i], True)
+            #~ print ""
             new_participants=new_participants[:begin]+new_participants[i:]
             break
-#~
-    #~ print "begin new_participants WITHOUT header / footer"
+
+    #~ print "begin new_participants before UK"
     #~ print new_participants
     #~ print ""
 
     #stop after last country (uk usually)
     index_uk=len(new_participants)-1
     for participant in new_participants:
-        #Commission
-        if format_country(participant)=="&RPPLVVLRQ":
-            index_uk=new_participants.index(participant)
-            break
-
-        if ''.join(participant.split())=="***":
+        #remove all whitespaces from the string
+        temp=''.join(participant.split())
+        if temp in ["Commission", "Commission:", "***"]:
             index_uk=new_participants.index(participant)
             #~ print 'uk ok'
             break
@@ -242,7 +263,6 @@ def format_participants(participants, country_list):
     return new_participants
 
 
-#CHANGED
 def get_countries(participants, country_list):
     """
     FUNCTION
@@ -253,13 +273,10 @@ def get_countries(participants, country_list):
     RETURN
     countries: participants with countries and associated ministers grouped together [list of lists of strings / lists]
     """
-    print "participants"
-    print participants
-    print ""
     countries=[]
     for index in range(len(participants)):
         #~ print "participant", participant
-        country=format_country(participants[index])
+        country=participants[index].split(":")[0].strip()
         #problem when conversion from pdf to text
         if country=="etherlands":
             country="Netherlands"
@@ -267,16 +284,16 @@ def get_countries(participants, country_list):
         #'Ms Michelle GILDERNEW', 'Minister for Agriculture and Rural Development, Northern', 'Ireland']
         #http://www.consilium.europa.eu/uedocs/cms_data/docs/pressdata/en/agricult/70070.pdf
         #'Portugal :', 'Mr Jaime SILVA', 'Agricultural Counsellor at the Permanent Representation of', 'Portugal', 'Finland :
-        if country in country_list and index<len(participants)-1 and format_country(participants[index+1]) not in country_list:
-            countries.append([country_list[country], []])
+        if country in country_list and index<len(participants)-1 and participants[index+1].split(":")[0].strip() not in country_list:
+            countries.append([country, []])
         else:
             countries[-1][1].append(participants[index])
 
-    print "countries"
-    print countries
-    print ""
-    print "nb countries", len(countries)
-    print ""
+    #~ print "countries"
+    #~ print countries
+    #~ print ""
+    #~ print "nb countries", len(countries)
+    #~ print ""
     return countries
 
 
@@ -291,9 +308,6 @@ def get_verbatims(countries, country_list):
     countries: participants with countries and associated ministers grouped together [list of lists of strings / lists]
     """
     verbatims=[]
-    #~ print "countries"
-    #~ print countries
-    #~ print ""
 
     #check that each country starts with a minister's name, not a verbatim
     #-> pb Belgium with http://www.consilium.europa.eu/uedocs/cms_data/docs/pressdata/en/agricult/75376.pdf
@@ -304,9 +318,9 @@ def get_verbatims(countries, country_list):
     for country in countries:
         first=country[1][0].lstrip()
         #pb
-        if first[:2].lower() not in ["mr", "ms", "mme"] or not capitalized_word(first):
+        if first[:2].lower() not in ["mr", "ms"] or not capitalized_word(first):
             for index in range(len(country[1])):
-                if country[1][index].lstrip()[:2].lower() in ["mr", "ms", "mme"] or capitalized_word(country[1][index]):
+                if country[1][index].lstrip()[:2].lower() in ["mr", "ms"] or capitalized_word(country[1][index]):
                     #move the minister to the first place
                     #['Belgium', ['Ms Annemie NEYTS-UTTENBROEK', 'Minister, attached to the Minister for Foreign Affairs, with', 'responsibility for Agriculture', 'Mr Jos\xc3\xa9 HAPPART', 'Minister for Agriculture and Rural Affairs (Walloon Region)', 'Ms Vera DUA', 'Minister for the Environment and Agriculture (Flemish Region)']]
                     country[1].insert(0, country[1].pop(index))
@@ -325,7 +339,7 @@ def get_verbatims(countries, country_list):
         #~ print "country", country
         for minister in country[1]:
             #new minister for the country
-            if minister.lstrip()[:2].lower() in ["mr", "ms", "mme"] or capitalized_word(minister):
+            if minister.lstrip()[:2].lower() in ["mr", "ms"] or capitalized_word(minister):
                 #~ print "mr ms", minister
                 verbatims.append([country[0], ""])
             else:
@@ -370,68 +384,84 @@ class Command(NoArgsCommand):
     def handle(self, **options):
 
         nb_pbs=0
+        urls={}
         #get the list of countries from the db
-        country_list={}
-        country_list["%HOJLXP"]="Belgium"
-        country_list["'HQPDUN"]="Denmark"
-        country_list["*HUPDQ\\"]="Germany"
-        country_list["*UHHFH"]="Greece"
-        country_list["6SDLQ"]="Spain"
-        country_list[")UDQFH"]="France"
-        country_list[",UHODQG"]="Ireland"
-        country_list[",WDO\\"]="Italy"
-        country_list["/X[HPERXUJ"]="Luxembourg"
-        country_list["1HWKHUODQGV"]="Netherlands"
-        country_list["$XVWULD"]="Austria"
-        country_list["3RUWXJDO"]="Portugal"
-        country_list[")LQODQG"]="Finland"
-        country_list["6ZHGHQ"]="Sweden"
-        country_list["8QLWHG"]="United Kingdom"
+        country_list=Country.objects.values_list('country', flat=True)
 
-        #Commission: &RPPLVVLRQ
+        #delete not validated acts
+        #~ ImportMinAttend.objects.filter(validated=False).delete()
 
-
-        #~ #get all the acts with a non null attendance_path for the year 2002
-        acts_ids=ActIds.objects.filter(src="index", act__releve_annee=2014, act__attendance_pdf__isnull=False)
-        nb_acts=0
+        #~ #get all the acts with a non null attendance_path and attendances not yet validated
+        acts_ids=ActIds.objects.filter(src="index", act__attendance_pdf__isnull=False, act__validated_attendance=0,  act__releve_annee=2014)
         for act_ids in acts_ids:
-#~
-            already_imported=ImportMinAttend.objects.filter(no_celex=act_ids.no_celex)
-            #~ #if the act has been imported and validated already, don't import it again
-            if not already_imported:
-                nb_acts+=1
-                act=act_ids.act
+            ok=False
+            act=act_ids.act
+
 #~ #~
-                #TEST ONLY
-                act.attendance_pdf="http://www.consilium.europa.eu/uedocs/cms_data/docs/pressdata/en/intm/2014_1.pdf"
+            #TEST ONLY
+            act.attendance_pdf="http://www.consilium.europa.eu/uedocs/cms_data/docs/pressdata/en/ecofin/140836.pdf"
 #~ #~
-                print ""
-                print "act", act
-                print act.attendance_pdf
-                print ""
-#~
+            print ""
+            print "act", act
+            print act.attendance_pdf
+            print ""
+            
+            #new attendance pdf document? don't extract the same pdf twice!
+            if act_ids.act.attendance_pdf not in urls:
+                
                 #~ #get the pdf
                 try:
-                    file_object = urllib2.urlopen(act.attendance_pdf)
+                    file_object = urllib2.urlopen(urllib2.Request(act.attendance_pdf)).read()
                 except Exception, e:
                     #wait a few seconds
                     print e
                     print ""
                     time.sleep(3)
-                    file_object = urllib2.urlopen(act.attendance_pdf)
+                    file_object = urllib.urlopen()
+
+                #~ print "file_object"
+                #~ print file_object
 
                 #read the pdf and assign its text to a string
                 string=pdf_to_string(file_object)
+                print "string"
+                print string[:10000]
+                print ""
+                
                 participants=get_participants(string)
+                #~ print "participants"
+                #~ print participants
+                #~ print "test"
+                readable=False
+                for participant in participants:
+                    #for some acts in 2002, countries are not read properly
+                    if "Belgium" in participant:
+                        readable=True
+                        break
 
-                #format the string variable to get the countries and verbatims only
-                #~ participants=file_to_string(file_path+file_name+".txt")
-                participants=format_participants(participants, country_list)
-                countries=get_countries(participants, country_list)
-                verbatims=get_verbatims(countries, country_list)
-
+                if readable:
+                    #format the string variable to get the countries and verbatims only
+                    #~ #participants=file_to_string(file_path+file_name+".txt")
+                    participants=format_participants(participants, country_list)
+                    countries=get_countries(participants, country_list)
+                    verbatims=get_verbatims(countries, country_list)
+                    
+                    urls[act.attendance_pdf]=verbatims
+                    ok=True
+                else:
+                    print "countries not readable"
+                    nb_pbs+=1
+#~             
+            #html page already retrieved
+            else:
+                verbatims=urls[act.attendance_pdf]
+                ok=True
+       
+                
+            #if the verbatims have been extracted
+            if ok:
                 #remove non validated ministers' attendances
-                ImportMinAttend.objects.filter(no_celex=act_ids.no_celex, validated=False).delete()
+                ImportMinAttend.objects.filter(no_celex=act_ids.no_celex).delete()
     #~ #~
                 for country in verbatims:
                     status=None
@@ -445,16 +475,18 @@ class Command(NoArgsCommand):
     #~ #~
                     #add extracted attendances into ImportMinAttend
                     try:
-                        #~ print len(country[1])
                         ImportMinAttend.objects.create(releve_annee=act.releve_annee, releve_mois=act.releve_mois, no_ordre=act.no_ordre, no_celex=act_ids.no_celex, country=Country.objects.get(country=country[0]).country_code, verbatim=country[1], status=status)
                     except IntegrityError as e:
                         pass
                         #print "integrity error", e
-    #~
-                #TEST ONLY
-                break
+                    
+                #validate attendance in act table
+                act.validated_attendance=1
+                act.save()
 
                 print ""
+        #~ #~
+            #TEST ONLY
+            break
 
-
-        print "nb_acts", nb_acts
+        print "nb_pbs", nb_pbs

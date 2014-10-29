@@ -27,7 +27,7 @@ def detect_delim(header):
 
 class Command(NoArgsCommand):
     """
-    import attendance_pdf for a specific year / range of years
+    import attendance_pdf for a specific year / range of years (if not already imported with the RMC file)
     """
 
     def handle(self, **options):

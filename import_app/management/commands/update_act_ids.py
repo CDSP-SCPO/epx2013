@@ -30,10 +30,10 @@ class Command(NoArgsCommand):
 
     def handle(self, **options):
 
-        #update attendance_pdf
+        #update act_ids due to a problem on eurlex, oeil or prelex (click on actualisation button on act_ids form for a range of acts)
         path=settings.MEDIA_ROOT+"/import/"
         #~ path="/home/rom/Documents/jobs/SciencesPo/europolix/import/csv/"
-        years=[str(n) for n in range(2013, 2014)]
+        years=[str(n) for n in range(2014, 2015)]
         for year in years:
             path_file=path+"RMC_"+year+".csv"
             with open(path_file, 'r') as csv_file_temp:

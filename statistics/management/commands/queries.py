@@ -43,7 +43,7 @@ def get_cs(cs):
 
 
 
-def init_year(nb_vars=2, empty_list=False, empty_dic=False):
+def init_year(nb_vars=2, total=False, empty_list=False, empty_dic=False):
     """
     empty_dic: for list of persons
     """
@@ -59,6 +59,8 @@ def init_year(nb_vars=2, empty_list=False, empty_dic=False):
         else:
             temp=0
         res[year]=temp
+        if empty_dic and total:
+            res[year]["total"]=0
     return res
 
 
@@ -74,7 +76,7 @@ def init_month(nb_vars=2):
 
 
 
-def init_cs(nb_vars=2, empty_list=False, empty_dic=False):
+def init_cs(nb_vars=2, total=False, empty_list=False, empty_dic=False):
     #nb_vars=2 for computation percents
     res={}
     for cs in cs_list:
@@ -88,6 +90,8 @@ def init_cs(nb_vars=2, empty_list=False, empty_dic=False):
         else:
             temp=0
         res[cs]=temp
+        if empty_dic and total:
+            res[cs]["total"]=0
     return res
 
 
@@ -134,9 +138,13 @@ def init_cs_year(nb_vars=2, total=False, amdt=False, empty_list=False, empty_dic
                 else:
                     total_year[year]=temp
             res[secteur][year]=temp
-            #ATTENTION! If nb=2 and total=True, the same list temp=[0,0] is used for total_year and res -> MUST USE A COPY OF THE LIST
+            if total and empty_dic:
+                res[secteur][year]["total"]=0
             
-    if total:
+            #ATTENTION! If nb=2 and total=True, the same list temp=[0,0] is used for total_year and res -> MUST USE A COPY OF THE LIST
+    #~ print "res"
+    #~ print res
+    if total and not empty_dic:
         return res, total_year
     return res
 
@@ -241,8 +249,8 @@ def get_by_cs_year(res, variable=1, total_year=False, excluded_values=[None], nb
                 if code_sect!=None:
                     cs=get_cs(code_sect.code_sect)
                     year=str(act.releve_annee)
-                    if cs=="03" and year=="1996":
-                        print act.releve_annee, act.releve_mois, act.no_ordre, act.code_sect_1, act.code_sect_2, act.code_sect_3, act.code_sect_4
+                    #~ if cs=="03" and year=="1996":
+                        #~ print act.releve_annee, act.releve_mois, act.no_ordre, act.code_sect_1, act.code_sect_2, act.code_sect_3, act.code_sect_4
                     if nb_vars==2:
                         res[cs][year][1]+=1
                         res[cs][year][0]+=value
@@ -250,7 +258,7 @@ def get_by_cs_year(res, variable=1, total_year=False, excluded_values=[None], nb
                             total_year[year]+=value
                     else:
                         res[cs][year]+=value
-    print "res", res["03"]["1996"]
+    #~ print "res", res["03"]["1996"]
     if total_year:
         return res, total_year
     return res
@@ -2483,16 +2491,19 @@ def write_list_pers(question, the_list, element, res, pers_type):
                 try:
                     country=resp.country
                     pf=PartyFamily.objects.get(country=country, party=resp.party).party_family.encode("utf-8")
-                    writer.writerow([resp.name, pf, country.country_code, res[value][resp]])
+                    name=resp.name.encode("utf-8")
+                    writer.writerow([name, pf, country.country_code, res[value][resp]])
                 except Exception, e:
-                    print "0 resp", e
+                    print "pb encoding resp", e
         else:
             writer.writerow(["RapporteursPE", "GroupRapporteurPE", "nb"])
             for rapp in res[value]:
                 try:
-                    writer.writerow([rapp.name, rapp.party.party, res[value][rapp]])
+                    name=rapp.name.encode("utf-8")
+                    party=rapp.party.party.encode("utf-8")
+                    writer.writerow([name, party, res[value][rapp]])
                 except Exception, e:
-                    print "0 resp", e
+                    print "pb encoding rapp", e
     writer.writerow("")
     print ""
 
@@ -2510,16 +2521,19 @@ def write_list_pers_cs_year(question, res, pers_type):
                     try:
                         country=resp.country
                         pf=PartyFamily.objects.get(country=country, party=resp.party).party_family.encode("utf-8")
-                        writer.writerow([resp.name, pf, country.country_code, res[cs][year][resp]])
+                        name=resp.name.encode("utf-8")
+                        writer.writerow([name, pf, country.country_code, res[cs][year][resp]])
                     except Exception, e:
-                        print "0 resp", e
+                        print "pb encoding resp", e
             else:
                 writer.writerow(["RapporteursPE", "GroupRapporteurPE", "nb"])
                 for rapp in res[cs][year]:
                     try:
-                        writer.writerow([rapp.name, rapp.party.party, res[cs][year][rapp]])
+                        name=rapp.name.encode("utf-8")
+                        party=rapp.party.party.encode("utf-8")
+                        writer.writerow([name, party, res[cs][year][rapp]])
                     except Exception, e:
-                        print "0 resp", e
+                        print "pb encoding rapp", e
         writer.writerow("")
     writer.writerow("")
     print ""
@@ -2534,20 +2548,20 @@ def q91():
     res=get_list_pers_cs(res, "resp", 3)
     write_list_pers(question, cs_list, "CS", res, "resp")
 #~ 
-    #-> par année
+    #~ #-> par année
     question=initial_question+", par année"
     print question
     res=init_year(empty_dic=True)
     res=get_list_pers_year(res, "resp", 3)
     write_list_pers(question, years_list, "YEAR", res, "resp")
 
-    #~ -> par secteur et par année
+    #~ #-> par secteur et par année
     question=initial_question+", par secteur et par année"
     print question
     res=init_cs_year(empty_dic=True)
     res=get_list_pers_cs(res, "resp", 3, year_var=True)
     write_list_pers_cs_year(question, res, "resp")
-    
+    #~ 
 
 
 def q92():
@@ -2580,6 +2594,156 @@ def q92():
         write_list_pers_cs_year(question, res, "rapp")
 
 
+
+def get_percent_pf_cs(res, pers_type, max_nb, year_var=False, filter_variables={}):
+    #percentage of each party family for Rapporteurs and RespPropos
+    #cs only / cs and year
+    for act_ids in ActIds.objects.filter(act__validated=2, src="index", **filter_variables):
+        act=act_ids.act
+        #loop over each cs
+        for nb in range(1,5):
+            code_sect=getattr(act, "code_sect_"+str(nb))
+            if code_sect!=None:
+                cs=get_cs(code_sect.code_sect)
+                year=str(act.releve_annee)
+
+                #loop over each pers
+                for nb in range(1, max_nb+1):
+                    pers=getattr(act, pers_type+"_"+str(nb))
+                    #~ print "pers"
+                    #~ print pers
+                    if pers!=None:
+                        pf=PartyFamily.objects.get(country=pers.country, party=pers.party).party_family.encode("utf-8")
+                        #by cs and by year
+                        if year_var:
+                            res[cs][year]["total"]+=1
+                            if pf not in res[cs][year]:
+                                res[cs][year][pf]=1
+                            else:
+                                res[cs][year][pf]+=1
+                        #by cs
+                        else:
+                            res[cs]["total"]+=1
+                            if pf not in res[cs]:
+                                res[cs][pf]=1
+                            else:
+                                res[cs][pf]+=1
+    return res
+
+
+def get_percent_pf_year(res, pers_type, max_nb, filter_variables={}):
+    for act_ids in ActIds.objects.filter(act__validated=2, src="index", **filter_variables):
+        act=act_ids.act
+        year=str(act.releve_annee)
+        #loop over each pers
+        for nb in range(1, max_nb+1):
+            pers=getattr(act, pers_type+"_"+str(nb))
+            if pers!=None:
+                pf=PartyFamily.objects.get(country=pers.country, party=pers.party).party_family.encode("utf-8")
+                res[year]["total"]+=1
+                if pf not in res[year]:
+                    res[year][pf]=1
+                else:
+                    res[year][pf]+=1
+    return res
+
+
+def write_percent_pf(question, the_list, element, res, pers_type):
+    #crosses cs OR year
+    #element: cs OR year
+    writer.writerow([question])
+    for value in the_list:
+        writer.writerow("")
+        writer.writerow([element+" "+value])
+        writer.writerow(["PartyFamily "+pers_type, "percentage"])
+        for pf in res[value]:
+            if pf!="total":
+                if res[value][pf]==0:
+                    res_pf=0
+                else:
+                    res_pf=round(float(res[value][pf])*100/res[value]["total"],3)
+                writer.writerow([pf, res_pf])
+    writer.writerow("")
+    print ""
+
+     
+
+
+def write_percent_pf_cs_year(question, res, pers_type):
+    writer.writerow([question])
+    for cs in cs_list:
+        writer.writerow("")
+        writer.writerow(["CS "+cs])
+        for year in years_list:
+            writer.writerow(["YEAR "+year])
+            writer.writerow(["PartyFamily "+pers_type, "percentage"])
+            for pf in res[cs][year]:
+                if pf!="total":
+                    if res[cs][year][pf]==0:
+                        res_pf=0
+                    else:
+                        res_pf=round(float(res[cs][year][pf])*100/res[cs][year]["total"],3)
+                    writer.writerow([pf, res_pf])
+          
+        writer.writerow("")
+    writer.writerow("")
+    print ""
+
+
+
+def q93():
+    initial_question="Pourcentage des familles politiques des RespPropos"
+    #~ -> par secteur
+    question=initial_question+", par secteur"
+    print question
+    res=init_cs(total=True, empty_dic=True)
+    res=get_percent_pf_cs(res, "resp", 3)
+    write_percent_pf(question, cs_list, "CS", res, "RespPropos")
+#~ 
+    #~ #-> par année
+    question=initial_question+", par année"
+    print question
+    res=init_year(total=True, empty_dic=True)
+    res=get_percent_pf_year(res, "resp", 3)
+    write_percent_pf(question, years_list, "YEAR", res, "RespPropos")
+
+    #~ #-> par secteur et par année
+    question=initial_question+", par secteur et par année"
+    print question
+    res=init_cs_year(total=True, empty_dic=True)
+    res=get_percent_pf_cs(res, "resp", 3, year_var=True)
+    write_percent_pf_cs_year(question, res, "RespPropos")
+    #~ 
+
+
+def q94():
+    initial_question="Pourcentage des familles politiques des Rapporteurs, pour les actes NoUniqueType=COD"
+
+    #a)NoUniqueType=COD et NbLectures=1
+    #b)NoUniqueType=COD et NbLectures=2 ou 3
+    nb_lec_list=((" et NbLectures=1", "act__nb_lectures"),(" et NbLectures=2 ou 3", "act__nb_lectures__gt"))
+    
+    for nb_lec in nb_lec_list:
+        #-> par secteur
+        question=initial_question+nb_lec[0]+", par secteur"
+        print question
+        res=init_cs(total=True, empty_dic=True)
+        res=get_percent_pf_cs(res, "rapp", 5, filter_variables={"no_unique_type": "COD", nb_lec[1]: 1})
+        write_percent_pf(question, cs_list, "CS", res, "RapporteurPE")
+    
+        #~ #-> par année
+        question=initial_question+nb_lec[0]+", par année"
+        print question
+        res=init_year(total=True, empty_dic=True)
+        res=get_percent_pf_year(res, "rapp", 5, filter_variables={"no_unique_type": "COD", nb_lec[1]: 1})
+        write_percent_pf(question, years_list, "YEAR", res, "RapporteurPE")
+    
+        #~ #-> par secteur et par année
+        question=initial_question+nb_lec[0]+", par secteur et par année"
+        print question
+        res=init_cs_year(total=True, empty_dic=True)
+        res=get_percent_pf_cs(res, "rapp", 5, year_var=True, filter_variables={"no_unique_type": "COD", nb_lec[1]: 1})
+        write_percent_pf_cs_year(question, res, "RapporteurPE")
        
 
 
@@ -2588,7 +2752,8 @@ class Command(NoArgsCommand):
     def handle(self, **options):
 
         nb_acts=Act.objects.filter(validated=2).count()
-        writer.writerow(["Les requêtes suivantes sont recueillies à partir des "+ str(nb_acts)+ " actes validés"])
+        writer.writerow(["Les requêtes suivantes sont recueillies à partir des "+ str(nb_acts)+ " actes validés."])
+        writer.writerow(["En présence de la variable secteur, chaque acte peut être compté jusqu'à 4 fois (une fois pour chaque secteur)."])
         writer.writerow([""])
 
         #proportion d’actes avec plusieurs codes sectoriels
@@ -2809,7 +2974,11 @@ class Command(NoArgsCommand):
         #~ q90_mois_nut()
 
         #Liste des RespPropos
-        q91()
-
+        #~ q91()
         #Liste des Rapporteurs
-        q92()
+        #~ q92()
+
+        #Pourcentage des familles politiques des RespPropos
+        q93()
+        #Pourcentage des familles politiques des Rapporteurs
+        q94()

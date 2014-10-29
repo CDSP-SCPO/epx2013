@@ -393,7 +393,7 @@ class Command(NoArgsCommand):
         file_name="test3"
         print "year", file_name
         file_object=open(file_path+file_name+".pdf",'r')
-        #~ file_object = urllib2.urlopen("http://www.consilium.europa.eu/uedocs/cms_data/docs/pressdata/en/agricult/101422.pdf")
+        file_object = urllib2.urlopen("http://www.consilium.europa.eu/uedocs/cms_data/docs/pressdata/en/trans/141555.pdf")
 
         #read the pdf and assign its text to a string
         string=pdf_to_string(file_object)
