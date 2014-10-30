@@ -4,16 +4,12 @@ command to get the min_attend instances for acts with an attendance_pdf url
 """
 
 #PACKAGE TO DOWNLOAD AND INSTALL
-#pdf-miner https://pypi.python.org/pypi/pdfminer/
+#pdftotext http://linux.die.net/man/1/pdftotext
 
 import sys
-from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
-from pdfminer.pdfpage import PDFPage
-from pdfminer.converter import XMLConverter, HTMLConverter, TextConverter
-from pdfminer.layout import LAParams
-from cStringIO import StringIO
 import urllib2
 import time
+import tempfile, subprocess
 
 from django.core.management.base import NoArgsCommand
 #new table
@@ -25,27 +21,29 @@ from django.db import IntegrityError
 
 
 
-def pdf_to_string(data):
+def pdf_to_string(file_object):
+    """
+    FUNCTION
+    get the text of a pdf and put it in a string variable
+    PARAMETERS
+    file_object: pdf file wrapped in a python file object [File object]
+    RETURN
+    string: extracted text [string]
+    """
+    tf = tempfile.NamedTemporaryFile()
+    tf.write(file_object)
+    tf.seek(0)
 
-    fp = StringIO(data)
-    rsrcmgr = PDFResourceManager()
-    retstr = StringIO()
-    codec = 'utf-8'
-    laparams = LAParams()
-    device = TextConverter(rsrcmgr, retstr, codec=codec, laparams=laparams)
-    # Create a PDF interpreter object.
-    interpreter = PDFPageInterpreter(rsrcmgr, device)
-    # Process each page contained in the document.
+    outputTf = tempfile.NamedTemporaryFile()
 
-    for page in PDFPage.get_pages(fp):
-        interpreter.process_page(page)
-        data =  retstr.getvalue()
+    if (len(file_object) > 0) :
+        #-layout: keep layout (not good when names and job titles are split as if they were in two different columns).
+        out, err = subprocess.Popen(["pdftotext", "-layout", tf.name, outputTf.name ]).communicate()
+        #~ out, err = subprocess.Popen(["pdftotext", tf.name, outputTf.name ]).communicate()
+        return outputTf.read()
+    else :
+        return None
 
-    #~ print "pdf_to_string"
-    #~ print data
-    #~ print ""
-    
-    return data
 
 
 
@@ -83,7 +81,6 @@ def get_participants(string):
     begin=end=-1
     participants=["PARTICIPA(cid:6)TS", "PARTICIPANTS", "PARTICIPA TS"]
     for participant in participants:
-        print participant
         begin=find_nth(string, participant, 2)
         if begin!=-1:
             break
@@ -96,38 +93,12 @@ def get_participants(string):
             break
 
     participants=string[begin:end].split('\n')
+    
     #~ print "get_participants"
     #~ print participants
     return participants
 
 
-
-def string_to_file(string, path):
-    """
-    FUNCTION
-    save a string into a txt file
-    PARAMETERS
-    string: string to save [string]
-    path: path of the file to use [string]
-    RETURN
-    None
-    """
-    with open(path, "w") as text_file:
-        text_file.write(string)
-
-
-def file_to_string(path):
-    """
-    FUNCTION
-    get the text of a txt file
-    PARAMETERS
-    path: path of the file to use [string]
-    RETURN
-    participants: text of the file split at each line break [list of strings]
-    """
-    with open(path) as string:
-        participants=string.read().split('\n')
-    return participants
 
 
 def capitalized_word(words, display=False):
@@ -140,12 +111,11 @@ def capitalized_word(words, display=False):
     True if there is at least one capitalized word, False otherwise [boolean]
     """
     #Micheál MARTIN without Mr or Ms
-
+    excluded_list=["EU","EN", "(CSA)", "SCA"]
     #PROVISIO AL VERSIO: http://www.consilium.europa.eu/uedocs/cms_data/docs/pressdata/en/envir/99178.pdf
     #not any(char.isdigit() for char in word): discard dates (roman numerals are in upper case)
     if words!="PROVISIO AL VERSIO" and not any(char.isdigit() for char in words):
         words=words.split()
-        excluded_list=["EU","EN"]
         for word in words:
             #word.isupper() is what we really want to test
             #http://www.consilium.europa.eu/uedocs/cms_data/docs/pressdata/en/lsa/111599.pdf
@@ -339,7 +309,7 @@ def get_verbatims(countries, country_list):
         #~ print "country", country
         for minister in country[1]:
             #new minister for the country
-            if minister.lstrip()[:2].lower() in ["mr", "ms"] or capitalized_word(minister):
+            if minister.lstrip()[:2].lower() in ["mr", "ms"] or capitalized_word(minister, display=True):
                 #~ print "mr ms", minister
                 verbatims.append([country[0], ""])
             else:
@@ -392,14 +362,14 @@ class Command(NoArgsCommand):
         #~ ImportMinAttend.objects.filter(validated=False).delete()
 
         #~ #get all the acts with a non null attendance_path and attendances not yet validated
-        acts_ids=ActIds.objects.filter(src="index", act__attendance_pdf__isnull=False, act__validated_attendance=0,  act__releve_annee=2014)
+        acts_ids=ActIds.objects.filter(src="index", act__attendance_pdf__isnull=False, act__validated_attendance=0, act__releve_annee=2014)
         for act_ids in acts_ids:
             ok=False
             act=act_ids.act
 
 #~ #~
             #TEST ONLY
-            act.attendance_pdf="http://www.consilium.europa.eu/uedocs/cms_data/docs/pressdata/en/ecofin/140836.pdf"
+            #~ act.attendance_pdf="http://www.consilium.europa.eu/uedocs/cms_data/docs/pressdata/en/agricult/142226.pdf"
 #~ #~
             print ""
             print "act", act
@@ -424,14 +394,8 @@ class Command(NoArgsCommand):
 
                 #read the pdf and assign its text to a string
                 string=pdf_to_string(file_object)
-                print "string"
-                print string[:10000]
-                print ""
-                
                 participants=get_participants(string)
-                #~ print "participants"
-                #~ print participants
-                #~ print "test"
+
                 readable=False
                 for participant in participants:
                     #for some acts in 2002, countries are not read properly
@@ -441,7 +405,6 @@ class Command(NoArgsCommand):
 
                 if readable:
                     #format the string variable to get the countries and verbatims only
-                    #~ #participants=file_to_string(file_path+file_name+".txt")
                     participants=format_participants(participants, country_list)
                     countries=get_countries(participants, country_list)
                     verbatims=get_verbatims(countries, country_list)
@@ -481,12 +444,12 @@ class Command(NoArgsCommand):
                         #print "integrity error", e
                     
                 #validate attendance in act table
-                act.validated_attendance=1
-                act.save()
+                #~ act.validated_attendance=1
+                #~ act.save()
 
                 print ""
         #~ #~
             #TEST ONLY
-            break
+            #~ break
 
         print "nb_pbs", nb_pbs

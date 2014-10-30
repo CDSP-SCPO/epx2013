@@ -15,61 +15,66 @@
 
 <br />
 
-<div class="row-fluid border">
-    <span class="column column_title country">{{ display_name.country}}</span>
-    <span class="column column_title status">{{ display_name.status}}</span>
-    <span class="column column_title verbatim">{{ display_name.verbatim}}</span>
-    <span class="column column_title DELETE">Delete</span>
-</div>
+{% if attendance %}
 
-<div class="new_minister"></div>
-
-<!-- contains hidden data about the number of forms that needs to be posted -->
-{{formset.management_form}}
-
-<!-- for each minister -->
-{% for form in formset %}
-
-    <!-- {{ form.prefix }} -> form-0, form-1, form-2, etc. -->
-    <div id="id_{{ form.prefix }}_errors" class="row-fluid">{{ form.non_field_errors }}</div>
-
-    <!-- for each field -->
-     <div class="row-fluid border">
-        {% for field in form %}
-
-             <span class="fieldWrapper">
-                 <!-- {{ field.auto_id }} -> id_form-0-country, id_form-0-verbatim, id_form-0-status -->
-                <span id="{{ field.auto_id }}_errors">{{ field.errors }}</span>
-                <!-- if error on status, move down other fields so as to align the form -->
-                <span class="column {{ field.name }} {% if field.name == 'country' and form.status.errors %}align_form_fields{% endif %}">
-                    {{ field }}
-                </span>
-            </span>
-        {% endfor %}
+    <div class="row-fluid border">
+        <span class="column column_title country">{{ display_name.country}}</span>
+        <span class="column column_title status">{{ display_name.status}}</span>
+        <span class="column column_title verbatim">{{ display_name.verbatim}}</span>
+        <span class="column column_title DELETE">Delete</span>
     </div>
-    <!-- vertical space bewteen each form -->
-        <div class="new_minister"></div>
+
+    <div class="new_minister"></div>
+
+    <!-- contains hidden data about the number of forms that needs to be posted -->
+    {{formset.management_form}}
+
+    <!-- for each minister -->
+    {% for form in formset %}
+
+        <!-- {{ form.prefix }} -> form-0, form-1, form-2, etc. -->
+        <div id="id_{{ form.prefix }}_errors" class="row-fluid">{{ form.non_field_errors }}</div>
+
+        <!-- for each field -->
+         <div class="row-fluid border">
+            {% for field in form %}
+
+                 <span class="fieldWrapper">
+                     <!-- {{ field.auto_id }} -> id_form-0-country, id_form-0-verbatim, id_form-0-status -->
+                    <span id="{{ field.auto_id }}_errors">{{ field.errors }}</span>
+                    <!-- if error on status, move down other fields so as to align the form -->
+                    <span class="column {{ field.name }} {% if field.name == 'country' and form.status.errors %}align_form_fields{% endif %}">
+                        {{ field }}
+                    </span>
+                </span>
+            {% endfor %}
+        </div>
+        <!-- vertical space bewteen each form -->
+            <div class="new_minister"></div>
 
 
-{% endfor %}
+    {% endfor %}
 
-<div class="new_minister"></div>
+    <div class="new_minister"></div>
 
-<div class="row-fluid">
-     <button id="update_status" name="update_status" type="submit" class="btn btn-primary pull-left" data-loading-text="Loading...">Update status</button>
-</div>
+    <div class="row-fluid">
+         <button id="update_status" name="update_status" type="submit" class="btn btn-primary pull-left" data-loading-text="Loading...">Update status</button>
+    </div>
+
+    <br />
+
+
+    <div id="notes_and_save" class="row-fluid">
+        <button id="save_attendance" name="save_attendance" type="submit" class="btn btn-primary offset5" data-loading-text="Loading...">SAVE THE ACT</button>
+
+        <!-- success or error message -->
+        <div id="msg" class="{{ msg_class }}">{{ msg }}</div>
+    </div>
+
+{% endif %}
 
 <br />
-
-
-<div id="notes_and_save" class="row-fluid">
-    <button id="save_attendance" name="save_attendance" type="submit" class="btn btn-primary offset5" data-loading-text="Loading...">SAVE THE ACT</button>
-
-    <!-- success or error message -->
-    <div id="msg" class="{{ msg_class }}">{{ msg }}</div>
-</div>
-
-<br />
+    
 
 <!-- anchor top page -->
 <a id="bottom_anchor" href="#top_anchor">Go to the top</a>
