@@ -26,7 +26,7 @@ def pdfparser(data):
 
 
 
-#pdf2text
+#pdftotext
 import tempfile, subprocess
 
 def pdf_to_string(file_object):
@@ -47,9 +47,7 @@ def pdf_to_string(file_object):
     outputTf = tempfile.NamedTemporaryFile()
 
     if (len(pdfData) > 0) :
-        #-layout: keep layout (not good when names and job titles are split as if they were in two different columns).
         out, err = subprocess.Popen(["pdftotext", "-layout", tf.name, outputTf.name ]).communicate()
-        #~ out, err = subprocess.Popen(["pdftotext", tf.name, outputTf.name ]).communicate()
         return outputTf.read()
     else :
         return None
