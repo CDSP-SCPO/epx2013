@@ -1,17 +1,31 @@
+#-*- coding: utf-8 -*-
+
 #initiate dictionary that will contain the result of a query
+from  common import *
+
+
+#count=False and variable=True: count the sum of all the values taken by a variable
+	#e.g.: sum of all the values taken by duree_variable=1000 -> res=1000
+#count=False and variable=False: count the number of occurences of items matching a set of criteria defined by filter_vars
+	#e.g.: number of acts with a duree_variable greater than 0=5 -> res=5
+
+#count=True and variable=True -> average computation: count the sum of all the values taken by a variable AND its number of occurences
+	#e.g.: sum of all the values taken by duree_variable=1000, number of occurences of duree_variable=5 -> res=[1000, 5]
+#count=True and variable=False -> percentage computation: count the number of occurences of items matching a set of criteria (defined by check_vars_act and check_vars_act_ids) AMONG the number of occurences of items matching the set of criteria (defined by filter_vars)
+	#e.g.: number of occurences of duree_variable among the acts with no_unique_type=COD=5, number of acts with no_unique_type=COD=15 -> res=[5, 15]
 
 
 
-def init_cs(nb_vars=2, total=False, empty_list=False, empty_dic=False):
-    #nb_vars=2 for computation percents
+
+def init_cs(count=True, total=False, empty_list=False, empty_dic=False):
     res={}
-    for cs in cs_list:
+    for cs in get_cs_list():
         if empty_dic:
             #list of persons, key: pers object; value: nb of occurences
             temp=dict({})
         elif empty_list:
-            temp=list([[]*nb_vars])
-        elif nb_vars==2:
+            temp=list([])
+        elif count:
             temp=[0,0]
         else:
             temp=0
@@ -21,18 +35,16 @@ def init_cs(nb_vars=2, total=False, empty_list=False, empty_dic=False):
     return res
 
     
-def init_year(nb_vars=2, total=False, empty_list=False, empty_dic=False):
-    """
-    empty_dic: for list of persons
-    """
+def init_year(count=True, total=False, empty_list=False, empty_dic=False):
+    #empty_dic: for list of persons
     res={}
-    for year in years_list:
+    for year in get_years_list():
         if empty_dic:
             #list of persons, key: pers object; value: nb of occurences
             temp=dict({})
         elif empty_list:
-            temp=list([[]*nb_vars])
-        elif nb_vars==2:
+            temp=list([])
+        elif count:
             temp=[0,0]
         else:
             temp=0
@@ -42,10 +54,10 @@ def init_year(nb_vars=2, total=False, empty_list=False, empty_dic=False):
     return res
 
 
-def init_month(nb_vars=2):
+def init_month(count=True):
     res={}
     for month in months_list:
-        if nb_vars==2:
+        if count:
             temp=[0,0]
         else:
             temp=0
@@ -53,21 +65,20 @@ def init_month(nb_vars=2):
     return res
 
 
-def init_cs_year(nb_vars=2, total=False, amdt=False, empty_list=False, empty_dic=False):
-    #use nb=2 to compute the percentage for each cell
+def init_cs_year(count=True, total=False, amdt=False, empty_list=False, empty_dic=False):
     #use total=True to compute the percentage of each cell compared to the total of the year
     #titles_list: initialize empty list
     res={}
     total_year={}
-    for secteur in cs_list:
+    for secteur in get_cs_list():
         res[secteur]={}
-        for year in years_list:
+        for year in get_years_list():
             if empty_dic:
                 #list of persons, key: pers object; value: nb of occurences
                 temp=dict({})
             elif empty_list:
-                temp=list([[]*nb_vars])
-            elif nb_vars==2:
+                temp=list([])
+            elif count:
                 temp=[0,0]
             else:
                 temp=0
@@ -81,13 +92,9 @@ def init_cs_year(nb_vars=2, total=False, amdt=False, empty_list=False, empty_dic
             if total and empty_dic:
                 res[secteur][year]["total"]=0
             
-            #ATTENTION! If nb=2 and total=True, the same list temp=[0,0] is used for total_year and res -> MUST USE A COPY OF THE LIST
+            #ATTENTION! If count=True and total=True, the same list temp=[0,0] is used for total_year and res -> MUST USE A COPY OF THE LIST
     #~ print "res"
     #~ print res
     if total and not empty_dic:
         return res, total_year
     return res
-
-
-def str_to_date(string):
-    return datetime.strptime(string, '%Y-%m-%d').date()

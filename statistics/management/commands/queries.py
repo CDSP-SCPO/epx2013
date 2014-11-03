@@ -1,74 +1,14 @@
 #-*- coding: utf-8 -*-
 
 from django.core.management.base import NoArgsCommand
-from django.db.models import Count
-from django.db.models import Sum
-from django.conf import settings
-from collections import OrderedDict
 
-import csv
-from datetime import datetime
 
-from django.db import models
-from act.models import Act, MinAttend, Status, NP, PartyFamily, Country
-from act_ids.models import ActIds
-
-import sys 
-import os
-sys.path.append(os.path.abspath("./queries"))
-#import general steps common to each query
-import init, get, write
 #import specific queries
-import act, adopt_cs, duree, ep_amdt_vote, min_attend, modif_propos, nb_mots, no_unique_type, party_family, pers, point_b, type_acte, vote
+from query import acts, adopt_cs, duree, ep_amdt_vote, min_attend, modif_propos, nb_mots, no_unique_type, party_family, pers, point_b, type_acte, vote
 
 
-
-#INITIALISATION
-
-#year and code sectoriel lists
-countries=Country.objects.values_list("country_code", flat=True)
-
-years_list=[str(n) for n in range(1996, 2014)]
-months_list=[str(n) for n in range(1, 13)]
-years_list_zero=list(years_list)
-years_list_zero.insert(0, "")
-
-cs_list=[str(n) for n in range(1, 21)]
-for index in range(len(cs_list)):
-    if len(cs_list[index])==1:
-        cs_list[index]="0"+cs_list[index]
-
-periodes_list=("pré-élargissement (1/1/96 - 30/6/99)","pré-élargissement (1/7/99 - 30/04/04)","post-élargissement (1/5/04 - 31/1/09)","post-Lisbonne (1/2/09 - 31/12/12)","crise (15/9/08 - 31/12/12)")
-nb_periodes=len(periodes_list)
-periodes=[None]*nb_periodes
-periodes[0]=(str_to_date("1996-1-1"), str_to_date("1999-6-30"))
-periodes[1]=(str_to_date("1999-7-1"), str_to_date("2004-4-30"))
-periodes[2]=(str_to_date("2004-5-1"), str_to_date("2009-1-31"))
-periodes[3]=(str_to_date("2009-2-1"), str_to_date("2012-12-31"))
-periodes[4]=(str_to_date("2008-09-15"), str_to_date("2012-12-31"))
-# Post-Lisbonne : 01/02/2009 – 31/12/2013
-# Crise : 15-09_2008 (Faillite Lehman Brothers) -31/12/2013
-
-
-
-#WRITE RESULTS IN CS FILE
-
-path=settings.PROJECT_ROOT+'/statistics/management/commands/queries.csv'
-#~ writer=csv.writer(open(path, 'w'), delimiter=";")
-writer=csv.writer(open(path, 'w'))
-
-
-
-
-    
 class Command(NoArgsCommand):
     def handle(self, **options):
-
-        nb_acts=Act.objects.filter(validated=2).count()
-        writer.writerow(["Les requêtes suivantes sont recueillies à partir des "+ str(nb_acts)+ " actes validés."])
-        writer.writerow(["En présence de la variable secteur, chaque acte peut être compté jusqu'à 4 fois (une fois pour chaque secteur)."])
-        writer.writerow([""])
-
         #proportion d’actes avec plusieurs codes sectoriels
         #~ q1()
         #ventilation par domaines
@@ -290,20 +230,23 @@ class Command(NoArgsCommand):
         #~ q94()
 
 
+		#2014-10-31
+
+		
         #Pourcentage de points B, par année, par secteur, par année et par secteur
-        q95()
-        
-        #Durée DureeTotaleDepuisTransCons moyenne 1/pour tous les actes, 2/quand VotePublic=Y ou 3/quand VotePublic= N, par année, par secteur, par année et par secteur
-        q96()
-        
-        #1/Pourcentage de AdoptCSContre=Y, 2/Pourcentage de AdoptCSAbs=Y, par année, par secteur, par année et par secteur
-        q97()
-        
-        #Pourcentage d’actes adoptés avec NoUniqueType=COD 1/et NbLectures=1, 2/et NbLectures=2, par année, par secteur, par année et par secteur
-        q98()
-        
-        #1/Nombre d’EPComAmdtAdopt, 2/Nombre d’EPComAmdtTabled, 3/Nombre d’EPAmdtAdopt, 4/Nombre d’EPAmdtTabled, par année, par secteur, par année et par secteur
-        q99()
-        
+        point_b.q95()
+        #~ 
+        #~ #Durée DureeTotaleDepuisTransCons moyenne 1/pour tous les actes, 2/quand VotePublic=Y ou 3/quand VotePublic= N, par année, par secteur, par année et par secteur
+        duree.q96()
+        #~ 
+        #~ #1/Pourcentage de AdoptCSContre=Y, 2/Pourcentage de AdoptCSAbs=Y, par année, par secteur, par année et par secteur
+        adopt_cs.q97()
+        #~ 
+        #~ #Pourcentage d’actes adoptés avec NoUniqueType=COD 1/et NbLectures=1, 2/et NbLectures=2, par année, par secteur, par année et par secteur
+        no_unique_type.q98()
+        #~ 
+        #~ #1/Nombre d’EPComAmdtAdopt, 2/Nombre d’EPComAmdtTabled, 3/Nombre d’EPAmdtAdopt, 4/Nombre d’EPAmdtTabled, par année, par secteur, par année et par secteur
+        ep_amdt_vote.q99()
+        #~ 
         #1/Moyenne EPVotesFor1, 2/Moyenne EPVotesFor2, 3/Moyenne EPVotesAgst1, 4/Moyenne EPVotesAgst2, 5/MoyenneEPVotesAbs1, 6/MoyenneEPVotesAbs2, par année, par secteur, par année et par secteur
-        q100()
+        ep_amdt_vote.q100()
