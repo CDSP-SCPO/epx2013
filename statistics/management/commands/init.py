@@ -98,3 +98,12 @@ def init_cs_year(count=True, total=False, amdt=False, empty_list=False, empty_di
     if total and not empty_dic:
         return res, total_year
     return res
+
+
+def init_periods(Model, filter_vars_acts={}, filter_vars_acts_ids={}, filter_total_acts={}, filter_total_acts_ids={}):
+    periods=get_periods()
+    nb_periods=len(periods)
+    res=[[0 for x in range(2)] for y in range(nb_periods)]
+    filter_vars=get_validated_acts(Model, filter_vars_acts=filter_vars_acts, filter_vars_acts_ids=filter_vars_acts_ids)
+    filter_total=get_validated_acts(Model, filter_vars_acts=filter_total_acts, filter_vars_acts_ids=filter_total_acts_ids)
+    return periods, nb_periods, res, filter_vars, filter_total

@@ -59,13 +59,14 @@ def q32(display_name, variable_name):
 
     
 def q75():
-    question="Nombre moyen d’amendements déposés par la commission parlementaire du PE saisie au fond"
-    filter_variables={"com_amdt_tabled__isnull": False}
-    queries_periodes(question, Act, filter_variables=filter_variables, exclude_variables={"com_amdt_tabled": 0}, filter_total=filter_variables, avg_variable="com_amdt_tabled", percent=1)
-    
-    question="Nombre moyen d’amendements déposés au PE"
-    filter_variables={"amdt_tabled__isnull": False}
-    queries_periodes(question, Act, filter_variables=filter_variables, exclude_variables={"amdt_tabled": 0}, filter_total=filter_variables, avg_variable="amdt_tabled", percent=1)
+    variables={"com_amdt_tabled": "Nombre moyen d’amendements déposés par la commission parlementaire du PE saisie au fond", "amdt_tabled": "Nombre moyen d’amendements déposés au PE"}
+    Model=Act
+
+    for var, question in variables.iteritems():
+        filter_vars_acts={var+"__isnull": False}
+        periods, nb_periods, res, filter_vars, filter_total=init_periods(Model, filter_vars_acts=filter_vars_acts)
+        res=get_by_period(periods, nb_periods, res, Model, filter_vars, filter_total, avg_variable=var)
+        write_periods(question, res, periods, nb_periods, percent=1)
 
 
 def q99():

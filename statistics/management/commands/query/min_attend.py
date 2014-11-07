@@ -2,6 +2,15 @@
 
 #queries about the ministers attendance variables
 
+
+#import general steps common to each query
+from  common import *
+from  ..init import *
+from  ..get import *
+from  ..write import *
+
+
+
 def q22():
     #pourcentage de ministres presents (M) et de RP (CS ou CS_PR) par secteurs et par annee
     question="pourcentage de ministres presents (M) et de RP (CS ou CS_PR) par année"
@@ -93,5 +102,7 @@ def q38():
 
 def q76():
     question="Pourcentage moyen de représentants permanents par acte"
-    queries_periodes(question, MinAttend, query="repr_perm")
-    
+    Model=MinAttend
+    periods, nb_periods, res, filter_vars, filter_total=init_periods(Model)
+    res=get_by_period(periods, nb_periods, res, Model, filter_vars, filter_total)
+    write_periods(question, res, periods, nb_periods)

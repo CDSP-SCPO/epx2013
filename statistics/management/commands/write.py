@@ -193,7 +193,6 @@ def write_cs_year(question, res, res_2=None, count=True, percent=100, total_year
 	print ""
 
 
-
 def write_list_pers(question, the_list, element, res, pers_type):
     #crosses cs OR year
     #element: cs OR year
@@ -255,43 +254,63 @@ def write_list_pers_cs_year(question, res, pers_type):
     print ""
 
 
-def write_percent_pf(question, the_list, element, res, pers_type):
+def write_percent_pers(question, the_list, element, res, pers_type, var="Party Family"):
     #crosses cs OR year
     #element: cs OR year
     writer.writerow([question])
     for value in the_list:
         writer.writerow("")
         writer.writerow([element+" "+value])
-        writer.writerow(["PartyFamily "+pers_type, "percentage"])
-        for pf in res[value]:
-            if pf!="total":
-                if res[value][pf]==0:
-                    res_pf=0
+        writer.writerow([var+" "+pers_type, "percentage"])
+        for stat in res[value]:
+            if stat!="total":
+                if res[value][stat]==0:
+                    res_stat=0
                 else:
-                    res_pf=round(float(res[value][pf])*100/res[value]["total"],3)
-                writer.writerow([pf, res_pf])
+                    res_stat=round(float(res[value][stat])*100/res[value]["total"],3)
+                writer.writerow([stat, res_stat])
     writer.writerow("")
     print ""
 
      
-
-
-def write_percent_pf_cs_year(question, res, pers_type):
+def write_percent_pers_cs_year(question, res, pers_type, var="Party Family"):
     writer.writerow([question])
     for cs in get_cs_list():
         writer.writerow("")
         writer.writerow(["CS "+cs])
         for year in get_years_list():
             writer.writerow(["YEAR "+year])
-            writer.writerow(["PartyFamily "+pers_type, "percentage"])
-            for pf in res[cs][year]:
-                if pf!="total":
-                    if res[cs][year][pf]==0:
-                        res_pf=0
+            writer.writerow([var+" "+pers_type, "percentage"])
+            for stat in res[cs][year]:
+                if stat!="total":
+                    if res[cs][year][stat]==0:
+                        res_stat=0
                     else:
-                        res_pf=round(float(res[cs][year][pf])*100/res[cs][year]["total"],3)
-                    writer.writerow([pf, res_pf])
+                        res_stat=round(float(res[cs][year][stat])*100/res[cs][year]["total"],3)
+                    writer.writerow([stat, res_stat])
           
         writer.writerow("")
     writer.writerow("")
     print ""
+
+
+def write_periods(question, res, periods, nb_periods, percent=100):
+	print question
+	print "res:", res
+	writer.writerow([question])
+
+	header=[]
+	for period in periods:
+		header.append(period[0])
+	writer.writerow(header)
+
+	row=[]
+	for index in range(nb_periods):
+		if res[index][0]==0:
+			temp=0
+		else:
+			temp=round(float(res[index][0])*percent/res[index][1], 3)
+		row.append(temp)
+	writer.writerow(row)
+	writer.writerow("")
+	print ""

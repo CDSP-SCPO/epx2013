@@ -4,7 +4,9 @@
 from django.db import models
 from act.models import Act, MinAttend, Status, NP, PartyFamily
 from act_ids.models import ActIds
+from django.db.models import Count
 from  common import *
+
 
 
 #count=False and variable=True: count the sum of all the values taken by a variable
@@ -180,12 +182,27 @@ def get_list_pers_year(res, pers_type, max_nb, filter_variables={}):
                 else:
                     res[year][pers]+=1
     return res
-                
 
-def get_percent_pf_cs(res, pers_type, max_nb, year_var=False, filter_variables={}):
-    #percentage of each party family for Rapporteurs and RespPropos
+
+def get_pf(pers):
+	return PartyFamily.objects.get(country=pers.country, party=pers.party).party_family.encode("utf-8")
+
+
+def get_stat(var, pers):
+	#statistics on party family
+	if var=="pf":
+		stat=get_pf(pers)
+	#statistics on country
+	else:
+		stat=pers.country.country_code
+	return stat
+	
+
+def get_percent_pers_cs(res, pers_type, max_nb, var="pf", year_var=False, filter_vars={}):
+    #percentage of each party family or country for Rapporteurs and RespPropos
     #cs only / cs and year
-    for act_ids in ActIds.objects.filter(act__validated=2, src="index", **filter_variables):
+    filter_vars=get_validated_acts(ActIds, filter_vars)
+    for act_ids in ActIds.objects.filter(**filter_vars):
         act=act_ids.act
         #loop over each cs
         for nb in range(1,5):
@@ -197,39 +214,75 @@ def get_percent_pf_cs(res, pers_type, max_nb, year_var=False, filter_variables={
                 #loop over each pers
                 for nb in range(1, max_nb+1):
                     pers=getattr(act, pers_type+"_"+str(nb))
-                    #~ print "pers"
-                    #~ print pers
                     if pers!=None:
-                        pf=PartyFamily.objects.get(country=pers.country, party=pers.party).party_family.encode("utf-8")
-                        #by cs and by year
-                        if year_var:
-                            res[cs][year]["total"]+=1
-                            if pf not in res[cs][year]:
-                                res[cs][year][pf]=1
-                            else:
-                                res[cs][year][pf]+=1
-                        #by cs
-                        else:
-                            res[cs]["total"]+=1
-                            if pf not in res[cs]:
-                                res[cs][pf]=1
-                            else:
-                                res[cs][pf]+=1
+						stat=get_stat(var, pers)
+						#by cs and by year
+						if year_var:
+							res[cs][year]["total"]+=1
+							if stat not in res[cs][year]:
+								res[cs][year][stat]=1
+							else:
+								res[cs][year][stat]+=1
+						#by cs
+						else:
+							res[cs]["total"]+=1
+							if stat not in res[cs]:
+								res[cs][stat]=1
+							else:
+								res[cs][stat]+=1
+	print "res", res
     return res
 
 
-def get_percent_pf_year(res, pers_type, max_nb, filter_variables={}):
-    for act_ids in ActIds.objects.filter(act__validated=2, src="index", **filter_variables):
+def get_percent_pers_year(res, pers_type, max_nb, var="pf", filter_vars={}):
+	#percentage of each party family or country for Rapporteurs and RespPropos
+    #year only
+    filter_vars=get_validated_acts(ActIds, filter_vars)
+    for act_ids in ActIds.objects.filter(**filter_vars):
         act=act_ids.act
         year=str(act.releve_annee)
         #loop over each pers
         for nb in range(1, max_nb+1):
-            pers=getattr(act, pers_type+"_"+str(nb))
-            if pers!=None:
-                pf=PartyFamily.objects.get(country=pers.country, party=pers.party).party_family.encode("utf-8")
-                res[year]["total"]+=1
-                if pf not in res[year]:
-                    res[year][pf]=1
-                else:
-                    res[year][pf]+=1
+			pers=getattr(act, pers_type+"_"+str(nb))
+			if pers!=None:
+				stat=get_stat(var, pers)
+				res[year]["total"]+=1
+				if stat not in res[year]:
+					res[year][stat]=1
+				else:
+					res[year][stat]+=1
+	print "res", res
     return res
+
+
+
+def get_by_period(periods, nb_periods, res, Model, filter_vars, filter_total, exclude_vars={}, avg_variable=None, adopt_cs={}):
+			
+	for index in range(nb_periods):
+		filter_vars_periods=get_validated_acts_periods(Model, periods[index], filter_vars)
+		temp_filter=Model.objects.filter(**filter_vars_periods).exclude(**exclude_vars)
+		
+		if Model==MinAttend:
+			for act in temp_filter:
+				#~ print act.id
+				status=Status.objects.get(verbatim=act.verbatim, country=act.country).status
+				if status not in ["NA", "AB"]:
+					res[index][1]+=1
+					if status in ["CS", "CS_PR"]:
+						res[index][0]+=1
+		else:
+			#percentage among all the acts
+			if avg_variable is None:
+				if adopt_cs:
+					res[index][0]=temp_filter.annotate(nb_countries=Count("adopt_cs_contre")).filter(**adopt_cs).count()
+				else:
+					res[index][0]=temp_filter.count()
+				#total
+				filter_total.update(get_validated_acts_periods(Model, periods[index], filter_total))
+				res[index][1]=Model.objects.filter(**filter_total).count()
+			#average
+			else:
+				for act in temp_filter:
+					res[index][0]+=getattr(act, avg_variable)
+					res[index][1]+=1
+	return res		

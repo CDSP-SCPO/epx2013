@@ -3,6 +3,7 @@
 #queries about the nb_point_b variable
 
 #import general steps common to each query
+from  common import *
 from  ..init import *
 from  ..get import *
 from  ..write import *
@@ -66,16 +67,20 @@ def q70():
 
 def q73():
     question="Nombre moyen de points B"
-    filter_variables={"nb_point_b__gte": 1}
-    queries_periodes(question, Act, filter_variables=filter_variables, filter_total=filter_variables, avg_variable="nb_point_b", percent=1)
+    Model=Act
+    filter_vars_acts={"nb_point_b__gte": 1}
+    periods, nb_periods, res, filter_vars, filter_total=init_periods(Model, filter_vars_acts=filter_vars_acts)
+    res=get_by_period(periods, nb_periods, res, Model, filter_vars, filter_total, avg_variable="nb_point_b")
+    write_periods(question, res, periods, nb_periods, percent=1)
 
 
 def q95():
     #Pourcentage de points B par rapport aux points A, par année, par secteur, par année et par secteur
     filter_vars_b={"nb_point_b__isnull": False}
     filter_vars_a={"nb_point_a__isnull": False}
+    initial_question="Pourcentage de NbPointB"
 
-    question="Pourcentage de NbPointB par rapport à NbPointA par secteur"
+    question=initial_question+" par secteur"
     print question
     res_1=init_cs(count=False)
     res_2=init_cs(count=False)
@@ -83,7 +88,7 @@ def q95():
     res_2=get_by_cs(res_2, count=False, variable="nb_point_a", filter_vars=filter_vars_a)
     write_cs(question, res_1, res_2=res_2, count=False, query="pt_b_a")
 
-    question="Pourcentange de NbPointB par rapport à NbPointA par année"
+    question=initial_question+" par année"
     print question
     res_1=init_year(count=False)
     res_2=init_year(count=False)
@@ -91,7 +96,7 @@ def q95():
     res_2=get_by_year(res_2, count=False, variable="nb_point_a", filter_vars=filter_vars_a)
     write_year(question, res_1, res_2=res_2, count=False, query="pt_b_a")
 
-    question="Pourcentange de NbPointB par rapport à NbPointA par secteur et par année"
+    question=initial_question+" par secteur et par année"
     print question
     res_1=init_cs_year(count=False)
     res_2=init_cs_year(count=False)

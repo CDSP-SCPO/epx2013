@@ -2,6 +2,15 @@
 
 #queries about the number of acts or percent of acts
 
+
+#import general steps common to each query
+from  common import *
+from  ..init import *
+from  ..get import *
+from  ..write import *
+
+
+
 def q1():
     #proportion d’actes avec plusieurs codes sectoriels
     question="proportion d’actes avec plusieurs codes sectoriels"
@@ -248,115 +257,84 @@ def q61():
     nb_bj_cs("13", "Marché intérieur", "vote_public", "bool", question)
 
 
-
-def queries_periodes(question, Model, filter_variables={}, exclude_variables={}, filter_total={}, avg_variable=None, percent=100, query=None, adopt_cs={}):
-    print question
-    res=[[None for x in range(2)] for y in range(nb_periodes)]
-    
-    for index in range(len(periodes)):
-        
-        if query=="repr_perm":
-            res[index][0]=0
-            res[index][1]=0
-            for act in Model.objects.filter(act__validated=2, act__adopt_conseil__gte=periodes[index][0], act__adopt_conseil__lte=periodes[index][1]):
-                #~ print act.id
-                status=Status.objects.get(verbatim=act.verbatim, country=act.country).status
-                if status not in ["NA", "AB"]:
-                    res[index][1]+=1
-                    if status in ["CS", "CS_PR"]:
-                        res[index][0]+=1
-        else:
-            #percentage among all the acts
-            if percent==100:
-                if query=="adopt_cs_contre":
-                    res[index][0]=Model.objects.filter(validated=2, adopt_conseil__gte=periodes[index][0], adopt_conseil__lte=periodes[index][1], **filter_variables).annotate(nb_countries=Count(query)).filter(**adopt_cs).count()
-                else:
-                    if Model==Act:
-                        res[index][0]=Model.objects.filter(validated=2, adopt_conseil__gte=periodes[index][0], adopt_conseil__lte=periodes[index][1], **filter_variables).exclude(**exclude_variables).count()
-                    else:
-                        res[index][0]=Model.objects.filter(act__validated=2, src="index", act__adopt_conseil__gte=periodes[index][0], act__adopt_conseil__lte=periodes[index][1], **filter_variables).exclude(**exclude_variables).count()
-                
-                #total
-                if query=="COD":
-                    res[index][1]=ActIds.objects.filter(act__validated=2, src="index", no_unique_type="COD", act__adopt_conseil__gte=periodes[index][0], act__adopt_conseil__lte=periodes[index][1], **filter_total).count()
-                else:
-                    res[index][1]=Act.objects.filter(validated=2, adopt_conseil__gte=periodes[index][0], adopt_conseil__lte=periodes[index][1], **filter_total).count()
-                    
-            else:
-                #average
-                res[index][0]=0
-                for act in Model.objects.filter(validated=2, adopt_conseil__gte=periodes[index][0], adopt_conseil__lte=periodes[index][1], **filter_variables).exclude(**exclude_variables):
-                    res[index][0]+=getattr(act, avg_variable)
-                res[index][1]=Act.objects.filter(validated=2, adopt_conseil__gte=periodes[index][0], adopt_conseil__lte=periodes[index][1], **filter_total).exclude(**exclude_variables).count()
-    
-    print "res"
-    print res
-    
-    writer.writerow([question])
-    writer.writerow(periodes_list)
-    row=[]
-    for index in range(nb_periodes):
-        if res[index][0]==0:
-            temp=0
-        else:
-            temp=round(float(res[index][0])*percent/res[index][1], 3)
-        row.append(temp)
-    writer.writerow(row)
-    writer.writerow("")
-    print ""
-
-
 def q71():
     #actes pour lesquels ProposOrigine="COM" et ComProc="Written procedure"
     question="Pourcentage d'actes provenant de la Commission et adoptés par procédure écrite"
-    queries_periodes(question, ActIds, filter_variables={"propos_origine": "COM", "act__com_proc": "Written procedure"})
+    Model=ActIds
+    filter_vars_acts={"com_proc": "Written procedure"}
+    filter_vars_acts_ids={"propos_origine": "COM"}
+    periods, nb_periods, res, filter_vars, filter_total=init_periods(Model, filter_vars_acts, filter_vars_acts_ids=filter_vars_acts_ids)
+    res=get_by_period(periods, nb_periods, res, Model, filter_vars, filter_total)
+    write_periods(question, res, periods, nb_periods)
 
 
 def q72():
-    question="Pourcentage d'actes avec au moins un point A"
-    queries_periodes(question, Act, filter_variables={"nb_point_a__gte": 1})
+    question="Pourcentage d'actes avec au moins un point A" 
+    Model=Act
+    filter_vars_acts={"nb_point_a__gte": 1}
+    periods, nb_periods, res, filter_vars, filter_total=init_periods(Model, filter_vars_acts)
+    res=get_by_period(periods, nb_periods, res, Model, filter_vars, filter_total)
+    write_periods(question, res, periods, nb_periods)
 
 
 def q74():
     question="Pourcentage d'actes adoptés en 1ère lecture parmi les actes de codécision"
-    queries_periodes(question, ActIds, filter_variables={"act__nb_lectures": 1, "no_unique_type": "COD"}, query="COD")
-
-
+    Model=ActIds
+    filter_total_act_ids={"no_unique_type": "COD"}
+    filter_vars_acts={"nb_lectures": 1}
+    filter_vars_acts_ids=filter_total_act_ids.copy()
+    periods, nb_periods, res, filter_vars, filter_total=init_periods(Model, filter_vars_acts=filter_vars_acts, filter_vars_acts_ids=filter_vars_acts_ids, filter_total_acts_ids=filter_total_act_ids)
+    res=get_by_period(periods, nb_periods, res, Model, filter_vars, filter_total)
+    write_periods(question, res, periods, nb_periods)
 
     
 def q77():
-    question="Pourcentage d’actes adoptés avec un vote public, parmi les actes avec une majorité qualifiée lors de l'adoption au conseil"
-    queries_periodes(question, Act, filter_variables={"vote_public": True, "adopt_cs_regle_vote": "V"}, filter_total={"adopt_cs_regle_vote": "V"})
     
+    Model=Act
+    filter_total_acts={"adopt_cs_regle_vote": "V"}
+    filter_vars_acts=filter_total_acts.copy()
+    filter_var_acts_vote=filter_total_acts.copy()
+    filter_var_acts_vote["vote_public"]=True
+
+    question="Pourcentage d’actes adoptés avec un vote public, parmi les actes avec une majorité qualifiée lors de l'adoption au conseil"
+    periods, nb_periods, res, filter_vars, filter_total=init_periods(Model, filter_vars_acts=filter_var_acts_vote, filter_total_acts=filter_total_acts)
+    res=get_by_period(periods, nb_periods, res, Model, filter_vars, filter_total)
+    write_periods(question, res, periods, nb_periods)
+
     question="Pourcentage d’actes adoptés avec avec opposition d'exactement un état, parmi les actes avec une majorité qualifiée lors de l'adoption au conseil"
-    queries_periodes(question, Act, filter_variables={"adopt_cs_regle_vote": "V"}, filter_total={"adopt_cs_regle_vote": "V"}, query="adopt_cs_contre", adopt_cs={"nb_countries": "1"})
+    periods, nb_periods, res, filter_vars, filter_total=init_periods(Model, filter_vars_acts=filter_vars_acts, filter_total_acts=filter_total_acts)
+    res=get_by_period(periods, nb_periods, res, Model, filter_vars, filter_total, adopt_cs={"nb_countries": "1"})
+    write_periods(question, res, periods, nb_periods)
     
     question="Pourcentage d’actes adoptés avec opposition d'au moins deux états, parmi les actes avec une majorité qualifiée lors de l'adoption au conseil"
-    queries_periodes(question, Act, filter_variables={"adopt_cs_regle_vote": "V"}, filter_total={"adopt_cs_regle_vote": "V"}, query="adopt_cs_contre", adopt_cs={"nb_countries__gte": "2"})
-        
+    periods, nb_periods, res, filter_vars, filter_total=init_periods(Model, filter_vars_acts=filter_vars_acts, filter_total_acts=filter_total_acts)
+    res=get_by_period(periods, nb_periods, res, Model, filter_vars, filter_total, adopt_cs={"nb_countries__gte": "2"})
+    write_periods(question, res, periods, nb_periods)
+    
     question="Pourcentage d’actes adoptés avec abstention d'au moins un état, parmi les actes avec une majorité qualifiée lors de l'adoption au conseil"
-    queries_periodes(question, Act, filter_variables={"adopt_cs_regle_vote": "V"}, exclude_variables={"adopt_cs_abs": None}, filter_total={"adopt_cs_regle_vote": "V"})
-
+    periods, nb_periods, res, filter_vars, filter_total=init_periods(Model, filter_vars_acts=filter_vars_acts, filter_total_acts=filter_total_acts)
+    res=get_by_period(periods, nb_periods, res, Model, filter_vars, filter_total, exclude_vars={"adopt_cs_abs": None})
+    write_periods(question, res, periods, nb_periods)
   
     
 def q79():
     question="Pourcentage d’actes adoptés en 2ème lecture parmi les actes de codécision"
-    filter_variables={"no_unique_type": "COD"}
-    queries_periodes(question, ActIds, filter_variables={"act__nb_lectures": 2, "no_unique_type": "COD"}, query="COD")
+    Model=ActIds
+    filter_total_act_ids={"no_unique_type": "COD"}
+    filter_vars_acts={"nb_lectures": 2}
+    filter_vars_acts_ids=filter_total_act_ids.copy()
+    periods, nb_periods, res, filter_vars, filter_total=init_periods(Model, filter_vars_acts=filter_vars_acts, filter_vars_acts_ids=filter_vars_acts_ids, filter_total_acts_ids=filter_total_act_ids)
+    res=get_by_period(periods, nb_periods, res, Model, filter_vars, filter_total)
+    write_periods(question, res, periods, nb_periods)
     
     
 def q80():
     question="Pourcentage d’actes avec au moins un point B"
-    queries_periodes(question, Act, filter_variables={"nb_point_b__gte": 1})
-    
-    
-    
-def q81():
-    #% d’actes avec AdoptCSRegleVote=V ET Nombre d’EM opposes ( AdoptCSContre=Y) superieur ou egal a 2
-    question="Pourcentage d’actes adoptés avec opposition d'au moins deux états, parmi les actes avec une majorité qualifiée lors de l'adoption au conseil"
-    filter_variables={"adopt_cs_regle_vote": "V"}
-    queries_periodes(question, Act, filter_variables=filter_variables, filter_total=filter_variables, query="adopt_cs_contre", adopt_cs={"nb_countries__gte": "2"})
-
+    Model=Act
+    filter_vars_acts={"nb_point_b__gte": 1}
+    periods, nb_periods, res, filter_vars, filter_total=init_periods(Model, filter_vars_acts=filter_vars_acts)
+    res=get_by_period(periods, nb_periods, res, Model, filter_vars, filter_total)
+    write_periods(question, res, periods, nb_periods)
 
 
 

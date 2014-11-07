@@ -502,8 +502,11 @@ def q59(cs, name):
 
 def q78():
     question="Durée moyenne par acte"
-    filter_variables={"duree_tot_depuis_prop_com__isnull": False}
-    queries_periodes(question, Act, filter_variables=filter_variables, filter_total=filter_variables, avg_variable="duree_tot_depuis_prop_com", percent=1)
+    Model=Act
+    filter_vars_acts={"duree_tot_depuis_prop_com__isnull": False}
+    periods, nb_periods, res, filter_vars, filter_total=init_periods(Model, filter_vars_acts=filter_vars_acts)
+    res=get_by_period(periods, nb_periods, res, Model, filter_vars, filter_total, avg_variable="duree_tot_depuis_prop_com")
+    write_periods(question, res, periods, nb_periods, percent=1)
 
 
 def q96():

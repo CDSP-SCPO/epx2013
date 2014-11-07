@@ -3,6 +3,7 @@
 #common functions used by init, get and write functions
 
 from django.db import models
+from act.models import Act, MinAttend
 from act_ids.models import ActIds
 from datetime import datetime
 
@@ -28,17 +29,38 @@ def get_years_list_zero():
 def get_months_list():
     return [str(n) for n in range(1, 13)]
 
+    
 
-def get_validated_acts(Model, filter_vars):
-    val="validated"
-    annee="releve_annee__lte"
-    if Model==ActIds:
-        filter_vars["src"]="index"
-        val="act__"+val
-        annee="act__"+annee
-    filter_vars[val]=2
+def get_validated_acts(Model, filter_vars_acts={}, filter_vars_acts_ids={}):
+    filter_vars={}
+    filter_vars_acts["validated"]=2
     #do not use validated acts of 2014
-    filter_vars[annee]= 2013
+    filter_vars_acts["releve_annee__lte"]= 2013
+    
+    #the filter will be on the Act model
+    if Model==Act:
+        filter_vars.update(filter_vars_acts)
+    #the filter will be on the ActIds/MinAttend model
+    else:
+        for key, value in filter_vars_acts.iteritems():
+            filter_vars["act__"+key]=value
+        filter_vars.update(filter_vars_acts_ids)
+        if Model==ActIds:
+            filter_vars["src"]="index"
+        elif Model==MinAttend:
+            filter_vars["act__validated_attendance"]=1
+    
+    return filter_vars
+
+
+def get_validated_acts_periods(Model, period, filter_vars):
+    gte="adopt_conseil__gte"
+    lte="adopt_conseil__lte"
+    if Model!=Act:
+        gte="act__"+gte
+        lte="act__"+lte
+    filter_vars[gte]=period[1]
+    filter_vars[lte]=period[2]
     return filter_vars
 
 
@@ -46,15 +68,15 @@ def str_to_date(string):
     return datetime.strptime(string, '%Y-%m-%d').date()
 
 
-def get_periodes():
-    periodes_list=("pré-élargissement (1/1/96 - 30/6/99)","pré-élargissement (1/7/99 - 30/04/04)","post-élargissement (1/5/04 - 31/1/09)","post-Lisbonne (1/2/09 - 31/12/12)","crise (15/9/08 - 31/12/12)")
-    nb_periodes=len(periodes_list)
-    periodes=[None]*nb_periodes
-    periodes[0]=(str_to_date("1996-1-1"), str_to_date("1999-6-30"))
-    periodes[1]=(str_to_date("1999-7-1"), str_to_date("2004-4-30"))
-    periodes[2]=(str_to_date("2004-5-1"), str_to_date("2009-1-31"))
-    periodes[3]=(str_to_date("2009-2-1"), str_to_date("2012-12-31"))
-    periodes[4]=(str_to_date("2008-09-15"), str_to_date("2012-12-31"))
+def get_periods():
+    periods=[]
+    periods.append(("pré-élargissement (1/1/96 - 30/6/99)", str_to_date("1996-1-1"), str_to_date("1999-6-30")))
+    periods.append(("pré-élargissement (1/7/99 - 30/04/04)", str_to_date("1999-7-1"), str_to_date("2004-4-30")))
+    periods.append(("post-élargissement (1/5/04 - 30/11/09)", str_to_date("2004-5-1"), str_to_date("2009-11-30")))
+    periods.append(("post-Lisbonne (1/12/09 - 31/12/13)", str_to_date("2009-12-1"), str_to_date("2013-12-31")))
+    periods.append(("crise (15/9/08 - 31/12/13)", str_to_date("2008-09-15"), str_to_date("2013-12-31")))
     # Post-Lisbonne : 01/02/2009 – 31/12/2013
     # Crise : 15-09_2008 (Faillite Lehman Brothers) -31/12/2013
-    return periodes
+    return periods
+
+

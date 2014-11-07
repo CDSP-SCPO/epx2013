@@ -4,7 +4,7 @@ from django.core.management.base import NoArgsCommand
 
 
 #import specific queries
-from query import acts, adopt_cs, duree, ep_amdt_vote, min_attend, modif_propos, nb_mots, no_unique_type, party_family, pers, point_b, type_acte, vote
+from query import acts, adopt_cs, duree, ep_amdt_vote, min_attend, modif_propos, nb_mots, no_unique_type, party_family, pers, point_b, type_acte, vote, country
 
 
 class Command(NoArgsCommand):
@@ -168,30 +168,32 @@ class Command(NoArgsCommand):
         #~ q69()
         #~ #Nombre de points B pour les actes avec un vote public, par année et par secteur
         #~ q70()
+
+
+        #2014-07-24 : Hausse de la bureaucratisation, Conflictualité
         
-        #pourcentages d propositions de la Commission adoptées par procédure écrite
-        #~ q71()
-        #pourcentage de textes adoptés en « points A » au Conseil
-        #~ q72()
-        #nombre de moyen de points B par texte
-        #~ q73()
-        #~ #pourcentage de textes adoptés en 1ère lecture au Parlement Européen
-        #~ q74()
-        #nombre moyen d’amendements déposés
-        #~ q75()
-        #% moyen de représentants permanents par acte
-        #~ q76()
+        #~ #pourcentages d propositions de la Commission adoptées par procédure écrite
+        #~ acts.q71()
+        #~ #pourcentage de textes adoptés en « points A » au Conseil
+        #~ acts.q72()
+        #~ #nombre de moyen de points B par texte
+        #~ point_b.q73()
+        #pourcentage de textes adoptés en 1ère lecture au Parlement Européen
+        #~ acts.q74()
+        #~ #nombre moyen d’amendements déposés
+        #~ ep_amdt_vote.q75()
+        #~ #% moyen de représentants permanents par acte
+        #~ min_attend.q76()
         #~ 
         #~ #% ages moyens de votes publics, vote contre, abstentions là où VMQ est possible
-        #~ q77()
-        #~ #durée moyenne par acte
-        #~ q78()
-        #~ #% d’actes adoptés en 2ème lecture
-        #~ q79()
-        #% d’actes avec au moins 1 point B
-        #~ q80()
-        #~ #% d’actes adoptés avec opposition de 2 ou 3 Etats ou plus par rapport au nombre total d’actes où VMQ aurait été possible
-        #~ q81()
+        #~ acts.q77()
+        #durée moyenne par acte
+        #~ duree.q78()
+        #% d’actes adoptés en 2ème lecture
+        #~ acts.q79()
+        #~ #% d’actes avec au moins 1 point B
+        #~ acts.q80()
+
 
         #Liste des actes avec leur titre pour la période 1996-2012 lorsque l’un des 4 codes sectoriels comprend le code suivant
         #~ q82()
@@ -232,21 +234,29 @@ class Command(NoArgsCommand):
 
 		#2014-10-31
 
-		
         #Pourcentage de points B, par année, par secteur, par année et par secteur
-        point_b.q95()
+        #~ point_b.q95()
         #~ 
         #~ #Durée DureeTotaleDepuisTransCons moyenne 1/pour tous les actes, 2/quand VotePublic=Y ou 3/quand VotePublic= N, par année, par secteur, par année et par secteur
-        duree.q96()
-        #~ 
-        #~ #1/Pourcentage de AdoptCSContre=Y, 2/Pourcentage de AdoptCSAbs=Y, par année, par secteur, par année et par secteur
-        adopt_cs.q97()
-        #~ 
-        #~ #Pourcentage d’actes adoptés avec NoUniqueType=COD 1/et NbLectures=1, 2/et NbLectures=2, par année, par secteur, par année et par secteur
-        no_unique_type.q98()
-        #~ 
-        #~ #1/Nombre d’EPComAmdtAdopt, 2/Nombre d’EPComAmdtTabled, 3/Nombre d’EPAmdtAdopt, 4/Nombre d’EPAmdtTabled, par année, par secteur, par année et par secteur
-        ep_amdt_vote.q99()
-        #~ 
-        #1/Moyenne EPVotesFor1, 2/Moyenne EPVotesFor2, 3/Moyenne EPVotesAgst1, 4/Moyenne EPVotesAgst2, 5/MoyenneEPVotesAbs1, 6/MoyenneEPVotesAbs2, par année, par secteur, par année et par secteur
-        ep_amdt_vote.q100()
+        #~ duree.q96()
+        
+        #1/Pourcentage de AdoptCSContre=Y, 2/Pourcentage de AdoptCSAbs=Y, par année, par secteur, par année et par secteur
+        #~ adopt_cs.q97()
+        
+        #Pourcentage d’actes adoptés avec NoUniqueType=COD 1/et NbLectures=1, 2/et NbLectures=2, par année, par secteur, par année et par secteur
+        #~ no_unique_type.q98()
+        
+        #1/Nombre d’EPComAmdtAdopt, 2/Nombre d’EPComAmdtTabled, 3/Nombre d’EPAmdtAdopt, 4/Nombre d’EPAmdtTabled, par année, par secteur, par année et par secteur
+        #~ ep_amdt_vote.q99()
+        
+        #~ #1/Moyenne EPVotesFor1, 2/Moyenne EPVotesFor2, 3/Moyenne EPVotesAgst1, 4/Moyenne EPVotesAgst2, 5/MoyenneEPVotesAbs1, 6/MoyenneEPVotesAbs2, par année, par secteur, par année et par secteur
+        #~ ep_amdt_vote.q100()
+
+
+		#2014-11-5
+
+		#Pourcentage des pays des RespPropos
+        #~ country.q101()
+        #Pourcentage des pays des Rapporteurs
+        #~ country.q102()
+		
