@@ -137,11 +137,11 @@ def concordance_annee(resp_group, rapp_group, percent=100, variable=1):
     res={}
     for year in years_list:
         res[year]=[0,0]
-        
+
     for act in Act.objects.filter(validated=2):
         if variable==1:
             res[year][1]+=1
-            
+
         year=str(act.releve_annee)
 
         #count any political family for the rapp1 and resp1 (different only)
@@ -166,7 +166,7 @@ def concordance_annee(resp_group, rapp_group, percent=100, variable=1):
                     resps.append(resp)
                 if rapp!=None:
                     rapps.append(rapp)
-            
+
             if (len(resps)>0) and (len(rapps)>0):
                 same=False
                 for resp in resps:
@@ -181,7 +181,7 @@ def concordance_annee(resp_group, rapp_group, percent=100, variable=1):
                                 res[year][1]+=1
                             same=True
                             break
-        
+
     print "res"
     print res
     #duree moyenne
@@ -208,7 +208,7 @@ def q24():
     #pourcentage des actes quand PartyFamilyResp1 OU PartyFamilyResp2='Conservative/Christian Democracy' ET GroupePolitiqueRapporteur1 OU GroupePolitiqueRapporteur2= 'Progressive Alliance of Socialists and Democrats' OU 'Party of European Socialists' OU 'Socialist Group in the European Parliament »
     concordance_annee("Conservative/Christian Democracy", [u"European People's Party (Christian Democrats)", u"EPP - European People's Party (Christian Democrats)", u"European People's Party (Christian Democrats) and European Democrats"])
 
-    
+
 def q28():
     #durée moyenne d’adoption par secteur, en fonction de l'année
     question="DureeTotaleDepuisPropCom moyenne par secteur, en fonction de l'année"
@@ -233,7 +233,7 @@ def q36():
     question="DureeTotaleDepuisPropCom lorsque VotePublic=Y par secteur et par année"
     print question
     res=init_cs_year()
-    
+
     for act in Act.objects.filter(validated=2, vote_public=True, duree_tot_depuis_prop_com__isnull=False):
         for nb in range(1,5):
             code_sect=getattr(act, "code_sect_"+str(nb))
@@ -259,13 +259,13 @@ def q48():
             year=str(act.releve_annee)
             res[year][0]+=act.duree_tot_depuis_trans_cons
             res[year][1]+=1
-        
+
     print "res", res
 
     writer.writerow([question])
     writer.writerow(years_list)
     row=[]
-    for year in years_list:    
+    for year in years_list:
         if res[year][0]==0:
             res_year=0
         else:
@@ -274,7 +274,7 @@ def q48():
     writer.writerow(row)
     writer.writerow("")
     print ""
-    
+
 
 def q49():
     question="DureeTotaleDepuisTransCons moyenne pour les actes avec au moins une discussion en point B, par secteur"
@@ -291,13 +291,13 @@ def q49():
                     cs=get_cs(code_sect.code_sect)
                     res[cs][0]+=act.duree_tot_depuis_trans_cons
                     res[cs][1]+=1
-        
+
     print "res", res
 
     writer.writerow([question])
     writer.writerow(cs_list)
     row=[]
-    for cs in cs_list:    
+    for cs in cs_list:
         if res[cs][0]==0:
             res_cs=0
         else:
@@ -322,11 +322,11 @@ def q50():
                     year=str(act.releve_annee)
                     res[cs][year][0]+=act.duree_tot_depuis_trans_cons
                     res[cs][year][1]+=1
-        
+
     print "res", res
 
     write_cs_year(question, res)
-    
+
 
     question="DureeTotaleDepuisTransCons moyenne pour les actes avec au moins une discussion en point B, par année"
     print question
@@ -339,13 +339,13 @@ def q50():
             year=str(act.releve_annee)
             res[year][0]+=act.duree_tot_depuis_trans_cons
             res[year][1]+=1
-        
+
     print "res", res
 
     writer.writerow([question])
     writer.writerow(years_list)
     row=[]
-    for year in years_list:    
+    for year in years_list:
         if res[year][0]==0:
             res_year=0
         else:
@@ -368,13 +368,13 @@ def q51(adopt_cs_regle_vote):
             year=str(act.releve_annee)
             res[year][0]+=act.duree_tot_depuis_trans_cons
             res[year][1]+=1
-        
+
     print "res", res
 
     writer.writerow([question])
     writer.writerow(years_list)
     row=[]
-    for year in years_list:    
+    for year in years_list:
         if res[year][0]==0:
             res_year=0
         else:
@@ -383,7 +383,7 @@ def q51(adopt_cs_regle_vote):
     writer.writerow(row)
     writer.writerow("")
     print ""
-    
+
 
 def q52(adopt_cs_regle_vote):
     question="DureeTotaleDepuisTransCons moyenne lorsque AdoptCSRegleVote="+adopt_cs_regle_vote+", par secteur"
@@ -400,13 +400,13 @@ def q52(adopt_cs_regle_vote):
                     cs=get_cs(code_sect.code_sect)
                     res[cs][0]+=act.duree_tot_depuis_trans_cons
                     res[cs][1]+=1
-        
+
     print "res", res
 
     writer.writerow([question])
     writer.writerow(cs_list)
     row=[]
-    for cs in cs_list:    
+    for cs in cs_list:
         if res[cs][0]==0:
             res_cs=0
         else:
@@ -431,7 +431,7 @@ def q53(adopt_cs_regle_vote):
                     year=str(act.releve_annee)
                     res[cs][year][0]+=act.duree_tot_depuis_trans_cons
                     res[cs][year][1]+=1
-        
+
     print "res", res
 
     write_cs_year(question, res)
@@ -465,47 +465,55 @@ def q59(cs, name):
             res_bj[0]+=act.duree_tot_depuis_prop_com
             res_bj[1]+=1
             ok+=1
-        
+
         #DureeTotDepuisPropCom moyenne pour les actes avec plusieurs bases juridiques et un code sectoriel Marché intérieur
         if ok==2:
             res_cs_bj[0]+=act.duree_tot_depuis_prop_com
             res_cs_bj[1]+=1
-        
-    
+
+
     writer.writerow([question])
 
     #DureeTotDepuisPropCom moyenne pour les actes avec un code sectoriel Marché intérieur
     if res_cs[0]==0:
         temp=0
     else:
-        temp=round(float(res_cs[0])/res_cs[1], 3) 
+        temp=round(float(res_cs[0])/res_cs[1], 3)
     writer.writerow(["DureeTotDepuisPropCom moyenne pour les actes avec un code sectoriel "+name, temp])
-    
+
     #DureeTotDepuisPropCom moyenne pour les actes avec plusieurs bases juridiques
     if res_cs[0]==0:
         temp=0
     else:
-        temp=round(float(res_bj[0])/res_bj[1], 3) 
+        temp=round(float(res_bj[0])/res_bj[1], 3)
     writer.writerow(["DureeTotDepuisPropCom moyenne pour les actes avec plusieurs bases juridiques", temp])
-    
+
     #DureeTotDepuisPropCom moyenne pour les actes avec plusieurs bases juridiques et un code sectoriel Marché intérieur
     if res_cs[0]==0:
         temp=0
     else:
-        temp=round(float(res_cs_bj[0])/res_cs_bj[1], 3) 
+        temp=round(float(res_cs_bj[0])/res_cs_bj[1], 3)
     writer.writerow(["DureeTotDepuisPropCom moyenne pour les actes avec plusieurs bases juridiques et un code sectoriel "+name, temp])
-    
-        
+
+
     writer.writerow("")
     print ""
 
 
-def q78():
+def q78(cs=None):
     question="Durée moyenne par acte"
     Model=Act
     filter_vars_acts={"duree_tot_depuis_prop_com__isnull": False}
     periods, nb_periods, res, filter_vars, filter_total=init_periods(Model, filter_vars_acts=filter_vars_acts)
-    res=get_by_period(periods, nb_periods, res, Model, filter_vars, filter_total, avg_variable="duree_tot_depuis_prop_com")
+
+    #filter by specific cs
+    if cs is not None:
+        question+=" (code sectoriel: "+cs[1]+")"
+        list_acts_cs=get_list_acts_cs(cs[0], Model=Model)
+        res=get_by_period_cs(list_acts_cs, periods, nb_periods, res, Model, filter_vars, filter_total, avg_variable="duree_tot_depuis_prop_com")
+    else:
+        res=get_by_period(periods, nb_periods, res, Model, filter_vars, filter_total, avg_variable="duree_tot_depuis_prop_com")
+
     write_periods(question, res, periods, nb_periods, percent=1)
 
 
@@ -519,7 +527,7 @@ def q96():
         #if not first query (for all the acts), then filter by vote_public
         if type(value) is not str:
             filter_vars[value[0]]=value[1]
-        
+
         question="Durée DureeTotaleDepuisTransCons moyenne"+key+" par secteur"
         print question
         res=init_cs()
@@ -539,4 +547,4 @@ def q96():
         write_cs_year(question, res, percent=1)
 
 
-    
+

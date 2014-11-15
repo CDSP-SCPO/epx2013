@@ -92,6 +92,7 @@ class ImportMinAttend(models.Model):
 
     #joined primary keys
     class Meta:
+        #use the sql command below if the joined unique index did not work (due to limitation on the length of the fields)
         #ALTER TABLE `europolix`.`import_app_importminattend` ADD INDEX (no_celex, country, verbatim(255));
         unique_together=(("no_celex", "country", "verbatim"), )
 

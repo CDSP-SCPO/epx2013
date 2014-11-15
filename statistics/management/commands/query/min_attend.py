@@ -27,7 +27,7 @@ def q22():
             res[statuses[status]][year]=0
     for year in years_list:
         total_year[year]=0
-  
+
     for act in MinAttend.objects.filter(act__validated=2):
         status=Status.objects.get(verbatim=act.verbatim, country=act.country).status
         if status not in ["NA", "AB"]:
@@ -53,7 +53,7 @@ def q22():
     writer.writerow("")
     print ""
 
-    
+
 
 def q38():
     question="pourcentage de ministres presents (M) et de RP (CS ou CS_PR) selon le pays et l'année (premier chiffre : pourcentage de M  par rapport au pays et à l'année ; deuxième chiffre : pourcentage de CS ou CS_PR par rapport au pays et à l'année)"
@@ -100,9 +100,17 @@ def q38():
     print ""
 
 
-def q76():
+def q76(cs=None):
     question="Pourcentage moyen de représentants permanents par acte"
     Model=MinAttend
     periods, nb_periods, res, filter_vars, filter_total=init_periods(Model)
-    res=get_by_period(periods, nb_periods, res, Model, filter_vars, filter_total)
+
+    #filter by specific cs
+    if cs is not None:
+        question+=" (code sectoriel: "+cs[1]+")"
+        list_acts_cs=get_list_acts_cs(cs[0], Model=Model)
+        res=get_by_period_cs(list_acts_cs, periods, nb_periods, res, Model, filter_vars, filter_total)
+    else:
+        res=get_by_period(periods, nb_periods, res, Model, filter_vars, filter_total)
+
     write_periods(question, res, periods, nb_periods)

@@ -94,11 +94,11 @@ class Command(NoArgsCommand):
         #~ q39()
         #~ #Concordance PartyFamilyResp et GroupePolitiqueRapporteur (Conservative/Christian Democracy): Pourcentage par année et par secteur
         #~ q40()
-        #~ 
-        
+        #~
+
         #période 2010-2012 : %age d’actes ayant fait l’objet d’ interventions des parlements nationaux
         #~ q43()
-        
+
         #~ #pourcentage AdoptCSContre=Y (parmi les actes AdoptCSRegleVote=U du même secteur et de la même année) par secteur et par année
         #~ q44()
         #pourcentage 1/2/3 EM (parmi les actes AdoptCSContre=Y et AdoptCSRegleVote=U du même secteur et de la même année) par secteur et par année
@@ -111,14 +111,14 @@ class Command(NoArgsCommand):
         #~ q47(1)
         #~ q47(2)
         #~ q47(3)
-        
+
         #DureeTotaleDepuisTransCons moyenne pour actes avec au moins une discussion en point B par année
         #~ q48()
         #DureeTotaleDepuisTransCons moyenne pour actes avec au moins une discussion en point B par secteur
         #~ q49()
         #~ #DureeTotaleDepuisTransCons moyenne pour les actes avec au moins une discussion en point B, par secteur et par année
         #~ q50()
-       #DureeTotaleDepuisTransCons moyenne lorsque AdoptCSRegleVote=U par année  
+       #DureeTotaleDepuisTransCons moyenne lorsque AdoptCSRegleVote=U par année
         #~ q51("U")
         #~ q51("V")
         #~ #DureeTotaleDepuisTransCons moyenne lorsque AdoptCSRegleVote=U par secteur
@@ -127,14 +127,14 @@ class Command(NoArgsCommand):
         #DureeTotaleDepuisTransCons moyenne lorsque AdoptCSRegleVote=U, par secteur et par année
         #~ q53("U")
         #~ q53("V")
-        
+
         #Nombre de mots moyen des textes des actes, par année
         #~ q54()
         #~ #Nombre de mots moyen des textes des actes, par secteur
         #~ q55()
         #~ #Nombre de mots moyen des textes des actes, par secteur et par année
         #~ q56()
-        
+
         #pourcentage d'actes avec plusieurs bases juridiques dans la production législative, par année
         #~ q57()
         #~ q57("13", "Marché intérieur")
@@ -148,14 +148,14 @@ class Command(NoArgsCommand):
         #~ q61()
         #~ #Pourcentages d'actes adoptés en 1ère lecture en fonction du nombre de base juridiques et du code sectoriel
         #~ q62("13", "Marché intérieur")
-        
+
         #Nombre de mots moyen suivant le type de l'acte, par année
         #~ q63()
         #~ q63_bis()
         #~ #Nombre de mots moyen suivant le NoUniqueType, par année
         #~ q64()
         #~ q64_bis()
-       
+
         #Nombre de points B par année
         #~ q65()
         #Nombre de points B par secteur
@@ -171,8 +171,8 @@ class Command(NoArgsCommand):
 
 
         #2014-07-24 : Hausse de la bureaucratisation, Conflictualité
-        
-        #~ #pourcentages d propositions de la Commission adoptées par procédure écrite
+
+        #pourcentages de propositions de la Commission adoptées par procédure écrite
         #~ acts.q71()
         #~ #pourcentage de textes adoptés en « points A » au Conseil
         #~ acts.q72()
@@ -184,7 +184,6 @@ class Command(NoArgsCommand):
         #~ ep_amdt_vote.q75()
         #~ #% moyen de représentants permanents par acte
         #~ min_attend.q76()
-        #~ 
         #~ #% ages moyens de votes publics, vote contre, abstentions là où VMQ est possible
         #~ acts.q77()
         #durée moyenne par acte
@@ -199,7 +198,7 @@ class Command(NoArgsCommand):
         #~ q82()
         #~ #Nb de mots x Nb d’actes par année, pour les secteurs
         #~ q83()
-        #~ 
+        #~
         #Pourcentage de textes lorsque PartyFamilyRapporteurPE1 DIFFERENTE de PartyFamilyRespPropos1
         #~ q84_cs()
         #~ q84_year()
@@ -207,16 +206,16 @@ class Command(NoArgsCommand):
 
         #Nombre de CS DVE+DVE, pour certains secteurs, par année
         #~ q85()
-#~ 
+#~
         #~ #Nombre de CS REG+REG, pour certains secteurs, par année
         #~ q86()
-#~ 
+#~
         #~ #Nombre de CS DEC+DEC+CS DEC W/O ADD, pour certains secteurs, par année
         #~ q87()
 
         #1/pourcentage AdoptCSContre=Y (parmi les actes AdoptCSRegleVote=V) 2/pourcentage AdoptCSAbs=Y (parmi les actes AdoptCSRegleVote=U), par secteur, par annee, par secteur et par annee
         #~ q88()
-#~ 
+#~
         #~ #Nombre de textes x Nombre de mots Pour l’année 2009 uniquement par mois
         #~ q90_mois()
         #~ q90_mois_nut()
@@ -232,31 +231,58 @@ class Command(NoArgsCommand):
         #~ q94()
 
 
-		#2014-10-31
+        #2014-10-31
 
         #Pourcentage de points B, par année, par secteur, par année et par secteur
         #~ point_b.q95()
-        #~ 
+        #~
         #~ #Durée DureeTotaleDepuisTransCons moyenne 1/pour tous les actes, 2/quand VotePublic=Y ou 3/quand VotePublic= N, par année, par secteur, par année et par secteur
         #~ duree.q96()
-        
+
         #1/Pourcentage de AdoptCSContre=Y, 2/Pourcentage de AdoptCSAbs=Y, par année, par secteur, par année et par secteur
         #~ adopt_cs.q97()
-        
+
         #Pourcentage d’actes adoptés avec NoUniqueType=COD 1/et NbLectures=1, 2/et NbLectures=2, par année, par secteur, par année et par secteur
         #~ no_unique_type.q98()
-        
+
         #1/Nombre d’EPComAmdtAdopt, 2/Nombre d’EPComAmdtTabled, 3/Nombre d’EPAmdtAdopt, 4/Nombre d’EPAmdtTabled, par année, par secteur, par année et par secteur
         #~ ep_amdt_vote.q99()
-        
-        #~ #1/Moyenne EPVotesFor1, 2/Moyenne EPVotesFor2, 3/Moyenne EPVotesAgst1, 4/Moyenne EPVotesAgst2, 5/MoyenneEPVotesAbs1, 6/MoyenneEPVotesAbs2, par année, par secteur, par année et par secteur
+
+        #~ #1/Moyenne EPVotesFor1-2, 3/Moyenne EPVotesAgst1-2, 5/MoyenneEPVotesAbs1-2, par année, par secteur, par année et par secteur
         #~ ep_amdt_vote.q100()
 
 
-		#2014-11-5
+        #2014-11-5
 
-		#Pourcentage des pays des RespPropos
+        #Pourcentage des pays des RespPropos
         #~ country.q101()
         #Pourcentage des pays des Rapporteurs
         #~ country.q102()
-		
+
+
+        #2014-11-12 : Hausse de la bureaucratisation, Conflictualité pour le secteur Économie
+
+        cs=[10, "Économie"]
+        #pourcentages de propositions de la Commission adoptées par procédure écrite
+        #~ acts.q71(cs=cs)
+        #pourcentage de textes adoptés en « points A » au Conseil
+        #~ acts.q72(cs=cs)
+        #nombre de moyen de points B par texte
+        #~ point_b.q73(cs=cs)
+        #~ #pourcentage de textes adoptés en 1ère lecture au Parlement Européen
+        #~ acts.q74(cs=cs)
+        #nombre moyen d’amendements déposés
+        #~ ep_amdt_vote.q75(cs=cs)
+        #% moyen de représentants permanents par acte
+        #~ min_attend.q76(cs=cs)
+        #% ages moyens de votes publics, vote contre, abstentions là où VMQ est possible
+        acts.q77(cs=cs)
+        #~ #durée moyenne par acte
+        #~ duree.q78(cs=cs)
+        #~ #% d’actes adoptés en 2ème lecture
+        #~ acts.q79(cs=cs)
+        #% d’actes avec au moins 1 point B
+        #~ acts.q80(cs=cs)
+        #~ #1/Moyenne EPVotesFor1-2, 3/Moyenne EPVotesAgst1-2, 5/MoyenneEPVotesAbs1-2
+        #~ ep_amdt_vote.q100_periods(cs=cs)
+
