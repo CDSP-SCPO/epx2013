@@ -294,7 +294,7 @@ def write_percent_pers_cs_year(question, res, pers_type, var="Party Family"):
     print ""
 
 
-def write_periods(question, res, periods, nb_periods, percent=100, res_2=None):
+def write_periods(question, res, periods, nb_periods, percent=100, res_2=None, nb=False):
     print question
     print "res:", res
     writer.writerow([question])
@@ -308,7 +308,10 @@ def write_periods(question, res, periods, nb_periods, percent=100, res_2=None):
     for index in range(nb_periods):
         if res[index][0]==0:
             temp=0
-        elif res_2==None:
+        #no percentage, display the number of occurences only
+        elif nb:
+            temp=res[index][0]
+        elif res_2 is None:
             temp=round(float(res[index][0])*percent/res[index][1], 3)
         else:
             #average votes_for_1 + votes_for_2

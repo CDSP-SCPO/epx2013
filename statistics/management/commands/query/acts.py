@@ -267,7 +267,7 @@ def q71(cs=None):
 
     #filter by specific cs
     if cs is not None:
-        question+=" (code sectoriel: "+cs[1]+")"
+        question+=" (code sectoriel : "+cs[1]+")"
         list_acts_cs=get_list_acts_cs(cs[0], Model=Model)
         res=get_by_period_cs(list_acts_cs, periods, nb_periods, res, Model, filter_vars, filter_total)
     else:
@@ -284,7 +284,7 @@ def q72(cs=None):
 
     #filter by specific cs
     if cs is not None:
-        question+=" (code sectoriel: "+cs[1]+")"
+        question+=" (code sectoriel : "+cs[1]+")"
         list_acts_cs=get_list_acts_cs(cs[0], Model=Model)
         res=get_by_period_cs(list_acts_cs, periods, nb_periods, res, Model, filter_vars, filter_total)
     else:
@@ -303,7 +303,7 @@ def q74(cs=None):
 
     #filter by specific cs
     if cs is not None:
-        question+=" (code sectoriel: "+cs[1]+")"
+        question+=" (code sectoriel : "+cs[1]+")"
         list_acts_cs=get_list_acts_cs(cs[0], Model=Model)
         res=get_by_period_cs(list_acts_cs, periods, nb_periods, res, Model, filter_vars, filter_total)
     else:
@@ -326,7 +326,7 @@ def q77(cs=None):
     periods, nb_periods, res, filter_vars, filter_total=init_periods(Model, filter_vars_acts=filter_var_acts_vote, filter_total_acts=filter_total_acts)
     #filter by specific cs
     if cs is not None:
-        question+=" (code sectoriel: "+cs[1]+")"
+        question+=" (code sectoriel : "+cs[1]+")"
         res=get_by_period_cs(list_acts_cs, periods, nb_periods, res, Model, filter_vars, filter_total)
     else:
         res=get_by_period(periods, nb_periods, res, Model, filter_vars, filter_total)
@@ -336,7 +336,7 @@ def q77(cs=None):
     periods, nb_periods, res, filter_vars, filter_total=init_periods(Model, filter_vars_acts=filter_vars_acts, filter_total_acts=filter_total_acts)
     #filter by specific cs
     if cs is not None:
-        question+=" (code sectoriel: "+cs[1]+")"
+        question+=" (code sectoriel : "+cs[1]+")"
         res=get_by_period_cs(list_acts_cs, periods, nb_periods, res, Model, filter_vars, filter_total, adopt_cs={"nb_countries": 1})
     else:
         res=get_by_period(periods, nb_periods, res, Model, filter_vars, filter_total, adopt_cs={"nb_countries": 1})
@@ -346,7 +346,7 @@ def q77(cs=None):
     periods, nb_periods, res, filter_vars, filter_total=init_periods(Model, filter_vars_acts=filter_vars_acts, filter_total_acts=filter_total_acts)
     #filter by specific cs
     if cs is not None:
-        question+=" (code sectoriel: "+cs[1]+")"
+        question+=" (code sectoriel : "+cs[1]+")"
         res=get_by_period_cs(list_acts_cs, periods, nb_periods, res, Model, filter_vars, filter_total, adopt_cs={"nb_countries__gte": 2})
     else:
         res=get_by_period(periods, nb_periods, res, Model, filter_vars, filter_total, adopt_cs={"nb_countries__gte": 2})
@@ -356,7 +356,7 @@ def q77(cs=None):
     periods, nb_periods, res, filter_vars, filter_total=init_periods(Model, filter_vars_acts=filter_vars_acts, filter_total_acts=filter_total_acts)
     #filter by specific cs
     if cs is not None:
-        question+=" (code sectoriel: "+cs[1]+")"
+        question+=" (code sectoriel : "+cs[1]+")"
         res=get_by_period_cs(list_acts_cs, periods, nb_periods, res, Model, filter_vars, filter_total, exclude_vars={"adopt_cs_abs": None})
     else:
         res=get_by_period(periods, nb_periods, res, Model, filter_vars, filter_total, exclude_vars={"adopt_cs_abs": None})
@@ -373,7 +373,7 @@ def q79(cs=None):
 
     #filter by specific cs
     if cs is not None:
-        question+=" (code sectoriel: "+cs[1]+")"
+        question+=" (code sectoriel : "+cs[1]+")"
         list_acts_cs=get_list_acts_cs(cs[0], Model=Model)
         res=get_by_period_cs(list_acts_cs, periods, nb_periods, res, Model, filter_vars, filter_total)
     else:
@@ -390,7 +390,7 @@ def q80(cs=None):
 
     #filter by specific cs
     if cs is not None:
-        question+=" (code sectoriel: "+cs[1]+")"
+        question+=" (code sectoriel : "+cs[1]+")"
         list_acts_cs=get_list_acts_cs(cs[0], Model=Model)
         res=get_by_period_cs(list_acts_cs, periods, nb_periods, res, Model, filter_vars, filter_total)
     else:

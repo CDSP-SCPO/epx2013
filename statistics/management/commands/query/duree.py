@@ -508,7 +508,7 @@ def q78(cs=None):
 
     #filter by specific cs
     if cs is not None:
-        question+=" (code sectoriel: "+cs[1]+")"
+        question+=" (code sectoriel : "+cs[1]+")"
         list_acts_cs=get_list_acts_cs(cs[0], Model=Model)
         res=get_by_period_cs(list_acts_cs, periods, nb_periods, res, Model, filter_vars, filter_total, avg_variable="duree_tot_depuis_prop_com")
     else:

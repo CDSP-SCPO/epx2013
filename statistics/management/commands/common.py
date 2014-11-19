@@ -77,7 +77,7 @@ def get_periods():
     periods.append(("pré-élargissement (1/1/96 - 30/6/99)", str_to_date("1996-1-1"), str_to_date("1999-6-30")))
     periods.append(("pré-élargissement (1/7/99 - 30/04/04)", str_to_date("1999-7-1"), str_to_date("2004-4-30")))
     periods.append(("post-élargissement (1/5/04 - 30/11/09)", str_to_date("2004-5-1"), str_to_date("2009-11-30")))
-    #~ periods.append(("post-Lisbonne (1/12/09 - 31/12/13)", str_to_date("2009-12-1"), str_to_date("2013-12-31")))
+    periods.append(("post-Lisbonne (1/12/09 - 31/12/13)", str_to_date("2009-12-1"), str_to_date("2013-12-31")))
     periods.append(("crise (15/9/08 - 31/12/13)", str_to_date("2008-09-15"), str_to_date("2013-12-31")))
     # Crise : 15-09_2008 (Faillite Lehman Brothers) -31/12/2013
     return periods

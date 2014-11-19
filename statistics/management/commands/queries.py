@@ -262,7 +262,7 @@ class Command(NoArgsCommand):
 
         #2014-11-12 : Hausse de la bureaucratisation, Conflictualité pour le secteur Économie
 
-        cs=[10, "Économie"]
+        #~ cs=[10, "Économie"]
         #pourcentages de propositions de la Commission adoptées par procédure écrite
         #~ acts.q71(cs=cs)
         #pourcentage de textes adoptés en « points A » au Conseil
@@ -276,13 +276,23 @@ class Command(NoArgsCommand):
         #% moyen de représentants permanents par acte
         #~ min_attend.q76(cs=cs)
         #% ages moyens de votes publics, vote contre, abstentions là où VMQ est possible
-        acts.q77(cs=cs)
+        #~ acts.q77(cs=cs)
         #~ #durée moyenne par acte
         #~ duree.q78(cs=cs)
         #~ #% d’actes adoptés en 2ème lecture
         #~ acts.q79(cs=cs)
         #% d’actes avec au moins 1 point B
         #~ acts.q80(cs=cs)
-        #~ #1/Moyenne EPVotesFor1-2, 3/Moyenne EPVotesAgst1-2, 5/MoyenneEPVotesAbs1-2
+        #~ #1/Moyenne EPVotesFor1-2, 2/Moyenne EPVotesAgst1-2, 3/MoyenneEPVotesAbs1-2
         #~ ep_amdt_vote.q100_periods(cs=cs)
+
+
+        # 2014-11-17
+        #nombre d actes adoptés sans point B, par période
+        #~ point_b.q103()
+
+
+        #2014-11-18
+        #1/Moyenne EPVotesFor1-2, 2/Moyenne EPVotesAgst1-2, 3/MoyenneEPVotesAbs1-2
+        ep_amdt_vote.q100_periods()
 

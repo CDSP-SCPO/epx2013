@@ -287,6 +287,29 @@ def get_by_period(periods, nb_periods, res, Model, filter_vars, filter_total, ex
     return res
 
 
+def get_list_acts_cs(cs, Model=Act):
+    acts=[]
+    #get validated acts only
+    filter_vars=get_validated_acts(Model)
+
+    #~ #get all the acts that match the cs in parameter (each act can be counted up to 4 times, one for each matching cs)
+    for act in Model.objects.filter(**filter_vars):
+        act_act=get_act(Model, act)
+        #loop over each cs
+        for nb in range(1,nb_cs+1):
+            code_sect=getattr(act_act, "code_sect_"+str(nb))
+            if code_sect is not None:
+                cs_filter=get_cs(code_sect.code_sect, min_cs=cs, max_cs=cs)
+                #if the cs corresponds to the cs in parameter
+                if cs_filter is not None:
+                    acts.append(act)
+            else:
+                #if one cs is null, all the following are null too
+                break
+
+    return acts
+
+
 def filter_exclude_list(list_acts, filter_vars={}, exclude_vars={}):
     list_acts_new=[]
     for act in list_acts:
@@ -309,9 +332,15 @@ def filter_exclude_list(list_acts, filter_vars={}, exclude_vars={}):
                 if getattr(instance, key[:-5])>value:
                     ok=False
                     break
-            #"com_amdt_tabled__isnull": False
+
             elif key[-8:]=="__isnull":
-                if getattr(instance, key[:-8]) is None:
+                var=getattr(instance, key[:-8])
+                #"com_amdt_tabled__isnull": False
+                if not value and var is None:
+                    ok=False
+                    break
+                #"nb_point_b__isnull": True
+                elif value and var is not None:
                     ok=False
                     break
             #equal to: "nb_point_a": 1
@@ -358,7 +387,7 @@ def get_by_period_cs(list_acts, periods, nb_periods, res, Model, filter_vars, fi
                     key, value = adopt_cs.items()[0]
                     for act in list_acts_new:
                         nb_countries=len(act.adopt_cs_contre.all())
-                        #"nb_countries": 1 or #"nb_countries__gte": 2
+                        #"nb_countries": 1 or "nb_countries__gte": 2
                         if (key=="nb_countries" and nb_countries==value) or (key=="nb_countries__gte" and nb_countries>=value):
                             res[index][0]+=1
                 else:
@@ -372,35 +401,3 @@ def get_by_period_cs(list_acts, periods, nb_periods, res, Model, filter_vars, fi
                     res[index][0]+=getattr(act, avg_variable)
                     res[index][1]+=1
     return res
-
-
-
-def get_list_acts_cs(cs, Model=Act):
-    acts=[]
-    #get validated acts only
-    filter_vars=get_validated_acts(Model)
-
-    #~ #get all the acts that match the cs in parameter (each act can be counted up to 4 times, one for each matching cs)
-    for act in Model.objects.filter(**filter_vars):
-        act_act=get_act(Model, act)
-        #loop over each cs
-        for nb in range(1,nb_cs+1):
-            code_sect=getattr(act_act, "code_sect_"+str(nb))
-            if code_sect is not None:
-                cs_filter=get_cs(code_sect.code_sect, min_cs=cs, max_cs=cs)
-                #if the cs corresponds to the cs in parameter
-                if cs_filter is not None:
-                    acts.append(act)
-            else:
-                #if one cs is null, all the following are null too
-                break
-#~
-    print 'acts'
-    for act in acts:
-        act_act=act
-        if Model!=Act:
-            act_act=act.act
-        print act_act
-    print ""
-
-    return acts

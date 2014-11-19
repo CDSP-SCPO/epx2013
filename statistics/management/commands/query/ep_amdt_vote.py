@@ -70,7 +70,7 @@ def q75(cs=None):
 
         #filter by specific cs
         if cs is not None:
-            question+=" (code sectoriel: "+cs[1]+")"
+            question+=" (code sectoriel : "+cs[1]+")"
             res=get_by_period_cs(list_acts_cs, periods, nb_periods, res, Model, filter_vars, filter_total, avg_variable=var)
         else:
             res=get_by_period(periods, nb_periods, res, Model, filter_vars, filter_total, avg_variable=var)
@@ -139,25 +139,31 @@ def q100():
 
 
 def q100_periods(cs=None):
-    #1/Moyenne EPVotesFor1-2, 3/Moyenne EPVotesAgst1-2, 5/Moyenne EPVotesAbs1-2, suivant différentes périodes
+    #1/Moyenne EPVotesFor1-2, 2/Moyenne EPVotesAgst1-2, 3/Moyenne EPVotesAbs1-2, suivant différentes périodes
     variables={"votes_for_": "EPVotesFor", "votes_agst_": "EPVotesAgst", "votes_abs_": "EPVotesAbs"}
     res_vars={}
     nb=2
     Model=Act
-    list_acts_cs=get_list_acts_cs(cs[0], Model=Model)
+    if cs is not None:
+        list_acts_cs=get_list_acts_cs(cs[0], Model=Model)
 
     for key, value in variables.iteritems():
+        question="Nombre moyen de "+value+"1-2"
         filter_vars_acts={key+"1__isnull": False, key+"2__isnull": False}
         periods, nb_periods, res, filter_vars, filter_total=init_periods(Model, filter_vars_acts=filter_vars_acts)
 
         #filter by specific cs
         if cs is not None:
-            question="Nombre moyen de "+value+"1-2 (code sectoriel: "+cs[1]+")"
+            question+=" (code sectoriel : "+cs[1]+")"
 
-            for index in range(1, nb+1):
-                i=str(index)
-                res_vars["res_"+i]=list(res)
+        for index in range(1, nb+1):
+            i=str(index)
+            res_vars["res_"+i]=list(res)
+
+            if cs is not None:
                 res_vars["res_"+i]=get_by_period_cs(list_acts_cs, periods, nb_periods, res_vars["res_"+i], Model, filter_vars, filter_total, avg_variable=key+i)
+            else:
+                res_vars["res_"+i]=get_by_period(periods, nb_periods, res_vars["res_"+i], Model, filter_vars, filter_total, avg_variable=key+i)
 
-            write_periods(question, res_vars["res_1"], periods, nb_periods, percent=1, res_2=res_vars["res_2"])
+        write_periods(question, res_vars["res_1"], periods, nb_periods, percent=1, res_2=res_vars["res_2"])
 

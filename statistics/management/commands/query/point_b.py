@@ -73,7 +73,7 @@ def q73(cs=None):
 
     #filter by specific cs
     if cs is not None:
-        question+=" (code sectoriel: "+cs[1]+")"
+        question+=" (code sectoriel : "+cs[1]+")"
         list_acts_cs=get_list_acts_cs(cs[0], Model=Model)
         res=get_by_period_cs(list_acts_cs, periods, nb_periods, res, Model, filter_vars, filter_total, avg_variable="nb_point_b")
     else:
@@ -111,3 +111,13 @@ def q95():
     res_1=get_by_cs_year(res_1, count=False, variable="nb_point_b", filter_vars=filter_vars_b)
     res_2=get_by_cs_year(res_2, count=False, variable="nb_point_a", filter_vars=filter_vars_a)
     write_cs_year(question, res_1, res_2=res_2, count=False, query="pt_b_a")
+
+
+def q103():
+    question="Nombre d'actes adoptés sans point B (la variable NbPointB est vide ou égale à zéro)"
+    Model=Act
+    #nb_point_b=None or nb_point_b=0
+    exclude_vars_acts={"nb_point_b__gte": 1}
+    periods, nb_periods, res, filter_vars, filter_total=init_periods(Model)
+    res=get_by_period(periods, nb_periods, res, Model, filter_vars, filter_total, exclude_vars=exclude_vars_acts)
+    write_periods(question, res, periods, nb_periods, nb=True)
