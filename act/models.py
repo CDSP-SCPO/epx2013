@@ -4,6 +4,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 import var_name_data
 
 
+
 class Country(models.Model):
     """
     MODEL
@@ -14,7 +15,6 @@ class Country(models.Model):
 
     def __unicode__(self):
         return u"%s" % self.country
-
 
 
 class Party(models.Model):
@@ -280,7 +280,6 @@ class Verbatim(models.Model):
         return u"%s" % self.verbatim
 
 
-
 class Status(models.Model):
     """
     MODEL
@@ -297,7 +296,6 @@ class Status(models.Model):
         unique_together=(("verbatim", "country"), )
 
 
-
 class MinAttend(models.Model):
     """
     MODEL
@@ -306,9 +304,9 @@ class MinAttend(models.Model):
     act = models.ForeignKey(Act)
     country = models.ForeignKey(Country)
     verbatim = models.ForeignKey(Verbatim)
-#~ #~
+
     def __unicode__(self):
         return u"%s" % self.verbatim
-#~ #~
+
     class Meta:
         unique_together=(("act", "country", "verbatim"), )

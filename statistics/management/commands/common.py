@@ -22,8 +22,8 @@ def get_years_list():
  return [str(n) for n in range(1996, 2014)]
 
 
-def get_years_list_zero():
-    years_list_zero=list(get_years_list())
+def get_years_list_zero(years_list):
+    years_list_zero=list(years_list)
     years_list_zero.insert(0, "")
     return years_list_zero
 
@@ -83,7 +83,13 @@ def get_periods():
     return periods
 
 
+
+
 ### VARIABLES ###
+cs_list=get_cs_list()
+years_list=get_years_list()
+years_list_zero=get_years_list_zero(years_list)
+months_list=get_months_list()
 periods=get_periods()
 nb_periods=len(periods)
 

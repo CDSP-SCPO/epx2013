@@ -3,29 +3,29 @@
 /* textarea */
 #id_notes
 {
-	width: 35%;
-	height: 160px;
+    width: 35%;
+    height: 160px;
 
 }
 
 /* button */
 #save_act
 {
-	margin-left: 1%;
-	padding: 12px;
+    margin-left: 1%;
+    padding: 12px;
 }
 
 #msg
 {
-	position: relative;
-	top: 11px;
-	display: inline-block;
-	width: 43.7%;
-	padding-left: 10px;
+    position: relative;
+    top: 11px;
+    display: inline-block;
+    width: 43.5%;
+    padding-left: 10px;
 }
 
 /* anchor */
 #bottom_anchor
 {
-	float: right;
+    float: right;
 }
