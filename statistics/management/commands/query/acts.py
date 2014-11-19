@@ -440,3 +440,10 @@ def q82():
     writer.writerow("")
     print ""
 
+
+def q104():
+    question="Nombre d'actes par période"
+    Model=Act
+    res, filter_vars, filter_total=init_periods(Model)
+    res=get_by_period(res, Model, filter_vars, filter_total)
+    write_periods(question, res, nb=True)

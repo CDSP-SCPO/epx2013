@@ -83,3 +83,7 @@ def get_periods():
     return periods
 
 
+### VARIABLES ###
+periods=get_periods()
+nb_periods=len(periods)
+

@@ -294,5 +294,10 @@ class Command(NoArgsCommand):
 
         #2014-11-18
         #1/Moyenne EPVotesFor1-2, 2/Moyenne EPVotesAgst1-2, 3/MoyenneEPVotesAbs1-2
-        ep_amdt_vote.q100_periods()
+        #~ ep_amdt_vote.q100_periods()
+
+
+        #2014-11-19
+        #Nombre d'actes par période
+        acts.q104()
 

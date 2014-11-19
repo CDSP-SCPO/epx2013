@@ -5,7 +5,6 @@ from django.db import models
 from act.models import Act, MinAttend, Status, NP, PartyFamily
 from act_ids.models import ActIds
 from django.db.models import Count
-from django.db.models import Q
 from  common import *
 
 
@@ -256,7 +255,7 @@ def get_percent_pers_year(res, pers_type, max_nb, var="pf", filter_vars={}):
 
 
 
-def get_by_period(periods, nb_periods, res, Model, filter_vars, filter_total, exclude_vars={}, avg_variable=None, adopt_cs={}):
+def get_by_period(res, Model, filter_vars, filter_total, exclude_vars={}, avg_variable=None, adopt_cs={}):
     for index in range(nb_periods):
         filter_vars_periods=get_validated_acts_periods(Model, periods[index], filter_vars)
         temp_filter=Model.objects.filter(**filter_vars_periods).exclude(**exclude_vars)

@@ -294,7 +294,7 @@ def write_percent_pers_cs_year(question, res, pers_type, var="Party Family"):
     print ""
 
 
-def write_periods(question, res, periods, nb_periods, percent=100, res_2=None, nb=False):
+def write_periods(question, res, percent=100, res_2=None, nb=False):
     print question
     print "res:", res
     writer.writerow([question])
