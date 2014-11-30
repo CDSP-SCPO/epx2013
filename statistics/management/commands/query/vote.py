@@ -5,7 +5,7 @@
 
 def q17():
     #votes par année
-    question="votes par année"
+    question="Nombre de votes par année"
     print question
     res={}
     for year in years_list:
@@ -28,7 +28,7 @@ def q17():
 
 def q33():
     #votes par année
-    question="votes par secteur, en fonction de l'année"
+    question="Nombre de votes par secteur, en fonction de l'année"
     print question
     res=init_cs_year()
 

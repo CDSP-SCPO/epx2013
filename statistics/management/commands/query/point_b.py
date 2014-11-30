@@ -9,12 +9,6 @@ from  ..get import *
 from  ..write import *
 
 
-def q60():
-    question="Nombre de discussions en point b"
-    nb_bj_cs("13", "Marché intérieur", "nb_point_b", "int", question)
-
-
-
 def q65():
     question="Nombre total de points B par année"
     print question
@@ -89,7 +83,6 @@ def q95():
     initial_question="Pourcentage de NbPointB"
 
     question=initial_question+" par secteur"
-    print question
     res_1=init_cs(count=False)
     res_2=init_cs(count=False)
     res_1=get_by_cs(res_1, count=False, variable="nb_point_b", filter_vars=filter_vars_b)
@@ -97,7 +90,6 @@ def q95():
     write_cs(question, res_1, res_2=res_2, count=False, query="pt_b_a")
 
     question=initial_question+" par année"
-    print question
     res_1=init_year(count=False)
     res_2=init_year(count=False)
     res_1=get_by_year(res_1, count=False, variable="nb_point_b", filter_vars=filter_vars_b)
@@ -105,19 +97,8 @@ def q95():
     write_year(question, res_1, res_2=res_2, count=False, query="pt_b_a")
 
     question=initial_question+" par secteur et par année"
-    print question
     res_1=init_cs_year(count=False)
     res_2=init_cs_year(count=False)
     res_1=get_by_cs_year(res_1, count=False, variable="nb_point_b", filter_vars=filter_vars_b)
     res_2=get_by_cs_year(res_2, count=False, variable="nb_point_a", filter_vars=filter_vars_a)
     write_cs_year(question, res_1, res_2=res_2, count=False, query="pt_b_a")
-
-
-def q103():
-    question="Nombre d'actes adoptés sans point B (la variable NbPointB est vide ou égale à zéro)"
-    Model=Act
-    #nb_point_b=None or nb_point_b=0
-    exclude_vars_acts={"nb_point_b__gte": 1}
-    periods, nb_periods, res, filter_vars, filter_total=init_periods(Model)
-    res=get_by_period(periods, nb_periods, res, Model, filter_vars, filter_total, exclude_vars=exclude_vars_acts)
-    write_periods(question, res, periods, nb_periods, nb=True)

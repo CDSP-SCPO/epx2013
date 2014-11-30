@@ -4,7 +4,7 @@ get the ids from eurlex
 import urllib
 import re
 from bs4 import BeautifulSoup
-import config_file as conf
+from common import config_file as conf
 
 
 def get_url_eurlex(no_celex, tab="ALL"):

@@ -46,8 +46,6 @@ def q16():
     print ""
 
 
-
-
 def q32(display_name, variable_name):
     #nombre moyen de EPComAmdtTabled, EPComAmdtAdopt, EPAmdtTabled, EPAmdtAdopt
     question="nombre moyen de " +display_name+ " par secteur, en fonction de l'année"
@@ -55,7 +53,6 @@ def q32(display_name, variable_name):
     res, total_year=init_cs_year(total=True, amdt=True)
     res, total_year=get_by_cs_year(res, variable=variable_name, total_year=total_year)
     write_cs_year(question, res, total_year=total_year, amdt=True)
-
 
 
 def q75(cs=None):
@@ -167,3 +164,97 @@ def q100_periods(cs=None):
 
         write_periods(question, res_vars["res_1"], periods, nb_periods, percent=1, res_2=res_vars["res_2"])
 
+
+def q105():
+    #1/ Moyenne EPComAmdtAdopt + EPAmdtAdopt, 2/ Moyenne EPComAmdtTabled + EPAmdtTabled
+    #par année, par secteur, par année et par secteur
+    variables=(
+        (("com_amdt_adopt", "EPComAmdtAdopt"), ("amdt_adopt", "EPAmdtAdopt")),
+        (("com_amdt_tabled", "EPComAmdtTabled"), ("amdt_tabled", "EPAmdtTabled"))
+    )
+    res={}
+    nb=2
+
+    for variable in variables:
+        filter_vars={variable[0][0]+"__isnull": False, variable[1][0]+"__isnull": False}
+        #~
+        question="Nombre moyen de "+variable[0][1]+"+"+variable[1][1]+", par secteur"
+        for index in range(nb):
+            i=str(index)
+            res["res_"+i]=init_cs()
+            res["res_"+i]=get_by_cs(res["res_"+i], variable=variable[index][0], filter_vars=filter_vars)
+        write_cs(question, res["res_0"], res_2=res["res_1"], percent=1)
+
+        question="Nombre moyen de "+variable[0][1]+"+"+variable[1][1]+", par année"
+        for index in range(nb):
+            i=str(index)
+            res["res_"+i]=init_year()
+            res["res_"+i]=get_by_year(res["res_"+i], variable=variable[index][0], filter_vars=filter_vars)
+        write_year(question, res["res_0"], res_2=res["res_1"], percent=1)
+
+        question="Nombre moyen de "+variable[0][1]+"+"+variable[1][1]+", par secteur et par année"
+        for index in range(nb):
+            i=str(index)
+            res["res_"+i]=init_cs_year()
+            res["res_"+i]=get_by_cs_year(res["res_"+i], variable=variable[index][0], filter_vars=filter_vars)
+        write_cs_year(question, res["res_0"], res_2=res["res_1"], percent=1)
+
+
+def q106():
+    #Nombre moyen (EPComAmdtAdopt+EPAmdtAdopt) / Nombre moyen (EPComAmdtTabled+EPAmdtTabled)
+    #par année, par secteur, par année et par secteur
+    variables=(("com_amdt_adopt", "EPComAmdtAdopt"), ("amdt_adopt", "EPAmdtAdopt"),("com_amdt_tabled", "EPComAmdtTabled"), ("amdt_tabled", "EPAmdtTabled"))
+    question_init="Nombre moyen ("+variables[0][1]+"+"+variables[1][1]+") / Nombre moyen ("+variables[0][1]+"+"+variables[1][1]+"), "
+    filter_vars={variables[0][0]+"__isnull": False, variables[1][0]+"__isnull": False, variables[2][0]+"__isnull": False, variables[3][0]+"__isnull": False}
+    res={}
+
+    question=question_init+"par secteur"
+    for var in variables:
+        variable=var[0]
+        res[variable]=init_cs()
+        res[variable]=get_by_cs(res[variable], variable=variable, filter_vars=filter_vars)
+    write_cs(question, res, percent=1, query="amdt")
+
+    question=question_init+" par année"
+    for var in variables:
+        variable=var[0]
+        res[variable]=init_year()
+        res[variable]=get_by_year(res[variable], variable=variable, filter_vars=filter_vars)
+    write_year(question, res, percent=1, query="amdt")
+
+    question=question_init+" par secteur et par année"
+    for var in variables:
+        variable=var[0]
+        res[variable]=init_cs_year()
+        res[variable]=get_by_cs_year(res[variable], variable=variable, filter_vars=filter_vars)
+    write_cs_year(question, res, percent=1, query="amdt")
+
+
+def q109():
+    #1/ Moyenne EPVotesFor1/EPVotesFor2 2/ Moyenne EPVotesAgst1/EPVotesAgst2 3/ Moyenne EPVotesAbs1/EPVotesAbs2
+    variables=(("votes_for_", "EPVotesFor"), ("votes_agst_", "EPVotesAgst"), ("votes_abs_", "EPVotesAbs"))
+
+    for var in variables:
+        initial_question="Nombre moyen de "+var[1]+"1 / "+var[1]+"2"
+        filter_vars={var[0]+"1__gt": 0, var[0]+"2__gt": 0}
+
+        question=initial_question+" par secteur"
+        res_1=init_cs()
+        res_2=init_cs()
+        res_1=get_by_cs(res_1, variable=var[0]+"1", filter_vars=filter_vars)
+        res_2=get_by_cs(res_2, variable=var[0]+"2", filter_vars=filter_vars)
+        write_cs(question, res_1, res_2=res_2, percent=1, query="1/2")
+
+        question=initial_question+" par année"
+        res_1=init_year()
+        res_2=init_year()
+        res_1=get_by_year(res_1, variable=var[0]+"1", filter_vars=filter_vars)
+        res_2=get_by_year(res_2, variable=var[0]+"2", filter_vars=filter_vars)
+        write_year(question, res_1, res_2=res_2, percent=1, query="1/2")
+
+        question=initial_question+" par secteur et par année"
+        res_1=init_cs_year()
+        res_2=init_cs_year()
+        res_1=get_by_cs_year(res_1, variable=var[0]+"1", filter_vars=filter_vars)
+        res_2=get_by_cs_year(res_2, variable=var[0]+"2", filter_vars=filter_vars)
+        write_cs_year(question, res_1, res_2=res_2, percent=1, query="1/2")

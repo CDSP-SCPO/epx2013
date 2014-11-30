@@ -9,7 +9,7 @@ from bs4 import BeautifulSoup
 from act.models import CodeSect
 from common.functions import list_reverse_enum, date_string_to_iso
 from common.db import save_fk_code_sect, save_get_object
-from import_app import config_file as conf
+from common import config_file as conf
 
 
 #All the fields are extracted from the "ALL" tab except the directory code section (code_sect and rep_en variables): for some acts, the variables are extracted from the "Procedure" tab, for others they are extracted from the "ALL" tab.
@@ -330,7 +330,7 @@ def visible(element):
     elif re.match('<!--.*-->', element.encode('utf-8')):
         return False
     return True
-    
+
 
 def get_nb_mots(no_celex):
     """
@@ -423,7 +423,7 @@ def get_data_eurlex(soups, no_celex):
     #date_doc
     data['date_doc']=get_date_doc(soup)
     print "date_doc:", data['date_doc']
-    
+
     #nb_mots
     data['nb_mots']=get_nb_mots(no_celex)
     print "nb_mots:", data['nb_mots']

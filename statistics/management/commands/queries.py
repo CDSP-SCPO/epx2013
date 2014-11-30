@@ -4,7 +4,7 @@ from django.core.management.base import NoArgsCommand
 
 
 #import specific queries
-from query import acts, adopt_cs, duree, ep_amdt_vote, min_attend, modif_propos, nb_mots, no_unique_type, party_family, pers, point_b, type_acte, vote, country
+from query import acts, adopt_cs, duree, ep_amdt_vote, min_attend, modif_propos, nb_mots, party_family, pers, point_b, type_acte, vote, country
 
 
 class Command(NoArgsCommand):
@@ -147,7 +147,7 @@ class Command(NoArgsCommand):
         #Nombre d'actes avec un vote public
         #~ q61()
         #~ #Pourcentages d'actes adoptés en 1ère lecture en fonction du nombre de base juridiques et du code sectoriel
-        #~ q62("13", "Marché intérieur")
+        #~ acts.q62("13", "Marché intérieur")
 
         #Nombre de mots moyen suivant le type de l'acte, par année
         #~ q63()
@@ -171,7 +171,6 @@ class Command(NoArgsCommand):
 
 
         #2014-07-24 : Hausse de la bureaucratisation, Conflictualité
-
         #pourcentages de propositions de la Commission adoptées par procédure écrite
         #~ acts.q71()
         #~ #pourcentage de textes adoptés en « points A » au Conseil
@@ -200,9 +199,7 @@ class Command(NoArgsCommand):
         #~ q83()
         #~
         #Pourcentage de textes lorsque PartyFamilyRapporteurPE1 DIFFERENTE de PartyFamilyRespPropos1
-        #~ q84_cs()
-        #~ q84_year()
-        #~ q84_cs_year()
+        #~ q84()
 
         #Nombre de CS DVE+DVE, pour certains secteurs, par année
         #~ q85()
@@ -232,28 +229,22 @@ class Command(NoArgsCommand):
 
 
         #2014-10-31
-
         #Pourcentage de points B, par année, par secteur, par année et par secteur
         #~ point_b.q95()
         #~
         #~ #Durée DureeTotaleDepuisTransCons moyenne 1/pour tous les actes, 2/quand VotePublic=Y ou 3/quand VotePublic= N, par année, par secteur, par année et par secteur
         #~ duree.q96()
-
         #1/Pourcentage de AdoptCSContre=Y, 2/Pourcentage de AdoptCSAbs=Y, par année, par secteur, par année et par secteur
         #~ adopt_cs.q97()
-
         #Pourcentage d’actes adoptés avec NoUniqueType=COD 1/et NbLectures=1, 2/et NbLectures=2, par année, par secteur, par année et par secteur
-        #~ no_unique_type.q98()
-
+        #~ acts.q98()
         #1/Nombre d’EPComAmdtAdopt, 2/Nombre d’EPComAmdtTabled, 3/Nombre d’EPAmdtAdopt, 4/Nombre d’EPAmdtTabled, par année, par secteur, par année et par secteur
         #~ ep_amdt_vote.q99()
-
         #~ #1/Moyenne EPVotesFor1-2, 3/Moyenne EPVotesAgst1-2, 5/MoyenneEPVotesAbs1-2, par année, par secteur, par année et par secteur
         #~ ep_amdt_vote.q100()
 
 
         #2014-11-5
-
         #Pourcentage des pays des RespPropos
         #~ country.q101()
         #Pourcentage des pays des Rapporteurs
@@ -261,7 +252,6 @@ class Command(NoArgsCommand):
 
 
         #2014-11-12 : Hausse de la bureaucratisation, Conflictualité pour le secteur Économie
-
         #~ cs=[10, "Économie"]
         #pourcentages de propositions de la Commission adoptées par procédure écrite
         #~ acts.q71(cs=cs)
@@ -289,7 +279,7 @@ class Command(NoArgsCommand):
 
         # 2014-11-17
         #nombre d actes adoptés sans point B, par période
-        #~ point_b.q103()
+        #~ acts.q103()
 
 
         #2014-11-18
@@ -299,5 +289,30 @@ class Command(NoArgsCommand):
 
         #2014-11-19
         #Nombre d'actes par période
-        acts.q104()
+        #~ acts.q104()
 
+
+        #2014-11-28
+        #Pourcentage d'actes avec NoUniqueType=COD adoptés en 1ère / (2ème ou 3ème) lecture
+        acts.q98()
+        #~ #Durée de la procédure (= Moyenne DureeTotaleDepuisTransCons ET DureeProcedureDepuisTransCons)
+        #~ #1/pour tous les actes 2/VotePublic=Y 3/VotePublic=N 4/AdoptCSRegleVote=U 5/AdoptCSRegleVote=V 6/VotePublic=Y et AdoptCSRegleVote=U 7/ VotePublic=Y et AdoptCSRegleVote=V
+        duree.q96()
+        #~ #1/ Moyenne EPComAmdtAdopt + EPAmdtAdopt, 2/ Moyenne EPComAmdtTabled + EPAmdtTabled
+        ep_amdt_vote.q105()
+        #~ #Nombre moyen (EPComAmdtAdopt+EPAmdtAdopt) / Nombre moyen (EPComAmdtTabled+EPAmdtTabled)
+        ep_amdt_vote.q106()
+        #~ #Pourcentage d'actes avec VotePublic=Y
+        acts.q107()
+        #~ #1/Pourcentage "AdoptCSContre"= Y avec AdoptCSRegleVote=V 2/ Pourcentage "AdoptCSAbs"=Y, avec AdoptCSRegleVote=V 3/ pourcentage "AdoptCSAbs"=Y, avec AdoptCSRegleVote=U
+        adopt_cs.q88()
+        #~ #Pourcentage d'actes avec au moins un point B
+        acts.q108()
+        #~ #Nombre de mots moyen
+        nb_mots.q54()
+        #~ #Nombre de mots x Nombre d'actes
+        nb_mots.q83()
+        #~ #Pourcentage de discordance des familles politiques
+        party_family.q84()
+        #1/ Moyenne EPVotesFor1/EPVotesFor2 2/ Moyenne EPVotesAgst1/EPVotesAgst2 3/ Moyenne EPVotesAbs1/EPVotesAbs2
+        ep_amdt_vote.q109()

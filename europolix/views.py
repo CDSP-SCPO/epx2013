@@ -7,16 +7,6 @@ from django.utils import simplejson
 from django.conf import settings
 
 
-def homepageView(request):
-    """
-    VIEW
-    displays the homepage
-    TEMPLATES
-    index.html
-    """
-    return render(request, 'index.html')
-
-
 def reload_menu(request):
     """
     VIEW

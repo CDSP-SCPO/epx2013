@@ -20,7 +20,11 @@ from  common import *
     #e.g.: number of occurences of duree_variable among the acts with no_unique_type=COD=5, number of acts with no_unique_type=COD=15 -> res=[5, 15]
 
 
-nb_cs=4
+#TODO
+#~ filter_vars
+#~ check_vars_act
+#~ check_vars_act_ids
+
 
 
 def get_cs(cs, min_cs=1, max_cs=20):
@@ -38,12 +42,20 @@ def get_act(Model, act):
     return act
 
 
-def check_vars(act_ids, check_vars_act, check_vars_act_ids):
+def check_vars(act, act_act, check_vars_act, check_vars_act_ids):
     for key, value in check_vars_act.iteritems():
-        if getattr(act_ids.act, key)!=value:
-            return False
+            #greater than: "nb_lectures__gt": 1
+            if key[-4:]=="__gt":
+                if getattr(act_act, key[:-4])<=value:
+                    return False
+            #greater than or equal: "nb_lectures__gte": 1
+            elif key[-5:]=="__gte":
+                if getattr(act_act, key[:-5])<value:
+                    return False
+            elif getattr(act_act, key)!=value:
+                return False
     for key, value in check_vars_act_ids.iteritems():
-        if getattr(act_ids, key)!=value:
+        if getattr(act, key)!=value:
             return False
     return True
 
@@ -56,7 +68,7 @@ def get_by_cs(res, count=True, Model=Act, variable=None, excluded_values=[None],
         if variable is not None:
             value=getattr(act, variable)
         if value not in excluded_values:
-            ok=check_vars(act, check_vars_act, check_vars_act_ids)
+            ok=check_vars(act, act_act, check_vars_act, check_vars_act_ids)
             for nb in range(1,nb_cs+1):
                 code_sect=getattr(act_act, "code_sect_"+str(nb))
                 if code_sect is not None:
@@ -81,7 +93,7 @@ def get_by_year(res, count=True, Model=Act, variable=None, excluded_values=[None
         if variable is not None:
             value=getattr(act, variable)
         if value not in excluded_values:
-            ok=check_vars(act, check_vars_act, check_vars_act_ids)
+            ok=check_vars(act, act_act, check_vars_act, check_vars_act_ids)
             if count:
                 res[year][1]+=1
                 if variable is not None or ok:
@@ -117,7 +129,7 @@ def get_by_cs_year(res, count=True, Model=Act, variable=None, excluded_values=[N
         if variable is not None:
             value=getattr(act, variable)
         if value not in excluded_values:
-            ok=check_vars(act, check_vars_act, check_vars_act_ids)
+            ok=check_vars(act, act_act, check_vars_act, check_vars_act_ids)
             for nb in range(1,nb_cs+1):
                 code_sect=getattr(act_act, "code_sect_"+str(nb))
                 if code_sect is not None:

@@ -356,87 +356,6 @@ def q50():
     print ""
 
 
-def q51(adopt_cs_regle_vote):
-    question="DureeTotaleDepuisTransCons moyenne lorsque AdoptCSRegleVote="+adopt_cs_regle_vote+", par année"
-    print question
-    res={}
-    for year in years_list:
-        res[year]=[0,0]
-
-    for act in Act.objects.filter(validated=2, adopt_cs_regle_vote=adopt_cs_regle_vote, duree_tot_depuis_trans_cons__isnull=False):
-        if act.nb_point_b>0:
-            year=str(act.releve_annee)
-            res[year][0]+=act.duree_tot_depuis_trans_cons
-            res[year][1]+=1
-
-    print "res", res
-
-    writer.writerow([question])
-    writer.writerow(years_list)
-    row=[]
-    for year in years_list:
-        if res[year][0]==0:
-            res_year=0
-        else:
-            res_year=round(float(res[year][0])/res[year][1], 3)
-        row.append(res_year)
-    writer.writerow(row)
-    writer.writerow("")
-    print ""
-
-
-def q52(adopt_cs_regle_vote):
-    question="DureeTotaleDepuisTransCons moyenne lorsque AdoptCSRegleVote="+adopt_cs_regle_vote+", par secteur"
-    print question
-    res={}
-    for cs in cs_list:
-        res[cs]=[0,0]
-
-    for act in Act.objects.filter(validated=2, adopt_cs_regle_vote=adopt_cs_regle_vote, duree_tot_depuis_trans_cons__isnull=False):
-        if act.nb_point_b>0:
-            for nb in range(1,5):
-                code_sect=getattr(act, "code_sect_"+str(nb))
-                if code_sect!=None:
-                    cs=get_cs(code_sect.code_sect)
-                    res[cs][0]+=act.duree_tot_depuis_trans_cons
-                    res[cs][1]+=1
-
-    print "res", res
-
-    writer.writerow([question])
-    writer.writerow(cs_list)
-    row=[]
-    for cs in cs_list:
-        if res[cs][0]==0:
-            res_cs=0
-        else:
-            res_cs=round(float(res[cs][0])/res[cs][1], 3)
-        row.append(res_cs)
-    writer.writerow(row)
-    writer.writerow("")
-    print ""
-
-
-def q53(adopt_cs_regle_vote):
-    question="DureeTotaleDepuisTransCons moyenne lorsque AdoptCSRegleVote="+adopt_cs_regle_vote+", par secteur et par année"
-    print question
-    res=init_cs_year()
-
-    for act in Act.objects.filter(validated=2, adopt_cs_regle_vote=adopt_cs_regle_vote, duree_tot_depuis_trans_cons__isnull=False):
-        if act.nb_point_b>0:
-            for nb in range(1,5):
-                code_sect=getattr(act, "code_sect_"+str(nb))
-                if code_sect!=None:
-                    cs=get_cs(code_sect.code_sect)
-                    year=str(act.releve_annee)
-                    res[cs][year][0]+=act.duree_tot_depuis_trans_cons
-                    res[cs][year][1]+=1
-
-    print "res", res
-
-    write_cs_year(question, res)
-
-
 def q58():
     #DureeTotaleDepuisPropCom moyenne des actes pour lesquels il y a concordance des PartyFamilyResp et GroupePolitiqueRapporteur ("Social Democracy")
     concordance_annee("Social Democracy", ["Progressive Alliance of Socialists and Democrats", "Party of European Socialists", "Socialist Group in the European Parliament"], percent=1, variable="duree_tot_depuis_prop_com")
@@ -518,33 +437,24 @@ def q78(cs=None):
 
 
 def q96():
-    #Durée DureeTotaleDepuisTransCons moyenne 1/pour tous les actes, 2/quand VotePublic=Y ou 3/quand VotePublic= N, par année, par secteur, par année et par secteur
-    variables={", pour tous les actes,": "", ", pour les actes avec VotePublic=Y,": ("vote_public",True) , ", pour les actes avec VotePublic=N,": ("vote_public",False)}
-    variable="duree_tot_depuis_trans_cons"
-    filter_vars={"validated": 2, variable+"__isnull": False}
+    #Durée de la procédure (= Moyenne DureeTotaleDepuisTransCons ET DureeProcedureDepuisTransCons) par année, par secteur, par année et par secteur
+    #1/pour tous les actes 2/VotePublic=Y 3/VotePublic=N 4/AdoptCSRegleVote=U 5/AdoptCSRegleVote=V 6/VotePublic=Y et AdoptCSRegleVote=U 7/ VotePublic=Y et AdoptCSRegleVote=V
+    filters=(("tous les actes", {}), ("pour les actes avec VotePublic=Y", {"vote_public": True}), ("les actes avec VotePublic=N", {"vote_public": False}), ("les actes avec AdoptCSRegleVote=U", {"adopt_cs_regle_vote": "U"}), ("les actes avec AdoptCSRegleVote=V", {"adopt_cs_regle_vote": "V"}), ("les actes avec VotePublic=Y et AdoptCSRegleVote=U", {"vote_public": True, "adopt_cs_regle_vote": "U"}), ("les actes avec VotePublic=Y et AdoptCSRegleVote=V", {"vote_public": True, "adopt_cs_regle_vote": "V"}))
+    variables=(("duree_tot_depuis_trans_cons", "DureeTotaleDepuisTransCons"), ("duree_proc_depuis_trans_cons", "DureeProcedureDepuisTransCons"))
 
-    for key, value in variables.iteritems():
-        #if not first query (for all the acts), then filter by vote_public
-        if type(value) is not str:
-            filter_vars[value[0]]=value[1]
+    for variable in variables:
+        for filt in filters:
+            question=variable[1]+" moyenne, pour "+filt[0]+", par secteur"
+            res=init_cs()
+            res=get_by_cs(res, variable=variable[0], filter_vars=filt[1])
+            write_cs(question, res, percent=1)
 
-        question="Durée DureeTotaleDepuisTransCons moyenne"+key+" par secteur"
-        print question
-        res=init_cs()
-        res=get_by_cs(res, variable=variable, filter_vars=filter_vars)
-        write_cs(question, res, percent=1)
+            question=variable[1]+" moyenne, "+filt[0]+", par année"
+            res=init_year()
+            res=get_by_year(res, variable=variable[0], filter_vars=filt[1])
+            write_year(question, res, percent=1)
 
-        question="Durée DureeTotaleDepuisTransCons moyenne"+key+" par année"
-        print question
-        res=init_year()
-        res=get_by_year(res, variable=variable, filter_vars=filter_vars)
-        write_year(question, res, percent=1)
-
-        question="Durée DureeTotaleDepuisTransCons moyenne"+key+" par année et par secteur"
-        print question
-        res=init_cs_year()
-        res=get_by_cs_year(res, variable=variable, filter_vars=filter_vars)
-        write_cs_year(question, res, percent=1)
-
-
-
+            question=variable[1]+" moyenne, "+filt[0]+", par année et par secteur"
+            res=init_cs_year()
+            res=get_by_cs_year(res, variable=variable[0], filter_vars=filt[1])
+            write_cs_year(question, res, percent=1)

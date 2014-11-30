@@ -150,28 +150,31 @@ def q47(nb_em):
 
 
 def q88():
-    variables={"adopt_cs_contre": ["AdoptCSContre", "V"], "adopt_cs_abs": ["AdoptCSAbs", "U"]}
-    for key, value in variables.iteritems():
-        #by cs
-        question="pourcentage "+value[0]+"=Y (parmi les actes AdoptCSRegleVote="+value[1]+") par secteur"
-        print question
-        res=init_cs()
-        res=percent_adopt_cs(res, key, {"adopt_cs_regle_vote": value[1]})
-        write_cs(question, res, percent=100)
+    adopt_cs=(("adopt_cs_contre", "AdoptCSContre"), ("adopt_cs_abs", "AdoptCSAbs"))
+    regle_vote=("U", "V")
 
-        #by year
-        question="pourcentage "+value[0]+"=Y (parmi les actes AdoptCSRegleVote="+value[1]+") par année"
-        print question
-        res=init_year()
-        res=percent_adopt_year(res, key, {"adopt_cs_regle_vote": value[1]})
-        write_year(question, res)
+    for regle in regle_vote:
+        filter_regle={"adopt_cs_regle_vote": regle}
+        for adopt in adopt_cs:
+            question_init="pourcentage "+adopt[1]+"=Y, parmi les actes AdoptCSRegleVote="+regle+", "
 
-        #by cs and by year
-        question="pourcentage "+value[0]+"=Y (parmi les actes AdoptCSRegleVote="+value[1]+" du même secteur et de la même année) par secteur et par année"
-        print question
-        res=init_cs_year()
-        res=percent_adopt_cs_year(res, key, {"adopt_cs_regle_vote": value[1]})
-        write_cs_year(question, res)
+            #by cs
+            question=question_init+"par secteur"
+            res=init_cs()
+            res=percent_adopt_cs(res, adopt[0], filter_regle)
+            write_cs(question, res, percent=100)
+
+            #by year
+            question=question_init+"par année"
+            res=init_year()
+            res=percent_adopt_year(res, adopt[0], filter_regle)
+            write_year(question, res)
+
+            #by cs and by year
+            question=question_init+"par secteur et par année"
+            res=init_cs_year()
+            res=percent_adopt_cs_year(res, adopt[0], filter_regle)
+            write_cs_year(question, res)
 
 
 def q97():

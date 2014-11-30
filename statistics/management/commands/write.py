@@ -7,15 +7,13 @@ from django.conf import settings
 import csv
 from  common import *
 
-#count=False and variable=True: count the sum of all the values taken by a variable
-    #e.g.: sum of all the values taken by duree_variable=1000 -> res=1000
-#count=False and variable=False: count the number of occurences of items matching a set of criteria defined by filter_vars
-    #e.g.: number of acts with a duree_variable greater than 0=5 -> res=5
 
-#count=True and variable=True -> average computation: count the sum of all the values taken by a variable AND its number of occurences
-    #e.g.: sum of all the values taken by duree_variable=1000, number of occurences of duree_variable=5 -> res=[1000, 5]
-#count=True and variable=False -> percentage computation: count the number of occurences of items matching a set of criteria (defined by check_vars_act and check_vars_act_ids) AMONG the number of occurences of items matching the set of criteria (defined by filter_vars)
-    #e.g.: number of occurences of duree_variable among the acts with no_unique_type=COD=5, number of acts with no_unique_type=COD=15 -> res=[5, 15]
+#count is False
+    #shows a number of occurences or a sum: res[year/cs] contains only one value -> res[year/cs]=value -> final result=value
+#count is True
+    #average or percent computation: res[year/cs] contains two values (the second value is a count, a number of occurences) -> res[year/cs]=[val1, val2] -> final result=val1/val2
+#res_2 is not None
+    #need to sum 2 variables before computing average (q100: average votes_for_1 + votes_for_2) or percentage (q95: nb_point_a and nb_point_b)
 
 
 
@@ -43,28 +41,51 @@ def write_res(question, res):
 
 def write_cs(question, res, res_2=None, count=True, percent=100, query=""):
     #res_2: need to sum 2 variables before computing average (q100: average votes_for_1 + votes_for_2) or percentage (q95: nb_point_a and nb_point_b)
+    print question
     writer.writerow([question])
-    writer.writerow(get_cs_list())
+    writer.writerow(cs_list)
     row=[]
-    for cs in get_cs_list():
+
+    for cs in cs_list:
+
+        #two values in res
         if count:
-            if res[cs][0]==0:
-                temp=0
-            else:
-                if res_2==None:
-                    temp=round(float(res[cs][0])*percent/res[cs][1], 3)
+           #q106: Nombre moyen (EPComAmdtAdopt+EPAmdtAdopt) / Nombre moyen (EPComAmdtTabled+EPAmdtTabled)
+            if query=="amdt":
+                #result=0
+                if (res["com_amdt_adopt"][cs][0]+res["amdt_adopt"][cs][0])==0:
+                    temp=0
                 else:
-                    #average votes_for_1 + votes_for_2
-                    temp=round(float(res[cs][0]+res_2[cs][0])*percent/(res[cs][1]+res_2[cs][1]), 3)
+                    nb_adopt=round(float(res["com_amdt_adopt"][cs][0]+res["amdt_adopt"][cs][0])*percent/(res["com_amdt_adopt"][cs][1]+res["amdt_adopt"][cs][1]), 3)
+                    nb_tabled=round(float(res["com_amdt_tabled"][cs][0]+res["amdt_tabled"][cs][0])*percent/(res["com_amdt_tabled"][cs][1]+res["amdt_tabled"][cs][1]), 3)
+                    temp=round(nb_adopt/nb_tabled, 3)
+            #result=0
+            elif res[cs][0]==0:
+                temp=0
+            elif query=="1/2":
+                #q109: Nombre moyen de EPVotesFor1 / Nombre moyen de EPVotesFor2
+                temp=round(float(res[cs][0])*percent/res_2[cs][0], 3)
+            elif query=="1+2":
+                #average votes_for_1 + votes_for_2
+                temp=round(float(res[cs][0]+res_2[cs][0])*percent/(res[cs][1]+res_2[cs][1]), 3)
+            else:
+                if query=="nb_mots":
+                    #indice de contrainte legislative -> nombre mots total * nb actes et non nombre mots total / nb actes
+                    res[cs][1]=float(1)/res[cs][1]
+                #"normal" case
+                temp=round(float(res[cs][0])*percent/res[cs][1], 3)
+
+        #only one value in res
+        elif res[cs]==0:
+            #result=0
+            temp=0
+        elif query=="pt_b_a":
+            #percentage nb_point_b regarding nb_point_a)
+            temp=round(float(res[cs])*percent/(res[cs]+res_2[cs]), 3)
         else:
-            if res[cs]==0:
-                temp=0
-            else:
-                if query=="pt_b_a":
-                    #percentage nb_point_b regarding nb_point_a)
-                    temp=round(float(res[cs])*percent/(res[cs]+res_2[cs]), 3)
-                else:
-                    temp=res[cs]
+            #"normal" case
+            temp=res[cs]
+
         row.append(temp)
     writer.writerow(row)
     writer.writerow("")
@@ -73,33 +94,51 @@ def write_cs(question, res, res_2=None, count=True, percent=100, query=""):
 
 def write_year(question, res, res_2=None, count=True, percent=100, bj=False, query=""):
     #res_2: need to sum 2 variables before computing average (q100: votes_for_1 and votes_for_2) or percentage (q95: nb_point_a and nb_point_b)
+    print question
     writer.writerow([question])
     row=[]
+
     if not bj:
-        writer.writerow(get_years_list())
-        for year in get_years_list():
+        writer.writerow(years_list)
+        for year in years_list:
+
             #compute avg or percentage (two variables: total and number)
             if count:
-                if res[year][0]==0:
-                    temp=0
-                else:
-                    #indice de contrainte legislative -> nombre mots total * nb actes et non nombre mots total / nb actes
-                    if query=="nb_mots":
-                        res[year][1]=float(1)/res[year][1]
-                    if res_2==None:
-                        temp=round(float(res[year][0])*percent/res[year][1], 3)
+                #q106: Nombre moyen (EPComAmdtAdopt+EPAmdtAdopt) / Nombre moyen (EPComAmdtTabled+EPAmdtTabled)
+                if query=="amdt":
+                    #result=0
+                    if (res["com_amdt_adopt"][year][0]+res["amdt_adopt"][year][0])==0:
+                        temp=0
                     else:
-                        #average votes_for_1 + votes_for_2
-                        temp=round(float(res[year][0]+res_2[year][0])*percent/(res[year][1]+res_2[year][1]), 3)
-            else:
-                if query=="pt_b_a":
-                    #percentage nb_point_b regarding nb_point_a)
-                    temp=round(float(res[year])*percent/(res[year]+res_2[year]), 3)
+                        nb_adopt=round(float(res["com_amdt_adopt"][year][0]+res["amdt_adopt"][year][0])*percent/(res["com_amdt_adopt"][year][1]+res["amdt_adopt"][year][1]), 3)
+                        nb_tabled=round(float(res["com_amdt_tabled"][year][0]+res["amdt_tabled"][year][0])*percent/(res["com_amdt_tabled"][year][1]+res["amdt_tabled"][year][1]), 3)
+                        temp=round(nb_adopt/nb_tabled, 3)
+                #result=0
+                elif res[year][0]==0:
+                    temp=0
+                elif query=="1/2":
+                    #q109: Nombre moyen de EPVotesFor1 / Nombre moyen de EPVotesFor2
+                    temp=round(float(res[year][0])*percent/res_2[year][0], 3)
+                elif query=="1+2":
+                    #average votes_for_1 + votes_for_2
+                    temp=round(float(res[year][0]+res_2[year][0])*percent/(res[year][1]+res_2[year][1]), 3)
                 else:
-                    #no avg to compute
-                    temp=res[year]
+                    if query=="nb_mots":
+                        #indice de contrainte legislative -> nombre mots total * nb actes et non nombre mots total / nb actes
+                        res[year][1]=float(1)/res[year][1]
+                    #"normal" case
+                    temp=round(float(res[year][0])*percent/res[year][1], 3)
+
+            elif query=="pt_b_a":
+                #percentage nb_point_b regarding nb_point_a)
+                temp=round(float(res[year])*percent/(res[year]+res_2[year]), 3)
+            else:
+                #no avg to compute, #"normal" case
+                temp=res[year]
+
             row.append(temp)
         writer.writerow(row)
+
     else:
         #nb=2, display two lines with two variables
         writer.writerow(get_years_list_zero())
@@ -146,41 +185,56 @@ def write_month(question, res, count=True, percent=1, query=""):
 
 def write_cs_year(question, res, res_2=None, count=True, percent=100, total_year=False, amdt=False, query=""):
     #res_2: need to sum 2 variables before computing average (q100: votes_for_1 and votes_for_2) or percentage (q95: nb_point_a and nb_point_b)
+    print question
     writer.writerow([question])
-    writer.writerow(get_years_list_zero())
-    for cs in get_cs_list():
+    writer.writerow(years_list_zero)
+    for cs in cs_list:
         row=[cs]
-        for year in get_years_list():
+        for year in years_list:
             if total_year:
                 if amdt:
                     #display sum of each year for amdt
                     temp=res[cs][year][0]
+                #result=0
+                elif res[cs][year]==0:
+                    temp=0
                 else:
-                    if res[cs][year]==0:
-                        temp=0
-                    else:
-                        temp=round(float(res[cs][year])*percent/total_year[year],3)
+                    #"normal" case
+                    temp=round(float(res[cs][year])*percent/total_year[year],3)
+            elif not count:
+                #result=0
+                if res[cs][year]==0:
+                    temp=0
+                elif query=="pt_b_a":
+                    #percentage nb_point_b regarding nb_point_a)
+                    temp=round(float(res[cs][year])*percent/(res[cs][year]+res_2[cs][year]), 3)
+                else:
+                    temp=res[cs][year]
+            elif query=="amdt":
+                #q106: Nombre moyen (EPComAmdtAdopt+EPAmdtAdopt) / Nombre moyen (EPComAmdtTabled+EPAmdtTabled)
+                #result=0
+                if (res["com_amdt_adopt"][cs][year][0]+res["amdt_adopt"][cs][year][0])==0:
+                    temp=0
+                else:
+                    nb_adopt=round(float(res["com_amdt_adopt"][cs][year][0]+res["amdt_adopt"][cs][year][0])*percent/(res["com_amdt_adopt"][cs][year][1]+res["amdt_adopt"][cs][year][1]), 3)
+                    nb_tabled=round(float(res["com_amdt_tabled"][cs][year][0]+res["amdt_tabled"][cs][year][0])*percent/(res["com_amdt_tabled"][cs][year][1]+res["amdt_tabled"][cs][year][1]), 3)
+                    temp=round(nb_adopt/nb_tabled, 3)
+            #result=0
+            elif res[cs][year][0]==0:
+                temp=0
+            elif query=="1/2":
+                #q109: Nombre moyen de EPVotesFor1 / Nombre moyen de EPVotesFor2
+                temp=round(float(res[cs][year][0])*percent/res_2[cs][year][0], 3)
+            elif query=="1+2":
+                #average votes_for_1 + votes_for_2
+                temp=round(float(res[cs][year][0]+res_2[cs][year][0])*percent/(res[cs][year][1]+res_2[cs][year][1]), 3)
             else:
-                if not count:
-                    if res[cs][year]==0:
-                        temp=0
-                    elif query=="pt_b_a":
-                        #percentage nb_point_b regarding nb_point_a)
-                        temp=round(float(res[cs][year])*percent/(res[cs][year]+res_2[cs][year]), 3)
-                    else:
-                        temp=res[cs][year]
-                else:
-                    if res[cs][year][0]==0:
-                        temp=0
-                    else:
-                        #indice de contrainte legislative -> nombre mots total * nb actes et non nombre mots total / nb actes
-                        if query=="nb_mots":
-                            res[cs][year][1]=float(1)/res[cs][year][1]
-                        if res_2==None:
-                            temp=round(float(res[cs][year][0])*percent/res[cs][year][1],3)
-                        else:
-                            #average votes_for_1 + votes_for_2
-                            temp=round(float(res[cs][year][0]+res_2[cs][year][0])*percent/(res[cs][year][1]+res_2[cs][year][1]), 3)
+                if query=="nb_mots":
+                    #indice de contrainte legislative -> nombre mots total * nb actes et non nombre mots total / nb actes
+                    res[cs][year][1]=float(1)/res[cs][year][1]
+                #"normal" case
+                temp=round(float(res[cs][year][0])*percent/res[cs][year][1],3)
+
             row.append(temp)
         writer.writerow(row)
     #write sum each column

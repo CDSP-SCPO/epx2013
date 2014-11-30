@@ -3,33 +3,36 @@
 #queries about the nb_mots variable
 
 
+#import general steps common to each query
+from  common import *
+from  ..init import *
+from  ..get import *
+from  ..write import *
+
+
+
 def q54():
-    question="Nombre de mots moyen des textes des actes, par année"
-    print question
+    question_init="Nombre de mots moyen, "
+
+    question=question_init+"par année"
     res=init_year()
     res=get_by_year(res, variable="nb_mots")
     write_year(question, res)
-    
 
-def q55():
-    question="Nombre de mots moyen des textes des actes, par secteur"
-    print question
+    question=question_init+"par secteur"
     res=init_cs()
     res=get_by_cs(res, variable="nb_mots")
     write_cs(question, res)
-   
 
-def q56():
-    question="Nombre de mots moyen des textes des actes, par secteur et par année"
-    print question
+    question=question_init+"par secteur et par année"
     res=init_cs_year()
     res=get_by_cs_year(res, variable="nb_mots")
     write_cs_year(question, res)
 
 
 def nb_mots_type_acte(type_acte):
-    question="Nombre de mots moyen pour les actes de type "+type_acte+", par année" 
-    print question 
+    question="Nombre de mots moyen pour les actes de type "+type_acte+", par année"
+    print question
     res=init_year()
     res=get_by_year_variable(Act, res, {"validated": 2, "type_acte": type_acte}, "nb_mots")
     write_year(question, res)
@@ -39,12 +42,12 @@ def q63():
     type_actes=["CS DEC", "CS DVE", "CS REG", "DEC", "DVE", "REG", "CS DEC W/O ADD"]
     for type_acte in type_actes:
         nb_mots_type_acte(type_acte)
-        
-    
+
+
 def nb_mots_type_acte_bis(type_actes):
     str_list=str(type_actes)
     question="Total nombre de mots * nombre d'actes de type "+str_list
-    print question 
+    print question
     nb=0
     res=0
     for act in Act.objects.filter(validated=2, type_acte__in=type_actes, nb_mots__isnull=False):
@@ -52,14 +55,14 @@ def nb_mots_type_acte_bis(type_actes):
         res+=act.nb_mots
     res=res*nb
     write_res(question, res)
-    
-    question="Total nombre de mots * nombre d'actes de type "+str_list+", par année" 
-    print question 
+
+    question="Total nombre de mots * nombre d'actes de type "+str_list+", par année"
+    print question
     res=init_year()
     res=get_by_year_variable(Act, res, {"validated": 2, "type_acte__in": type_actes, "nb_mots__isnull": False}, "nb_mots")
     write_year(question, res, query="nb_mots")
-    
-        
+
+
 def q63_bis():
     type_actes=[["CS DVE", "DVE"], ["CS DEC CAD", "CS DEC", "DEC", "CS DEC W/O ADD"], ["CS REG", "REG"]]
     for type_acte in type_actes:
@@ -67,8 +70,8 @@ def q63_bis():
 
 
 def nb_mots_no_unique_type(no_unique_type):
-    question="Nombre de mots moyen pour les actes de NoUniqueType "+no_unique_type+", par année" 
-    print question 
+    question="Nombre de mots moyen pour les actes de NoUniqueType "+no_unique_type+", par année"
+    print question
     res=init_year()
     res=get_by_year_variable(ActIds, res, {"act__validated": 2, "src": "index", "no_unique_type": no_unique_type}, "nb_mots")
     write_year(question, res)
@@ -96,27 +99,27 @@ def nb_mots_no_unique_type_bis(key, no_unique_types):
         for act in ActIds.objects.filter(act__validated=2, src="index", act__nb_mots__isnull=False).exclude(no_unique_type__in=no_unique_types):
             nb+=1
             res+=act.act.nb_mots
-    
+
     question="Total nombre de mots * nombre d'actes de NoUniqueType"+txt+str_list
-    print question 
-    
-    
+    print question
+
+
     res=res*nb
     write_res(question, res)
-    
+
     res=init_year()
-    question="Total nombre de mots * nombre d'actes de NoUniqueType"+txt+str_list+", par année" 
-    print question 
+    question="Total nombre de mots * nombre d'actes de NoUniqueType"+txt+str_list+", par année"
+    print question
     if key=="include":
         txt=" = "
         res=get_by_year_variable(ActIds, res, {"act__validated": 2, "src": "index", "no_unique_type__in": no_unique_types}, "nb_mots")
     else:
         txt=" <> "
         res=get_by_year_variable(ActIds, res, {"act__validated": 2, "src": "index"}, "nb_mots", exclude_vars={"no_unique_type__in": no_unique_types})
-        
+
     write_year(question, res, query="nb_mots")
-    
-    
+
+
 def q64_bis():
     no_unique_types={"include": ["COD"], "exclude": ["COD"]}
     for key, no_unique_type in no_unique_types.iteritems():
@@ -124,26 +127,39 @@ def q64_bis():
 
 
 def q83():
-    #Nb de mots x Nb d’actes par année, pour les secteurs
-    question="Total nombre de mots * nombre d'actes par code sectoriel et par année"
-    print question 
-    res=init_cs_year()
-    res=get_by_cs_year(res, variable="nb_mots", filter_variables={"nb_mots__gt": 0})
-    write_cs_year(question, res, query="nb_mots")
+    #Nb de mots x Nb d’actes, par année, par secteur, par année et par secteur
+    question_init="Total nombre de mots * nombre d'actes, "
+    variable="nb_mots"
+    filter_vars={variable+"__gt": 0}
 
-    
-def nb_mots_2009(filter_variables={}, q=""):
+    question=question_init+"par secteur"
+    res=init_cs()
+    res=get_by_cs(res, variable=variable, filter_vars=filter_vars)
+    write_cs(question, res, query=variable)
+
+    question=question_init+"par année"
+    res=init_year()
+    res=get_by_year(res, variable=variable, filter_vars=filter_vars)
+    write_year(question, res, query=variable)
+
+    question=question_init+"par année et par secteur"
+    res=init_cs_year()
+    res=get_by_cs_year(res, variable=variable, filter_vars=filter_vars)
+    write_cs_year(question, res, query=variable)
+
+
+def nb_mots_2009(filter_vars={}, q=""):
     #Nb de mots x Nb d’actes par année, pour les secteurs
     question="Total nombre de mots * nombre d'actes de 2009, "+q+"par mois"
-    print question 
+    print question
     res=init_month()
-    res=get_by_month(res, "nb_mots", filter_variables=filter_variables)
+    res=get_by_month(res, "nb_mots", filter_vars=filter_vars)
     write_month(question, res, query="nb_mots")
-    
-    
+
+
 def q90_mois():
-    nb_mots_2009(filter_variables={"act__releve_annee": 2009})
+    nb_mots_2009(filter_vars={"act__releve_annee": 2009})
 
 
 def q90_mois_nut():
-    nb_mots_2009(filter_variables={"act__releve_annee": 2009, "no_unique_type": "COD"}, q="pour les actes de NoUniqueType=COD, ")
+    nb_mots_2009(filter_vars={"act__releve_annee": 2009, "no_unique_type": "COD"}, q="pour les actes de NoUniqueType=COD, ")

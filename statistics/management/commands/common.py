@@ -92,4 +92,6 @@ years_list_zero=get_years_list_zero(years_list)
 months_list=get_months_list()
 periods=get_periods()
 nb_periods=len(periods)
+#there is up to 4 code sectoriels for one act
+nb_cs=4
 
