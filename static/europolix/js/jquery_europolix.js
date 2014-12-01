@@ -3,8 +3,6 @@
 
 //change the active link in the menu on startup
 url=location.pathname.split("/")
-alert(url)
-alert(url[0]=="")
 
 if (url[1]!="europolix")
 {
