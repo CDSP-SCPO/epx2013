@@ -171,7 +171,7 @@ class Act(models.Model):
     base_j=models.CharField(max_length=300, blank=True, null=True, default=None)
     #used for gvt_compo when propos_origine= "EM", "CONS", "BCE", "CJUE"
     date_doc=models.DateField(max_length=10, blank=True, null=True, default=None)
-    nb_mots=models.IntegerField(max_length=6, blank=False, null=False)
+    nb_mots=models.IntegerField(max_length=6, blank=False, null=False, validators=[MinValueValidator(1)])
 
     #OEIL
     commission=models.CharField(max_length=10, blank=True, null=True, default=None)
@@ -214,10 +214,10 @@ class Act(models.Model):
     rejet_conseil=models.BooleanField(default=False)
     chgt_base_j=models.BooleanField(default=False)
     duree_adopt_trans=models.IntegerField(max_length=5, blank=True, null=True, default=None)
-    duree_proc_depuis_prop_com=models.IntegerField(max_length=5, blank=True, null=True, default=None)
-    duree_proc_depuis_trans_cons=models.IntegerField(max_length=5, blank=True, null=True, default=None)
-    duree_tot_depuis_prop_com=models.IntegerField(max_length=5, blank=True, null=True, default=None)
-    duree_tot_depuis_trans_cons=models.IntegerField(max_length=5, blank=True, null=True, default=None)
+    duree_proc_depuis_prop_com=models.IntegerField(max_length=5, blank=True, null=True, default=None, validators=[MinValueValidator(1)])
+    duree_proc_depuis_trans_cons=models.IntegerField(max_length=5, blank=True, null=True, default=None, validators=[MinValueValidator(1)])
+    duree_tot_depuis_prop_com=models.IntegerField(max_length=5, blank=True, null=True, default=None, validators=[MinValueValidator(1)])
+    duree_tot_depuis_trans_cons=models.IntegerField(max_length=5, blank=True, null=True, default=None, validators=[MinValueValidator(1)])
     vote_public=models.BooleanField(default=False)
     adopt_cs_regle_vote=models.CharField(max_length=2, blank=True, null=True, default=None)
     adopt_cs_contre=models.ManyToManyField(Country, related_name='adopt_cs_contre')

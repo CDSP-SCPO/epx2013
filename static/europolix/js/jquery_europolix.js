@@ -2,8 +2,7 @@
 
 
 //change the active link in the menu on startup
-$('#menu a[href*="' + location.pathname.split("/")[2] + '"][class!="noselect"]').parent().addClass('active');
-
+$('#menu a[href*="' + location.pathname.split("/")[1]+ "/" +location.pathname.split("/")[2] + '"][class!="noselect"]').parent().addClass('active');
 
 //show loading page data or error message
 function show_msg(msg, msg_class)

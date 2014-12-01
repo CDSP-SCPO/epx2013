@@ -476,24 +476,24 @@ def q82():
 
 def q98():
     #Pourcentage d’actes adoptés avec NoUniqueType=COD 1/et NbLectures=1, 2/et NbLectures=2 ou 3, par année, par secteur, par année et par secteur
-    variables={"1ère lecture": "nb_lectures", "2ème ou 3ème lecture": "nb_lectures__gt"}
+    variables=(("nb_lectures", "1ère lecture"), ("nb_lectures__gt", "2ème ou 3ème lecture"))
     filter_vars={"nb_lectures__isnull": False}
     check_vars_act_ids={"no_unique_type": "COD"}
 
-    for key, value in variables.iteritems():
-        check_vars_act={value: 1}
+    for variable in variables:
+        check_vars_act={variable[0]: 1}
 
-        question="Pourcentage d'actes avec NoUniqueType=COD adoptés en "+key+" par secteur"
+        question="Pourcentage d'actes avec NoUniqueType=COD adoptés en "+variable[1]+", par secteur"
         res=init_cs()
         res=get_by_cs(res, Model=ActIds, filter_vars=filter_vars, check_vars_act=check_vars_act, check_vars_act_ids=check_vars_act_ids)
         write_cs(question, res)
 
-        question="Pourcentage d'actes avec NoUniqueType=COD adoptés en "+key+" par année"
+        question="Pourcentage d'actes avec NoUniqueType=COD adoptés en "+variable[1]+", par année"
         res=init_year()
         res=get_by_year(res, Model=ActIds, filter_vars=filter_vars, check_vars_act=check_vars_act, check_vars_act_ids=check_vars_act_ids)
         write_year(question, res)
 
-        question="Pourcentage d'actes avec NoUniqueType=COD adoptés en "+key+" par année et par secteur"
+        question="Pourcentage d'actes avec NoUniqueType=COD adoptés en "+variable[1]+", par année et par secteur"
         res=init_cs_year()
         res=get_by_cs_year(res, Model=ActIds, filter_vars=filter_vars, check_vars_act=check_vars_act, check_vars_act_ids=check_vars_act_ids)
         write_cs_year(question, res)

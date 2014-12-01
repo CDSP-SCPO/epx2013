@@ -439,7 +439,15 @@ def q78(cs=None):
 def q96():
     #Durée de la procédure (= Moyenne DureeTotaleDepuisTransCons ET DureeProcedureDepuisTransCons) par année, par secteur, par année et par secteur
     #1/pour tous les actes 2/VotePublic=Y 3/VotePublic=N 4/AdoptCSRegleVote=U 5/AdoptCSRegleVote=V 6/VotePublic=Y et AdoptCSRegleVote=U 7/ VotePublic=Y et AdoptCSRegleVote=V
-    filters=(("tous les actes", {}), ("pour les actes avec VotePublic=Y", {"vote_public": True}), ("les actes avec VotePublic=N", {"vote_public": False}), ("les actes avec AdoptCSRegleVote=U", {"adopt_cs_regle_vote": "U"}), ("les actes avec AdoptCSRegleVote=V", {"adopt_cs_regle_vote": "V"}), ("les actes avec VotePublic=Y et AdoptCSRegleVote=U", {"vote_public": True, "adopt_cs_regle_vote": "U"}), ("les actes avec VotePublic=Y et AdoptCSRegleVote=V", {"vote_public": True, "adopt_cs_regle_vote": "V"}))
+    filters=(
+        ("tous les actes", {}),
+        ("pour les actes avec VotePublic=Y", {"vote_public": True}),
+        ("les actes avec VotePublic=N", {"vote_public": False}),
+        ("les actes avec AdoptCSRegleVote=U", {"adopt_cs_regle_vote": "U"}),
+        ("les actes avec AdoptCSRegleVote=V", {"adopt_cs_regle_vote": "V"}),
+        ("les actes avec VotePublic=Y et AdoptCSRegleVote=U", {"vote_public": True, "adopt_cs_regle_vote": "U"}),
+        ("les actes avec VotePublic=Y et AdoptCSRegleVote=V", {"vote_public": True, "adopt_cs_regle_vote": "V"})
+    )
     variables=(("duree_tot_depuis_trans_cons", "DureeTotaleDepuisTransCons"), ("duree_proc_depuis_trans_cons", "DureeProcedureDepuisTransCons"))
 
     for variable in variables:

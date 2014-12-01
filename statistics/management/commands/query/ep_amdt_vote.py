@@ -183,27 +183,32 @@ def q105():
             i=str(index)
             res["res_"+i]=init_cs()
             res["res_"+i]=get_by_cs(res["res_"+i], variable=variable[index][0], filter_vars=filter_vars)
-        write_cs(question, res["res_0"], res_2=res["res_1"], percent=1)
+        write_cs(question, res["res_0"], res_2=res["res_1"], percent=1, query="1+2")
 
         question="Nombre moyen de "+variable[0][1]+"+"+variable[1][1]+", par année"
         for index in range(nb):
             i=str(index)
             res["res_"+i]=init_year()
             res["res_"+i]=get_by_year(res["res_"+i], variable=variable[index][0], filter_vars=filter_vars)
-        write_year(question, res["res_0"], res_2=res["res_1"], percent=1)
+        write_year(question, res["res_0"], res_2=res["res_1"], percent=1, query="1+2")
 
         question="Nombre moyen de "+variable[0][1]+"+"+variable[1][1]+", par secteur et par année"
         for index in range(nb):
             i=str(index)
             res["res_"+i]=init_cs_year()
             res["res_"+i]=get_by_cs_year(res["res_"+i], variable=variable[index][0], filter_vars=filter_vars)
-        write_cs_year(question, res["res_0"], res_2=res["res_1"], percent=1)
+        write_cs_year(question, res["res_0"], res_2=res["res_1"], percent=1, query="1+2")
 
 
 def q106():
     #Nombre moyen (EPComAmdtAdopt+EPAmdtAdopt) / Nombre moyen (EPComAmdtTabled+EPAmdtTabled)
     #par année, par secteur, par année et par secteur
-    variables=(("com_amdt_adopt", "EPComAmdtAdopt"), ("amdt_adopt", "EPAmdtAdopt"),("com_amdt_tabled", "EPComAmdtTabled"), ("amdt_tabled", "EPAmdtTabled"))
+    variables=(
+        ("com_amdt_adopt", "EPComAmdtAdopt"),
+        ("amdt_adopt", "EPAmdtAdopt"),
+        ("com_amdt_tabled", "EPComAmdtTabled"),
+        ("amdt_tabled", "EPAmdtTabled")
+    )
     question_init="Nombre moyen ("+variables[0][1]+"+"+variables[1][1]+") / Nombre moyen ("+variables[0][1]+"+"+variables[1][1]+"), "
     filter_vars={variables[0][0]+"__isnull": False, variables[1][0]+"__isnull": False, variables[2][0]+"__isnull": False, variables[3][0]+"__isnull": False}
     res={}
@@ -232,7 +237,11 @@ def q106():
 
 def q109():
     #1/ Moyenne EPVotesFor1/EPVotesFor2 2/ Moyenne EPVotesAgst1/EPVotesAgst2 3/ Moyenne EPVotesAbs1/EPVotesAbs2
-    variables=(("votes_for_", "EPVotesFor"), ("votes_agst_", "EPVotesAgst"), ("votes_abs_", "EPVotesAbs"))
+    variables=(
+        ("votes_for_", "EPVotesFor"),
+        ("votes_agst_", "EPVotesAgst"),
+        ("votes_abs_", "EPVotesAbs")
+    )
 
     for var in variables:
         initial_question="Nombre moyen de "+var[1]+"1 / "+var[1]+"2"

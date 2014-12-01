@@ -97,6 +97,9 @@ def get_by_year(res, count=True, Model=Act, variable=None, excluded_values=[None
             if count:
                 res[year][1]+=1
                 if variable is not None or ok:
+                    #~ #TEST
+                    #~ if year=="2004":
+                        #~ print act_act.releve_annee, act_act.releve_mois, act_act.no_ordre, variable, value
                     res[year][0]+=value
             else:
                 res[year]+=value

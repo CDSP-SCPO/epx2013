@@ -294,25 +294,25 @@ class Command(NoArgsCommand):
 
         #2014-11-28
         #Pourcentage d'actes avec NoUniqueType=COD adoptés en 1ère / (2ème ou 3ème) lecture
-        acts.q98()
-        #~ #Durée de la procédure (= Moyenne DureeTotaleDepuisTransCons ET DureeProcedureDepuisTransCons)
-        #~ #1/pour tous les actes 2/VotePublic=Y 3/VotePublic=N 4/AdoptCSRegleVote=U 5/AdoptCSRegleVote=V 6/VotePublic=Y et AdoptCSRegleVote=U 7/ VotePublic=Y et AdoptCSRegleVote=V
-        duree.q96()
-        #~ #1/ Moyenne EPComAmdtAdopt + EPAmdtAdopt, 2/ Moyenne EPComAmdtTabled + EPAmdtTabled
-        ep_amdt_vote.q105()
-        #~ #Nombre moyen (EPComAmdtAdopt+EPAmdtAdopt) / Nombre moyen (EPComAmdtTabled+EPAmdtTabled)
-        ep_amdt_vote.q106()
-        #~ #Pourcentage d'actes avec VotePublic=Y
-        acts.q107()
-        #~ #1/Pourcentage "AdoptCSContre"= Y avec AdoptCSRegleVote=V 2/ Pourcentage "AdoptCSAbs"=Y, avec AdoptCSRegleVote=V 3/ pourcentage "AdoptCSAbs"=Y, avec AdoptCSRegleVote=U
-        adopt_cs.q88()
-        #~ #Pourcentage d'actes avec au moins un point B
-        acts.q108()
-        #~ #Nombre de mots moyen
-        nb_mots.q54()
-        #~ #Nombre de mots x Nombre d'actes
-        nb_mots.q83()
-        #~ #Pourcentage de discordance des familles politiques
-        party_family.q84()
-        #1/ Moyenne EPVotesFor1/EPVotesFor2 2/ Moyenne EPVotesAgst1/EPVotesAgst2 3/ Moyenne EPVotesAbs1/EPVotesAbs2
+        #~ acts.q98()
+        #Durée de la procédure (= Moyenne DureeTotaleDepuisTransCons ET DureeProcedureDepuisTransCons)
+        #1/pour tous les actes 2/VotePublic=Y 3/VotePublic=N 4/AdoptCSRegleVote=U 5/AdoptCSRegleVote=V 6/VotePublic=Y et AdoptCSRegleVote=U 7/ VotePublic=Y et AdoptCSRegleVote=V
+        #~ duree.q96()
+        #1/ Moyenne EPComAmdtAdopt + EPAmdtAdopt, 2/ Moyenne EPComAmdtTabled + EPAmdtTabled
+        #~ ep_amdt_vote.q105()
+        #Nombre moyen (EPComAmdtAdopt+EPAmdtAdopt) / Nombre moyen (EPComAmdtTabled+EPAmdtTabled)
+        #~ ep_amdt_vote.q106()
+        #Pourcentage d'actes avec VotePublic=Y
+        #~ acts.q107()
+        #1/Pourcentage "AdoptCSContre"= Y avec AdoptCSRegleVote=V 2/ Pourcentage "AdoptCSAbs"=Y, avec AdoptCSRegleVote=V 3/ pourcentage "AdoptCSAbs"=Y, avec AdoptCSRegleVote=U
+        #~ adopt_cs.q88()
+        #Pourcentage d'actes avec au moins un point B
+        #~ acts.q108()
+        #Nombre de mots moyen
+        #~ nb_mots.q54()
+        #Nombre de mots x Nombre d'actes
+        #~ nb_mots.q83()
+        #Pourcentage de discordance des familles politiques
+        #~ party_family.q84()
+        #~ #1/ Moyenne EPVotesFor1/EPVotesFor2 2/ Moyenne EPVotesAgst1/EPVotesAgst2 3/ Moyenne EPVotesAbs1/EPVotesAbs2
         ep_amdt_vote.q109()

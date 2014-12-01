@@ -122,6 +122,11 @@ def write_year(question, res, res_2=None, count=True, percent=100, bj=False, que
                 elif query=="1+2":
                     #average votes_for_1 + votes_for_2
                     temp=round(float(res[year][0]+res_2[year][0])*percent/(res[year][1]+res_2[year][1]), 3)
+#~
+                    #~ #TEST
+                    #~ if year=="2004":
+                        #~ print res[year][0], res_2[year][0], res[year][1], res_2[year][1]
+
                 else:
                     if query=="nb_mots":
                         #indice de contrainte legislative -> nombre mots total * nb actes et non nombre mots total / nb actes

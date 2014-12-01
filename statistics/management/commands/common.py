@@ -2,6 +2,31 @@
 
 #common functions used by init, get and write functions
 
+
+
+#For integer variables, if there is a zero value (0), the value must be:
+
+#~ > - EPComAndtTabled: discarded
+#~ > - EPComAndtAdopt: discarded
+#~ > - EPAmdtTabled: discarded
+#~ > - EPAmdtAdopt: discarded
+#~ > - EPVotesFor1-2: discarded
+#~ > - EPVotesAgst1-2: discarded
+#~ > - EPVotesAbs1-2: discarded
+
+#~ > - NombreLectures: counted as 0
+#~ > - NbPointB: counted as 0
+#~ > - NbPointA: counted as 0
+#~ > - DureeAdoptionTrans: counted as 0
+
+#~ > - NombreMots: IMPOSSIBLE
+#~ > - DureeProcedureDepuisPropCom: IMPOSSIBLE
+#~ > - DureeTotaleDepuisPropCom: IMPOSSIBLE
+#~ > - DureeProcedureDepuisTransCons: IMPOSSIBLE
+#~ > - DureeTotaleDepuisTransCons: IMPOSSIBLE
+
+
+
 from django.db import models
 from act.models import Act, MinAttend
 from act_ids.models import ActIds

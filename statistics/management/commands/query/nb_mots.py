@@ -17,17 +17,17 @@ def q54():
     question=question_init+"par année"
     res=init_year()
     res=get_by_year(res, variable="nb_mots")
-    write_year(question, res)
+    write_year(question, res, percent=1)
 
     question=question_init+"par secteur"
     res=init_cs()
     res=get_by_cs(res, variable="nb_mots")
-    write_cs(question, res)
+    write_cs(question, res, percent=1)
 
     question=question_init+"par secteur et par année"
     res=init_cs_year()
     res=get_by_cs_year(res, variable="nb_mots")
-    write_cs_year(question, res)
+    write_cs_year(question, res, percent=1)
 
 
 def nb_mots_type_acte(type_acte):
@@ -135,17 +135,17 @@ def q83():
     question=question_init+"par secteur"
     res=init_cs()
     res=get_by_cs(res, variable=variable, filter_vars=filter_vars)
-    write_cs(question, res, query=variable)
+    write_cs(question, res, percent=1, query=variable)
 
     question=question_init+"par année"
     res=init_year()
     res=get_by_year(res, variable=variable, filter_vars=filter_vars)
-    write_year(question, res, query=variable)
+    write_year(question, res, percent=1, query=variable)
 
     question=question_init+"par année et par secteur"
     res=init_cs_year()
     res=get_by_cs_year(res, variable=variable, filter_vars=filter_vars)
-    write_cs_year(question, res, query=variable)
+    write_cs_year(question, res, percent=1, query=variable)
 
 
 def nb_mots_2009(filter_vars={}, q=""):
