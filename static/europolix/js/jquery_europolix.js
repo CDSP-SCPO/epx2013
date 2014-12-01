@@ -3,10 +3,10 @@
 
 //change the active link in the menu on startup
 url=location.pathname.split("/")
-alert(url[0])
+alert(url)
 alert(url[0]=="")
 
-if (url[0]=="")
+if (url[1]!="europolix")
 {
     //local
     url=url[1]+ "/" +url[2];
