@@ -3,8 +3,22 @@
 
 //change the active link in the menu on startup
 url=location.pathname.split("/")
-alert(url[1]+ "/" +url[2])
-$('#menu a[href*="' + url[1]+ "/" +url[2] + '"][class!="noselect"]').parent().addClass('active');
+alert(url[0])
+alert(url[0]=="")
+
+if (url[0]=="")
+{
+    //local
+    url=url[1]+ "/" +url[2];
+}
+else
+{
+    //server may
+    url=url[2]+ "/" +url[3];
+
+}
+$('#menu a[href*="' + url + '"][class!="noselect"]').parent().addClass('active');
+
 
 //show loading page data or error message
 function show_msg(msg, msg_class)
