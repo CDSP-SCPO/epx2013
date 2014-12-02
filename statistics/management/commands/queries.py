@@ -314,5 +314,5 @@ class Command(NoArgsCommand):
         #~ nb_mots.q83()
         #Pourcentage de discordance des familles politiques
         #~ party_family.q84()
-        #~ #1/ Moyenne EPVotesFor1/EPVotesFor2 2/ Moyenne EPVotesAgst1/EPVotesAgst2 3/ Moyenne EPVotesAbs1/EPVotesAbs2
+        #1/ Moyenne EPVotesFor1/EPVotesFor2 2/ Moyenne EPVotesAgst1/EPVotesAgst2 3/ Moyenne EPVotesAbs1/EPVotesAbs2
         ep_amdt_vote.q109()

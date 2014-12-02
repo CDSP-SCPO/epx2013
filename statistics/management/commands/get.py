@@ -61,7 +61,7 @@ def check_vars(act, act_act, check_vars_act, check_vars_act_ids):
 
 
 def get_by_cs(res, count=True, Model=Act, variable=None, excluded_values=[None], filter_vars={}, check_vars_act={}, check_vars_act_ids={}):
-    filter_vars=get_validated_acts(Model, filter_vars)
+    filter_vars=get_validated_acts(Model, filter_vars_acts=filter_vars)
     for act in Model.objects.filter(**filter_vars):
         act_act=get_act(Model, act)
         value=1
@@ -84,8 +84,30 @@ def get_by_cs(res, count=True, Model=Act, variable=None, excluded_values=[None],
     return res
 
 
+def get_by_cs_2_vars(res, var1, var2, count=True, Model=Act, excluded_values=[None], filter_vars={}):
+    filter_vars=get_validated_acts(Model, filter_vars_acts=filter_vars)
+    for act in Model.objects.filter(**filter_vars):
+        act_act=get_act(Model, act)
+        value1=getattr(act, var1)
+        value2=getattr(act, var2)
+        if value1 not in excluded_values and value2 not in excluded_values:
+            for nb in range(1,nb_cs+1):
+                code_sect=getattr(act_act, "code_sect_"+str(nb))
+                if code_sect is not None:
+                    cs=get_cs(code_sect.code_sect)
+                    #q109: Moyenne EPVotesFor1/EPVotesFor2
+                    temp=float(value1)/value2
+                    if count:
+                        res[cs][1]+=1
+                        res[cs][0]+=temp
+                    else:
+                        res[cs]+=temp
+    print "res", res
+    return res
+
+
 def get_by_year(res, count=True, Model=Act, variable=None, excluded_values=[None], filter_vars={}, check_vars_act={}, check_vars_act_ids={}):
-    filter_vars=get_validated_acts(Model, filter_vars)
+    filter_vars=get_validated_acts(Model, filter_vars_acts=filter_vars)
     for act in Model.objects.filter(**filter_vars):
         act_act=get_act(Model, act)
         year=str(act_act.releve_annee)
@@ -108,6 +130,25 @@ def get_by_year(res, count=True, Model=Act, variable=None, excluded_values=[None
     return res
 
 
+def get_by_year_2_vars(res, var1, var2, count=True, Model=Act, excluded_values=[None], filter_vars={}):
+    filter_vars=get_validated_acts(Model, filter_vars_acts=filter_vars)
+    for act in Model.objects.filter(**filter_vars):
+        act_act=get_act(Model, act)
+        year=str(act_act.releve_annee)
+        value1=getattr(act, var1)
+        value2=getattr(act, var2)
+        if value1 not in excluded_values and value2 not in excluded_values:
+            #q109: Moyenne EPVotesFor1/EPVotesFor2
+            temp=float(value1)/value2
+            if count:
+                res[year][1]+=1
+                res[year][0]+=temp
+            else:
+                res[year]+=temp
+
+    print "res", res
+    return res
+
 def get_by_month(res, variable, count=True, filter_variables={}):
     for act_id in ActIds.objects.filter(src="index", act__validated=2, **filter_variables):
         act=act_id.act
@@ -125,7 +166,7 @@ def get_by_month(res, variable, count=True, filter_variables={}):
 
 
 def get_by_cs_year(res, count=True, Model=Act, variable=None, excluded_values=[None], total_year=False, filter_vars={}, check_vars_act={}, check_vars_act_ids={}):
-    filter_vars=get_validated_acts(Model, filter_vars)
+    filter_vars=get_validated_acts(Model, filter_vars_acts=filter_vars)
     for act in Model.objects.filter(**filter_vars):
         act_act=get_act(Model, act)
         value=1
@@ -151,6 +192,35 @@ def get_by_cs_year(res, count=True, Model=Act, variable=None, excluded_values=[N
         print "total_year", total_year
         return res, total_year
     return res
+
+
+def get_by_cs_year_2_vars(res, var1, var2, count=True, Model=Act, variable=None, excluded_values=[None], total_year=False, filter_vars={}):
+    filter_vars=get_validated_acts(Model, filter_vars_acts=filter_vars)
+    for act in Model.objects.filter(**filter_vars):
+        act_act=get_act(Model, act)
+        value1=getattr(act, var1)
+        value2=getattr(act, var2)
+        if value1 not in excluded_values and value2 not in excluded_values:
+            for nb in range(1,nb_cs+1):
+                code_sect=getattr(act_act, "code_sect_"+str(nb))
+                if code_sect is not None:
+                    cs=get_cs(code_sect.code_sect)
+                    year=str(act_act.releve_annee)
+                    #q109: Moyenne EPVotesFor1/EPVotesFor2
+                    temp=float(value1)/value2
+                    if count:
+                        res[cs][year][1]+=1
+                        res[cs][year][0]+=temp
+                        if total_year:
+                            total_year[year]+=temp
+                    else:
+                        res[cs][year]+=temp
+    print "res", res
+    if total_year:
+        print "total_year", total_year
+        return res, total_year
+    return res
+
 
 
 def get_list_pers_cs(res, pers_type, max_nb, year_var=False, filter_variables={}):

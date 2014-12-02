@@ -13,20 +13,22 @@ from  ..write import *
 
 def q54():
     question_init="Nombre de mots moyen, "
+    variable="nb_mots"
+    filter_vars={variable+"__isnull": False}
 
     question=question_init+"par année"
     res=init_year()
-    res=get_by_year(res, variable="nb_mots")
+    res=get_by_year(res, variable=variable, filter_vars=filter_vars)
     write_year(question, res, percent=1)
 
     question=question_init+"par secteur"
     res=init_cs()
-    res=get_by_cs(res, variable="nb_mots")
+    res=get_by_cs(res, variable=variable, filter_vars=filter_vars)
     write_cs(question, res, percent=1)
 
     question=question_init+"par secteur et par année"
     res=init_cs_year()
-    res=get_by_cs_year(res, variable="nb_mots")
+    res=get_by_cs_year(res, variable=variable, filter_vars=filter_vars)
     write_cs_year(question, res, percent=1)
 
 
@@ -130,7 +132,7 @@ def q83():
     #Nb de mots x Nb d’actes, par année, par secteur, par année et par secteur
     question_init="Total nombre de mots * nombre d'actes, "
     variable="nb_mots"
-    filter_vars={variable+"__gt": 0}
+    filter_vars={variable+"__isnull": False}
 
     question=question_init+"par secteur"
     res=init_cs()

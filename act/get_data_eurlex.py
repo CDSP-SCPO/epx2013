@@ -10,6 +10,10 @@ from act.models import CodeSect
 from common.functions import list_reverse_enum, date_string_to_iso
 from common.db import save_fk_code_sect, save_get_object
 from common import config_file as conf
+#get pdf file (nb_mots)
+import urllib2
+#read pdf file (nb_mots)
+import tempfile, subprocess
 
 
 #All the fields are extracted from the "ALL" tab except the directory code section (code_sect and rep_en variables): for some acts, the variables are extracted from the "Procedure" tab, for others they are extracted from the "ALL" tab.
@@ -320,8 +324,14 @@ def get_date_doc(soup):
 
 
 def visible(element):
-    #~ print "element", element
-    #~ print ""
+    """
+    FUNCTION
+    indicates if the text element in parameter is a real text or is part of html tags / syntax
+    PARAMETERS
+    element: text to analyze [string]
+    RETURN
+    string: True if the element contains real text, False otherwise [boolean]
+    """
     if element.parent.name in ['style', 'script', '[document]', 'head', 'title']:
         return False
     #remove '\n'
@@ -330,6 +340,43 @@ def visible(element):
     elif re.match('<!--.*-->', element.encode('utf-8')):
         return False
     return True
+
+
+def pdf_to_string(file_object):
+    """
+    FUNCTION
+    get the text of a pdf and put it in a string variable
+    PARAMETERS
+    file_object: pdf file wrapped in a python file object [File object]
+    RETURN
+    string: extracted text [string]
+    """
+    tf = tempfile.NamedTemporaryFile()
+    tf.write(file_object)
+    tf.seek(0)
+
+    outputTf = tempfile.NamedTemporaryFile()
+
+    if (len(file_object) > 0) :
+        #-layout: keep layout (not good when names and job titles are split as if they were in two different columns).
+        out, err = subprocess.Popen(["pdftotext", "-layout", tf.name, outputTf.name ]).communicate()
+        #~ out, err = subprocess.Popen(["pdftotext", tf.name, outputTf.name ]).communicate()
+        return outputTf.read()
+    else :
+        return None
+
+
+#~ def get_url(url):
+    #~ """
+    #~ FUNCTION
+    #~ get the url content of the page containing the links to the text of the act
+    #~ PARAMETERS
+    #~ url: url to retrieve [string]
+    #~ RETURN
+    #~ content of the page [BeautifulSoup object]
+    #~ """
+    #~ url=url.replace("NOCELEX", no_celex, 1)
+    #~ return BeautifulSoup(urllib.urlopen(url))
 
 
 def get_nb_mots(no_celex):
@@ -341,30 +388,51 @@ def get_nb_mots(no_celex):
     RETURN
     nb_mots [string]
     """
+    #try html text
     #http://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:31996R0122&from=EN
-    #http://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:32006L0031&from=EN
     #http://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:32010R0053&from=EN
-    url=conf.url_text_act
+    src="html"
+    url=conf.url_text_act_html
     url=url.replace("NOCELEX", no_celex, 1)
-    print url
     soup=BeautifulSoup(urllib.urlopen(url))
+    nb_mots=0
+
     try:
-        #page not found
         #http://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:32004R0854&from=EN
+        #not html version for english -> use the pdf version
         if soup.title.string=="The requested document does not exist. - EUR-Lex":
-            print None
-            return None
+            print "no english for html text, or no html text -> use pdf"
+            src="pdf"
+            url=conf.url_text_act_pdf
+            url=url.replace("NOCELEX", no_celex, 1)
+            file_object=urllib2.urlopen(urllib2.Request(url)).read()
+            #~ return None
     except Exception, e:
         #http://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:32006D1982&from=EN
         print "link to 2 documents (STATEMENTS)", e
         return None
-    texts = soup.findAll(text=True)
-    visible_texts = filter(visible, texts)
-    nb_mots=0
-    for text in visible_texts:
-        nb_mots+=len(text.split())
+        #TODO: SELECT one of the two documents
+        #~ return None
+
+    #read text of the act from an html document
+    if src=="html":
+        texts = soup.findAll(text=True)
+        visible_texts = filter(visible, texts)
+        for text in visible_texts:
+            nb_mots+=len(text.split())
+    #read text of the act from a pdf document
+    else:
+        texts=pdf_to_string(file_object)
+        for text in texts.split():
+            nb_mots+=1
+
     print nb_mots
     return nb_mots
+
+
+    #try pdf doc
+    #http://eur-lex.europa.eu/legal-content/EN/TXT/PDF/?uri=CELEX:32000D0283(01)&from=EN
+
 
 
 

@@ -451,18 +451,20 @@ def q96():
     variables=(("duree_tot_depuis_trans_cons", "DureeTotaleDepuisTransCons"), ("duree_proc_depuis_trans_cons", "DureeProcedureDepuisTransCons"))
 
     for variable in variables:
+        filter_vars={variable[0]+"__isnull": False}
         for filt in filters:
+            filter_vars.update(filt[1])
             question=variable[1]+" moyenne, pour "+filt[0]+", par secteur"
             res=init_cs()
-            res=get_by_cs(res, variable=variable[0], filter_vars=filt[1])
+            res=get_by_cs(res, variable=variable[0], filter_vars=filter_vars)
             write_cs(question, res, percent=1)
 
             question=variable[1]+" moyenne, "+filt[0]+", par année"
             res=init_year()
-            res=get_by_year(res, variable=variable[0], filter_vars=filt[1])
+            res=get_by_year(res, variable=variable[0], filter_vars=filter_vars)
             write_year(question, res, percent=1)
 
             question=variable[1]+" moyenne, "+filt[0]+", par année et par secteur"
             res=init_cs_year()
-            res=get_by_cs_year(res, variable=variable[0], filter_vars=filt[1])
+            res=get_by_cs_year(res, variable=variable[0], filter_vars=filter_vars)
             write_cs_year(question, res, percent=1)

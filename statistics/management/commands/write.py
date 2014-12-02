@@ -62,16 +62,16 @@ def write_cs(question, res, res_2=None, count=True, percent=100, query=""):
             #result=0
             elif res[cs][0]==0:
                 temp=0
-            elif query=="1/2":
-                #q109: Nombre moyen de EPVotesFor1 / Nombre moyen de EPVotesFor2
-                temp=round(float(res[cs][0])*percent/res_2[cs][0], 3)
-            elif query=="1+2":
-                #average votes_for_1 + votes_for_2
-                temp=round(float(res[cs][0]+res_2[cs][0])*percent/(res[cs][1]+res_2[cs][1]), 3)
+            #~ elif query=="1/2":
+                #~ #q109: Nombre moyen de EPVotesFor1 / Nombre moyen de EPVotesFor2
+                #~ temp=round(float(res[cs][0])*percent/res_2[cs][0], 3)
             else:
                 if query=="nb_mots":
                     #indice de contrainte legislative -> nombre mots total * nb actes et non nombre mots total / nb actes
                     res[cs][1]=float(1)/res[cs][1]
+                elif query=="1+2":
+                    #average votes_for_1 + votes_for_2
+                    res[cs][0]=res[cs][0]+res_2[cs][0]
                 #"normal" case
                 temp=round(float(res[cs][0])*percent/res[cs][1], 3)
 
@@ -116,21 +116,16 @@ def write_year(question, res, res_2=None, count=True, percent=100, bj=False, que
                 #result=0
                 elif res[year][0]==0:
                     temp=0
-                elif query=="1/2":
-                    #q109: Nombre moyen de EPVotesFor1 / Nombre moyen de EPVotesFor2
-                    temp=round(float(res[year][0])*percent/res_2[year][0], 3)
-                elif query=="1+2":
-                    #average votes_for_1 + votes_for_2
-                    temp=round(float(res[year][0]+res_2[year][0])*percent/(res[year][1]+res_2[year][1]), 3)
-#~
-                    #~ #TEST
-                    #~ if year=="2004":
-                        #~ print res[year][0], res_2[year][0], res[year][1], res_2[year][1]
-
+                #~ elif query=="1/2":
+                    #~ #q109: Nombre moyen de EPVotesFor1 / Nombre moyen de EPVotesFor2
+                    #~ temp=round(float(res[year][0])*percent/res_2[year][0], 3)
                 else:
                     if query=="nb_mots":
                         #indice de contrainte legislative -> nombre mots total * nb actes et non nombre mots total / nb actes
                         res[year][1]=float(1)/res[year][1]
+                    elif query=="1+2":
+                        #average votes_for_1 + votes_for_2
+                        res[year][0]=res[year][0]+res_2[year][0]
                     #"normal" case
                     temp=round(float(res[year][0])*percent/res[year][1], 3)
 
@@ -227,16 +222,16 @@ def write_cs_year(question, res, res_2=None, count=True, percent=100, total_year
             #result=0
             elif res[cs][year][0]==0:
                 temp=0
-            elif query=="1/2":
-                #q109: Nombre moyen de EPVotesFor1 / Nombre moyen de EPVotesFor2
-                temp=round(float(res[cs][year][0])*percent/res_2[cs][year][0], 3)
-            elif query=="1+2":
-                #average votes_for_1 + votes_for_2
-                temp=round(float(res[cs][year][0]+res_2[cs][year][0])*percent/(res[cs][year][1]+res_2[cs][year][1]), 3)
+            #~ elif query=="1/2":
+                #~ #q109: Nombre moyen de EPVotesFor1 / Nombre moyen de EPVotesFor2
+                #~ temp=round(float(res[cs][year][0])*percent/res_2[cs][year][0], 3)
             else:
                 if query=="nb_mots":
                     #indice de contrainte legislative -> nombre mots total * nb actes et non nombre mots total / nb actes
                     res[cs][year][1]=float(1)/res[cs][year][1]
+                elif query=="1+2":
+                    #average votes_for_1 + votes_for_2
+                    res[cs][year][0]=res[cs][year][0]+res_2[cs][year][0]
                 #"normal" case
                 temp=round(float(res[cs][year][0])*percent/res[cs][year][1],3)
 
