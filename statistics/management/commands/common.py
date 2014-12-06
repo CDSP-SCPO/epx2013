@@ -99,12 +99,20 @@ def str_to_date(string):
 
 def get_periods():
     periods=[]
-    periods.append(("pré-élargissement (1/1/96 - 30/6/99)", str_to_date("1996-1-1"), str_to_date("1999-6-30")))
-    periods.append(("pré-élargissement (1/7/99 - 30/04/04)", str_to_date("1999-7-1"), str_to_date("2004-4-30")))
-    periods.append(("post-élargissement (1/5/04 - 30/11/09)", str_to_date("2004-5-1"), str_to_date("2009-11-30")))
-    periods.append(("post-Lisbonne (1/12/09 - 31/12/13)", str_to_date("2009-12-1"), str_to_date("2013-12-31")))
-    periods.append(("crise (15/9/08 - 31/12/13)", str_to_date("2008-09-15"), str_to_date("2013-12-31")))
+    ##2014-07-24, 2014-11-12
+    #~ periods.append(("pré-élargissement (1/1/96 - 30/6/99)", str_to_date("1996-1-1"), str_to_date("1999-6-30")))
+    #~ periods.append(("pré-élargissement (1/7/99 - 30/04/04)", str_to_date("1999-7-1"), str_to_date("2004-4-30")))
+    #~ periods.append(("post-élargissement (1/5/04 - 30/11/09)", str_to_date("2004-5-1"), str_to_date("2009-11-30")))
+    #~ periods.append(("post-Lisbonne (1/12/09 - 31/12/13)", str_to_date("2009-12-1"), str_to_date("2013-12-31")))
+    #~ periods.append(("crise (15/9/08 - 31/12/13)", str_to_date("2008-09-15"), str_to_date("2013-12-31")))
     # Crise : 15-09_2008 (Faillite Lehman Brothers) -31/12/2013
+
+    #2014-12-4
+    periods.append(("Santer (1/1/96 - 15/9/99)", str_to_date("1996-1-1"), str_to_date("1999-9-15")))
+    periods.append(("Prodi (16/9/99 - 30/4/2004)", str_to_date("1999-9-16"), str_to_date("2004-4-30")))
+    periods.append(("Post-élargissement (1/5/04 - 14/09/08)", str_to_date("2004-5-1"), str_to_date("2008-9-14")))
+    periods.append(("Post-crise (15/9/08 - 31/12/13)", str_to_date("2008-09-15"), str_to_date("2013-12-31")))
+
     return periods
 
 

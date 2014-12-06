@@ -295,34 +295,34 @@ def q71(cs=None):
     Model=ActIds
     filter_vars_acts={"com_proc": "Written procedure"}
     filter_vars_acts_ids={"propos_origine": "COM"}
-    periods, nb_periods, res, filter_vars, filter_total=init_periods(Model, filter_vars_acts, filter_vars_acts_ids=filter_vars_acts_ids)
+    res, filter_vars, filter_total=init_periods(Model, filter_vars_acts=filter_vars_acts, filter_vars_acts_ids=filter_vars_acts_ids)
 
     #filter by specific cs
     if cs is not None:
         question+=" (code sectoriel : "+cs[1]+")"
         list_acts_cs=get_list_acts_cs(cs[0], Model=Model)
-        res=get_by_period_cs(list_acts_cs, periods, nb_periods, res, Model, filter_vars, filter_total)
+        res=get_by_period_cs(list_acts_cs, res, Model, filter_vars, filter_total)
     else:
-        res=get_by_period(periods, nb_periods, res, Model, filter_vars, filter_total)
+        res=get_by_period(res, Model, filter_vars, filter_total)
 
-    write_periods(question, res, periods, nb_periods)
+    write_periods(question, res)
 
 
 def q72(cs=None):
     question="Pourcentage d'actes avec au moins un point A"
     Model=Act
     filter_vars_acts={"nb_point_a__gte": 1}
-    periods, nb_periods, res, filter_vars, filter_total=init_periods(Model, filter_vars_acts)
+    res, filter_vars, filter_total=init_periods(Model, filter_vars_acts=filter_vars_acts)
 
     #filter by specific cs
     if cs is not None:
         question+=" (code sectoriel : "+cs[1]+")"
         list_acts_cs=get_list_acts_cs(cs[0], Model=Model)
-        res=get_by_period_cs(list_acts_cs, periods, nb_periods, res, Model, filter_vars, filter_total)
+        res=get_by_period_cs(list_acts_cs, res, Model, filter_vars, filter_total)
     else:
-        res=get_by_period(periods, nb_periods, res, Model, filter_vars, filter_total)
+        res=get_by_period(res, Model, filter_vars, filter_total)
 
-    write_periods(question, res, periods, nb_periods)
+    write_periods(question, res)
 
 
 def q74(cs=None):
@@ -331,17 +331,17 @@ def q74(cs=None):
     filter_total_act_ids={"no_unique_type": "COD"}
     filter_vars_acts={"nb_lectures": 1}
     filter_vars_acts_ids=filter_total_act_ids.copy()
-    periods, nb_periods, res, filter_vars, filter_total=init_periods(Model, filter_vars_acts=filter_vars_acts, filter_vars_acts_ids=filter_vars_acts_ids, filter_total_acts_ids=filter_total_act_ids)
+    res, filter_vars, filter_total=init_periods(Model, filter_vars_acts=filter_vars_acts, filter_vars_acts_ids=filter_vars_acts_ids, filter_total_acts_ids=filter_total_act_ids)
 
     #filter by specific cs
     if cs is not None:
         question+=" (code sectoriel : "+cs[1]+")"
         list_acts_cs=get_list_acts_cs(cs[0], Model=Model)
-        res=get_by_period_cs(list_acts_cs, periods, nb_periods, res, Model, filter_vars, filter_total)
+        res=get_by_period_cs(list_acts_cs, res, Model, filter_vars, filter_total)
     else:
-        res=get_by_period(periods, nb_periods, res, Model, filter_vars, filter_total)
+        res=get_by_period(res, Model, filter_vars, filter_total)
 
-    write_periods(question, res, periods, nb_periods)
+    write_periods(question, res)
 
 
 def q77(cs=None):
@@ -355,44 +355,44 @@ def q77(cs=None):
         list_acts_cs=get_list_acts_cs(cs[0], Model=Model)
 
     question="Pourcentage d’actes adoptés avec un vote public, parmi les actes avec une majorité qualifiée lors de l'adoption au conseil"
-    periods, nb_periods, res, filter_vars, filter_total=init_periods(Model, filter_vars_acts=filter_var_acts_vote, filter_total_acts=filter_total_acts)
+    res, filter_vars, filter_total=init_periods(Model, filter_vars_acts=filter_var_acts_vote, filter_total_acts=filter_total_acts)
     #filter by specific cs
     if cs is not None:
         question+=" (code sectoriel : "+cs[1]+")"
-        res=get_by_period_cs(list_acts_cs, periods, nb_periods, res, Model, filter_vars, filter_total)
+        res=get_by_period_cs(list_acts_cs, res, Model, filter_vars, filter_total)
     else:
-        res=get_by_period(periods, nb_periods, res, Model, filter_vars, filter_total)
-    write_periods(question, res, periods, nb_periods)
+        res=get_by_period(res, Model, filter_vars, filter_total)
+    write_periods(question, res)
 
     question="Pourcentage d’actes adoptés avec avec opposition d'exactement un état, parmi les actes avec une majorité qualifiée lors de l'adoption au conseil"
-    periods, nb_periods, res, filter_vars, filter_total=init_periods(Model, filter_vars_acts=filter_vars_acts, filter_total_acts=filter_total_acts)
+    res, filter_vars, filter_total=init_periods(Model, filter_vars_acts=filter_vars_acts, filter_total_acts=filter_total_acts)
     #filter by specific cs
     if cs is not None:
         question+=" (code sectoriel : "+cs[1]+")"
-        res=get_by_period_cs(list_acts_cs, periods, nb_periods, res, Model, filter_vars, filter_total, adopt_cs={"nb_countries": 1})
+        res=get_by_period_cs(list_acts_cs, res, Model, filter_vars, filter_total, adopt_cs={"nb_countries": 1})
     else:
-        res=get_by_period(periods, nb_periods, res, Model, filter_vars, filter_total, adopt_cs={"nb_countries": 1})
-    write_periods(question, res, periods, nb_periods)
+        res=get_by_period(res, Model, filter_vars, filter_total, adopt_cs={"nb_countries": 1})
+    write_periods(question, res)
 
     question="Pourcentage d’actes adoptés avec opposition d'au moins deux états, parmi les actes avec une majorité qualifiée lors de l'adoption au conseil"
-    periods, nb_periods, res, filter_vars, filter_total=init_periods(Model, filter_vars_acts=filter_vars_acts, filter_total_acts=filter_total_acts)
+    res, filter_vars, filter_total=init_periods(Model, filter_vars_acts=filter_vars_acts, filter_total_acts=filter_total_acts)
     #filter by specific cs
     if cs is not None:
         question+=" (code sectoriel : "+cs[1]+")"
-        res=get_by_period_cs(list_acts_cs, periods, nb_periods, res, Model, filter_vars, filter_total, adopt_cs={"nb_countries__gte": 2})
+        res=get_by_period_cs(list_acts_cs, res, Model, filter_vars, filter_total, adopt_cs={"nb_countries__gte": 2})
     else:
-        res=get_by_period(periods, nb_periods, res, Model, filter_vars, filter_total, adopt_cs={"nb_countries__gte": 2})
-    write_periods(question, res, periods, nb_periods)
+        res=get_by_period(res, Model, filter_vars, filter_total, adopt_cs={"nb_countries__gte": 2})
+    write_periods(question, res)
 
     question="Pourcentage d’actes adoptés avec abstention d'au moins un état, parmi les actes avec une majorité qualifiée lors de l'adoption au conseil"
-    periods, nb_periods, res, filter_vars, filter_total=init_periods(Model, filter_vars_acts=filter_vars_acts, filter_total_acts=filter_total_acts)
+    res, filter_vars, filter_total=init_periods(Model, filter_vars_acts=filter_vars_acts, filter_total_acts=filter_total_acts)
     #filter by specific cs
     if cs is not None:
         question+=" (code sectoriel : "+cs[1]+")"
-        res=get_by_period_cs(list_acts_cs, periods, nb_periods, res, Model, filter_vars, filter_total, exclude_vars={"adopt_cs_abs": None})
+        res=get_by_period_cs(list_acts_cs, res, Model, filter_vars, filter_total, exclude_vars={"adopt_cs_abs": None})
     else:
-        res=get_by_period(periods, nb_periods, res, Model, filter_vars, filter_total, exclude_vars={"adopt_cs_abs": None})
-    write_periods(question, res, periods, nb_periods)
+        res=get_by_period(res, Model, filter_vars, filter_total, exclude_vars={"adopt_cs_abs": None})
+    write_periods(question, res)
 
 
 def q79(cs=None):
@@ -401,34 +401,34 @@ def q79(cs=None):
     filter_total_act_ids={"no_unique_type": "COD"}
     filter_vars_acts={"nb_lectures": 2}
     filter_vars_acts_ids=filter_total_act_ids.copy()
-    periods, nb_periods, res, filter_vars, filter_total=init_periods(Model, filter_vars_acts=filter_vars_acts, filter_vars_acts_ids=filter_vars_acts_ids, filter_total_acts_ids=filter_total_act_ids)
+    res, filter_vars, filter_total=init_periods(Model, filter_vars_acts=filter_vars_acts, filter_vars_acts_ids=filter_vars_acts_ids, filter_total_acts_ids=filter_total_act_ids)
 
     #filter by specific cs
     if cs is not None:
         question+=" (code sectoriel : "+cs[1]+")"
         list_acts_cs=get_list_acts_cs(cs[0], Model=Model)
-        res=get_by_period_cs(list_acts_cs, periods, nb_periods, res, Model, filter_vars, filter_total)
+        res=get_by_period_cs(list_acts_cs, res, Model, filter_vars, filter_total)
     else:
-        res=get_by_period(periods, nb_periods, res, Model, filter_vars, filter_total)
+        res=get_by_period(res, Model, filter_vars, filter_total)
 
-    write_periods(question, res, periods, nb_periods)
+    write_periods(question, res)
 
 
 def q80(cs=None):
     question="Pourcentage d’actes avec au moins un point B"
     Model=Act
     filter_vars_acts={"nb_point_b__gte": 1}
-    periods, nb_periods, res, filter_vars, filter_total=init_periods(Model, filter_vars_acts=filter_vars_acts)
+    res, filter_vars, filter_total=init_periods(Model, filter_vars_acts=filter_vars_acts)
 
     #filter by specific cs
     if cs is not None:
         question+=" (code sectoriel : "+cs[1]+")"
         list_acts_cs=get_list_acts_cs(cs[0], Model=Model)
-        res=get_by_period_cs(list_acts_cs, periods, nb_periods, res, Model, filter_vars, filter_total)
+        res=get_by_period_cs(list_acts_cs, res, Model, filter_vars, filter_total)
     else:
-        res=get_by_period(periods, nb_periods, res, Model, filter_vars, filter_total)
+        res=get_by_period(res, Model, filter_vars, filter_total)
 
-    write_periods(question, res, periods, nb_periods)
+    write_periods(question, res)
 
 
 

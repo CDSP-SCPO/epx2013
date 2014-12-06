@@ -63,16 +63,16 @@ def q75(cs=None):
 
     for var, question in variables.iteritems():
         filter_vars_acts={var+"__isnull": False}
-        periods, nb_periods, res, filter_vars, filter_total=init_periods(Model, filter_vars_acts=filter_vars_acts)
+        res, filter_vars, filter_total=init_periods(Model, filter_vars_acts=filter_vars_acts)
 
         #filter by specific cs
         if cs is not None:
             question+=" (code sectoriel : "+cs[1]+")"
-            res=get_by_period_cs(list_acts_cs, periods, nb_periods, res, Model, filter_vars, filter_total, avg_variable=var)
+            res=get_by_period_cs(list_acts_cs, res, Model, filter_vars, filter_total, avg_variable=var)
         else:
-            res=get_by_period(periods, nb_periods, res, Model, filter_vars, filter_total, avg_variable=var)
+            res=get_by_period(res, Model, filter_vars, filter_total, avg_variable=var)
 
-        write_periods(question, res, periods, nb_periods, percent=1)
+        write_periods(question, res, percent=1)
 
 
 def q99():
@@ -108,31 +108,28 @@ def q100():
     nb=2
 
     for key, value in variables.iteritems():
-        filter_vars={key+"1__isnull": False, key+"2__isnull": False}
+        filter_vars={key+"1__gt": 0, key+"2__gt": 0}
         #~
         question="Nombre moyen de "+value+"1-2 par secteur"
-        print question
         for index in range(1, nb+1):
             i=str(index)
             res["res_"+i]=init_cs()
             res["res_"+i]=get_by_cs(res["res_"+i], variable=key+i, filter_vars=filter_vars)
-        write_cs(question, res["res_1"], res_2=res["res_2"], percent=1)
+        write_cs(question, res["res_1"], res_2=res["res_2"], percent=1, query="1+2")
 
         question="Nombre moyen de "+value+"1-2 par année"
-        print question
         for index in range(1, nb+1):
             i=str(index)
             res["res_"+i]=init_year()
             res["res_"+i]=get_by_year(res["res_"+i], variable=key+i, filter_vars=filter_vars)
-        write_year(question, res["res_1"], res_2=res["res_2"], percent=1)
+        write_year(question, res["res_1"], res_2=res["res_2"], percent=1, query="1+2")
 
         question="Nombre moyen de "+value+"1-2 par secteur et par année"
-        print question
         for index in range(1, nb+1):
             i=str(index)
             res["res_"+i]=init_cs_year()
             res["res_"+i]=get_by_cs_year(res["res_"+i], variable=key+i, filter_vars=filter_vars)
-        write_cs_year(question, res["res_1"], res_2=res["res_2"], percent=1)
+        write_cs_year(question, res["res_1"], res_2=res["res_2"], percent=1, query="1+2")
 
 
 def q100_periods(cs=None):
@@ -146,8 +143,8 @@ def q100_periods(cs=None):
 
     for key, value in variables.iteritems():
         question="Nombre moyen de "+value+"1-2"
-        filter_vars_acts={key+"1__isnull": False, key+"2__isnull": False}
-        periods, nb_periods, res, filter_vars, filter_total=init_periods(Model, filter_vars_acts=filter_vars_acts)
+        filter_vars_acts={key+"1__gt": 0, key+"2__gt": 0}
+        res, filter_vars, filter_total=init_periods(Model, filter_vars_acts=filter_vars_acts)
 
         #filter by specific cs
         if cs is not None:
@@ -158,11 +155,11 @@ def q100_periods(cs=None):
             res_vars["res_"+i]=list(res)
 
             if cs is not None:
-                res_vars["res_"+i]=get_by_period_cs(list_acts_cs, periods, nb_periods, res_vars["res_"+i], Model, filter_vars, filter_total, avg_variable=key+i)
+                res_vars["res_"+i]=get_by_period_cs(list_acts_cs, res_vars["res_"+i], Model, filter_vars, filter_total, avg_variable=key+i)
             else:
-                res_vars["res_"+i]=get_by_period(periods, nb_periods, res_vars["res_"+i], Model, filter_vars, filter_total, avg_variable=key+i)
+                res_vars["res_"+i]=get_by_period(res_vars["res_"+i], Model, filter_vars, filter_total, avg_variable=key+i)
 
-        write_periods(question, res_vars["res_1"], periods, nb_periods, percent=1, res_2=res_vars["res_2"])
+        write_periods(question, res_vars["res_1"], percent=1, res_2=res_vars["res_2"])
 
 
 def q105():
@@ -235,6 +232,7 @@ def q106():
     write_cs_year(question, res, percent=1, query="amdt")
 
 
+#NOT USED
 def q109():
     #1/ Moyenne EPVotesFor1/EPVotesFor2 2/ Moyenne EPVotesAgst1/EPVotesAgst2 3/ Moyenne EPVotesAbs1/EPVotesAbs2
     variables=(

@@ -450,7 +450,7 @@ def filter_exclude_list(list_acts, filter_vars={}, exclude_vars={}):
     return list_acts_new
 
 
-def get_by_period_cs(list_acts, periods, nb_periods, res, Model, filter_vars, filter_total, exclude_vars={}, avg_variable=None, adopt_cs={}):
+def get_by_period_cs(list_acts, res, Model, filter_vars, filter_total, exclude_vars={}, avg_variable=None, adopt_cs={}):
     for index in range(nb_periods):
         filter_vars_periods=get_validated_acts_periods(Model, periods[index], filter_vars)
         #from the list of acts with a specific cs, create a new list taking into account other filters / excludes

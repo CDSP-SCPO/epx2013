@@ -369,7 +369,7 @@ def write_periods(question, res, percent=100, res_2=None, nb=False):
             temp=round(float(res[index][0])*percent/res[index][1], 3)
         else:
             #average votes_for_1 + votes_for_2
-            temp=round(float(res[index][0]+res_2[index][0])*percent/(res[index][1]+res_2[index][1]), 3)
+            temp=round(float(res[index][0]+res_2[index][0])*percent/res[index][1], 3)
         row.append(temp)
     writer.writerow(row)
     writer.writerow("")

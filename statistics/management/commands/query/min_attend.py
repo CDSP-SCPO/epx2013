@@ -103,14 +103,14 @@ def q38():
 def q76(cs=None):
     question="Pourcentage moyen de représentants permanents par acte"
     Model=MinAttend
-    periods, nb_periods, res, filter_vars, filter_total=init_periods(Model)
+    res, filter_vars, filter_total=init_periods(Model)
 
     #filter by specific cs
     if cs is not None:
         question+=" (code sectoriel : "+cs[1]+")"
         list_acts_cs=get_list_acts_cs(cs[0], Model=Model)
-        res=get_by_period_cs(list_acts_cs, periods, nb_periods, res, Model, filter_vars, filter_total)
+        res=get_by_period_cs(list_acts_cs, res, Model, filter_vars, filter_total)
     else:
-        res=get_by_period(periods, nb_periods, res, Model, filter_vars, filter_total)
+        res=get_by_period(res, Model, filter_vars, filter_total)
 
-    write_periods(question, res, periods, nb_periods)
+    write_periods(question, res)

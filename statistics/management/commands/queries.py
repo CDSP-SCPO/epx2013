@@ -7,6 +7,8 @@ from django.core.management.base import NoArgsCommand
 from query import acts, adopt_cs, duree, ep_amdt_vote, min_attend, modif_propos, nb_mots, party_family, pers, point_b, type_acte, vote, country
 
 
+
+
 class Command(NoArgsCommand):
     def handle(self, **options):
         #proportion d’actes avec plusieurs codes sectoriels
@@ -231,7 +233,6 @@ class Command(NoArgsCommand):
         #2014-10-31
         #Pourcentage de points B, par année, par secteur, par année et par secteur
         #~ point_b.q95()
-        #~
         #~ #Durée DureeTotaleDepuisTransCons moyenne 1/pour tous les actes, 2/quand VotePublic=Y ou 3/quand VotePublic= N, par année, par secteur, par année et par secteur
         #~ duree.q96()
         #1/Pourcentage de AdoptCSContre=Y, 2/Pourcentage de AdoptCSAbs=Y, par année, par secteur, par année et par secteur
@@ -310,9 +311,37 @@ class Command(NoArgsCommand):
         #~ acts.q108()
         #Nombre de mots moyen
         #~ nb_mots.q54()
-        #Nombre de mots x Nombre d'actes
+        #~ #Nombre de mots x Nombre d'actes
         #~ nb_mots.q83()
         #Pourcentage de discordance des familles politiques
         #~ party_family.q84()
         #1/ Moyenne EPVotesFor1/EPVotesFor2 2/ Moyenne EPVotesAgst1/EPVotesAgst2 3/ Moyenne EPVotesAbs1/EPVotesAbs2
-        ep_amdt_vote.q109()
+        #~ ep_amdt_vote.q109()
+        #~ ep_amdt_vote.q100()
+
+
+        #2014-12-4 : Hausse de la bureaucratisation, Conflictualité pour le secteur Économie
+        # NOUVELLES PERIODES
+        #~ cs=[10, "Économie"]
+        #pourcentages de propositions de la Commission adoptées par procédure écrite
+        #~ acts.q71(cs=cs)
+        #pourcentage de textes adoptés en « points A » au Conseil
+        #~ acts.q72(cs=cs)
+        #~ #nombre de moyen de points B par texte
+        #~ point_b.q73(cs=cs)
+        #pourcentage de textes adoptés en 1ère lecture au Parlement Européen
+        #~ acts.q74(cs=cs)
+        #nombre moyen d’amendements déposés
+        #~ ep_amdt_vote.q75(cs=cs)
+        #% moyen de représentants permanents par acte
+        #~ min_attend.q76(cs=cs)
+        #% ages moyens de votes publics, vote contre, abstentions là où VMQ est possible
+        #~ acts.q77(cs=cs)
+        #~ #durée moyenne par acte
+        #~ duree.q78(cs=cs)
+        #~ #% d’actes adoptés en 2ème lecture
+        #~ acts.q79(cs=cs)
+        #% d’actes avec au moins 1 point B
+        #~ acts.q80(cs=cs)
+        #~ #1/Moyenne EPVotesFor1-2, 2/Moyenne EPVotesAgst1-2, 3/MoyenneEPVotesAbs1-2
+        #~ ep_amdt_vote.q100_periods(cs=cs)

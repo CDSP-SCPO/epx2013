@@ -62,18 +62,19 @@ def q70():
 def q73(cs=None):
     question="Nombre moyen de points B"
     Model=Act
-    filter_vars_acts={"nb_point_b__gte": 1}
-    periods, nb_periods, res, filter_vars, filter_total=init_periods(Model, filter_vars_acts=filter_vars_acts)
+    variable="nb_point_b"
+    filter_vars_acts={variable+"__isnull": False}
+    res, filter_vars, filter_total=init_periods(Model, filter_vars_acts=filter_vars_acts)
 
     #filter by specific cs
     if cs is not None:
         question+=" (code sectoriel : "+cs[1]+")"
         list_acts_cs=get_list_acts_cs(cs[0], Model=Model)
-        res=get_by_period_cs(list_acts_cs, periods, nb_periods, res, Model, filter_vars, filter_total, avg_variable="nb_point_b")
+        res=get_by_period_cs(list_acts_cs, res, Model, filter_vars, filter_total, avg_variable=variable)
     else:
-        res=get_by_period(periods, nb_periods, res, Model, filter_vars, filter_total, avg_variable="nb_point_b")
+        res=get_by_period(res, Model, filter_vars, filter_total, avg_variable=variable)
 
-    write_periods(question, res, periods, nb_periods, percent=1)
+    write_periods(question, res, percent=1)
 
 
 def q95():
