@@ -321,6 +321,11 @@ table .fieldWrapper
 }
 
 /* fix overlapping borders */
+.table tbody tr:first-child td
+{
+    border-top: none;
+}
+
 .table thead th:first-child, .table tbody td:first-child
 {
     border-left: none;

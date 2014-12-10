@@ -36,17 +36,17 @@
 
 #eurlex_ids_table td
 {
-    width: 78px;
+    width: 4%;
 }
 
 #oeil_ids_table
 {
-    width: 43.9%;
+    width: 41.1%;
 }
 
 #prelex_ids_table
 {
-    width: 49.5%;
+    width: 46.5%;
 }
 
 #prelex_ids_table td
@@ -62,7 +62,7 @@
 
 .second_column
 {
-    width: 77%;
+    width: 79%;
 }
 
 /* length of eurlex, oeil and prelex input fields (except for fields with a reload button) */

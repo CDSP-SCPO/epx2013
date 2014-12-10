@@ -32,8 +32,8 @@ var_name["nb_mots"]="NombreMots"
 
 #oeil
 var_name["commission"]="CommissionPE"
-var_name["com_amdt_tabled"]="EPComAndtTabled"
-var_name["com_amdt_adopt"]="EPComAndtAdopt"
+var_name["com_amdt_tabled"]="EPComAmdtTabled"
+var_name["com_amdt_adopt"]="EPComAmdtAdopt"
 var_name["amdt_tabled"]="EPAmdtTabled"
 var_name["amdt_adopt"]="EPAmdtAdopt"
 for index in xrange(1,3):

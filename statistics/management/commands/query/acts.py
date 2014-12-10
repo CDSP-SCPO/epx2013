@@ -418,7 +418,8 @@ def q80(cs=None):
     question="Pourcentage d’actes avec au moins un point B"
     Model=Act
     filter_vars_acts={"nb_point_b__gte": 1}
-    res, filter_vars, filter_total=init_periods(Model, filter_vars_acts=filter_vars_acts)
+    filter_total_acts={"nb_point_b__isnull": False}
+    res, filter_vars, filter_total=init_periods(Model, filter_vars_acts=filter_vars_acts, filter_total_acts=filter_total_acts)
 
     #filter by specific cs
     if cs is not None:

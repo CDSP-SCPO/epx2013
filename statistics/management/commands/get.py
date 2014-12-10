@@ -60,6 +60,26 @@ def check_vars(act, act_act, check_vars_act, check_vars_act_ids):
     return True
 
 
+def get_all(res, count=True, Model=Act, variable=None, excluded_values=[None], filter_vars={}, check_vars_act={}, check_vars_act_ids={}):
+    filter_vars=get_validated_acts(Model, filter_vars_acts=filter_vars)
+    for act in Model.objects.filter(**filter_vars):
+        act_act=get_act(Model, act)
+        value=1
+        if variable is not None:
+            value=getattr(act, variable)
+        if value not in excluded_values:
+            ok=check_vars(act, act_act, check_vars_act, check_vars_act_ids)
+            if count:
+                res[1]+=1
+                if variable is not None or ok:
+                    res[0]+=value
+            else:
+                res+=value
+
+    print "res", res
+    return res
+
+
 def get_by_cs(res, count=True, Model=Act, variable=None, excluded_values=[None], filter_vars={}, check_vars_act={}, check_vars_act_ids={}):
     filter_vars=get_validated_acts(Model, filter_vars_acts=filter_vars)
     for act in Model.objects.filter(**filter_vars):
@@ -416,7 +436,11 @@ def filter_exclude_list(list_acts, filter_vars={}, exclude_vars={}):
                 if getattr(instance, key[:-5])>value:
                     ok=False
                     break
-
+            #greater than: "nb_point_a__gt": 0
+            elif key[-4:]=="__gt":
+                if getattr(instance, key[:-4])<=value:
+                    ok=False
+                    break
             elif key[-8:]=="__isnull":
                 var=getattr(instance, key[:-8])
                 #"com_amdt_tabled__isnull": False
@@ -427,6 +451,7 @@ def filter_exclude_list(list_acts, filter_vars={}, exclude_vars={}):
                 elif value and var is not None:
                     ok=False
                     break
+                    
             #equal to: "nb_point_a": 1
             elif getattr(instance, key) != value:
                 ok=False

@@ -315,33 +315,40 @@ class Command(NoArgsCommand):
         #~ nb_mots.q83()
         #Pourcentage de discordance des familles politiques
         #~ party_family.q84()
-        #1/ Moyenne EPVotesFor1/EPVotesFor2 2/ Moyenne EPVotesAgst1/EPVotesAgst2 3/ Moyenne EPVotesAbs1/EPVotesAbs2
+        #1/ Moyenne EPVotesFor1-2 2/ Moyenne EPVotesAgst1-2 3/ Moyenne EPVotesAbs1-2
         #~ ep_amdt_vote.q109()
         #~ ep_amdt_vote.q100()
 
 
         #2014-12-4 : Hausse de la bureaucratisation, Conflictualité pour le secteur Économie
         # NOUVELLES PERIODES
-        #~ cs=[10, "Économie"]
-        #pourcentages de propositions de la Commission adoptées par procédure écrite
-        #~ acts.q71(cs=cs)
-        #pourcentage de textes adoptés en « points A » au Conseil
-        #~ acts.q72(cs=cs)
-        #~ #nombre de moyen de points B par texte
-        #~ point_b.q73(cs=cs)
-        #pourcentage de textes adoptés en 1ère lecture au Parlement Européen
-        #~ acts.q74(cs=cs)
-        #nombre moyen d’amendements déposés
-        #~ ep_amdt_vote.q75(cs=cs)
-        #% moyen de représentants permanents par acte
-        #~ min_attend.q76(cs=cs)
-        #% ages moyens de votes publics, vote contre, abstentions là où VMQ est possible
-        #~ acts.q77(cs=cs)
-        #~ #durée moyenne par acte
-        #~ duree.q78(cs=cs)
-        #~ #% d’actes adoptés en 2ème lecture
-        #~ acts.q79(cs=cs)
-        #% d’actes avec au moins 1 point B
-        #~ acts.q80(cs=cs)
-        #~ #1/Moyenne EPVotesFor1-2, 2/Moyenne EPVotesAgst1-2, 3/MoyenneEPVotesAbs1-2
-        #~ ep_amdt_vote.q100_periods(cs=cs)
+        #~ css=[None, [10, "Économie"]]
+        #~ for cs in css:
+            #~ #pourcentages de propositions de la Commission adoptées par procédure écrite
+            #~ acts.q71(cs=cs)
+            #pourcentage de textes adoptés en « points A » au Conseil
+            #~ acts.q72(cs=cs)
+            #~ #nombre de moyen de points B par texte
+            #~ point_b.q73(cs=cs)
+            #pourcentage de textes adoptés en 1ère lecture au Parlement Européen
+            #~ acts.q74(cs=cs)
+            #nombre moyen d’amendements déposés
+            #~ ep_amdt_vote.q75(cs=cs)
+            #% moyen de représentants permanents par acte
+            #~ min_attend.q76(cs=cs)
+            #% ages moyens de votes publics, vote contre, abstentions là où VMQ est possible
+            #~ acts.q77(cs=cs)
+            #~ #durée moyenne par acte
+            #~ duree.q78(cs=cs)
+            #~ #% d’actes adoptés en 2ème lecture
+            #~ acts.q79(cs=cs)
+            #~ #% d’actes avec au moins 1 point B
+            #~ acts.q80(cs=cs)
+            #1/Moyenne EPVotesFor1-2, 2/Moyenne EPVotesAgst1-2, 3/MoyenneEPVotesAbs1-2
+            #~ ep_amdt_vote.q100_periods(cs=cs)
+
+
+        #2014-12-4
+        #Duree de la procedure : DureeTotaleDepuisTransCons moyenne 1/pour tous les actes 2/VotePublic=Y 3/VotePublic=N 4/AdoptCSRegleVote=U 5/AdoptCSRegleVote=V 6/VotePublic=Y et AdoptCSRegleVote=V 7/VotePublic=Y et AdoptCSRegleVote=U
+        #~ duree.q8()
+

@@ -31,11 +31,13 @@ writer.writerow([""])
 
 
 
-def write_res(question, res):
+def write_all(question, res, count=True, percent=100):
+    print question
     writer.writerow([question])
-    writer.writerow([res])
+    if count:
+        res=round(float(res[0])/res[1], 3)
+    writer.writerow([res*percent])
     writer.writerow("")
-    print res
     print ""
 
 
@@ -72,6 +74,8 @@ def write_cs(question, res, res_2=None, count=True, percent=100, query=""):
                 elif query=="1+2":
                     #average votes_for_1 + votes_for_2
                     res[cs][0]=res[cs][0]+res_2[cs][0]
+                    res[cs][1]=res[cs][1]+res_2[cs][1]
+                    
                 #"normal" case
                 temp=round(float(res[cs][0])*percent/res[cs][1], 3)
 
@@ -126,6 +130,8 @@ def write_year(question, res, res_2=None, count=True, percent=100, bj=False, que
                     elif query=="1+2":
                         #average votes_for_1 + votes_for_2
                         res[year][0]=res[year][0]+res_2[year][0]
+                        res[year][1]=res[year][1]+res_2[year][1]
+                        
                     #"normal" case
                     temp=round(float(res[year][0])*percent/res[year][1], 3)
 
@@ -232,6 +238,8 @@ def write_cs_year(question, res, res_2=None, count=True, percent=100, total_year
                 elif query=="1+2":
                     #average votes_for_1 + votes_for_2
                     res[cs][year][0]=res[cs][year][0]+res_2[cs][year][0]
+                    res[cs][year][1]=res[cs][year][1]+res_2[cs][year][1]
+                    
                 #"normal" case
                 temp=round(float(res[cs][year][0])*percent/res[cs][year][1],3)
 
@@ -362,14 +370,19 @@ def write_periods(question, res, percent=100, res_2=None, nb=False):
     for index in range(nb_periods):
         if res[index][0]==0:
             temp=0
+
         #no percentage, display the number of occurences only
         elif nb:
             temp=res[index][0]
-        elif res_2 is None:
-            temp=round(float(res[index][0])*percent/res[index][1], 3)
         else:
             #average votes_for_1 + votes_for_2
-            temp=round(float(res[index][0]+res_2[index][0])*percent/res[index][1], 3)
+            if res_2 is not None:
+                res[index][0]=res[index][0]+res_2[index][0]
+                res[index][1]=res[index][1]+res_2[index][1]
+                
+            #normal case
+            temp=round(float(res[index][0])*percent/res[index][1], 3)
+
         row.append(temp)
     writer.writerow(row)
     writer.writerow("")
