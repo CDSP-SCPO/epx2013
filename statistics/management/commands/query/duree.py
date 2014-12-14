@@ -59,7 +59,7 @@ def q8():
 
     for filter_var in filter_vars:
         question=initial_question+filter_var[0]
-        res=[0,0]
+        res=init_all()
         res=get_all(res, variable="duree_tot_depuis_trans_cons", filter_vars=filter_var[1])
         write_all(question, res, percent=1)
 
@@ -425,18 +425,19 @@ def q59(cs, name):
 
 
 def q78(cs=None):
-    question="Durée moyenne par acte"
+    question="DureeTotaleDepuisTransCons moyenne, par période"
     Model=Act
-    filter_vars_acts={"duree_tot_depuis_prop_com__isnull": False}
+    variable="duree_tot_depuis_trans_cons"
+    filter_vars_acts={variable+"__gt": 1}
     res, filter_vars, filter_total=init_periods(Model, filter_vars_acts=filter_vars_acts)
 
     #filter by specific cs
     if cs is not None:
         question+=" (code sectoriel : "+cs[1]+")"
         list_acts_cs=get_list_acts_cs(cs[0], Model=Model)
-        res=get_by_period_cs(list_acts_cs, res, Model, filter_vars, filter_total, avg_variable="duree_tot_depuis_prop_com")
+        res=get_by_period_cs(list_acts_cs, res, Model, filter_vars, filter_total, avg_variable=variable)
     else:
-        res=get_by_period(res, Model, filter_vars, filter_total, avg_variable="duree_tot_depuis_prop_com")
+        res=get_by_period(res, Model, filter_vars, filter_total, avg_variable=variable)
 
     write_periods(question, res, percent=1)
 
@@ -445,42 +446,90 @@ def q96():
     #Durée de la procédure (= Moyenne DureeTotaleDepuisTransCons ET DureeProcedureDepuisTransCons) par année, par secteur, par année et par secteur
     #1/pour tous les actes 2/VotePublic=Y 3/VotePublic=N 4/AdoptCSRegleVote=U 5/AdoptCSRegleVote=V 6/VotePublic=Y et AdoptCSRegleVote=U 7/ VotePublic=Y et AdoptCSRegleVote=V
     filters=(
-        ("tous les actes", {}),
-        ("les actes avec VotePublic=Y", {"vote_public": True}),
-        ("les actes avec VotePublic=N", {"vote_public": False}),
-        ("les actes avec AdoptCSRegleVote=U", {"adopt_cs_regle_vote": "U"}),
-        ("les actes avec AdoptCSRegleVote=V", {"adopt_cs_regle_vote": "V"}),
-        ("les actes avec VotePublic=Y et AdoptCSRegleVote=U", {"vote_public": True, "adopt_cs_regle_vote": "U"}),
-        ("les actes avec VotePublic=Y et AdoptCSRegleVote=V", {"vote_public": True, "adopt_cs_regle_vote": "V"})
+        ("", {}),
+        (" avec VotePublic=Y", {"vote_public": True}),
+        (" avec VotePublic=N", {"vote_public": False}),
+        (" avec AdoptCSRegleVote=U", {"adopt_cs_regle_vote": "U"}),
+        (" avec AdoptCSRegleVote=V", {"adopt_cs_regle_vote": "V"}),
+        (" avec VotePublic=Y et AdoptCSRegleVote=U", {"vote_public": True, "adopt_cs_regle_vote": "U"}),
+        (" avec VotePublic=Y et AdoptCSRegleVote=V", {"vote_public": True, "adopt_cs_regle_vote": "V"})
     )
     variables=(("duree_tot_depuis_trans_cons", "DureeTotaleDepuisTransCons"), ("duree_proc_depuis_trans_cons", "DureeProcedureDepuisTransCons"))
-    filter_vars={variables[0][0]+"__isnull": False, variables[1][0]+"__isnull": False}
-    initial_question="Durée moyenne (" + variables[0][1] + "+" + variables[1][1]+ "), pour "
+    filter_vars={variables[0][0]+"__gt": 1, variables[1][0]+"__gt": 1}
+    init_question="Durée moyenne (" + variables[0][1] + "+" + variables[1][1]+ "), pour tous les actes"
 
     for filt in filters:
         filter_vars_temp=filter_vars.copy()
         #update filter
         filter_vars_temp.update(filt[1])
 
-        question=initial_question+filt[0]+", par secteur"
-        res_1=init_cs()
-        res_2=init_cs()
-        res_1=get_by_cs(res_1, variable=variables[0][0], filter_vars=filter_vars_temp)
-        res_2=get_by_cs(res_2, variable=variables[1][0], filter_vars=filter_vars_temp)
-        write_cs(question, res_1, res_2=res_2, percent=1, query="1+2")
+        question=init_question+filt[0]
+        res_1=init_all()
+        res_2=init_all()
+        res_1=get_all(res_1, variable=variables[0][0], filter_vars=filter_vars_temp)
+        res_2=get_all(res_2, variable=variables[1][0], filter_vars=filter_vars_temp)
+        write_all(question, res_1, res_2=res_2, percent=1, query="1+2")
 
-        question=initial_question+filt[0]+", par année"
-        res_1=init_year()
-        res_2=init_year()
-        res_1=get_by_year(res_1, variable=variables[0][0], filter_vars=filter_vars_temp)
-        res_2=get_by_year(res_2, variable=variables[1][0], filter_vars=filter_vars_temp)
-        write_year(question, res_1, res_2=res_2, percent=1, query="1+2")
+        #~ question=init_question+filt[0]+", par secteur"
+        #~ res_1=init_cs()
+        #~ res_2=init_cs()
+        #~ res_1=get_by_cs(res_1, variable=variables[0][0], filter_vars=filter_vars_temp)
+        #~ res_2=get_by_cs(res_2, variable=variables[1][0], filter_vars=filter_vars_temp)
+        #~ write_cs(question, res_1, res_2=res_2, percent=1, query="1+2")
+#~ 
+        #~ question=init_question+filt[0]+", par année"
+        #~ res_1=init_year()
+        #~ res_2=init_year()
+        #~ res_1=get_by_year(res_1, variable=variables[0][0], filter_vars=filter_vars_temp)
+        #~ res_2=get_by_year(res_2, variable=variables[1][0], filter_vars=filter_vars_temp)
+        #~ write_year(question, res_1, res_2=res_2, percent=1, query="1+2")
+#~ 
+        #~ question=init_question+filt[0]+", par secteur et par année"
+        #~ res_1=init_cs_year()
+        #~ res_2=init_cs_year()
+        #~ res_1=get_by_cs_year(res_1, variable=variables[0][0], filter_vars=filter_vars_temp)
+        #~ res_2=get_by_cs_year(res_2, variable=variables[1][0], filter_vars=filter_vars_temp)
+        #~ write_cs_year(question, res_1, res_2=res_2, percent=1, query="1+2")
+        
+        
+def q110():
+    #Durée Moyenne DureeTotaleDepuisTransCons
+    #1/pour tous les actes 2/VotePublic=Y 3/VotePublic=N 4/AdoptCSRegleVote=U 5/AdoptCSRegleVote=V 6/VotePublic=Y et AdoptCSRegleVote=U 7/ VotePublic=Y et AdoptCSRegleVote=V
+    filters=(
+        ("", {}),
+        (" avec VotePublic=Y", {"vote_public": True}),
+        (" avec VotePublic=N", {"vote_public": False}),
+        (" avec AdoptCSRegleVote=U", {"adopt_cs_regle_vote": "U"}),
+        (" avec AdoptCSRegleVote=V", {"adopt_cs_regle_vote": "V"}),
+        (" avec VotePublic=Y et AdoptCSRegleVote=U", {"vote_public": True, "adopt_cs_regle_vote": "U"}),
+        (" avec VotePublic=Y et AdoptCSRegleVote=V", {"vote_public": True, "adopt_cs_regle_vote": "V"})
+    )
+    variable=("duree_tot_depuis_trans_cons", "DureeTotaleDepuisTransCons")
+    filter_vars={variable[0]+"__gt": 1}
+    init_question=variable[1] + " moyenne, pour tous les actes"
 
-        question=initial_question+filt[0]+", par secteur et par année"
-        res_1=init_cs_year()
-        res_2=init_cs_year()
-        res_1=get_by_cs_year(res_1, variable=variables[0][0], filter_vars=filter_vars_temp)
-        res_2=get_by_cs_year(res_2, variable=variables[1][0], filter_vars=filter_vars_temp)
-        write_cs_year(question, res_1, res_2=res_2, percent=1, query="1+2")
+    for filt in filters:
+        filter_vars_temp=filter_vars.copy()
+        #update filter
+        filter_vars_temp.update(filt[1])
 
+        question=init_question+filt[0]
+        res=init_all()
+        res=get_all(res, variable=variable[0], filter_vars=filter_vars_temp)
+        write_all(question, res, percent=1)
+
+        #~ question=init_question+filt[0]+", par secteur"
+        #~ res=init_cs()
+        #~ res=get_by_cs(res, variable=variable[0], filter_vars=filter_vars_temp)
+        #~ write_cs(question, res, percent=1)
+#~ 
+        #~ question=init_question+filt[0]+", par année"
+        #~ res=init_year()
+        #~ res=get_by_year(res, variable=variable[0], filter_vars=filter_vars_temp)
+        #~ write_year(question, res, percent=1)
+#~ 
+        #~ question=init_question+filt[0]+", par secteur et par année"
+        #~ res=init_cs_year()
+        #~ res=get_by_cs_year(res, variable=variable[0], filter_vars=filter_vars_temp)
+        #~ write_cs_year(question, res, percent=1)
 

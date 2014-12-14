@@ -47,7 +47,7 @@ def check_equality_fields(fields):
 def get_ordered_queryset(releve_mois, releve_annee, no_ordre, validated=False):
     """
     FUNCTION
-    get the acts from the ids in parameter and order the queryset according to the status and country
+    get the acts from the ids in parameter and order the queryset according to the status and country (Ministers' attendance validation page)
     PARAMETERS
     releve_mois: releve_mois variable [int]
     releve_annee: releve_annee variable [int]
@@ -56,10 +56,12 @@ def get_ordered_queryset(releve_mois, releve_annee, no_ordre, validated=False):
     sorted queryset [Queryset object]
     """
     queryset_no_order=ImportMinAttend.objects.filter(releve_annee=releve_mois, releve_mois=releve_annee, no_ordre=no_ordre)
+    #1st: rows without status, ordered by country
     queryset=queryset_no_order.filter(status=None).order_by("country")
-    #must hit the database to have _result_cache work
+    #must hit the database to have _result_cache working
     len(queryset)
 
+    #2d: rows with a status, ordered by country 
     queryset_status=queryset_no_order.exclude(status=None).order_by("country")
     for query in queryset_status:
         queryset._result_cache.append(query)
@@ -70,7 +72,7 @@ def get_ordered_queryset(releve_mois, releve_annee, no_ordre, validated=False):
 def add_modif_fct(request, response, Add, Modif, form):
     """
     FUNCTION
-    check if the form is in any of add and modification mode
+    check if we are adding or modifying an act and check if the add or modif form is valid
     PARAMETERS
     request: request variable [HttpRequest object]
     response: all the different forms [dictionary]
@@ -140,7 +142,7 @@ def add_modif_fct(request, response, Add, Modif, form):
 def act_ids(request):
     """
     VIEW
-    displays and processes the acts validation page
+    displays and processes the Act ids validation page
     TEMPLATES
     act_ids/index.html: display the act ids page which itself calls the template of the act_ids form
     act_ids/form.html: display the act_ids form
@@ -192,7 +194,7 @@ def act_ids(request):
                         response["msg"]="The act " + str(act) + " has been validated!"
                         response["msg_class"]="success_msg"
 
-                         #save in history
+                        #save in history
                         History.objects.create(action=add_modif, form="ids", act=act, user=request.user)
                     else:
                         print "form_ids not valid", form_ids.errors
@@ -312,7 +314,7 @@ def act_ids(request):
 def reset_ids_form(request):
     """
     VIEW
-    reset the act_ids form (except add and modif)
+    reset the act_ids form (except add and modif forms)
     TEMPLATES
     act_ids/form.html
     """

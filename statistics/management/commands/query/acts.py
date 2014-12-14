@@ -31,45 +31,18 @@ def q1():
 
 def q2():
     #ventilation par domaines
-    question="ventilation par domaines"
-    print question
-    res={}
-    for secteur in cs_list:
-        res[secteur]=0
-
-    for act in Act.objects.filter(validated=2):
-        for nb in range(1,5):
-            code_sect=getattr(act, "code_sect_"+str(nb))
-            if code_sect is not None:
-                cs=get_cs(code_sect.code_sect)
-                res[cs]+=1
-    print "res", res
-
-    writer.writerow([question])
-    writer.writerow(cs_list)
-    temp=[]
-    for cs in cs_list:
-        temp.append(res[cs])
-    writer.writerow(temp)
-    writer.writerow("")
-    print ""
+    question="Nombre d'actes par secteur"
+    res=init_cs(count=False)
+    res=get_by_cs(res, count=False)
+    write_cs(question, res, count=False)
 
 
 def q9():
     #Nombre d'actes legislatifs adoptes par annee
-    question="production legislative par annee"
-    print question
-    res=[]
-
-    for year in years_list:
-        res.append(Act.objects.filter(validated=2, releve_annee=year).count())
-    print "res", res
-
-    writer.writerow([question])
-    writer.writerow(years_list)
-    writer.writerow(res)
-    writer.writerow("")
-    print ""
+    question="Nombre d'actes par année"
+    res=init_year(count=False)
+    res=get_by_year(res, count=False)
+    write_year(question, res, count=False)
 
 
 def q10():
@@ -87,28 +60,6 @@ def q10():
     print "res", res
 
     write_cs_year(question, res)
-
-
-#~ def q37():
-    #~ question="Pourcentage d’actes pour lesquels on a eu au moins une discussion en points B, en fonction de l'année, par secteur et par année"
-    #~ print question
-    #~ res, total_year=init_cs_year(total=True)
-    #~ print total_year
-#~
-    #~ for act in Act.objects.filter(validated=2, nb_point_b__isnull=False):
-        #~ if act.nb_point_b>0:
-            #~ year=str(act.releve_annee)
-            #~ #for each code sectoriel
-            #~ for nb in range(1,5):
-                #~ code_sect=getattr(act, "code_sect_"+str(nb))
-                #~ if code_sect is not None:
-                    #~ total_year[year]+=1
-                    #~ cs=get_cs(code_sect.code_sect)
-                    #~ res[cs][year]+=1
-    #~ print "res", res
-#~
-    #~ write_cs_year(question, res, total_year=total_year, percent=100)
-
 
 
 def q43():
@@ -291,7 +242,7 @@ def q62(cs, name):
 
 def q71(cs=None):
     #actes pour lesquels ProposOrigine="COM" et ComProc="Written procedure"
-    question="Pourcentage d'actes provenant de la Commission et adoptés par procédure écrite"
+    question="Pourcentage d'actes provenant de la Commission et adoptés par procédure écrite, par période"
     Model=ActIds
     filter_vars_acts={"com_proc": "Written procedure"}
     filter_vars_acts_ids={"propos_origine": "COM"}
@@ -309,7 +260,7 @@ def q71(cs=None):
 
 
 def q72(cs=None):
-    question="Pourcentage d'actes avec au moins un point A"
+    question="Pourcentage d'actes avec au moins un point A, par période"
     Model=Act
     filter_vars_acts={"nb_point_a__gte": 1}
     res, filter_vars, filter_total=init_periods(Model, filter_vars_acts=filter_vars_acts)
@@ -326,7 +277,7 @@ def q72(cs=None):
 
 
 def q74(cs=None):
-    question="Pourcentage d'actes adoptés en 1ère lecture parmi les actes de codécision"
+    question="Pourcentage d'actes adoptés en 1ère lecture parmi les actes de codécision, par période"
     Model=ActIds
     filter_total_act_ids={"no_unique_type": "COD"}
     filter_vars_acts={"nb_lectures": 1}
@@ -354,7 +305,7 @@ def q77(cs=None):
     if cs is not None:
         list_acts_cs=get_list_acts_cs(cs[0], Model=Model)
 
-    question="Pourcentage d’actes adoptés avec un vote public, parmi les actes avec une majorité qualifiée lors de l'adoption au conseil"
+    question="Pourcentage d’actes adoptés avec un vote public, parmi les actes avec une majorité qualifiée lors de l'adoption au conseil, par période"
     res, filter_vars, filter_total=init_periods(Model, filter_vars_acts=filter_var_acts_vote, filter_total_acts=filter_total_acts)
     #filter by specific cs
     if cs is not None:
@@ -364,7 +315,7 @@ def q77(cs=None):
         res=get_by_period(res, Model, filter_vars, filter_total)
     write_periods(question, res)
 
-    question="Pourcentage d’actes adoptés avec avec opposition d'exactement un état, parmi les actes avec une majorité qualifiée lors de l'adoption au conseil"
+    question="Pourcentage d’actes adoptés avec avec opposition d'exactement un état, parmi les actes avec une majorité qualifiée lors de l'adoption au conseil, par période"
     res, filter_vars, filter_total=init_periods(Model, filter_vars_acts=filter_vars_acts, filter_total_acts=filter_total_acts)
     #filter by specific cs
     if cs is not None:
@@ -374,7 +325,7 @@ def q77(cs=None):
         res=get_by_period(res, Model, filter_vars, filter_total, adopt_cs={"nb_countries": 1})
     write_periods(question, res)
 
-    question="Pourcentage d’actes adoptés avec opposition d'au moins deux états, parmi les actes avec une majorité qualifiée lors de l'adoption au conseil"
+    question="Pourcentage d’actes adoptés avec opposition d'au moins deux états, parmi les actes avec une majorité qualifiée lors de l'adoption au conseil, par période"
     res, filter_vars, filter_total=init_periods(Model, filter_vars_acts=filter_vars_acts, filter_total_acts=filter_total_acts)
     #filter by specific cs
     if cs is not None:
@@ -384,7 +335,7 @@ def q77(cs=None):
         res=get_by_period(res, Model, filter_vars, filter_total, adopt_cs={"nb_countries__gte": 2})
     write_periods(question, res)
 
-    question="Pourcentage d’actes adoptés avec abstention d'au moins un état, parmi les actes avec une majorité qualifiée lors de l'adoption au conseil"
+    question="Pourcentage d’actes adoptés avec abstention d'au moins un état, parmi les actes avec une majorité qualifiée lors de l'adoption au conseil, par période"
     res, filter_vars, filter_total=init_periods(Model, filter_vars_acts=filter_vars_acts, filter_total_acts=filter_total_acts)
     #filter by specific cs
     if cs is not None:
@@ -396,7 +347,7 @@ def q77(cs=None):
 
 
 def q79(cs=None):
-    question="Pourcentage d’actes adoptés en 2ème lecture parmi les actes de codécision"
+    question="Pourcentage d’actes adoptés en 2ème lecture parmi les actes de codécision, par période"
     Model=ActIds
     filter_total_act_ids={"no_unique_type": "COD"}
     filter_vars_acts={"nb_lectures": 2}
@@ -415,7 +366,7 @@ def q79(cs=None):
 
 
 def q80(cs=None):
-    question="Pourcentage d’actes avec au moins un point B"
+    question="Pourcentage d’actes avec au moins un point B, par période"
     Model=Act
     filter_vars_acts={"nb_point_b__gte": 1}
     filter_total_acts={"nb_point_b__isnull": False}
@@ -480,24 +431,30 @@ def q98():
     variables=(("nb_lectures", "1ère lecture"), ("nb_lectures__gt", "2ème ou 3ème lecture"))
     filter_vars={"nb_lectures__isnull": False}
     check_vars_act_ids={"no_unique_type": "COD"}
+    init_question="Pourcentage d'actes avec NoUniqueType=COD adoptés en "
 
     for variable in variables:
         check_vars_act={variable[0]: 1}
 
-        question="Pourcentage d'actes avec NoUniqueType=COD adoptés en "+variable[1]+", par secteur"
-        res=init_cs()
-        res=get_by_cs(res, Model=ActIds, filter_vars=filter_vars, check_vars_act=check_vars_act, check_vars_act_ids=check_vars_act_ids)
-        write_cs(question, res)
+        question=init_question+variable[1]+", pour tous les actes"
+        res=init_all()
+        res=get_all(res, Model=ActIds, filter_vars=filter_vars, check_vars_act=check_vars_act, check_vars_act_ids=check_vars_act_ids)
+        write_all(question, res)
 
-        question="Pourcentage d'actes avec NoUniqueType=COD adoptés en "+variable[1]+", par année"
-        res=init_year()
-        res=get_by_year(res, Model=ActIds, filter_vars=filter_vars, check_vars_act=check_vars_act, check_vars_act_ids=check_vars_act_ids)
-        write_year(question, res)
-
-        question="Pourcentage d'actes avec NoUniqueType=COD adoptés en "+variable[1]+", par année et par secteur"
-        res=init_cs_year()
-        res=get_by_cs_year(res, Model=ActIds, filter_vars=filter_vars, check_vars_act=check_vars_act, check_vars_act_ids=check_vars_act_ids)
-        write_cs_year(question, res)
+        #~ question=init_question+variable[1]+", par secteur"
+        #~ res=init_cs()
+        #~ res=get_by_cs(res, Model=ActIds, filter_vars=filter_vars, check_vars_act=check_vars_act, check_vars_act_ids=check_vars_act_ids)
+        #~ write_cs(question, res)
+#~ 
+        #~ question=init_question+variable[1]+", par année"
+        #~ res=init_year()
+        #~ res=get_by_year(res, Model=ActIds, filter_vars=filter_vars, check_vars_act=check_vars_act, check_vars_act_ids=check_vars_act_ids)
+        #~ write_year(question, res)
+#~ 
+        #~ question=init_question+variable[1]+", par secteur et par année"
+        #~ res=init_cs_year()
+        #~ res=get_by_cs_year(res, Model=ActIds, filter_vars=filter_vars, check_vars_act=check_vars_act, check_vars_act_ids=check_vars_act_ids)
+        #~ write_cs_year(question, res)
 
 
 def q103():
@@ -521,41 +478,51 @@ def q104():
 def q107():
     #Pourcentage d'actes avec VotePublic=Y, par année, par secteur, par année et par secteur
     check_vars_act={"vote_public": True}
-    question_init="Pourcentage d'actes avec VotePublic=Y, "
+    init_question="Pourcentage d'actes avec VotePublic=Y, "
 
-    question=question_init+"par secteur"
-    res=init_cs()
-    res=get_by_cs(res, check_vars_act=check_vars_act)
-    write_cs(question, res)
+    question=init_question+"pour tous les actes"
+    res=init_all()
+    res=get_all(res, check_vars_act=check_vars_act)
+    write_all(question, res)
 
-    question=question_init+"par année"
-    res=init_year()
-    res=get_by_year(res, check_vars_act=check_vars_act)
-    write_year(question, res)
-
-    question=question_init+"par secteur et par année"
-    res=init_cs_year()
-    res=get_by_cs_year(res, check_vars_act=check_vars_act)
-    write_cs_year(question, res)
+    #~ question=init_question+"par secteur"
+    #~ res=init_cs()
+    #~ res=get_by_cs(res, check_vars_act=check_vars_act)
+    #~ write_cs(question, res)
+#~ 
+    #~ question=init_question+"par année"
+    #~ res=init_year()
+    #~ res=get_by_year(res, check_vars_act=check_vars_act)
+    #~ write_year(question, res)
+#~ 
+    #~ question=init_question+"par secteur et par année"
+    #~ res=init_cs_year()
+    #~ res=get_by_cs_year(res, check_vars_act=check_vars_act)
+    #~ write_cs_year(question, res)
 
 
 def q108():
     #Pourcentage d'actes avec au moins un point B, par année, par secteur, par année et par secteur
-    question_init="Pourcentage d'actes avec au moins un point B, "
+    init_question="Pourcentage d'actes avec au moins un point B, "
     filter_vars={"nb_point_b__isnull": False}
     check_vars_act={"nb_point_b__gte": 1}
 
-    question=question_init+"par secteur"
-    res=init_cs()
-    res=get_by_cs(res, filter_vars=filter_vars, check_vars_act=check_vars_act)
-    write_cs(question, res)
+    question=init_question+"pour tous les actes"
+    res=init_all()
+    res=get_all(res, filter_vars=filter_vars, check_vars_act=check_vars_act)
+    write_all(question, res)
 
-    question=question_init+"par année"
-    res=init_year()
-    res=get_by_year(res, filter_vars=filter_vars, check_vars_act=check_vars_act)
-    write_year(question, res)
-
-    question=question_init+"par secteur et par année"
-    res=init_cs_year()
-    res=get_by_cs_year(res, filter_vars=filter_vars, check_vars_act=check_vars_act)
-    write_cs_year(question, res)
+    #~ question=init_question+"par secteur"
+    #~ res=init_cs()
+    #~ res=get_by_cs(res, filter_vars=filter_vars, check_vars_act=check_vars_act)
+    #~ write_cs(question, res)
+#~ 
+    #~ question=init_question+"par année"
+    #~ res=init_year()
+    #~ res=get_by_year(res, filter_vars=filter_vars, check_vars_act=check_vars_act)
+    #~ write_year(question, res)
+#~ 
+    #~ question=init_question+"par secteur et par année"
+    #~ res=init_cs_year()
+    #~ res=get_by_cs_year(res, filter_vars=filter_vars, check_vars_act=check_vars_act)
+    #~ write_cs_year(question, res)

@@ -12,24 +12,29 @@ from  ..write import *
 
 
 def q54():
-    question_init="Nombre de mots moyen, "
+    init_question="Nombre de mots moyen, "
     variable="nb_mots"
     filter_vars={variable+"__isnull": False}
 
-    question=question_init+"par année"
-    res=init_year()
-    res=get_by_year(res, variable=variable, filter_vars=filter_vars)
-    write_year(question, res, percent=1)
+    question=init_question+"pour tous les actes"
+    res=init_all()
+    res=get_all(res, variable=variable, filter_vars=filter_vars)
+    write_all(question, res, percent=1)
 
-    question=question_init+"par secteur"
-    res=init_cs()
-    res=get_by_cs(res, variable=variable, filter_vars=filter_vars)
-    write_cs(question, res, percent=1)
-
-    question=question_init+"par secteur et par année"
-    res=init_cs_year()
-    res=get_by_cs_year(res, variable=variable, filter_vars=filter_vars)
-    write_cs_year(question, res, percent=1)
+    #~ question=init_question+"par année"
+    #~ res=init_year()
+    #~ res=get_by_year(res, variable=variable, filter_vars=filter_vars)
+    #~ write_year(question, res, percent=1)
+#~ 
+    #~ question=init_question+"par secteur"
+    #~ res=init_cs()
+    #~ res=get_by_cs(res, variable=variable, filter_vars=filter_vars)
+    #~ write_cs(question, res, percent=1)
+#~ 
+    #~ question=init_question+"par secteur et par année"
+    #~ res=init_cs_year()
+    #~ res=get_by_cs_year(res, variable=variable, filter_vars=filter_vars)
+    #~ write_cs_year(question, res, percent=1)
 
 
 def nb_mots_type_acte(type_acte):
@@ -130,24 +135,29 @@ def q64_bis():
 
 def q83():
     #Nb de mots x Nb d’actes, par année, par secteur, par année et par secteur
-    question_init="Total nombre de mots * nombre d'actes, "
+    init_question="Total nombre de mots * nombre d'actes, "
     variable="nb_mots"
     filter_vars={variable+"__isnull": False}
 
-    question=question_init+"par secteur"
-    res=init_cs()
-    res=get_by_cs(res, variable=variable, filter_vars=filter_vars)
-    write_cs(question, res, percent=1, query=variable)
+    question=init_question+"pour tous les actes"
+    res=init_all()
+    res=get_all(res, variable=variable, filter_vars=filter_vars)
+    write_all(question, res, percent=1, query=variable)
 
-    question=question_init+"par année"
-    res=init_year()
-    res=get_by_year(res, variable=variable, filter_vars=filter_vars)
-    write_year(question, res, percent=1, query=variable)
-
-    question=question_init+"par année et par secteur"
-    res=init_cs_year()
-    res=get_by_cs_year(res, variable=variable, filter_vars=filter_vars)
-    write_cs_year(question, res, percent=1, query=variable)
+    #~ question=init_question+"par secteur"
+    #~ res=init_cs()
+    #~ res=get_by_cs(res, variable=variable, filter_vars=filter_vars)
+    #~ write_cs(question, res, percent=1, query=variable)
+#~ 
+    #~ question=init_question+"par année"
+    #~ res=init_year()
+    #~ res=get_by_year(res, variable=variable, filter_vars=filter_vars)
+    #~ write_year(question, res, percent=1, query=variable)
+#~ 
+    #~ question=init_question+"par année et par secteur"
+    #~ res=init_cs_year()
+    #~ res=get_by_cs_year(res, variable=variable, filter_vars=filter_vars)
+    #~ write_cs_year(question, res, percent=1, query=variable)
 
 
 def nb_mots_2009(filter_vars={}, q=""):

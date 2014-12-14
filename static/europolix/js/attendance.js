@@ -31,15 +31,6 @@ function reset_attendance_form(result, mode)
 //show django errors
 function display_errors(errors, form_index)
 {
-    //~ for field in errors
-    //~ alert("hello")
-    //~ alert(errors)
-    //~ var errors = JSON.parse(errors);
-    //~ for (i=0;i<errors.length;i++)
-    //~ {
-        //~ alert(errors[i])
-    //~ }
-
     /* key=field name, example: form-0-country */
     for (var key in errors)
     {
@@ -62,7 +53,6 @@ function display_errors(errors, form_index)
 action = "add_attendance" or "modif_attendance" or "update_status" */
 function display_or_update_result(result, action)
 {
-
     //add mode -> an act has been selected in the drop down list
     if (action=="add_act")
     {

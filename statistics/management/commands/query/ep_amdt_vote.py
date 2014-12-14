@@ -56,7 +56,7 @@ def q32(display_name, variable_name):
 
 
 def q75(cs=None):
-    variables={"com_amdt_tabled": "Nombre moyen d’amendements déposés par la commission parlementaire du PE saisie au fond", "amdt_tabled": "Nombre moyen d’amendements déposés au PE"}
+    variables={"com_amdt_tabled": "Nombre moyen d’amendements déposés par la commission parlementaire du PE saisie au fond, par période", "amdt_tabled": "Nombre moyen d’amendements déposés au PE, par période"}
     Model=Act
     if cs is not None:
         list_acts_cs=get_list_acts_cs(cs[0], Model=Model)
@@ -109,27 +109,35 @@ def q100():
 
     for key, value in variables.iteritems():
         filter_vars={key+"1__gt": 0, key+"2__gt": 0}
-        #~
-        question="Nombre moyen de "+value+"1-2 par secteur"
-        for index in range(1, nb+1):
-            i=str(index)
-            res["res_"+i]=init_cs()
-            res["res_"+i]=get_by_cs(res["res_"+i], variable=key+i, filter_vars=filter_vars)
-        write_cs(question, res["res_1"], res_2=res["res_2"], percent=1, query="1+2")
+        init_question="Nombre moyen de "+value+"1-2, "
 
-        question="Nombre moyen de "+value+"1-2 par année"
+        question=init_question+"pour tous les actes"
         for index in range(1, nb+1):
             i=str(index)
-            res["res_"+i]=init_year()
-            res["res_"+i]=get_by_year(res["res_"+i], variable=key+i, filter_vars=filter_vars)
-        write_year(question, res["res_1"], res_2=res["res_2"], percent=1, query="1+2")
-
-        question="Nombre moyen de "+value+"1-2 par secteur et par année"
-        for index in range(1, nb+1):
-            i=str(index)
-            res["res_"+i]=init_cs_year()
-            res["res_"+i]=get_by_cs_year(res["res_"+i], variable=key+i, filter_vars=filter_vars)
-        write_cs_year(question, res["res_1"], res_2=res["res_2"], percent=1, query="1+2")
+            res["res_"+i]=init_all()
+            res["res_"+i]=get_all(res["res_"+i], variable=key+i, filter_vars=filter_vars)
+        write_all(question, res["res_1"], res_2=res["res_2"], percent=1, query="1+2")
+        
+        #~ question=init_question+"par secteur"
+        #~ for index in range(1, nb+1):
+            #~ i=str(index)
+            #~ res["res_"+i]=init_cs()
+            #~ res["res_"+i]=get_by_cs(res["res_"+i], variable=key+i, filter_vars=filter_vars)
+        #~ write_cs(question, res["res_1"], res_2=res["res_2"], percent=1, query="1+2")
+#~ 
+        #~ question=init_question+"par année"
+        #~ for index in range(1, nb+1):
+            #~ i=str(index)
+            #~ res["res_"+i]=init_year()
+            #~ res["res_"+i]=get_by_year(res["res_"+i], variable=key+i, filter_vars=filter_vars)
+        #~ write_year(question, res["res_1"], res_2=res["res_2"], percent=1, query="1+2")
+#~ 
+        #~ question=init_question+"par secteur et par année"
+        #~ for index in range(1, nb+1):
+            #~ i=str(index)
+            #~ res["res_"+i]=init_cs_year()
+            #~ res["res_"+i]=get_by_cs_year(res["res_"+i], variable=key+i, filter_vars=filter_vars)
+        #~ write_cs_year(question, res["res_1"], res_2=res["res_2"], percent=1, query="1+2")
 
 
 def q100_periods(cs=None):
@@ -142,7 +150,7 @@ def q100_periods(cs=None):
         list_acts_cs=get_list_acts_cs(cs[0], Model=Model)
 
     for key, value in variables.iteritems():
-        question="Nombre moyen de "+value+"1-2"
+        question="Nombre moyen de "+value+"1-2, par période"
         filter_vars_acts={key+"1__gt": 0, key+"2__gt": 0}
         res, filter_vars, filter_total=init_periods(Model, filter_vars_acts=filter_vars_acts)
 
@@ -174,27 +182,35 @@ def q105():
 
     for variable in variables:
         filter_vars={variable[0][0]+"__gt": 0, variable[1][0]+"__gt": 0}
-        #~
-        question="Nombre moyen de "+variable[0][1]+"+"+variable[1][1]+", par secteur"
-        for index in range(nb):
-            i=str(index)
-            res["res_"+i]=init_cs()
-            res["res_"+i]=get_by_cs(res["res_"+i], variable=variable[index][0], filter_vars=filter_vars)
-        write_cs(question, res["res_0"], res_2=res["res_1"], percent=1, query="1+2")
+        init_question="Nombre moyen de "+variable[0][1]+"+"+variable[1][1]
 
-        question="Nombre moyen de "+variable[0][1]+"+"+variable[1][1]+", par année"
-        for index in range(nb):
-            i=str(index)
-            res["res_"+i]=init_year()
-            res["res_"+i]=get_by_year(res["res_"+i], variable=variable[index][0], filter_vars=filter_vars)
-        write_year(question, res["res_0"], res_2=res["res_1"], percent=1, query="1+2")
-
-        question="Nombre moyen de "+variable[0][1]+"+"+variable[1][1]+", par secteur et par année"
-        for index in range(nb):
-            i=str(index)
-            res["res_"+i]=init_cs_year()
-            res["res_"+i]=get_by_cs_year(res["res_"+i], variable=variable[index][0], filter_vars=filter_vars)
-        write_cs_year(question, res["res_0"], res_2=res["res_1"], percent=1, query="1+2")
+        question=init_question+", pour tous les actes"
+        res_1=init_all()
+        res_2=init_all()
+        res_1=get_all(res_1, variable=variable[0][0], filter_vars=filter_vars)
+        res_2=get_all(res_2, variable=variable[1][0], filter_vars=filter_vars)
+        write_all(question, res_1, res_2=res_2, percent=1, query="1+2")
+        
+        #~ question=init_question+", par secteur"
+        #~ for index in range(nb):
+            #~ i=str(index)
+            #~ res["res_"+i]=init_cs()
+            #~ res["res_"+i]=get_by_cs(res["res_"+i], variable=variable[index][0], filter_vars=filter_vars)
+        #~ write_cs(question, res["res_0"], res_2=res["res_1"], percent=1, query="1+2")
+#~ 
+        #~ question=init_question+", par année"
+        #~ for index in range(nb):
+            #~ i=str(index)
+            #~ res["res_"+i]=init_year()
+            #~ res["res_"+i]=get_by_year(res["res_"+i], variable=variable[index][0], filter_vars=filter_vars)
+        #~ write_year(question, res["res_0"], res_2=res["res_1"], percent=1, query="1+2")
+#~ 
+        #~ question=init_question+", par secteur et par année"
+        #~ for index in range(nb):
+            #~ i=str(index)
+            #~ res["res_"+i]=init_cs_year()
+            #~ res["res_"+i]=get_by_cs_year(res["res_"+i], variable=variable[index][0], filter_vars=filter_vars)
+        #~ write_cs_year(question, res["res_0"], res_2=res["res_1"], percent=1, query="1+2")
 
 
 def q106():
@@ -206,30 +222,37 @@ def q106():
         ("com_amdt_tabled", "EPComAmdtTabled"),
         ("amdt_tabled", "EPAmdtTabled")
     )
-    question_init="Nombre moyen ("+variables[0][1]+"+"+variables[1][1]+") / Nombre moyen ("+variables[0][1]+"+"+variables[1][1]+"), "
+    init_question="Nombre moyen ("+variables[0][1]+"+"+variables[1][1]+") / Nombre moyen ("+variables[0][1]+"+"+variables[1][1]+"), "
     filter_vars={variables[0][0]+"__gt": 0, variables[1][0]+"__gt": 0, variables[2][0]+"__gt": 0, variables[3][0]+"__gt": 0}
     res={}
 
-    question=question_init+"par secteur"
+    question=init_question+"pour tous les actes"
     for var in variables:
         variable=var[0]
-        res[variable]=init_cs()
-        res[variable]=get_by_cs(res[variable], variable=variable, filter_vars=filter_vars)
-    write_cs(question, res, percent=1, query="amdt")
-
-    question=question_init+" par année"
-    for var in variables:
-        variable=var[0]
-        res[variable]=init_year()
-        res[variable]=get_by_year(res[variable], variable=variable, filter_vars=filter_vars)
-    write_year(question, res, percent=1, query="amdt")
-
-    question=question_init+" par secteur et par année"
-    for var in variables:
-        variable=var[0]
-        res[variable]=init_cs_year()
-        res[variable]=get_by_cs_year(res[variable], variable=variable, filter_vars=filter_vars)
-    write_cs_year(question, res, percent=1, query="amdt")
+        res[variable]=init_all()
+        res[variable]=get_all(res[variable], variable=variable, filter_vars=filter_vars)
+    write_all(question, res, percent=1, query="amdt")
+    
+    #~ question=init_question+"par secteur"
+    #~ for var in variables:
+        #~ variable=var[0]
+        #~ res[variable]=init_cs()
+        #~ res[variable]=get_by_cs(res[variable], variable=variable, filter_vars=filter_vars)
+    #~ write_cs(question, res, percent=1, query="amdt")
+#~ 
+    #~ question=init_question+" par année"
+    #~ for var in variables:
+        #~ variable=var[0]
+        #~ res[variable]=init_year()
+        #~ res[variable]=get_by_year(res[variable], variable=variable, filter_vars=filter_vars)
+    #~ write_year(question, res, percent=1, query="amdt")
+#~ 
+    #~ question=init_question+" par secteur et par année"
+    #~ for var in variables:
+        #~ variable=var[0]
+        #~ res[variable]=init_cs_year()
+        #~ res[variable]=get_by_cs_year(res[variable], variable=variable, filter_vars=filter_vars)
+    #~ write_cs_year(question, res, percent=1, query="amdt")
 
 
 #NOT USED

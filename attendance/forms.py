@@ -7,13 +7,30 @@ from django.forms.util import ErrorList
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 
 
+def get_choices_status():
+    """
+    FUNCTION
+    get all the different statuses
+    PARAMETERS
+    None
+    RETURN
+    choices: list of all the possible statuses [list of tuples]
+    """
+    choices=[("","Select the status")]
+    statuses=Status.objects.values_list('status', flat = True).distinct()
+    for status in statuses:
+        choices.append((status, status))
+    return choices
+    
+
 class ImportMinAttendForm(forms.ModelForm):
     """
     FORM
     form to validate the ministers' attendance
     """
     country=forms.ModelChoiceField(queryset=Country.objects.all(), empty_label="Select a country")
-    status=forms.ModelChoiceField(queryset=Status.objects.values_list('status', flat = True).distinct(), empty_label="Select a status")
+    status=forms.ChoiceField(choices=get_choices_status())
+    #~ status=forms.ModelChoiceField(queryset=Status.objects.values_list('status', flat = True).distinct(), empty_label="Select a status")
 
     class Meta:
         model=ImportMinAttend
@@ -21,40 +38,34 @@ class ImportMinAttendForm(forms.ModelForm):
         fields = ('country', 'status', 'verbatim')
 
     def clean_country(self):
-        #avoid validation error
+        #get the country_code instead of the country name
         country = self.cleaned_data['country'].pk
         return country
 
     def clean_verbatim(self):
         #remove extra blank spaces
-        verbatim = self.cleaned_data['verbatim']
-        return ' '.join(verbatim.split())
+        verbatim = ' '.join(self.cleaned_data['verbatim'].split()) 
+        return verbatim
 
-    def clean_status(self):
-        #valid if a value has been selected
-        if self["status"].value()!="":
-            del self._errors["status"]
-        return self["status"].value()
-    
+
     def clean(self):
-        form_data = self.cleaned_data
-        #call status clean method
-        form_data["status"]=self.clean_status()
+        # call the clean() method of the super class
+        cleaned_data = super(ImportMinAttendForm, self).clean()
         
         #check that no other status is recorded in the db for the given country and verbatim
-        if form_data["status"]!="":
+        if "country" in cleaned_data and "status" in cleaned_data and "verbatim" in cleaned_data:
             try:
-                country=Country.objects.get(country_code=form_data["country"])
-                verbatim=Verbatim.objects.get(verbatim=form_data["verbatim"])
-                status_recorded=Status.objects.get(country=country, verbatim=verbatim).status
-                if status_recorded!=form_data["status"]:
-                    raise forms.ValidationError("The country '"+ country.country + "' and the verbatim '" + verbatim.verbatim + "' are already associated to the status '"+status_recorded + "'! Please change the status from '" + form_data["status"] + "' to '" + status_recorded + "' before saving the form again.")
+                country=Country.objects.get(country_code=cleaned_data["country"])
+                verbatim=Verbatim.objects.get(verbatim=cleaned_data["verbatim"])
+                status_saved=Status.objects.get(country=country, verbatim=verbatim).status
+                if status_saved!=cleaned_data["status"]:
+                    raise forms.ValidationError("The country '"+ country.country + "' and the verbatim '" + verbatim.verbatim + "' are already associated to the status '"+ status_saved + "'! Please change the status from '" + cleaned_data["status"] + "' to '" + status_saved + "' before saving the form again.")
             except ObjectDoesNotExist, e:
                 print "status not yet recorded", e
                 
-        return form_data
-    
+        return cleaned_data
 
+    
     def save(self, *args, **kwargs):
         #if extra forms, add ids
         if "no_celex" in kwargs:
@@ -63,6 +74,7 @@ class ImportMinAttendForm(forms.ModelForm):
             self.instance.releve_mois = kwargs.pop('releve_mois', None)
             self.instance.no_ordre = kwargs.pop('no_ordre', None)
         instance = super(ImportMinAttendForm, self).save(*args, **kwargs)
+        
         return instance
 
 
@@ -101,7 +113,8 @@ class Modif(forms.Form):
         no_ordre_modif=self.cleaned_data.get("no_ordre_modif")
 
         try:
-            act=Act.objects.get(releve_annee=releve_annee_modif, releve_mois=releve_mois_modif, no_ordre=no_ordre_modif, attendance_pdf__isnull=False)
+            #can't filter with attendance_pdf__isnull=False cause some attendances were imported with a csv file
+            act=Act.objects.get(releve_annee=releve_annee_modif, releve_mois=releve_mois_modif, no_ordre=no_ordre_modif)
             if act.validated_attendance==0:
                 self._errors['__all__']=ErrorList([u"The act you are looking for has not been validated yet!"])
                 return False

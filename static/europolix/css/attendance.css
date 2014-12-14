@@ -54,6 +54,16 @@
 }
 
 
+/* switch error messages to the right  */
+#attendance_form ul.errorlist li
+{
+    /* WORKS ONLY FOR FIRST ERROR (country) */
+/*
+    padding-left: 5px;
+*/
+}
+
+
 /* if error on status, other fields are not aligned anymore!  */
 .align_form_fields
 {

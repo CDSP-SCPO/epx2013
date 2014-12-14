@@ -14,7 +14,7 @@ class Command(NoArgsCommand):
         #proportion d’actes avec plusieurs codes sectoriels
         #~ q1()
         #ventilation par domaines
-        #~ q2()
+        #~ acts.q2()
         #Concordance PartyFamilyResp et GroupePolitiqueRapporteur (Social Democracy): Pourcentage sur la periode 1996-2012
         #~ q3()
         #Concordance PartyFamilyResp et GroupePolitiqueRapporteur (Conservative/Christian Democracy): Pourcentage sur la periode 1996-2012
@@ -28,7 +28,7 @@ class Command(NoArgsCommand):
         #PAR ANNEE
 
         #production législative
-        #~ q9()
+        #~ acts.q9()
         #ventilation par domaines
         #~ q10()
         #pourcentage de propositions modifiées par la Commission
@@ -253,7 +253,7 @@ class Command(NoArgsCommand):
 
 
         #2014-11-12 : Hausse de la bureaucratisation, Conflictualité pour le secteur Économie
-        #~ cs=[10, "Économie"]
+        cs=[10, "Économie"]
         #pourcentages de propositions de la Commission adoptées par procédure écrite
         #~ acts.q71(cs=cs)
         #pourcentage de textes adoptés en « points A » au Conseil
@@ -296,33 +296,36 @@ class Command(NoArgsCommand):
         #2014-11-28
         #Pourcentage d'actes avec NoUniqueType=COD adoptés en 1ère / (2ème ou 3ème) lecture
         #~ acts.q98()
-        #Durée de la procédure (= Moyenne DureeTotaleDepuisTransCons ET DureeProcedureDepuisTransCons)
-        #1/pour tous les actes 2/VotePublic=Y 3/VotePublic=N 4/AdoptCSRegleVote=U 5/AdoptCSRegleVote=V 6/VotePublic=Y et AdoptCSRegleVote=U 7/ VotePublic=Y et AdoptCSRegleVote=V
+        #~ #Durée de la procédure (= Moyenne DureeTotaleDepuisTransCons ET DureeProcedureDepuisTransCons)
+        #~ #1/pour tous les actes 2/VotePublic=Y 3/VotePublic=N 4/AdoptCSRegleVote=U 5/AdoptCSRegleVote=V 6/VotePublic=Y et AdoptCSRegleVote=U 7/ VotePublic=Y et AdoptCSRegleVote=V
         #~ duree.q96()
-        #1/ Moyenne EPComAmdtAdopt + EPAmdtAdopt, 2/ Moyenne EPComAmdtTabled + EPAmdtTabled
+        #Durée Moyenne DureeTotaleDepuisTransCons
+        #1/pour tous les actes 2/VotePublic=Y 3/VotePublic=N 4/AdoptCSRegleVote=U 5/AdoptCSRegleVote=V 6/VotePublic=Y et AdoptCSRegleVote=U 7/ VotePublic=Y et AdoptCSRegleVote=V
+        #~ duree.q110()
+        #~ #1/ Moyenne EPComAmdtAdopt + EPAmdtAdopt, 2/ Moyenne EPComAmdtTabled + EPAmdtTabled
         #~ ep_amdt_vote.q105()
         #Nombre moyen (EPComAmdtAdopt+EPAmdtAdopt) / Nombre moyen (EPComAmdtTabled+EPAmdtTabled)
-        #~ ep_amdt_vote.q106()
+        ep_amdt_vote.q106()
         #Pourcentage d'actes avec VotePublic=Y
         #~ acts.q107()
-        #1/Pourcentage "AdoptCSContre"= Y avec AdoptCSRegleVote=V 2/ Pourcentage "AdoptCSAbs"=Y, avec AdoptCSRegleVote=V 3/ pourcentage "AdoptCSAbs"=Y, avec AdoptCSRegleVote=U
+        #~ #1/Pourcentage "AdoptCSContre"= Y avec AdoptCSRegleVote=V 2/ Pourcentage "AdoptCSAbs"=Y, avec AdoptCSRegleVote=V 3/ pourcentage "AdoptCSAbs"=Y, avec AdoptCSRegleVote=U
         #~ adopt_cs.q88()
-        #Pourcentage d'actes avec au moins un point B
+        #~ #Pourcentage d'actes avec au moins un point B
         #~ acts.q108()
-        #Nombre de mots moyen
+        #~ #Nombre de mots moyen
         #~ nb_mots.q54()
-        #~ #Nombre de mots x Nombre d'actes
+        #Nombre de mots x Nombre d'actes
         #~ nb_mots.q83()
-        #Pourcentage de discordance des familles politiques
+        #~ #Pourcentage de discordance des familles politiques
         #~ party_family.q84()
         #1/ Moyenne EPVotesFor1-2 2/ Moyenne EPVotesAgst1-2 3/ Moyenne EPVotesAbs1-2
-        #~ ep_amdt_vote.q109()
+        #ep_amdt_vote.q109()
         #~ ep_amdt_vote.q100()
 
 
         #2014-12-4 : Hausse de la bureaucratisation, Conflictualité pour le secteur Économie
         # NOUVELLES PERIODES
-        #~ css=[None, [10, "Économie"]]
+        css=[None, [10, "Économie"]]
         #~ for cs in css:
             #~ #pourcentages de propositions de la Commission adoptées par procédure écrite
             #~ acts.q71(cs=cs)
@@ -338,7 +341,7 @@ class Command(NoArgsCommand):
             #~ min_attend.q76(cs=cs)
             #% ages moyens de votes publics, vote contre, abstentions là où VMQ est possible
             #~ acts.q77(cs=cs)
-            #~ #durée moyenne par acte
+            #durée moyenne par acte
             #~ duree.q78(cs=cs)
             #~ #% d’actes adoptés en 2ème lecture
             #~ acts.q79(cs=cs)

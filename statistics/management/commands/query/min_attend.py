@@ -101,7 +101,7 @@ def q38():
 
 
 def q76(cs=None):
-    question="Pourcentage moyen de représentants permanents par acte"
+    question="Pourcentage moyen de représentants permanents par acte, par période"
     Model=MinAttend
     res, filter_vars, filter_total=init_periods(Model)
 

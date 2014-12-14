@@ -35,7 +35,7 @@ class Command(NoArgsCommand):
         #update attendance_pdf
         path=settings.MEDIA_ROOT+"/import/"
         #~ path="/home/rom/Documents/jobs/SciencesPo/europolix/import/csv/"
-        years=[str(n) for n in range(2013, 2014)]
+        years=[str(n) for n in range(1996, 2015)]
         for year in years:
             path_file=path+"RMC_"+year+".csv"
             with open(path_file, 'r') as csv_file_temp:
@@ -47,21 +47,29 @@ class Command(NoArgsCommand):
                 delimiter=detect_delim(header)
                 reader=csv.reader(csv_file_temp, delimiter=delimiter)
 
-
                 for row in reader:
                     if row[0].strip()!="":
                         releve_annee=int(row[0])
                         releve_mois=int(row[1])
                         no_ordre=int(row[2])
-                        attendance_pdf=row[18].strip().strip(".")
-                        attendance_pdf_lc=attendance_pdf.lower()
-                        if attendance_pdf_lc not in ["", "na"]:
-                            print releve_annee, releve_mois, no_ordre
-                            try:
-                                act=Act.objects.get(releve_annee=releve_annee, releve_mois=releve_mois, no_ordre=no_ordre)
-                                act.attendance_pdf=attendance_pdf
-                                act.save()
-                                print act.attendance_pdf
-                                print ""
-                            except Exception, e:
-                                print e
+                        try:
+                            attendance_pdf=row[18].strip().strip(".").lower()
+                            if attendance_pdf not in ["", "na"]:
+                                try:
+                                    act=Act.objects.get(releve_annee=releve_annee, releve_mois=releve_mois, no_ordre=no_ordre)
+                                    if act.attendance_pdf is None:
+                                        print releve_annee, releve_mois, no_ordre
+                                        act.attendance_pdf=attendance_pdf
+                                        act.save()
+                                        print act.attendance_pdf
+                                        print ""
+                                except Exception, e:
+                                    print e
+                                    print releve_annee, releve_mois, no_ordre
+                                    print ""
+                        except Exception, e:
+                            pass
+                            #~ print e
+                            #~ print releve_annee, releve_mois, no_ordre
+                            #~ print "attendances were imported with a csv file"
+                            #~ print ""

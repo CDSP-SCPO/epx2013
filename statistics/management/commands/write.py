@@ -31,12 +31,31 @@ writer.writerow([""])
 
 
 
-def write_all(question, res, count=True, percent=100):
+def write_all(question, res, res_2=None, count=True, percent=100, query=""):
     print question
     writer.writerow([question])
     if count:
-        res=round(float(res[0])/res[1], 3)
-    writer.writerow([res*percent])
+        if query=="amdt":
+            #result=0
+            if (res["com_amdt_adopt"][0]+res["amdt_adopt"][0])==0:
+                res_final=0
+            else:
+                nb_adopt=round(float(res["com_amdt_adopt"][0]+res["amdt_adopt"][0])*percent/(res["com_amdt_adopt"][1]+res["amdt_adopt"][1]), 3)
+                nb_tabled=round(float(res["com_amdt_tabled"][0]+res["amdt_tabled"][0])*percent/(res["com_amdt_tabled"][1]+res["amdt_tabled"][1]), 3)
+                res_final=round(nb_adopt/nb_tabled, 3)
+        else:
+            if query=="nb_mots":
+                    #indice de contrainte legislative -> nombre mots total * nb actes et non nombre mots total / nb actes
+                    res[1]=float(1)/res[1]
+            elif query=="1+2":
+                #average votes_for_1 + votes_for_2
+                res[0]=res[0]+res_2[0]
+                res[1]=res[1]+res_2[1]
+
+            #"normal" case
+            res_final=round(float(res[0])/res[1], 3)
+            
+    writer.writerow([res_final*percent])
     writer.writerow("")
     print ""
 

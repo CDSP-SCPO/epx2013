@@ -60,7 +60,7 @@ def q70():
 
 
 def q73(cs=None):
-    question="Nombre moyen de points B"
+    question="Nombre moyen de points B, par période"
     Model=Act
     variable="nb_point_b"
     filter_vars_acts={variable+"__isnull": False}

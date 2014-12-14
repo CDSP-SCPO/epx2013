@@ -192,6 +192,23 @@ def q40():
     concordance_annee_secteur("Conservative/Christian Democracy", [u"European People's Party (Christian Democrats)", u"EPP - European People's Party (Christian Democrats)", u"European People's Party (Christian Democrats) and European Democrats"])
 
 
+def get_discordance_all(res):
+    #ger percentage of different political families for rapp1 and resp1
+    filter_vars=get_validated_acts(Act)
+    for act in Act.objects.filter(**filter_vars):
+        rapp=act.rapp_1
+        resp=act.resp_1
+        if rapp is not None and resp is not None:
+            res[1]+=1
+            rapp_pf=PartyFamily.objects.get(country=rapp.country, party=rapp.party).party_family.strip().encode("utf-8")
+            resp_pf=PartyFamily.objects.get(country=resp.country, party=resp.party).party_family.strip().encode("utf-8")
+            if rapp_pf!=resp_pf:
+                res[0]+=1
+    print "res"
+    print res
+    return res
+    
+
 def get_discordance_cs(res, year=False):
     #ger percentage of different political families for rapp1 and resp1
     filter_vars=get_validated_acts(Act)
@@ -240,22 +257,27 @@ def get_discordance_year(res):
 
 def q84():
     #Pourcentage de discordance des familles politiques
-    question_init="Pourcentage de discordance de PartyFamilyRappPE1 et PartyFamilyRespPropos1, "
+    init_question="Pourcentage de discordance de PartyFamilyRappPE1 et PartyFamilyRespPropos1, "
 
-    question=question_init+"par secteur"
-    res=init_cs()
-    res=get_discordance_cs(res)
-    write_cs(question, res)
+    question=init_question+"pour tous les actes"
+    res=init_all()
+    res=get_discordance_all(res)
+    write_all(question, res)
 
-    question=question_init+"par année"
-    res=init_year()
-    res=get_discordance_year(res)
-    write_year(question, res)
-
-    question=question_init+"par secteur et par année"
-    res=init_cs_year()
-    res=get_discordance_cs(res, year=True)
-    write_cs_year(question, res)
+    #~ question=init_question+"par secteur"
+    #~ res=init_cs()
+    #~ res=get_discordance_cs(res)
+    #~ write_cs(question, res)
+#~ 
+    #~ question=init_question+"par année"
+    #~ res=init_year()
+    #~ res=get_discordance_year(res)
+    #~ write_year(question, res)
+#~ 
+    #~ question=init_question+"par secteur et par année"
+    #~ res=init_cs_year()
+    #~ res=get_discordance_cs(res, year=True)
+    #~ write_cs_year(question, res)
 
 
 def q93():

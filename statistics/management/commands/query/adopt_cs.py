@@ -11,7 +11,19 @@ from  ..get import *
 from  ..write import *
 
 
-def percent_adopt_cs(res, adopt_variable, filter_vars={}):
+def get_percent_adopt_all(res, adopt_variable, filter_vars={}):
+    filter_vars=get_validated_acts(Act, filter_vars)
+    for act in Act.objects.filter(**filter_vars):
+        res[1]+=1
+        #check if there is at least one country
+        if getattr(act, adopt_variable).exists():
+            res[0]+=1
+
+    print "res", res
+    return res
+
+    
+def get_percent_adopt_cs(res, adopt_variable, filter_vars={}):
     filter_vars=get_validated_acts(Act, filter_vars)
     for act in Act.objects.filter(**filter_vars):
         for nb in range(1,5):
@@ -27,7 +39,7 @@ def percent_adopt_cs(res, adopt_variable, filter_vars={}):
     return res
 
 
-def percent_adopt_year(res, adopt_variable, filter_vars={}):
+def get_percent_adopt_year(res, adopt_variable, filter_vars={}):
     filter_vars=get_validated_acts(Act, filter_vars)
     for act in Act.objects.filter(**filter_vars):
         year=str(act.releve_annee)
@@ -40,7 +52,7 @@ def percent_adopt_year(res, adopt_variable, filter_vars={}):
     return res
 
 
-def percent_adopt_cs_year(res, adopt_variable, filter_vars={}):
+def get_percent_adopt_cs_year(res, adopt_variable, filter_vars={}):
     filter_vars=get_validated_acts(Act, filter_vars)
     for act in Act.objects.filter(**filter_vars):
         for nb in range(1,5):
@@ -156,25 +168,30 @@ def q88():
     for regle in regle_vote:
         filter_regle={"adopt_cs_regle_vote": regle}
         for adopt in adopt_cs:
-            question_init="pourcentage "+adopt[1]+"=Y, parmi les actes AdoptCSRegleVote="+regle+", "
+            init_question="pourcentage "+adopt[1]+"=Y, parmi les actes AdoptCSRegleVote="+regle+", "
 
-            #by cs
-            question=question_init+"par secteur"
-            res=init_cs()
-            res=percent_adopt_cs(res, adopt[0], filter_regle)
-            write_cs(question, res, percent=100)
+            question=init_question+"pour tous les actes"
+            res=init_all()
+            res=get_percent_adopt_all(res, adopt[0], filter_vars=filter_regle)
+            write_all(question, res)
 
-            #by year
-            question=question_init+"par année"
-            res=init_year()
-            res=percent_adopt_year(res, adopt[0], filter_regle)
-            write_year(question, res)
-
-            #by cs and by year
-            question=question_init+"par secteur et par année"
-            res=init_cs_year()
-            res=percent_adopt_cs_year(res, adopt[0], filter_regle)
-            write_cs_year(question, res)
+            #~ #by cs
+            #~ question=init_question+"par secteur"
+            #~ res=init_cs()
+            #~ res=get_percent_adopt_cs(res, adopt[0], filter_vars=filter_regle)
+            #~ write_cs(question, res)
+#~ 
+            #~ #by year
+            #~ question=init_question+"par année"
+            #~ res=init_year()
+            #~ res=get_percent_adopt_year(res, adopt[0], filter_vars=filter_regle)
+            #~ write_year(question, res)
+#~ 
+            #~ #by cs and by year
+            #~ question=init_question+"par secteur et par année"
+            #~ res=init_cs_year()
+            #~ res=get_percent_adopt_cs_year(res, adopt[0], filter_vars=filter_regle)
+            #~ write_cs_year(question, res)
 
 
 def q97():

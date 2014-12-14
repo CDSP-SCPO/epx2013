@@ -123,10 +123,11 @@ class MinAttendUpdate(UpdateView):
                 #if display of attendances for the first time
                 if "add_act" in request.POST or "modif_act" in request.POST:
                     formset=MinAttendFormSet(queryset=attendances)
-                    if "add_act" in request.POST:
-                        context["status"]="add"
-                    else:
-                        context["status"]="modif"
+                    context["status"]=add_modif
+                    #~ if "add_act" in request.POST:
+                        #~ context["status"]="add"
+                    #~ else:
+                        #~ context["status"]="modif"
                 #if display of attendances for the second time (update or errors)
                 else:
                     formset = MinAttendFormSet(request.POST, queryset=attendances)

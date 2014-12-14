@@ -15,11 +15,16 @@ from  common import *
     #e.g.: number of occurences of duree_variable among the acts with no_unique_type=COD=5, number of acts with no_unique_type=COD=15 -> res=[5, 15]
 
 
-
+def init_all(count=True):
+    res=0
+    if count:
+        res=[0,0]
+    return res
+    
 
 def init_cs(count=True, total=False, empty_list=False, empty_dic=False):
     res={}
-    for cs in get_cs_list():
+    for cs in cs_list:
         if empty_dic:
             #list of persons, key: pers object; value: nb of occurences
             temp=dict({})
@@ -38,7 +43,7 @@ def init_cs(count=True, total=False, empty_list=False, empty_dic=False):
 def init_year(count=True, total=False, empty_list=False, empty_dic=False):
     #empty_dic: for list of persons
     res={}
-    for year in get_years_list():
+    for year in years_list:
         if empty_dic:
             #list of persons, key: pers object; value: nb of occurences
             temp=dict({})
@@ -70,9 +75,9 @@ def init_cs_year(count=True, total=False, amdt=False, empty_list=False, empty_di
     #titles_list: initialize empty list
     res={}
     total_year={}
-    for secteur in get_cs_list():
+    for secteur in cs_list:
         res[secteur]={}
-        for year in get_years_list():
+        for year in years_list:
             if empty_dic:
                 #list of persons, key: pers object; value: nb of occurences
                 temp=dict({})

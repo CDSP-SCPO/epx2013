@@ -104,6 +104,7 @@ def get_by_cs(res, count=True, Model=Act, variable=None, excluded_values=[None],
     return res
 
 
+#NOT USED
 def get_by_cs_2_vars(res, var1, var2, count=True, Model=Act, excluded_values=[None], filter_vars={}):
     filter_vars=get_validated_acts(Model, filter_vars_acts=filter_vars)
     for act in Model.objects.filter(**filter_vars):
@@ -150,6 +151,7 @@ def get_by_year(res, count=True, Model=Act, variable=None, excluded_values=[None
     return res
 
 
+#NOT USED
 def get_by_year_2_vars(res, var1, var2, count=True, Model=Act, excluded_values=[None], filter_vars={}):
     filter_vars=get_validated_acts(Model, filter_vars_acts=filter_vars)
     for act in Model.objects.filter(**filter_vars):
@@ -214,6 +216,7 @@ def get_by_cs_year(res, count=True, Model=Act, variable=None, excluded_values=[N
     return res
 
 
+#NOT USED
 def get_by_cs_year_2_vars(res, var1, var2, count=True, Model=Act, variable=None, excluded_values=[None], total_year=False, filter_vars={}):
     filter_vars=get_validated_acts(Model, filter_vars_acts=filter_vars)
     for act in Model.objects.filter(**filter_vars):
