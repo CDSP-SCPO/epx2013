@@ -14,7 +14,7 @@ from act_ids.views import add_modif_fct
 #variables name
 import act_ids.var_name_ids as var_name_ids
 import act.var_name_data as var_name_data
-from act.get_data_others import link_act_min_attend
+from act.get_data_others import save_get_min_attend
 
 #use json for the ajax request
 from django.http import HttpResponse
@@ -226,7 +226,7 @@ class MinAttendUpdate(UpdateView):
         act_ids.act.save()
 
         #update dictionary (Verbatim and status models) and save attendances in MinAttend
-        link_act_min_attend(act_ids)
+        save_get_min_attend(act_ids)
 
         context["state"]="saved"
         context["msg"]="The act " + str(act_ids.act) + " has been validated!"

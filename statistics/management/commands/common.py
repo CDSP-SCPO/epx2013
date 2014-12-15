@@ -27,7 +27,7 @@
 
 
 
-#Durée -> DureeTotaleDepuisTransCons
+#If asked about the Durée moyenne... -> take the DureeTotaleDepuisTransCons variable
 
 
 

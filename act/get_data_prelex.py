@@ -124,7 +124,7 @@ def format_resp_name(names):
 def get_jointly_resps(soup):
     """
     FUNCTION
-    get the names of the jointly responsible persons (dg_2 and resp_2 or resp_3 from the prelex url
+    get the names of the jointly responsible persons (dg_2 and resp_2 or resp_3) from the prelex url
     PARAMETERS
     soup: prelex url content [BeautifulSoup object]
     RETURN
@@ -361,10 +361,7 @@ def get_split_propos(soup, split_propos):
     if not split_propos:
         #otherwise, check on the prelex bandeau if there are many no celex -> indicated split propos
         nb_no_celex=len(soup.find_all(text=re.compile("Community legislation in force")))
-        if nb_no_celex==1:
-            print "just one no celex"
-            split_propos=False
-        elif nb_no_celex>1:
+        if nb_no_celex>1:
             print "many no celex"
             split_propos=True
             
@@ -519,9 +516,14 @@ def get_date_diff(date_1, date_2):
     excluded_values=[None, "None", ""]
     if date_1 not in excluded_values and date_2 not in excluded_values:
         #transform dates to the iso format (YYYY-MM-DD)
-        date_1=datetime.strptime(date_1, "%Y-%m-%d")
-        date_2=datetime.strptime(date_2, "%Y-%m-%d")
-        return (date_1 - date_2).days
+        try:
+            date_1=datetime.strptime(date_1, "%Y-%m-%d")
+            date_2=datetime.strptime(date_2, "%Y-%m-%d")
+            return (date_1 - date_2).days
+        except Exception, e:
+            print e
+            print "The dates are invalid"
+            
     return None
 
 #DureeAdoptionTrans (TransmissionConseil - AdoptionProposOrigine)
@@ -551,7 +553,7 @@ def get_vote_public(adopt_cs_contre, adopt_cs_abs):
 
 
 #external table
-def link_act_adopt_pc(act, act_ids):
+def save_get_adopt_pc(act, act_ids):
     """
     FUNCTION
     fill the assocation table which links an act to its adopt_pc_contre and adopt_pc_abs variables
@@ -733,7 +735,7 @@ def get_data_prelex(soup, act_ids, act):
     print "vote_public:", fields['vote_public']
 
     #adopt_pc_contre, #adopt_pc_abs
-    adopt_pc=link_act_adopt_pc(act, act_ids)
+    adopt_pc=save_get_adopt_pc(act, act_ids)
     if adopt_pc!=None:
         print "adopt_pc_contre:", adopt_pc.adopt_pc_contre
         print "adopt_pc_abs:", adopt_pc.adopt_pc_abs

@@ -366,19 +366,6 @@ def pdf_to_string(file_object):
         return None
 
 
-#~ def get_url(url):
-    #~ """
-    #~ FUNCTION
-    #~ get the url content of the page containing the links to the text of the act
-    #~ PARAMETERS
-    #~ url: url to retrieve [string]
-    #~ RETURN
-    #~ content of the page [BeautifulSoup object]
-    #~ """
-    #~ url=url.replace("NOCELEX", no_celex, 1)
-    #~ return BeautifulSoup(urllib.urlopen(url))
-
-
 def get_nb_mots(no_celex):
     """
     FUNCTION

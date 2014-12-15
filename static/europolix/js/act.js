@@ -320,8 +320,11 @@ $('#act_form').on('change', '#resp_1_id, #resp_2_id, #resp_3_id', function()
 });
 
 /* bind the event to update durations with the associated reload button (image) */
-$('#act_form').on('click', '#update_durations', function()
+$('#act_form').on('click', '#update_durations', function(e)
 {
+    /* don't submit the form */
+    e.preventDefault();
+    /* make the button rotate and update the durations */
     update_durations(this.id);
 });
 

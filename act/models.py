@@ -123,7 +123,7 @@ class CodeAgenda(models.Model):
     MODEL
     instances of code_agenda variables
     """
-    code_agenda=models.IntegerField(validators=[MinValueValidator(10), MaxValueValidator(9999)], unique=True)
+    code_agenda=models.PositiveSmallIntegerField(validators=[MinValueValidator(10), MaxValueValidator(9999)], unique=True)
 
 
 class CodeSect(models.Model):
@@ -149,10 +149,10 @@ class Act(models.Model):
     #releve_* have been inserted while importing AdoptPC* file
 
     #GENERAL (index file)
-    releve_annee=models.IntegerField(max_length=4, blank=False, null=False)
-    releve_mois=models.IntegerField(max_length=2, blank=False, null=False)
+    releve_annee=models.PositiveSmallIntegerField(max_length=4, blank=False, null=False)
+    releve_mois=models.PositiveSmallIntegerField(max_length=2, blank=False, null=False)
     releve_mois_init=models.CharField(max_length=2, blank=True, null=True, default=None)
-    no_ordre=models.IntegerField(max_length=2, blank=False, null=False)
+    no_ordre=models.PositiveSmallIntegerField(max_length=2, blank=False, null=False)
     titre_rmc=models.CharField(max_length=2000, blank=False, null=False)
     council_path=models.CharField(max_length=200, blank=True, null=True, default=None)
     attendance_pdf=models.CharField(max_length=200, blank=True, null=True, default=None)
@@ -171,27 +171,27 @@ class Act(models.Model):
     base_j=models.CharField(max_length=300, blank=True, null=True, default=None)
     #used for gvt_compo when propos_origine= "EM", "CONS", "BCE", "CJUE"
     date_doc=models.DateField(max_length=10, blank=True, null=True, default=None)
-    nb_mots=models.IntegerField(max_length=6, blank=False, null=False, validators=[MinValueValidator(1)])
+    nb_mots=models.PositiveIntegerField(max_length=6, blank=False, null=False, validators=[MinValueValidator(1)])
 
     #OEIL
     commission=models.CharField(max_length=10, blank=True, null=True, default=None)
-    com_amdt_tabled=models.IntegerField(max_length=3, blank=True, null=True, default=None)
-    com_amdt_adopt=models.IntegerField(max_length=3, blank=True, null=True, default=None)
-    amdt_tabled=models.IntegerField(max_length=3, blank=True, null=True, default=None)
-    amdt_adopt=models.IntegerField(max_length=3, blank=True, null=True, default=None)
-    votes_for_1=models.IntegerField(max_length=3, blank=True, null=True, default=None)
-    votes_agst_1=models.IntegerField(max_length=3, blank=True, null=True, default=None)
-    votes_abs_1=models.IntegerField(max_length=3, blank=True, null=True, default=None)
-    votes_for_2=models.IntegerField(max_length=3, blank=True, null=True, default=None)
-    votes_agst_2=models.IntegerField(max_length=3, blank=True, null=True, default=None)
-    votes_abs_2=models.IntegerField(max_length=3, blank=True, null=True, default=None)
+    com_amdt_tabled=models.PositiveSmallIntegerField(max_length=3, blank=True, null=True, default=None)
+    com_amdt_adopt=models.PositiveSmallIntegerField(max_length=3, blank=True, null=True, default=None)
+    amdt_tabled=models.PositiveSmallIntegerField(max_length=3, blank=True, null=True, default=None)
+    amdt_adopt=models.PositiveSmallIntegerField(max_length=3, blank=True, null=True, default=None)
+    votes_for_1=models.PositiveSmallIntegerField(max_length=3, blank=True, null=True, default=None)
+    votes_agst_1=models.PositiveSmallIntegerField(max_length=3, blank=True, null=True, default=None)
+    votes_abs_1=models.PositiveSmallIntegerField(max_length=3, blank=True, null=True, default=None)
+    votes_for_2=models.PositiveSmallIntegerField(max_length=3, blank=True, null=True, default=None)
+    votes_agst_2=models.PositiveSmallIntegerField(max_length=3, blank=True, null=True, default=None)
+    votes_abs_2=models.PositiveSmallIntegerField(max_length=3, blank=True, null=True, default=None)
     rapp_1=models.ForeignKey(Person, related_name='rapp_1', blank=True, null=True, default=None)
     rapp_2=models.ForeignKey(Person, related_name='rapp_2', blank=True, null=True, default=None)
     rapp_3=models.ForeignKey(Person, related_name='rapp_3', blank=True, null=True, default=None)
     rapp_4=models.ForeignKey(Person, related_name='rapp_4', blank=True, null=True, default=None)
     rapp_5=models.ForeignKey(Person, related_name='rapp_5', blank=True, null=True, default=None)
     modif_propos=models.BooleanField(default=False)
-    nb_lectures=models.IntegerField(max_length=1, blank=True, null=True, default=None)
+    nb_lectures=models.PositiveSmallIntegerField(max_length=1, blank=True, null=True, default=None)
     sign_pecs=models.DateField(max_length=10, blank=True, null=True, default=None)
 
     #PRELEX
@@ -206,18 +206,18 @@ class Act(models.Model):
     resp_3=models.ForeignKey(Person, related_name='resp_3', blank=True, null=True, default=None)
     transm_council=models.DateField(max_length=10, blank=True, null=True, default=None)
     cons_b=models.CharField(max_length=500, blank=True, null=True, default=None)
-    nb_point_b=models.IntegerField(max_length=1, blank=True, null=True, default=None)
+    nb_point_b=models.PositiveSmallIntegerField(max_length=1, blank=True, null=True, default=None)
     adopt_conseil=models.DateField(max_length=10, blank=True, null=True, default=None)
-    nb_point_a=models.IntegerField(max_length=1, blank=True, null=True, default=None)
+    nb_point_a=models.PositiveSmallIntegerField(max_length=1, blank=True, null=True, default=None)
     council_a=models.CharField(max_length=200, blank=True, null=True, default=None)
 
     rejet_conseil=models.BooleanField(default=False)
     chgt_base_j=models.BooleanField(default=False)
-    duree_adopt_trans=models.IntegerField(max_length=5, blank=True, null=True, default=None)
-    duree_proc_depuis_prop_com=models.IntegerField(max_length=5, blank=True, null=True, default=None, validators=[MinValueValidator(1)])
-    duree_proc_depuis_trans_cons=models.IntegerField(max_length=5, blank=True, null=True, default=None, validators=[MinValueValidator(1)])
-    duree_tot_depuis_prop_com=models.IntegerField(max_length=5, blank=True, null=True, default=None, validators=[MinValueValidator(1)])
-    duree_tot_depuis_trans_cons=models.IntegerField(max_length=5, blank=True, null=True, default=None, validators=[MinValueValidator(1)])
+    duree_adopt_trans=models.PositiveSmallIntegerField(max_length=5, blank=True, null=True, default=None)
+    duree_proc_depuis_prop_com=models.PositiveSmallIntegerField(max_length=5, blank=True, null=True, default=None, validators=[MinValueValidator(1)])
+    duree_proc_depuis_trans_cons=models.PositiveSmallIntegerField(max_length=5, blank=True, null=True, default=None, validators=[MinValueValidator(1)])
+    duree_tot_depuis_prop_com=models.PositiveSmallIntegerField(max_length=5, blank=True, null=True, default=None, validators=[MinValueValidator(1)])
+    duree_tot_depuis_trans_cons=models.PositiveSmallIntegerField(max_length=5, blank=True, null=True, default=None, validators=[MinValueValidator(1)])
     vote_public=models.BooleanField(default=False)
     adopt_cs_regle_vote=models.CharField(max_length=2, blank=True, null=True, default=None)
     adopt_cs_contre=models.ManyToManyField(Country, related_name='adopt_cs_contre')
@@ -237,7 +237,7 @@ class Act(models.Model):
     #validated=0 if the act hasn't been validated yet
     #validated=1 if the ids of the act have been validated but not its data
     #validated=2 if the ids AND data of the act have been validated
-    validated=models.IntegerField(max_length=1, default=0, db_index=True)
+    validated=models.PositiveSmallIntegerField(max_length=1, default=0, db_index=True)
     #1 if the attendances of the act have been validated, 0 otherwise
     validated_attendance=models.BooleanField(default=False, db_index=True)
 

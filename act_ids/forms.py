@@ -123,10 +123,10 @@ class ActIdsForm(forms.ModelForm):
             del self._errors['dos_id_choices']
 
         #trim trailing spaces
-        for k in self.cleaned_data:
+        for field in self.cleaned_data:
             try:
                 #only strings
-                cleaned_data[k]=self.cleaned_data[k].strip()
+                cleaned_data[field]=self.cleaned_data[field].strip()
             except:
                 pass
         return cleaned_data

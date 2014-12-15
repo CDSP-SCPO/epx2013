@@ -276,7 +276,6 @@ def get_data_all(context, add_modif, act, POST):
     #"compute" the url of the eurlex, oeil and prelex page
     urls=get_urls(act_ids["index"], act.url_prelex, act_ids["index"].dos_id)
     
-
     #an act has been selected in the drop down list -> the related data is displayed
     #if state different of modif, save and ongoing and if the act is not being modified
     #not check_update(POST): not updating a code_sect, rapp or resp
@@ -319,12 +318,6 @@ def get_data_all(context, add_modif, act, POST):
             except Exception, e:
                 print "pb literal_eval", names[name], e
                 context[name]={}
-#~ 
-        #~ context["dg_names_oeil"]=literal_eval(POST["hidden_dg_oeil_dic"])
-        #~ context["dg_names_prelex"]=literal_eval(POST["hidden_dg_prelex_dic"])
-        #~ context["resp_names_oeil"]=literal_eval(POST["hidden_resp_oeil_dic"])
-        #~ context["resp_names_prelex"]=literal_eval(POST["hidden_resp_prelex_dic"])
-        #~ context["dg"]=literal_eval(POST["hidden_dg_dic"])
 
     #we have selected an act in the drop down list or clicked on the modification button
     if "add_act" in POST or "modif_act" in POST:
@@ -368,8 +361,8 @@ def init_context(context):
     #display "real" name of variables (names given by europolix team, not the names stored in db)
     context['display_name']=var_name_ids.var_name
     context['display_name'].update(var_name_data.var_name)
-    #one table (used to display one source) displays a subset of variables of the Act model only -> create list to loop over each subset
-    #-> one table for eurlex, one for oeil and two for prelex
+    #the template contains 4 main tables, each of these tables contains a subset of variables from the Act model -> this allows the template to loop over the corresponding subset of variables only (the one corresponding to the table to be displayed)
+    #one table for eurlex, one for oeil and two for prelex
     context["vars_eurlex"]=["titre_en", "code_sect_1", "code_sect_2", "code_sect_3", "code_sect_4", "rep_en_1", "rep_en_2", "rep_en_3", "rep_en_4", "type_acte", "base_j", "nb_mots"]
     context["vars_oeil"]=["commission", "com_amdt_tabled", "com_amdt_adopt", "amdt_tabled", "amdt_adopt", "votes_for_1", "votes_agst_1", "votes_abs_1", "votes_for_2", "votes_agst_2", "votes_abs_2", "rapp_1", "rapp_2", "rapp_3", "rapp_4", "rapp_5", "modif_propos", "nb_lectures", "sign_pecs"]
     context["vars_prelex_1"]=["adopt_propos_origine", "com_proc", "dg_1", "dg_2", "resp_1", "resp_2", "resp_3", "transm_council", "cons_b", "nb_point_b", "adopt_conseil", "nb_point_a", "council_a"]
@@ -407,10 +400,6 @@ class ActUpdate(UpdateView):
         print ""
         print time.strftime("TODAY IS: %d/%m/%Y, CURRENT TIME IS: %H:%M:%S")
         print ""
-        
-        #~ print request.GET.get('act_to_validate')
-        #~ if request.GET.get('act_to_validate') not in [None, ""]:
-            #~ History.objects.create(action="test", form="data", act=Act.objects.get(pk=1), user=User.objects.get(username="romain.lalande"))
         
         return super(ActUpdate, self).dispatch(request, *args, **kwargs)
 
@@ -489,10 +478,17 @@ class ActUpdate(UpdateView):
         if mode !=None:
             #if we are about to add or modif an act (the add or modif form is valid)
             if add_modif!=None:
-                form_data=ActForm(request.POST, instance=act)
+                post_values = request.POST.copy()
+                
+                #update durations (JavaScript is deactivated)
+                if 'update_durations' in post_values:
+                    print "update_durations"
+                    post_values.update(update_durations_fct(post_values))
+
+                form_data=ActForm(post_values, instance=act)
 
                 #saves the act
-                if 'save_act' in request.POST:
+                if 'save_act' in post_values:
                     if form_data.is_valid():
                         context=self.form_valid(form_data, act, context, add_modif)
                     else:
@@ -503,14 +499,16 @@ class ActUpdate(UpdateView):
                 if "state" not in context:
                     context["state"]="display"
                         
-                #displays the retrieved data of the act to validate / modify
-                #(selection of an act in the add / modif form  with no form error)
-                #or errors when saving the form if ajax deactivated
+                #displays the retrieved data of the act to validate / modify when...
+                    #no form error: selection of an act in the add / modif form
+                    #form errors: when saving the form if ajax deactivated
                 if not any(key in context for key in keys) or not self.request.is_ajax() and context["state"]!="saved":
                     logger.debug("act_to_validate display")
                     print 'act_to_validate display'
+                    
                     #get the data of the act
-                    context=get_data_all(context, add_modif, act, self.request.POST)
+                    context=get_data_all(context, add_modif, act, post_values)
+
 
                 context['mode']=mode
                 context['add_modif']=add_modif
@@ -655,25 +653,21 @@ def update_dg(request):
     return HttpResponse(simplejson.dumps(context), mimetype="application/json")
 
 
-
-def update_durations(request):
+def update_durations_fct(post):
     """
-    VIEW
-    update the duration fields (DureeAdoptionTrans, DureeProcedureDepuisPropCom, DureeProcedureDepuisTransCons, DureeTotaleDepuisPropCom and DureeTotaleDepuisTransCons)
-    TEMPLATES
-    None (Ajax only)
+    FUNCTION
+    update all the durations fields with the dates passed in the post parameter (request.POST)
+    PARAMETERS
+    post: request.POST object [dictionary]
+    RETURN
+    context: updated act data [dictionary]
     """
     context={}
     context['duree_adopt_trans']=context['duree_proc_depuis_prop_com']=context['duree_proc_depuis_trans_cons']=context['duree_tot_depuis_prop_com']=context['duree_tot_depuis_trans_cons']=[None]*5
-    duree_adopt_trans=request.POST["duree_adopt_trans"]
-    duree_proc_depuis_prop_com=request.POST["duree_proc_depuis_prop_com"]
-    duree_proc_depuis_trans_cons=request.POST["duree_proc_depuis_trans_cons"]
-    duree_tot_depuis_prop_com=request.POST["duree_tot_depuis_prop_com"]
-    duree_tot_depuis_trans_cons=request.POST["duree_tot_depuis_trans_cons"]
-    transm_council=request.POST["transm_council"]
-    adopt_propos_origine=request.POST["adopt_propos_origine"]
-    adopt_conseil=request.POST["adopt_conseil"]
-    sign_pecs=request.POST["sign_pecs"]
+    transm_council=post["transm_council"]
+    adopt_propos_origine=post["adopt_propos_origine"]
+    adopt_conseil=post["adopt_conseil"]
+    sign_pecs=post["sign_pecs"]
 
 
     #duree_adopt_trans
@@ -702,4 +696,17 @@ def update_durations(request):
         context['duree_tot_depuis_trans_cons']=context['duree_proc_depuis_trans_cons']
     print "duree_tot_depuis_trans_cons:", context['duree_tot_depuis_trans_cons']
 
+    print "update_durations_fct"
+
+    return context
+    
+
+def update_durations(request):
+    """
+    VIEW
+    update the duration fields (duree_adopt_trans, duree_proc_depuis_prop_com, duree_proc_depuis_trans_cons, duree_tot_depuis_prop_com and duree_tot_depuis_trans_cons variables)
+    TEMPLATES
+    None (Ajax only)
+    """
+    context=update_durations_fct(request.POST)
     return HttpResponse(simplejson.dumps(context), mimetype="application/json")

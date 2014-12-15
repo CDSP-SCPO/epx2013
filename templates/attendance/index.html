@@ -17,12 +17,13 @@ displays the ministers' attendance validation
         <link rel="stylesheet" href="{{STATIC_URL}}europolix/css/notes_and_save.css?{% now 'U' %}" />
 
         <div class="row-fluid">
-            This page lets you validate / update ministers' attendance for each act. The data is then saved and displayed inside the act data validation form.
+            This page lets you validate / update ministers' attendance for each act. The data is then saved and displayed inside the act data validation form. <br />
+            Click on the "Update status" button to update all the empty statuses whenever the associated country+verbatim couples are found in the database and have a status.
         </div>
 
         <br />
 
-        <!-- attendancea form -->
+        <!-- attendance form -->
         <form id="attendance_form" class="form-inline" method="post" action="{% url attendance %}">{% csrf_token %}
             <div id="reset_form_path" style="display: none;">{% url reset_form_attendance %}</div>
             <div class="row-fluid">{% include "add_modif.html" %}</div>

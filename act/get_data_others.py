@@ -30,7 +30,7 @@ def get_date(act_ids, act):
     return date
 
 
-def link_act_gvt_compo(act_ids, act):
+def save_gvt_compo(act_ids, act):
     """
     FUNCTION
     fill the assocation table which links an act to its governments composition
@@ -100,7 +100,7 @@ def get_gvt_compo(act_ids, act):
 
 
 
-def link_act_min_attend(act_ids):
+def save_get_min_attend(act_ids):
     """
     FUNCTION
     fill the assocation table which links an act and a country to its minister's attendance
@@ -150,7 +150,7 @@ def link_act_min_attend(act_ids):
 
 
 
-def link_get_act_opal(act_ids, act):
+def save_get_opal(act_ids, act):
     """
     FUNCTION
     fill the table which links an act to its opal variables
@@ -205,15 +205,15 @@ def get_data_others(act_ids, act):
     fields={}
 
     #link the act with the gvt_compo variables
-    link_act_gvt_compo(act_ids, act)
+    save_gvt_compo(act_ids, act)
 
     #get the gvts composition of the act
     fields["gvt_compo"]=get_gvt_compo(act_ids, act)
 
     #link the act with the min_attend variables  and return those variables in a special format to make their display easier in the template
-    fields["min_attend"]=link_act_min_attend(act_ids)
+    fields["min_attend"]=save_get_min_attend(act_ids)
 
     #link the act with the opal variables and return opal variables in a special format to make their display easier in the template
-    fields["opal"]=link_get_act_opal(act_ids, act)
+    fields["opal"]=save_get_opal(act_ids, act)
 
     return fields

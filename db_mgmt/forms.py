@@ -49,7 +49,7 @@ class AddResp(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(AddResp, self).__init__(*args, **kwargs)
         choices=[("", "Select a " + var_name_data.var_name["resp_party_family"])]
-        choices=choices+[(x, x) for x in PartyFamily.objects.values_list("party_family", flat=True).distinct()]
+        choices=choices+[(pf, pf) for pf in PartyFamily.objects.values_list("party_family", flat=True).distinct()]
         self.fields['party_family'].choices = choices
 
     class Meta:

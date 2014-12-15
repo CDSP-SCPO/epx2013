@@ -164,10 +164,10 @@ class ActForm(forms.ModelForm):
         cleaned_data=super(ActForm, self).clean()
 
         #trim trailing spaces
-        for k in cleaned_data:
+        for field in cleaned_data:
             try:
                 #only strings
-                cleaned_data[k]=cleaned_data[k].strip()
+                cleaned_data[field]=cleaned_data[field].strip()
             except:
                 pass
 

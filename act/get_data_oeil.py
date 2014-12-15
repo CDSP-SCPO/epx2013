@@ -612,7 +612,6 @@ def get_data_oeil(soup, act_ids, act=None):
     print "sign_pecs:", fields['sign_pecs']
     logger.debug("sign_pecs: "+ str(fields['sign_pecs']))
 
-
     try:
         soup_dg_resp=soup_key_players.find("a", {"title": "European Commission"}).find_next("table")
     except Exception, e:
@@ -629,7 +628,7 @@ def get_data_oeil(soup, act_ids, act=None):
     print "resp_names:", resp_names
     logger.debug("resp_names: "+ str(resp_names))
 
-    print "NB LECTURES OEIL", fields["nb_lectures"]
-    logger.debug("nb_lectures: "+ str(fields["nb_lectures"]))
+    #~ print "NB LECTURES OEIL", fields["nb_lectures"]
+    #~ logger.debug("nb_lectures: "+ str(fields["nb_lectures"]))
 
     return fields, dg_names, resp_names
