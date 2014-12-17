@@ -213,6 +213,7 @@ def q105():
         #~ write_cs_year(question, res["res_0"], res_2=res["res_1"], percent=1, query="1+2")
 
 
+#NOT USED
 def q106():
     #Nombre moyen (EPComAmdtAdopt+EPAmdtAdopt) / Nombre moyen (EPComAmdtTabled+EPAmdtTabled)
     #par année, par secteur, par année et par secteur
@@ -267,21 +268,84 @@ def q109():
     for var in variables:
         var1=var[0]+"1"
         var2=var[0]+"2"
-        initial_question="Nombre moyen de " + var[1] + "1 / " + var[1]+"2"
+        init_question="Nombre moyen de " + var[1] + "1 / " + var[1]+"2, "
         filter_vars={var1+"__gt": 0, var2+"__gt": 0}
 
-        question=initial_question+" par secteur"
+        question=init_question+"par secteur"
         res=init_cs()
-        res=get_by_cs_2_vars(res, var1, var2, filter_vars=filter_vars)
+        res=get_by_cs_division(res, var1, var2, filter_vars=filter_vars)
         write_cs(question, res, percent=1)
 
-        question=initial_question+" par année"
+        question=init_question+"par année"
         res=init_year()
-        res=get_by_year_2_vars(res, var1, var2, filter_vars=filter_vars)
+        res=get_by_year_division(res, var1, var2, filter_vars=filter_vars)
         write_year(question, res, percent=1)
 
-        question=initial_question+" par secteur et par année"
+        question=init_question+"par secteur et par année"
         res=init_cs_year()
-        res=get_by_cs_year_2_vars(res, var1, var2, filter_vars=filter_vars)
+        res=get_by_cs_year_division(res, var1, var2, filter_vars=filter_vars)
         write_cs_year(question, res, percent=1)
 
+
+
+def division(num_vars, num_names, denom_vars, denom_names):
+    filter_vars={num_vars[0]+"__gt": 0, denom_vars[0]+"__gt": 0}
+    init_question="Nombre moyen (" + num_names[0]
+    
+    #only one variable in the numerator and one in the denominator
+    if len(num_vars)==1:
+        init_question=init_question + "/" + denom_names[0] +"), "
+    else:
+        #2 variables in the numerator and 2 in the denominator
+        init_question=init_question +"-"+num_names[1]+") /  ("+denom_names[0]+"-"+denom_names[1]+"), "
+        filter_vars.update({num_vars[1]+"__gt": 0,  denom_vars[1]+"__gt": 0})
+
+    question=init_question+"pour tous les actes"
+    res=init_all()
+    res=get_all_division(res, num_vars, denom_vars, filter_vars=filter_vars)
+    write_all(question, res, percent=1)
+        
+    question=init_question+"par secteur"
+    res=init_cs()
+    res=get_by_cs_division(res, num_vars, denom_vars, filter_vars=filter_vars)
+    write_cs(question, res, percent=1)
+
+    question=init_question+"par année"
+    res=init_year()
+    res=get_by_year_division(res, num_vars, denom_vars, filter_vars=filter_vars)
+    write_year(question, res, percent=1)
+
+    question=init_question+"par secteur et par année"
+    res=init_cs_year()
+    res=get_by_cs_year_division(res,num_vars, denom_vars, filter_vars=filter_vars)
+    write_cs_year(question, res, percent=1)
+
+
+def q111():
+    #Nombre moyen de EPComAmdtAdopt / EPComAmdtTabled
+    #pour tous les actes, par année, par secteur, par année et par secteur
+    num_vars=("com_amdt_adopt",)
+    num_names=("EPComAmdtAdopt",)
+    denom_vars=("com_amdt_tabled",)
+    denom_names=("EPComAmdtTabled",)
+    division(num_vars, num_names, denom_vars, denom_names)
+
+
+def q112():
+    #Nombre moyen de EPAmdtAdopt / EPAmdtTabled
+    #pour tous les actes, par année, par secteur, par année et par secteur
+    num_vars=("amdt_adopt",)
+    num_names=("EPAmdtAdopt",)
+    denom_vars=("amdt_tabled",)
+    denom_names=("EPAmdtTabled",)
+    division(num_vars, num_names, denom_vars, denom_names)
+
+
+def q113():
+    #Nombre moyen de (EPAmdtAdopt - EPComAmdtAdopt) / (EPAmdtTabled - EPComAmdtTabled)
+    #pour tous les actes, par année, par secteur, par année et par secteur
+    num_vars=("amdt_adopt", "com_amdt_adopt")
+    num_names=("EPAmdtAdopt", "EPComAmdtAdopt")
+    denom_vars=("amdt_tabled", "com_amdt_tabled")
+    denom_names=("EPAmdtTabled", "EPComAmdtTabled")
+    division(num_vars, num_names, denom_vars, denom_names)

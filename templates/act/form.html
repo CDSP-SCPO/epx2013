@@ -374,7 +374,7 @@
                     <div id="countries">{{ form_data.countries }}</div> 
                     
                     {% elif  field.name == "adopt_cs_contre" %}
-                        <div class="fieldWrapper"><div class="row-fluid">{{ field.errors }}</div></div>
+                        <div class="fieldWrapper"><div id="id_{{ field.name }}_errors" class="row-fluid">{{ field.errors }}</div></div>
                         <!-- drop down lists -->
                         {% for adopt in form_data.cs_contre %}
                             {{ adopt }}

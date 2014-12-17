@@ -175,23 +175,23 @@ def q88():
             res=get_percent_adopt_all(res, adopt[0], filter_vars=filter_regle)
             write_all(question, res)
 
-            #~ #by cs
-            #~ question=init_question+"par secteur"
-            #~ res=init_cs()
-            #~ res=get_percent_adopt_cs(res, adopt[0], filter_vars=filter_regle)
-            #~ write_cs(question, res)
-#~ 
-            #~ #by year
-            #~ question=init_question+"par année"
-            #~ res=init_year()
-            #~ res=get_percent_adopt_year(res, adopt[0], filter_vars=filter_regle)
-            #~ write_year(question, res)
-#~ 
-            #~ #by cs and by year
-            #~ question=init_question+"par secteur et par année"
-            #~ res=init_cs_year()
-            #~ res=get_percent_adopt_cs_year(res, adopt[0], filter_vars=filter_regle)
-            #~ write_cs_year(question, res)
+            #by cs
+            question=init_question+"par secteur"
+            res=init_cs()
+            res=get_percent_adopt_cs(res, adopt[0], filter_vars=filter_regle)
+            write_cs(question, res)
+
+            #by year
+            question=init_question+"par année"
+            res=init_year()
+            res=get_percent_adopt_year(res, adopt[0], filter_vars=filter_regle)
+            write_year(question, res)
+
+            #by cs and by year
+            question=init_question+"par secteur et par année"
+            res=init_cs_year()
+            res=get_percent_adopt_cs_year(res, adopt[0], filter_vars=filter_regle)
+            write_cs_year(question, res)
 
 
 def q97():

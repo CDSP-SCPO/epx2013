@@ -294,6 +294,7 @@ class Command(NoArgsCommand):
 
 
         #2014-11-28
+        #for all the acts, by cs, by year, by cs and by year
         #Pourcentage d'actes avec NoUniqueType=COD adoptés en 1ère / (2ème ou 3ème) lecture
         #~ acts.q98()
         #~ #Durée de la procédure (= Moyenne DureeTotaleDepuisTransCons ET DureeProcedureDepuisTransCons)
@@ -305,11 +306,17 @@ class Command(NoArgsCommand):
         #~ #1/ Moyenne EPComAmdtAdopt + EPAmdtAdopt, 2/ Moyenne EPComAmdtTabled + EPAmdtTabled
         #~ ep_amdt_vote.q105()
         #Nombre moyen (EPComAmdtAdopt+EPAmdtAdopt) / Nombre moyen (EPComAmdtTabled+EPAmdtTabled)
-        ep_amdt_vote.q106()
+        #ep_amdt_vote.q106()
+        #Nombre moyen de EPComAmdtAdopt / EPComAmdtTabled
+        #~ ep_amdt_vote.q111()
+        #Nombre moyen de EPAmdtAdopt / EPAmdtTabled
+        #~ ep_amdt_vote.q112()
+        #Nombre moyen de (EPAmdtAdopt - EPComAmdtAdopt) / (EPAmdtTabled - EPComAmdtTabled)
+        #~ ep_amdt_vote.q113()
         #Pourcentage d'actes avec VotePublic=Y
         #~ acts.q107()
         #~ #1/Pourcentage "AdoptCSContre"= Y avec AdoptCSRegleVote=V 2/ Pourcentage "AdoptCSAbs"=Y, avec AdoptCSRegleVote=V 3/ pourcentage "AdoptCSAbs"=Y, avec AdoptCSRegleVote=U
-        #~ adopt_cs.q88()
+        adopt_cs.q88()
         #~ #Pourcentage d'actes avec au moins un point B
         #~ acts.q108()
         #~ #Nombre de mots moyen

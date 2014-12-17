@@ -4,6 +4,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 import var_name_data
 
 
+        
 
 class Country(models.Model):
     """
@@ -252,6 +253,7 @@ class Act(models.Model):
         no_ordre=var_name_data.var_name['no_ordre'] + "=" + str(self.no_ordre)
         #~ return u"releve_annee=%s, releve_mois=%s, no_ordre=%s" % (self.releve_annee, self.releve_mois, self.no_ordre)
         return releve_annee + ", " + releve_mois + ", " + no_ordre
+
 
 
 class NP(models.Model):

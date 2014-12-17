@@ -180,11 +180,7 @@ class ActForm(forms.ModelForm):
                 fields_to_check.append(cleaned_data.get(field+"_"+ str(index)))
             msg.extend(check_fields(fields_to_check, field))
 
-        #assignate all the errors to the non field errors
-        if msg:
-            self._errors['__all__']=ErrorList(msg)
-
-        #check errors adopt drop down lists
+        #~ #check errors adopt drop down lists
         names=["adopt_cs_contre", "adopt_pc_contre", "adopt_cs_abs", "adopt_pc_abs"]
         #for each variable:
         for name in names:
@@ -192,13 +188,24 @@ class ActForm(forms.ModelForm):
             #for each of the country drop down lists
             for index in range(8):
                 adopt=cleaned_data.get(name+"_"+str(index+1))
-                print adopt
+                #print adopt
                 if adopt!=None:
                     #~ #if the same country has been selected twice: error
                     if adopt in adopts:
                         self._errors[name]=ErrorList(["You have selected the country " + adopt.country + " more than once!"])
                     else:
                         adopts.append(adopt)
+
+        #error message when adopt_cs_contre and adopt_cs_regle_vote="U"
+        adopt_cs_contre=cleaned_data.get("adopt_cs_contre_1")
+        adopt_cs_regle_vote=cleaned_data.get("adopt_cs_regle_vote")
+        if adopt_cs_contre is not None and adopt_cs_regle_vote=="U":
+            self._errors['adopt_cs_contre']=ErrorList([var_name_data.var_name["adopt_cs_regle_vote"] + "=U. You can't have countries for " + var_name_data.var_name["adopt_cs_contre"] + "."])
+            #~ msg.append(var_name_data.var_name["adopt_cs_regle_vote"] + "=U. You can't have countries for " + var_name_data.var_name["adopt_cs_contre"] + ".")
+
+        #assignate all the errors to the non field errors
+        if msg:
+            self._errors['__all__']=ErrorList(msg)
 
         return cleaned_data
 

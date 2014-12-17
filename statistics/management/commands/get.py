@@ -80,6 +80,52 @@ def get_all(res, count=True, Model=Act, variable=None, excluded_values=[None], f
     return res
 
 
+def get_all_division(res, num_vars, denom_vars, count=True, Model=Act, excluded_values=[None], filter_vars={}):
+    filter_vars=get_validated_acts(Model, filter_vars_acts=filter_vars)
+    for act in Model.objects.filter(**filter_vars):
+        act_act=get_act(Model, act)
+        values=[]
+        values.append(getattr(act, num_vars[0]))
+        values.append(getattr(act, denom_vars[0]))
+        #2 variables in the numerator and 2 in the denominator
+        if len(num_vars)==2:
+            values.append(getattr(act, num_vars[1]))
+            values.append(getattr(act, denom_vars[1]))
+
+        #check that all the values are valid
+        valid=True
+        for val in values:
+            if val in excluded_values:
+                valid=False
+                break
+            
+        if valid:
+            #only one variable in the numerator and one in the denominator
+            if len(num_vars)==1:
+                #q111: Nombre moyen de EPComAmdtAdopt / EPComAmdtTabled
+                num=values[0]
+                denom=values[1]
+            #2 variables in the numerator and 2 in the denominator
+            else:
+                #q113: Nombre moyen de (EPAmdtAdopt - EPComAmdtAdopt) / (EPAmdtTabled - EPComAmdtTabled)
+                num=values[0]-values[2]
+                denom=values[1]-values[3]
+
+            if denom==0:
+                temp=0
+            else:
+                temp=float(num)/denom
+                
+            if count:
+                res[1]+=1
+                res[0]+=temp
+            else:
+                res+=temp
+
+    print "res", res
+    return res
+    
+
 def get_by_cs(res, count=True, Model=Act, variable=None, excluded_values=[None], filter_vars={}, check_vars_act={}, check_vars_act_ids={}):
     filter_vars=get_validated_acts(Model, filter_vars_acts=filter_vars)
     for act in Model.objects.filter(**filter_vars):
@@ -104,25 +150,55 @@ def get_by_cs(res, count=True, Model=Act, variable=None, excluded_values=[None],
     return res
 
 
-#NOT USED
-def get_by_cs_2_vars(res, var1, var2, count=True, Model=Act, excluded_values=[None], filter_vars={}):
+def get_by_cs_division(res, num_vars, denom_vars, count=True, Model=Act, excluded_values=[None], filter_vars={}):
     filter_vars=get_validated_acts(Model, filter_vars_acts=filter_vars)
     for act in Model.objects.filter(**filter_vars):
         act_act=get_act(Model, act)
-        value1=getattr(act, var1)
-        value2=getattr(act, var2)
-        if value1 not in excluded_values and value2 not in excluded_values:
+        year=str(act_act.releve_annee)
+        values=[]
+        values.append(getattr(act, num_vars[0]))
+        values.append(getattr(act, denom_vars[0]))
+        #2 variables in the numerator and 2 in the denominator
+        if len(num_vars)==2:
+            values.append(getattr(act, num_vars[1]))
+            values.append(getattr(act, denom_vars[1]))
+
+        #check that all the values are valid
+        valid=True
+        for val in values:
+            if val in excluded_values:
+                valid=False
+                break
+            
+        if valid:
+            
+            #only one variable in the numerator and one in the denominator
+            if len(num_vars)==1:
+                #q111: Nombre moyen de EPComAmdtAdopt / EPComAmdtTabled
+                num=values[0]
+                denom=values[1]
+            #2 variables in the numerator and 2 in the denominator
+            else:
+                #q113: Nombre moyen de (EPAmdtAdopt - EPComAmdtAdopt) / (EPAmdtTabled - EPComAmdtTabled)
+                num=values[0]-values[2]
+                denom=values[1]-values[3]
+
+            if denom==0:
+                temp=0
+            else:
+                temp=float(num)/denom
+                        
             for nb in range(1,nb_cs+1):
                 code_sect=getattr(act_act, "code_sect_"+str(nb))
                 if code_sect is not None:
                     cs=get_cs(code_sect.code_sect)
-                    #q109: Moyenne EPVotesFor1/EPVotesFor2
-                    temp=float(value1)/value2
+                        
                     if count:
                         res[cs][1]+=1
                         res[cs][0]+=temp
                     else:
                         res[cs]+=temp
+
     print "res", res
     return res
 
@@ -151,17 +227,43 @@ def get_by_year(res, count=True, Model=Act, variable=None, excluded_values=[None
     return res
 
 
-#NOT USED
-def get_by_year_2_vars(res, var1, var2, count=True, Model=Act, excluded_values=[None], filter_vars={}):
+def get_by_year_division(res, num_vars, denom_vars, count=True, Model=Act, excluded_values=[None], filter_vars={}):
     filter_vars=get_validated_acts(Model, filter_vars_acts=filter_vars)
     for act in Model.objects.filter(**filter_vars):
         act_act=get_act(Model, act)
         year=str(act_act.releve_annee)
-        value1=getattr(act, var1)
-        value2=getattr(act, var2)
-        if value1 not in excluded_values and value2 not in excluded_values:
-            #q109: Moyenne EPVotesFor1/EPVotesFor2
-            temp=float(value1)/value2
+        values=[]
+        values.append(getattr(act, num_vars[0]))
+        values.append(getattr(act, denom_vars[0]))
+        #2 variables in the numerator and 2 in the denominator
+        if len(num_vars)==2:
+            values.append(getattr(act, num_vars[1]))
+            values.append(getattr(act, denom_vars[1]))
+
+        #check that all the values are valid
+        valid=True
+        for val in values:
+            if val in excluded_values:
+                valid=False
+                break
+            
+        if valid:
+            #only one variable in the numerator and one in the denominator
+            if len(num_vars)==1:
+                #q111: Nombre moyen de EPComAmdtAdopt / EPComAmdtTabled
+                num=values[0]
+                denom=values[1]
+            #2 variables in the numerator and 2 in the denominator
+            else:
+                #q113: Nombre moyen de (EPAmdtAdopt - EPComAmdtAdopt) / (EPAmdtTabled - EPComAmdtTabled)
+                num=values[0]-values[2]
+                denom=values[1]-values[3]
+
+            if denom==0:
+                temp=0
+            else:
+                temp=float(num)/denom
+                
             if count:
                 res[year][1]+=1
                 res[year][0]+=temp
@@ -170,6 +272,7 @@ def get_by_year_2_vars(res, var1, var2, count=True, Model=Act, excluded_values=[
 
     print "res", res
     return res
+
 
 def get_by_month(res, variable, count=True, filter_variables={}):
     for act_id in ActIds.objects.filter(src="index", act__validated=2, **filter_variables):
@@ -216,21 +319,50 @@ def get_by_cs_year(res, count=True, Model=Act, variable=None, excluded_values=[N
     return res
 
 
-#NOT USED
-def get_by_cs_year_2_vars(res, var1, var2, count=True, Model=Act, variable=None, excluded_values=[None], total_year=False, filter_vars={}):
+def get_by_cs_year_division(res, num_vars, denom_vars, count=True, Model=Act, excluded_values=[None], total_year=False, filter_vars={}):
     filter_vars=get_validated_acts(Model, filter_vars_acts=filter_vars)
     for act in Model.objects.filter(**filter_vars):
         act_act=get_act(Model, act)
-        value1=getattr(act, var1)
-        value2=getattr(act, var2)
-        if value1 not in excluded_values and value2 not in excluded_values:
+        year=str(act_act.releve_annee)
+        values=[]
+        values.append(getattr(act, num_vars[0]))
+        values.append(getattr(act, denom_vars[0]))
+        #2 variables in the numerator and 2 in the denominator
+        if len(num_vars)==2:
+            values.append(getattr(act, num_vars[1]))
+            values.append(getattr(act, denom_vars[1]))
+
+        #check that all the values are valid
+        valid=True
+        for val in values:
+            if val in excluded_values:
+                valid=False
+                break
+            
+        if valid:
+            
+            #only one variable in the numerator and one in the denominator
+            if len(num_vars)==1:
+                #q111: Nombre moyen de EPComAmdtAdopt / EPComAmdtTabled
+                num=values[0]
+                denom=values[1]
+            #2 variables in the numerator and 2 in the denominator
+            else:
+                #q113: Nombre moyen de (EPAmdtAdopt - EPComAmdtAdopt) / (EPAmdtTabled - EPComAmdtTabled)
+                num=values[0]-values[2]
+                denom=values[1]-values[3]
+
+            if denom==0:
+                temp=0
+            else:
+                temp=float(num)/denom
+                        
             for nb in range(1,nb_cs+1):
                 code_sect=getattr(act_act, "code_sect_"+str(nb))
                 if code_sect is not None:
                     cs=get_cs(code_sect.code_sect)
                     year=str(act_act.releve_annee)
-                    #q109: Moyenne EPVotesFor1/EPVotesFor2
-                    temp=float(value1)/value2
+                        
                     if count:
                         res[cs][year][1]+=1
                         res[cs][year][0]+=temp
@@ -238,12 +370,12 @@ def get_by_cs_year_2_vars(res, var1, var2, count=True, Model=Act, variable=None,
                             total_year[year]+=temp
                     else:
                         res[cs][year]+=temp
+
     print "res", res
     if total_year:
         print "total_year", total_year
         return res, total_year
     return res
-
 
 
 def get_list_pers_cs(res, pers_type, max_nb, year_var=False, filter_variables={}):
