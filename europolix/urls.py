@@ -3,6 +3,9 @@ from django.conf.urls import patterns, include, url
 from django.conf.urls.defaults import *
 from django.conf.urls.static import static
 from django.views.generic.simple import direct_to_template
+#avoid CSRF problem on homepage (no form)
+from django.views.decorators.csrf import csrf_exempt
+
 
 
 # Uncomment the next two lines to enable the admin:
@@ -11,7 +14,7 @@ admin.autodiscover()
 
 urlpatterns=patterns('',
     #load the homepage template (no view)
-    url(r'^/?$', direct_to_template, {'template': 'index.html'}, name="homepage"),
+    url(r'^/?$', csrf_exempt(direct_to_template), {'template': 'index.html'}, name="homepage"),
     # reload the left menu
     url(r'^menu.html$', 'europolix.views.reload_menu', name='reload_menu'),
     #login page

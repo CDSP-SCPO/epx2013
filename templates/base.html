@@ -82,6 +82,7 @@ contains the template of each webpage: doctype, left menu, right content templat
 
 <!-- js common to all the applications -->
 <script type="text/javascript" src="{{STATIC_URL }}europolix/js/jquery_europolix.js?{% now 'U' %}"></script>
+<!--  CSRF protection for all the pages -->
 <script type="text/javascript" src="{{ STATIC_URL }}europolix/js/csrf.js"></script>
 <!-- Bootstrap -->
 <script src="{{STATIC_URL}}bootstrap/js/bootstrap.min.js"></script>
