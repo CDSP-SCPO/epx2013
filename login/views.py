@@ -38,10 +38,11 @@ def login_view(request):
 
         user=authenticate(username=username, password=password)
         if user is not None:
-            logger.debug("user is not none", user.username)
+            logger.debug("user is not none: " + user.username)
             if user.is_active:
                 login(request, user)
                 msg="You're successfully logged in!"
+                logger.debug(msg)
                 msg_class="success_msg"
                 #for ajax function
                 response["user"]={}
