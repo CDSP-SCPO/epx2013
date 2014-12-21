@@ -120,9 +120,17 @@ def get_periods():
     return periods
 
 
+def get_analyses():
+    analyses=[]
+    analyses.append(("all", "pour tous les actes"))
+    analyses.append(("year", "par année"))
+    analyses.append(("cs", "par secteur"))
+    analyses.append(("csyear", "par secteur et par année"))
+    return analyses
+    
 
 
-### VARIABLES ###
+### GLOBAL VARIABLES ###
 cs_list=get_cs_list()
 years_list=get_years_list()
 years_list_zero=get_years_list_zero(years_list)
@@ -131,4 +139,10 @@ periods=get_periods()
 nb_periods=len(periods)
 #there is up to 4 code sectoriels for one act
 nb_cs=4
+#nb rapporteurs
+nb_rapp=5
+#nb resp_propos
+nb_resp=3
+#list of factors (variables to study)
+analyses=get_analyses()
 

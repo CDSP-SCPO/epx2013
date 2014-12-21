@@ -287,7 +287,6 @@ def q109():
         write_cs_year(question, res, percent=1)
 
 
-
 def division(num_vars, num_names, denom_vars, denom_names):
     filter_vars={num_vars[0]+"__gt": 0, denom_vars[0]+"__gt": 0}
     init_question="Nombre moyen (" + num_names[0]
@@ -300,25 +299,11 @@ def division(num_vars, num_names, denom_vars, denom_names):
         init_question=init_question +"-"+num_names[1]+") /  ("+denom_names[0]+"-"+denom_names[1]+"), "
         filter_vars.update({num_vars[1]+"__gt": 0,  denom_vars[1]+"__gt": 0})
 
-    question=init_question+"pour tous les actes"
-    res=init_all()
-    res=get_all_division(res, num_vars, denom_vars, filter_vars=filter_vars)
-    write_all(question, res, percent=1)
-        
-    question=init_question+"par secteur"
-    res=init_cs()
-    res=get_by_cs_division(res, num_vars, denom_vars, filter_vars=filter_vars)
-    write_cs(question, res, percent=1)
-
-    question=init_question+"par année"
-    res=init_year()
-    res=get_by_year_division(res, num_vars, denom_vars, filter_vars=filter_vars)
-    write_year(question, res, percent=1)
-
-    question=init_question+"par secteur et par année"
-    res=init_cs_year()
-    res=get_by_cs_year_division(res,num_vars, denom_vars, filter_vars=filter_vars)
-    write_cs_year(question, res, percent=1)
+    for analysis, question in analyses:
+        question=init_question+question
+        res=init(analysis)
+        res=get(analysis, res, num_vars=num_vars, denom_vars=denom_vars, filter_vars=filter_vars)
+        write(analysis, question, res, percent=1)
 
 
 def q111():

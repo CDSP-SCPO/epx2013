@@ -15,33 +15,28 @@ from  common import *
     #e.g.: number of occurences of duree_variable among the acts with no_unique_type=COD=5, number of acts with no_unique_type=COD=15 -> res=[5, 15]
 
 
-def init_all(count=True):
+
+def init_temp(count, empty_dic, empty_list):
+    if empty_dic:
+        #list of persons, key: pers object; value: nb of occurences
+        temp=dict({})
+    elif empty_list:
+        temp=list([])
+    elif count:
+        temp=[0,0]
+    else:
+        temp=0
+    return temp
+
+
+def init_all(count):
     res=0
     if count:
         res=[0,0]
     return res
-    
-
-def init_cs(count=True, total=False, empty_list=False, empty_dic=False):
-    res={}
-    for cs in cs_list:
-        if empty_dic:
-            #list of persons, key: pers object; value: nb of occurences
-            temp=dict({})
-        elif empty_list:
-            temp=list([])
-        elif count:
-            temp=[0,0]
-        else:
-            temp=0
-        res[cs]=temp
-        if empty_dic and total:
-            res[cs]["total"]=0
-    return res
 
 
-def init_year(count=True, total=False, empty_list=False, empty_dic=False):
-    #empty_dic: for list of persons
+def init_year(count, total, empty_dic, empty_list):
     res={}
     for year in years_list:
         if empty_dic:
@@ -56,6 +51,57 @@ def init_year(count=True, total=False, empty_list=False, empty_dic=False):
         res[year]=temp
         if empty_dic and total:
             res[year]["total"]=0
+            
+    return res
+    
+
+def init_cs(count, total, empty_dic, empty_list):
+    res={}
+    for cs in cs_list:
+        res[cs]=init_temp(count, empty_dic, empty_list)
+        if empty_dic and total:
+            res[cs]["total"]=0
+    return res
+
+
+def init_csyear(count, total, empty_dic, empty_list, amdt):
+    res={}
+    total_year={}
+    for cs in cs_list:
+        res[cs]={}
+        for year in years_list:
+            temp=init_temp(count, empty_dic, empty_list)
+            if total:
+                if amdt==True:
+                    total_year[year]=0
+                else:
+                    total_year[year]=temp
+            res[cs][year]=temp
+            if total and empty_dic:
+                res[cs][year]["total"]=0
+
+        #ATTENTION! If count=True and total=True, the same list temp=[0,0] is used for total_year and res -> MUST USE A COPY OF THE LIST
+    return res
+    
+
+def init(analysis, count=True, total=False, amdt=False, empty_list=False, empty_dic=False):
+    #use total=True to compute the percentage of each cell compared to the total of the year
+    #titles_list: initialize empty list
+
+    if analysis=="all":
+        res=init_all(count)
+            
+    elif analysis=="year":
+        res=init_year(count, total, empty_dic, empty_list)
+        
+    elif analysis=="cs":
+        res=init_cs(count, total, empty_dic, empty_list)
+
+    elif analysis=="csyear":
+        res=init_csyear(count, total, empty_dic, empty_list, amdt)
+
+    if total and not empty_dic:
+        return res, total_year
     return res
 
 
@@ -67,41 +113,6 @@ def init_month(count=True):
         else:
             temp=0
         res[month]=temp
-    return res
-
-
-def init_cs_year(count=True, total=False, amdt=False, empty_list=False, empty_dic=False):
-    #use total=True to compute the percentage of each cell compared to the total of the year
-    #titles_list: initialize empty list
-    res={}
-    total_year={}
-    for secteur in cs_list:
-        res[secteur]={}
-        for year in years_list:
-            if empty_dic:
-                #list of persons, key: pers object; value: nb of occurences
-                temp=dict({})
-            elif empty_list:
-                temp=list([])
-            elif count:
-                temp=[0,0]
-            else:
-                temp=0
-
-            if total:
-                if amdt==True:
-                    total_year[year]=0
-                else:
-                    total_year[year]=temp
-            res[secteur][year]=temp
-            if total and empty_dic:
-                res[secteur][year]["total"]=0
-
-            #ATTENTION! If count=True and total=True, the same list temp=[0,0] is used for total_year and res -> MUST USE A COPY OF THE LIST
-    #~ print "res"
-    #~ print res
-    if total and not empty_dic:
-        return res, total_year
     return res
 
 

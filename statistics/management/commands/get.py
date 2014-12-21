@@ -6,6 +6,7 @@ from act.models import Act, MinAttend, Status, NP, PartyFamily
 from act_ids.models import ActIds
 from django.db.models import Count
 from  common import *
+import copy
 
 
 
@@ -35,6 +36,16 @@ def get_cs(cs, min_cs=1, max_cs=20):
     return None
 
 
+def get_all_cs(act):
+    css=[]
+    for nb in range(1,nb_cs+1):
+        code_sect=getattr(act, "code_sect_"+str(nb))
+        if code_sect is not None:
+            cs=get_cs(code_sect.code_sect)
+            css.append(cs)
+    return css
+
+
 def get_act(Model, act):
     #ActIds or MinAttend
     if Model!=Act:
@@ -60,7 +71,83 @@ def check_vars(act, act_act, check_vars_act, check_vars_act_ids):
     return True
 
 
-def get_all(res, count=True, Model=Act, variable=None, excluded_values=[None], filter_vars={}, check_vars_act={}, check_vars_act_ids={}):
+def get_division_res(act, num_vars, denom_vars):
+    res=0
+    num=0
+    denom=1
+
+    #get the values of each variable for the act in parameter, for both the numerator and denominator
+    values=[]
+    values.append(getattr(act, num_vars[0]))
+    values.append(getattr(act, denom_vars[0]))
+    #2 variables in the numerator and 2 in the denominator
+    if len(num_vars)==2:
+        values.append(getattr(act, num_vars[1]))
+        values.append(getattr(act, denom_vars[1]))
+        
+    #only one variable in the numerator and one in the denominator
+    if len(num_vars)==1:
+        #q111: Nombre moyen de EPComAmdtAdopt / EPComAmdtTabled
+        num=values[0]
+        denom=values[1]
+    #2 variables in the numerator and 2 in the denominator
+    else:
+        #q113: Nombre moyen de (amdt_adopt - com_amdt_adopt) / (amdt_tabled - com_amdt_tabled)
+        num=values[0]-values[2]
+        denom=values[1]-values[3]
+        #TEST
+        if num<0 or denom<0:
+            print "negative num or denom", act
+        #if amdt=com_amdt (numerator or denominator = 0), 
+        if denom==0 or num==0:
+            #~ print "null num or denom", act
+            num=values[0]
+            denom=values[1]
+
+    #if denom=0 -> 0    
+    if denom!=0:
+        res=float(num)/denom
+    
+    return res
+    
+
+def copy_data_for_computation(analysis, res, act_act):
+    year=None
+    #copy data for computation
+    if analysis in ["all", "cs"]:
+        res_temp=copy.copy(res)
+    elif analysis in ["year", "csyear"]:
+        year=str(act_act.releve_annee)
+        res_temp=copy.copy(res[year])
+    return res_temp, year
+
+
+def computation(res_temp, value, count, variable, ok):
+    #computation
+    if count:
+        res_temp[1]+=1
+        if variable is not None or ok:
+            res_temp[0]+=value
+    else:
+        res_temp+=value
+    return res_temp
+
+
+def copy_data_back_to_res(analysis, res_temp, res, cs=None, year=None):
+    #copy data back to res dictionary (for final result)
+    res_temp=list(res_temp)
+    if analysis=="all":
+        res=res_temp
+    elif analysis=="year":
+        res[year]=res_temp
+    elif analysis=="cs":
+        res[cs]=res_temp
+    elif analysis=="csyear":
+        res[cs][year]=res_temp
+    return res
+
+
+def get(analysis, res, num_vars=None, denom_vars=None, count=True, Model=Act, variable=None, excluded_values=[None], filter_vars={}, check_vars_act={}, check_vars_act_ids={}):
     filter_vars=get_validated_acts(Model, filter_vars_acts=filter_vars)
     for act in Model.objects.filter(**filter_vars):
         act_act=get_act(Model, act)
@@ -69,212 +156,36 @@ def get_all(res, count=True, Model=Act, variable=None, excluded_values=[None], f
             value=getattr(act, variable)
         if value not in excluded_values:
             ok=check_vars(act, act_act, check_vars_act, check_vars_act_ids)
-            if count:
-                res[1]+=1
-                if variable is not None or ok:
-                    res[0]+=value
-            else:
-                res+=value
-
-    print "res", res
-    return res
-
-
-def get_all_division(res, num_vars, denom_vars, count=True, Model=Act, excluded_values=[None], filter_vars={}):
-    filter_vars=get_validated_acts(Model, filter_vars_acts=filter_vars)
-    for act in Model.objects.filter(**filter_vars):
-        act_act=get_act(Model, act)
-        values=[]
-        values.append(getattr(act, num_vars[0]))
-        values.append(getattr(act, denom_vars[0]))
-        #2 variables in the numerator and 2 in the denominator
-        if len(num_vars)==2:
-            values.append(getattr(act, num_vars[1]))
-            values.append(getattr(act, denom_vars[1]))
-
-        #check that all the values are valid
-        valid=True
-        for val in values:
-            if val in excluded_values:
-                valid=False
-                break
             
-        if valid:
-            #only one variable in the numerator and one in the denominator
-            if len(num_vars)==1:
-                #q111: Nombre moyen de EPComAmdtAdopt / EPComAmdtTabled
-                num=values[0]
-                denom=values[1]
-            #2 variables in the numerator and 2 in the denominator
-            else:
-                #q113: Nombre moyen de (EPAmdtAdopt - EPComAmdtAdopt) / (EPAmdtTabled - EPComAmdtTabled)
-                num=values[0]-values[2]
-                denom=values[1]-values[3]
+            #division mode, res=num/denom -> q111: #Nombre moyen de EPComAmdtAdopt / EPComAmdtTabled
+            if num_vars is not None:
+                value=get_division_res(act_act, num_vars, denom_vars)
 
-            if denom==0:
-                temp=0
-            else:
-                temp=float(num)/denom
+            if analysis in ["all", "year"]:
+                #copy data for computation
+                res_temp, year=copy_data_for_computation(analysis, res, act_act)
+                #computation
+                res_temp=computation(res_temp, value, count, variable, ok)
+                #copy data back to res dictionary (for final result)
+                res=copy_data_back_to_res(analysis, res_temp, res, year=year)
                 
-            if count:
-                res[1]+=1
-                res[0]+=temp
-            else:
-                res+=temp
+            elif analysis in ["cs", "csyear"]:
+                css=get_all_cs(act_act)
+                #if there is at least one non null css
+                #for each cs
+                for cs in css:
+                    #copy data for computation
+                    res_temp, year=copy_data_for_computation(analysis, res[cs], act_act)
+                    #computation
+                    res_temp=computation(res_temp, value, count, variable, ok)
+                    #copy data back to res dictionary (for final result)
+                    res=copy_data_back_to_res(analysis, res_temp, res, cs=cs, year=year)
 
     print "res", res
     return res
     
-
-def get_by_cs(res, count=True, Model=Act, variable=None, excluded_values=[None], filter_vars={}, check_vars_act={}, check_vars_act_ids={}):
-    filter_vars=get_validated_acts(Model, filter_vars_acts=filter_vars)
-    for act in Model.objects.filter(**filter_vars):
-        act_act=get_act(Model, act)
-        value=1
-        if variable is not None:
-            value=getattr(act, variable)
-        if value not in excluded_values:
-            ok=check_vars(act, act_act, check_vars_act, check_vars_act_ids)
-            for nb in range(1,nb_cs+1):
-                code_sect=getattr(act_act, "code_sect_"+str(nb))
-                if code_sect is not None:
-                    cs=get_cs(code_sect.code_sect)
-                    if count:
-                        res[cs][1]+=1
-                        if variable is not None or ok:
-                            res[cs][0]+=value
-                    else:
-                        res[cs]+=value
-
-    print "res", res
-    return res
-
-
-def get_by_cs_division(res, num_vars, denom_vars, count=True, Model=Act, excluded_values=[None], filter_vars={}):
-    filter_vars=get_validated_acts(Model, filter_vars_acts=filter_vars)
-    for act in Model.objects.filter(**filter_vars):
-        act_act=get_act(Model, act)
-        year=str(act_act.releve_annee)
-        values=[]
-        values.append(getattr(act, num_vars[0]))
-        values.append(getattr(act, denom_vars[0]))
-        #2 variables in the numerator and 2 in the denominator
-        if len(num_vars)==2:
-            values.append(getattr(act, num_vars[1]))
-            values.append(getattr(act, denom_vars[1]))
-
-        #check that all the values are valid
-        valid=True
-        for val in values:
-            if val in excluded_values:
-                valid=False
-                break
-            
-        if valid:
-            
-            #only one variable in the numerator and one in the denominator
-            if len(num_vars)==1:
-                #q111: Nombre moyen de EPComAmdtAdopt / EPComAmdtTabled
-                num=values[0]
-                denom=values[1]
-            #2 variables in the numerator and 2 in the denominator
-            else:
-                #q113: Nombre moyen de (EPAmdtAdopt - EPComAmdtAdopt) / (EPAmdtTabled - EPComAmdtTabled)
-                num=values[0]-values[2]
-                denom=values[1]-values[3]
-
-            if denom==0:
-                temp=0
-            else:
-                temp=float(num)/denom
-                        
-            for nb in range(1,nb_cs+1):
-                code_sect=getattr(act_act, "code_sect_"+str(nb))
-                if code_sect is not None:
-                    cs=get_cs(code_sect.code_sect)
-                        
-                    if count:
-                        res[cs][1]+=1
-                        res[cs][0]+=temp
-                    else:
-                        res[cs]+=temp
-
-    print "res", res
-    return res
-
-
-def get_by_year(res, count=True, Model=Act, variable=None, excluded_values=[None], filter_vars={}, check_vars_act={}, check_vars_act_ids={}):
-    filter_vars=get_validated_acts(Model, filter_vars_acts=filter_vars)
-    for act in Model.objects.filter(**filter_vars):
-        act_act=get_act(Model, act)
-        year=str(act_act.releve_annee)
-        value=1
-        if variable is not None:
-            value=getattr(act, variable)
-        if value not in excluded_values:
-            ok=check_vars(act, act_act, check_vars_act, check_vars_act_ids)
-            if count:
-                res[year][1]+=1
-                if variable is not None or ok:
-                    #~ #TEST
-                    #~ if year=="2004":
-                        #~ print act_act.releve_annee, act_act.releve_mois, act_act.no_ordre, variable, value
-                    res[year][0]+=value
-            else:
-                res[year]+=value
-
-    print "res", res
-    return res
-
-
-def get_by_year_division(res, num_vars, denom_vars, count=True, Model=Act, excluded_values=[None], filter_vars={}):
-    filter_vars=get_validated_acts(Model, filter_vars_acts=filter_vars)
-    for act in Model.objects.filter(**filter_vars):
-        act_act=get_act(Model, act)
-        year=str(act_act.releve_annee)
-        values=[]
-        values.append(getattr(act, num_vars[0]))
-        values.append(getattr(act, denom_vars[0]))
-        #2 variables in the numerator and 2 in the denominator
-        if len(num_vars)==2:
-            values.append(getattr(act, num_vars[1]))
-            values.append(getattr(act, denom_vars[1]))
-
-        #check that all the values are valid
-        valid=True
-        for val in values:
-            if val in excluded_values:
-                valid=False
-                break
-            
-        if valid:
-            #only one variable in the numerator and one in the denominator
-            if len(num_vars)==1:
-                #q111: Nombre moyen de EPComAmdtAdopt / EPComAmdtTabled
-                num=values[0]
-                denom=values[1]
-            #2 variables in the numerator and 2 in the denominator
-            else:
-                #q113: Nombre moyen de (EPAmdtAdopt - EPComAmdtAdopt) / (EPAmdtTabled - EPComAmdtTabled)
-                num=values[0]-values[2]
-                denom=values[1]-values[3]
-
-            if denom==0:
-                temp=0
-            else:
-                temp=float(num)/denom
-                
-            if count:
-                res[year][1]+=1
-                res[year][0]+=temp
-            else:
-                res[year]+=temp
-
-    print "res", res
-    return res
-
-
-def get_by_month(res, variable, count=True, filter_variables={}):
+    
+def get_month(res, variable, count=True, filter_variables={}):
     for act_id in ActIds.objects.filter(src="index", act__validated=2, **filter_variables):
         act=act_id.act
         value=getattr(act, variable)
@@ -290,91 +201,18 @@ def get_by_month(res, variable, count=True, filter_variables={}):
     return res
 
 
-def get_by_cs_year(res, count=True, Model=Act, variable=None, excluded_values=[None], total_year=False, filter_vars={}, check_vars_act={}, check_vars_act_ids={}):
-    filter_vars=get_validated_acts(Model, filter_vars_acts=filter_vars)
-    for act in Model.objects.filter(**filter_vars):
-        act_act=get_act(Model, act)
-        value=1
-        if variable is not None:
-            value=getattr(act, variable)
-        if value not in excluded_values:
-            ok=check_vars(act, act_act, check_vars_act, check_vars_act_ids)
-            for nb in range(1,nb_cs+1):
-                code_sect=getattr(act_act, "code_sect_"+str(nb))
-                if code_sect is not None:
-                    cs=get_cs(code_sect.code_sect)
-                    year=str(act_act.releve_annee)
-                    if count:
-                        res[cs][year][1]+=1
-                        if variable is not None or ok:
-                            res[cs][year][0]+=value
-                        if total_year:
-                            total_year[year]+=value
-                    else:
-                        res[cs][year]+=value
-    print "res", res
-    if total_year:
-        print "total_year", total_year
-        return res, total_year
-    return res
-
-
-def get_by_cs_year_division(res, num_vars, denom_vars, count=True, Model=Act, excluded_values=[None], total_year=False, filter_vars={}):
-    filter_vars=get_validated_acts(Model, filter_vars_acts=filter_vars)
-    for act in Model.objects.filter(**filter_vars):
-        act_act=get_act(Model, act)
-        year=str(act_act.releve_annee)
-        values=[]
-        values.append(getattr(act, num_vars[0]))
-        values.append(getattr(act, denom_vars[0]))
-        #2 variables in the numerator and 2 in the denominator
-        if len(num_vars)==2:
-            values.append(getattr(act, num_vars[1]))
-            values.append(getattr(act, denom_vars[1]))
-
-        #check that all the values are valid
-        valid=True
-        for val in values:
-            if val in excluded_values:
-                valid=False
-                break
-            
-        if valid:
-            
-            #only one variable in the numerator and one in the denominator
-            if len(num_vars)==1:
-                #q111: Nombre moyen de EPComAmdtAdopt / EPComAmdtTabled
-                num=values[0]
-                denom=values[1]
-            #2 variables in the numerator and 2 in the denominator
-            else:
-                #q113: Nombre moyen de (EPAmdtAdopt - EPComAmdtAdopt) / (EPAmdtTabled - EPComAmdtTabled)
-                num=values[0]-values[2]
-                denom=values[1]-values[3]
-
-            if denom==0:
-                temp=0
-            else:
-                temp=float(num)/denom
-                        
-            for nb in range(1,nb_cs+1):
-                code_sect=getattr(act_act, "code_sect_"+str(nb))
-                if code_sect is not None:
-                    cs=get_cs(code_sect.code_sect)
-                    year=str(act_act.releve_annee)
-                        
-                    if count:
-                        res[cs][year][1]+=1
-                        res[cs][year][0]+=temp
-                        if total_year:
-                            total_year[year]+=temp
-                    else:
-                        res[cs][year]+=temp
-
-    print "res", res
-    if total_year:
-        print "total_year", total_year
-        return res, total_year
+def get_list_pers_year(res, pers_type, max_nb, filter_variables={}):
+    for act_ids in ActIds.objects.filter(act__validated=2, src="index", **filter_variables):
+        act=act_ids.act
+        year=str(act.releve_annee)
+        #loop over each pers
+        for nb in range(1, max_nb+1):
+            pers=getattr(act, pers_type+"_"+str(nb))
+            if pers not in [None, 0]:
+                if pers not in res[year]:
+                    res[year][pers]=1
+                else:
+                    res[year][pers]+=1
     return res
 
 
@@ -408,21 +246,6 @@ def get_list_pers_cs(res, pers_type, max_nb, year_var=False, filter_variables={}
     return res
 
 
-def get_list_pers_year(res, pers_type, max_nb, filter_variables={}):
-    for act_ids in ActIds.objects.filter(act__validated=2, src="index", **filter_variables):
-        act=act_ids.act
-        year=str(act.releve_annee)
-        #loop over each pers
-        for nb in range(1, max_nb+1):
-            pers=getattr(act, pers_type+"_"+str(nb))
-            if pers not in [None, 0]:
-                if pers not in res[year]:
-                    res[year][pers]=1
-                else:
-                    res[year][pers]+=1
-    return res
-
-
 def get_pf(pers):
     return PartyFamily.objects.get(country=pers.country, party=pers.party).party_family.encode("utf-8")
 
@@ -436,6 +259,27 @@ def get_stat(var, pers):
         stat=pers.country.country_code
     return stat
 
+
+def get_percent_pers_year(res, pers_type, max_nb, var="pf", filter_vars={}):
+    #percentage of each party family or country for Rapporteurs and RespPropos
+    #year only
+    filter_vars=get_validated_acts(ActIds, filter_vars)
+    for act_ids in ActIds.objects.filter(**filter_vars):
+        act=act_ids.act
+        year=str(act.releve_annee)
+        #loop over each pers
+        for nb in range(1, max_nb+1):
+            pers=getattr(act, pers_type+"_"+str(nb))
+            if pers is not None:
+                stat=get_stat(var, pers)
+                res[year]["total"]+=1
+                if stat not in res[year]:
+                    res[year][stat]=1
+                else:
+                    res[year][stat]+=1
+    print "res", res
+    return res
+    
 
 def get_percent_pers_cs(res, pers_type, max_nb, var="pf", year_var=False, filter_vars={}):
     #percentage of each party family or country for Rapporteurs and RespPropos
@@ -469,27 +313,6 @@ def get_percent_pers_cs(res, pers_type, max_nb, var="pf", year_var=False, filter
                                 res[cs][stat]=1
                             else:
                                 res[cs][stat]+=1
-    print "res", res
-    return res
-
-
-def get_percent_pers_year(res, pers_type, max_nb, var="pf", filter_vars={}):
-    #percentage of each party family or country for Rapporteurs and RespPropos
-    #year only
-    filter_vars=get_validated_acts(ActIds, filter_vars)
-    for act_ids in ActIds.objects.filter(**filter_vars):
-        act=act_ids.act
-        year=str(act.releve_annee)
-        #loop over each pers
-        for nb in range(1, max_nb+1):
-            pers=getattr(act, pers_type+"_"+str(nb))
-            if pers is not None:
-                stat=get_stat(var, pers)
-                res[year]["total"]+=1
-                if stat not in res[year]:
-                    res[year][stat]=1
-                else:
-                    res[year][stat]+=1
     print "res", res
     return res
 

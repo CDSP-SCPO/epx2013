@@ -311,12 +311,12 @@ class Command(NoArgsCommand):
         #~ ep_amdt_vote.q111()
         #Nombre moyen de EPAmdtAdopt / EPAmdtTabled
         #~ ep_amdt_vote.q112()
-        #Nombre moyen de (EPAmdtAdopt - EPComAmdtAdopt) / (EPAmdtTabled - EPComAmdtTabled)
+        #~ #Nombre moyen de (EPAmdtAdopt - EPComAmdtAdopt) / (EPAmdtTabled - EPComAmdtTabled)
         #~ ep_amdt_vote.q113()
         #Pourcentage d'actes avec VotePublic=Y
         #~ acts.q107()
         #~ #1/Pourcentage "AdoptCSContre"= Y avec AdoptCSRegleVote=V 2/ Pourcentage "AdoptCSAbs"=Y, avec AdoptCSRegleVote=V 3/ pourcentage "AdoptCSAbs"=Y, avec AdoptCSRegleVote=U
-        adopt_cs.q88()
+        #~ adopt_cs.q88()
         #~ #Pourcentage d'actes avec au moins un point B
         #~ acts.q108()
         #~ #Nombre de mots moyen

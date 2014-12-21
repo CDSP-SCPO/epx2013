@@ -192,64 +192,95 @@ def q40():
     concordance_annee_secteur("Conservative/Christian Democracy", [u"European People's Party (Christian Democrats)", u"EPP - European People's Party (Christian Democrats)", u"European People's Party (Christian Democrats) and European Democrats"])
 
 
-def get_discordance_all(res):
-    #ger percentage of different political families for rapp1 and resp1
-    filter_vars=get_validated_acts(Act)
-    for act in Act.objects.filter(**filter_vars):
-        rapp=act.rapp_1
-        resp=act.resp_1
-        if rapp is not None and resp is not None:
-            res[1]+=1
-            rapp_pf=PartyFamily.objects.get(country=rapp.country, party=rapp.party).party_family.strip().encode("utf-8")
-            resp_pf=PartyFamily.objects.get(country=resp.country, party=resp.party).party_family.strip().encode("utf-8")
-            if rapp_pf!=resp_pf:
-                res[0]+=1
-    print "res"
-    print res
-    return res
-    
+def get_all_pfs(act, pers_type, nb_pers):
+    pfs=set()
+    #get all rapps or resps
+    for i in range(1, nb_pers+1):
+        pers=getattr(act, pers_type+"_"+str(i))
+        #no more rapp or resp
+        if pers is None:
+            break
+        else:
+            pf=PartyFamily.objects.get(country=pers.country, party=pers.party).party_family.strip().encode("utf-8")
+            pfs.add(pf)
+    return pfs
 
-def get_discordance_cs(res, year=False):
-    #ger percentage of different political families for rapp1 and resp1
+
+def compare_all_rapp_resp(act):
+    pfs_rapp=get_all_pfs(act, "rapp", nb_rapp)
+    pfs_resp=get_all_pfs(act, "resp", nb_resp)
+    #valid= True if there is at least one rapp and one resp (to do the comparison) and False if there is none -> used to compute the total
+    valid=False
+    #same=True if all the rapps and resps have the same party family, False otherwise
+    same=True
+
+    #if there is at least one rapp and one resp
+    if pfs_rapp and pfs_resp:
+        valid=True
+        for pf_rapp in pfs_rapp:
+            #we have found at least two different parties -> exit the function
+            if not same:
+                break
+            for pf_resp in pfs_resp:
+                #if there are at least two different party families (one from the rapps, one from the resps)
+                if pf_rapp!=pf_resp:
+                    same=False
+                    break
+    return valid, same
+
+
+def get_discordance_all(res, same):
+    res[1]+=1
+    #if there are at least two different party families (one from the rapps, one from the resps)
+    if not same:
+        res[0]+=1
+    return res
+
+
+def get_discordance_year_or_cs(res, same, var):
+    res[var][1]+=1
+    #if there are at least two different party families (one from the rapps, one from the resps)
+    if not same:
+        res[var][0]+=1
+    return res
+
+
+def get_discordance_csyear(res, same, cs, year):
+    res[cs][year][1]+=1
+    #if there are at least two different party families (one from the rapps, one from the resps)
+    if not same:
+        res[cs][year][0]+=1
+    return res
+
+
+def get_discordance(analysis, res):
+    #get percentage of different political families for rapp1 and resp1
     filter_vars=get_validated_acts(Act)
     for act in Act.objects.filter(**filter_vars):
-        for nb in range(1,nb_cs+1):
-            code_sect=getattr(act, "code_sect_"+str(nb))
-            if code_sect is not None:
-                cs=get_cs(code_sect.code_sect)
-                rapp=act.rapp_1
-                resp=act.resp_1
-                if rapp is not None and resp is not None:
-                    if year:
+        valid, same=compare_all_rapp_resp(act)
+        if valid:
+            
+            if analysis=="all":
+                res=get_discordance_all(res, same)
+                    
+            elif analysis=="year":
+                year=str(act.releve_annee)
+                res=get_discordance_year_or_cs(res, same, year)
+
+            elif analysis in ["cs", "csyear"]:
+                css=get_all_cs(act)
+                
+                #loop over all cs
+                for cs in css:
+                    #by cs only
+                    if analysis=="cs":
+                        res=get_discordance_year_or_cs(res, same, cs)
+                            
+                    #by cs and by year
+                    elif analysis=="csyear":
                         year=str(act.releve_annee)
-                        res[cs][year][1]+=1
-                    else:
-                        res[cs][1]+=1
-                    rapp_pf=PartyFamily.objects.get(country=rapp.country, party=rapp.party).party_family.strip().encode("utf-8")
-                    resp_pf=PartyFamily.objects.get(country=resp.country, party=resp.party).party_family.strip().encode("utf-8")
-                    if rapp_pf!=resp_pf:
-                        if year:
-                            res[cs][year][0]+=1
-                        else:
-                            res[cs][0]+=1
-    print "res"
-    print res
-    return res
-
-
-def get_discordance_year(res):
-    #ger percentage of different political families for rapp1 and resp1
-    filter_vars=get_validated_acts(Act)
-    for act in Act.objects.filter(**filter_vars):
-        rapp=act.rapp_1
-        resp=act.resp_1
-        if rapp is not None and resp is not None:
-            year=str(act.releve_annee)
-            res[year][1]+=1
-            rapp_pf=PartyFamily.objects.get(country=rapp.country, party=rapp.party).party_family.strip().encode("utf-8")
-            resp_pf=PartyFamily.objects.get(country=resp.country, party=resp.party).party_family.strip().encode("utf-8")
-            if rapp_pf!=resp_pf:
-                res[year][0]+=1
+                        res=get_discordance_csyear(res, same, cs, year)
+                
     print "res"
     print res
     return res
@@ -257,27 +288,13 @@ def get_discordance_year(res):
 
 def q84():
     #Pourcentage de discordance des familles politiques
-    init_question="Pourcentage de discordance de PartyFamilyRappPE1 et PartyFamilyRespPropos1, "
+    init_question="Pourcentage de discordance de PartyFamilyRappPE* et PartyFamilyRespPropos*, "
 
-    question=init_question+"pour tous les actes"
-    res=init_all()
-    res=get_discordance_all(res)
-    write_all(question, res)
-
-    #~ question=init_question+"par secteur"
-    #~ res=init_cs()
-    #~ res=get_discordance_cs(res)
-    #~ write_cs(question, res)
-#~ 
-    #~ question=init_question+"par année"
-    #~ res=init_year()
-    #~ res=get_discordance_year(res)
-    #~ write_year(question, res)
-#~ 
-    #~ question=init_question+"par secteur et par année"
-    #~ res=init_cs_year()
-    #~ res=get_discordance_cs(res, year=True)
-    #~ write_cs_year(question, res)
+    for analysis, question in analyses:
+        question=init_question+question
+        res=init(analysis)
+        res=get_discordance(analysis, res)
+        write(analysis, question, res)
 
 
 def q93():
