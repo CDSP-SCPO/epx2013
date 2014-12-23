@@ -192,108 +192,19 @@ def q40():
     concordance_annee_secteur("Conservative/Christian Democracy", [u"European People's Party (Christian Democrats)", u"EPP - European People's Party (Christian Democrats)", u"European People's Party (Christian Democrats) and European Democrats"])
 
 
-def get_all_pfs(act, pers_type, nb_pers):
-    pfs=set()
-    #get all rapps or resps
-    for i in range(1, nb_pers+1):
-        pers=getattr(act, pers_type+"_"+str(i))
-        #no more rapp or resp
-        if pers is None:
-            break
-        else:
-            pf=PartyFamily.objects.get(country=pers.country, party=pers.party).party_family.strip().encode("utf-8")
-            pfs.add(pf)
-    return pfs
-
-
-def compare_all_rapp_resp(act):
-    pfs_rapp=get_all_pfs(act, "rapp", nb_rapp)
-    pfs_resp=get_all_pfs(act, "resp", nb_resp)
-    #valid= True if there is at least one rapp and one resp (to do the comparison) and False if there is none -> used to compute the total
-    valid=False
-    #same=True if all the rapps and resps have the same party family, False otherwise
-    same=True
-
-    #if there is at least one rapp and one resp
-    if pfs_rapp and pfs_resp:
-        valid=True
-        for pf_rapp in pfs_rapp:
-            #we have found at least two different parties -> exit the function
-            if not same:
-                break
-            for pf_resp in pfs_resp:
-                #if there are at least two different party families (one from the rapps, one from the resps)
-                if pf_rapp!=pf_resp:
-                    same=False
-                    break
-    return valid, same
-
-
-def get_discordance_all(res, same):
-    res[1]+=1
-    #if there are at least two different party families (one from the rapps, one from the resps)
-    if not same:
-        res[0]+=1
-    return res
-
-
-def get_discordance_year_or_cs(res, same, var):
-    res[var][1]+=1
-    #if there are at least two different party families (one from the rapps, one from the resps)
-    if not same:
-        res[var][0]+=1
-    return res
-
-
-def get_discordance_csyear(res, same, cs, year):
-    res[cs][year][1]+=1
-    #if there are at least two different party families (one from the rapps, one from the resps)
-    if not same:
-        res[cs][year][0]+=1
-    return res
-
-
-def get_discordance(analysis, res):
-    #get percentage of different political families for rapp1 and resp1
-    filter_vars=get_validated_acts(Act)
-    for act in Act.objects.filter(**filter_vars):
-        valid, same=compare_all_rapp_resp(act)
-        if valid:
-            
-            if analysis=="all":
-                res=get_discordance_all(res, same)
-                    
-            elif analysis=="year":
-                year=str(act.releve_annee)
-                res=get_discordance_year_or_cs(res, same, year)
-
-            elif analysis in ["cs", "csyear"]:
-                css=get_all_cs(act)
-                
-                #loop over all cs
-                for cs in css:
-                    #by cs only
-                    if analysis=="cs":
-                        res=get_discordance_year_or_cs(res, same, cs)
-                            
-                    #by cs and by year
-                    elif analysis=="csyear":
-                        year=str(act.releve_annee)
-                        res=get_discordance_csyear(res, same, cs, year)
-                
-    print "res"
-    print res
-    return res
-
-
-def q84():
+def q84(factor="everything"):
     #Pourcentage de discordance des familles politiques
-    init_question="Pourcentage de discordance de PartyFamilyRappPE* et PartyFamilyRespPropos*, "
+    init_question="Pourcentage de discordance de PartyFamilyRappPE* et PartyFamilyRespPropos*"
+    filter_vars={"rapp_1__isnull": False, "resp_1__isnull": False}
+
+    if factor=="csyear":
+        #get by cs and by year only (for specific cs)
+        analyses, nb_figures_cs=get_specific_cs()
 
     for analysis, question in analyses:
         question=init_question+question
         res=init(analysis)
-        res=get_discordance(analysis, res)
+        res=get(analysis, res, filter_vars_acts=filter_vars, query="discordance", nb_figures_cs=nb_figures_cs)
         write(analysis, question, res)
 
 

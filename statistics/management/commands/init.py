@@ -1,5 +1,6 @@
 #-*- coding: utf-8 -*-
 
+from act.models import Act, Country
 #initiate dictionary that will contain the result of a query
 from  common import *
 
@@ -116,8 +117,23 @@ def init_month(count=True):
     return res
 
 
-def init_periods(Model, filter_vars_acts={}, filter_vars_acts_ids={}, filter_total_acts={}, filter_total_acts_ids={}):
-    res=[[0 for x in range(2)] for y in range(nb_periods)]
+def init_periods(Model=Act, filter_vars_acts={}, filter_vars_acts_ids={}, filter_total_acts={}, filter_total_acts_ids={}, query=None):
     filter_vars=get_validated_acts(Model, filter_vars_acts=filter_vars_acts, filter_vars_acts_ids=filter_vars_acts_ids)
     filter_total=get_validated_acts(Model, filter_vars_acts=filter_total_acts, filter_vars_acts_ids=filter_total_acts_ids)
-    return res, filter_vars, filter_total
+    
+    if query=="countries":
+        res={}
+        total=[]
+        #for each country
+        for country in countries_list:
+            res[country]=[]
+            #for each period
+            for period in range(nb_periods):
+                res[country].append(0)
+                total.append(0)
+        return res, filter_vars, filter_total, total
+                
+    else:
+        res=[[0 for x in range(2)] for y in range(nb_periods)]
+        return res, filter_vars, filter_total
+    

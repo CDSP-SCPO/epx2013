@@ -426,36 +426,26 @@ def q82():
 
 
 
-def q98():
+def q98(factor="everything"):
     #Pourcentage d’actes adoptés avec NoUniqueType=COD 1/et NbLectures=1, 2/et NbLectures=2 ou 3, par année, par secteur, par année et par secteur
     variables=(("nb_lectures", "1ère lecture"), ("nb_lectures__gt", "2ème ou 3ème lecture"))
-    filter_vars={"nb_lectures__isnull": False}
+    filter_vars_acts={"nb_lectures__isnull": False}
     check_vars_act_ids={"no_unique_type": "COD"}
     init_question="Pourcentage d'actes avec NoUniqueType=COD adoptés en "
 
+    if factor=="csyear":
+        #get by cs and by year only (for specific cs)
+        analyses, nb_figures_cs=get_specific_cs()
+
     for variable in variables:
-        check_vars_act={variable[0]: 1}
-
-        question=init_question+variable[1]+", pour tous les actes"
-        res=init_all()
-        res=get_all(res, Model=ActIds, filter_vars=filter_vars, check_vars_act=check_vars_act, check_vars_act_ids=check_vars_act_ids)
-        write_all(question, res)
-
-        #~ question=init_question+variable[1]+", par secteur"
-        #~ res=init_cs()
-        #~ res=get_by_cs(res, Model=ActIds, filter_vars=filter_vars, check_vars_act=check_vars_act, check_vars_act_ids=check_vars_act_ids)
-        #~ write_cs(question, res)
-#~ 
-        #~ question=init_question+variable[1]+", par année"
-        #~ res=init_year()
-        #~ res=get_by_year(res, Model=ActIds, filter_vars=filter_vars, check_vars_act=check_vars_act, check_vars_act_ids=check_vars_act_ids)
-        #~ write_year(question, res)
-#~ 
-        #~ question=init_question+variable[1]+", par secteur et par année"
-        #~ res=init_cs_year()
-        #~ res=get_by_cs_year(res, Model=ActIds, filter_vars=filter_vars, check_vars_act=check_vars_act, check_vars_act_ids=check_vars_act_ids)
-        #~ write_cs_year(question, res)
-
+        check_vars_acts={variable[0]: 1}
+    
+        for analysis, question in analyses:
+            question=init_question+variable[1]+question
+            res=init(analysis)
+            res=get(analysis, res, Model=ActIds, filter_vars_acts=filter_vars_acts, check_vars_acts=check_vars_acts, check_vars_act_ids=check_vars_act_ids, nb_figures_cs=nb_figures_cs)
+            write(analysis, question, res)
+        
 
 def q103():
     question="Nombre d'actes adoptés sans point B (la variable NbPointB est vide ou égale à zéro)"
@@ -475,54 +465,60 @@ def q104():
     write_periods(question, res, nb=True)
 
 
-def q107():
+def q107(factor="everything"):
     #Pourcentage d'actes avec VotePublic=Y, par année, par secteur, par année et par secteur
-    check_vars_act={"vote_public": True}
-    init_question="Pourcentage d'actes avec VotePublic=Y, "
+    check_vars_acts={"vote_public": True}
+    init_question="Pourcentage d'actes avec VotePublic=Y"
 
-    question=init_question+"pour tous les actes"
-    res=init_all()
-    res=get_all(res, check_vars_act=check_vars_act)
-    write_all(question, res)
+    if factor=="csyear":
+        #get by cs and by year only (for specific cs)
+        analyses, nb_figures_cs=get_specific_cs()
 
-    #~ question=init_question+"par secteur"
-    #~ res=init_cs()
-    #~ res=get_by_cs(res, check_vars_act=check_vars_act)
-    #~ write_cs(question, res)
-#~ 
-    #~ question=init_question+"par année"
-    #~ res=init_year()
-    #~ res=get_by_year(res, check_vars_act=check_vars_act)
-    #~ write_year(question, res)
-#~ 
-    #~ question=init_question+"par secteur et par année"
-    #~ res=init_cs_year()
-    #~ res=get_by_cs_year(res, check_vars_act=check_vars_act)
-    #~ write_cs_year(question, res)
+    for analysis, question in analyses:
+        question=init_question+question
+        
+        res=init(analysis)
+        res=get(analysis, res, check_vars_acts=check_vars_acts, nb_figures_cs=nb_figures_cs)
+        write(analysis, question, res)
 
 
-def q108():
+
+def q108(factor="everything"):
     #Pourcentage d'actes avec au moins un point B, par année, par secteur, par année et par secteur
-    init_question="Pourcentage d'actes avec au moins un point B, "
+    init_question="Pourcentage d'actes avec au moins un point B"
     filter_vars={"nb_point_b__isnull": False}
-    check_vars_act={"nb_point_b__gte": 1}
+    check_vars_acts={"nb_point_b__gte": 1}
 
-    question=init_question+"pour tous les actes"
-    res=init_all()
-    res=get_all(res, filter_vars=filter_vars, check_vars_act=check_vars_act)
-    write_all(question, res)
+    if factor=="csyear":
+        #get by cs and by year only (for specific cs)
+        analyses, nb_figures_cs=get_specific_cs()
 
-    #~ question=init_question+"par secteur"
-    #~ res=init_cs()
-    #~ res=get_by_cs(res, filter_vars=filter_vars, check_vars_act=check_vars_act)
-    #~ write_cs(question, res)
-#~ 
-    #~ question=init_question+"par année"
-    #~ res=init_year()
-    #~ res=get_by_year(res, filter_vars=filter_vars, check_vars_act=check_vars_act)
-    #~ write_year(question, res)
-#~ 
-    #~ question=init_question+"par secteur et par année"
-    #~ res=init_cs_year()
-    #~ res=get_by_cs_year(res, filter_vars=filter_vars, check_vars_act=check_vars_act)
-    #~ write_cs_year(question, res)
+    for analysis, question in analyses:
+        question=init_question+question
+        
+        res=init(analysis)
+        res=get(analysis, res, filter_vars_acts=filter_vars, check_vars_acts=check_vars_acts, nb_figures_cs=nb_figures_cs)
+        write(analysis, question, res)
+
+
+def q115(factor="everything"):
+    #Pourcentage d'actes avec 1/CommissionPE= LIBE 2/CommissionPE= JURI par cs et par année
+    variable=("commission", "CommissionPE")
+    init_question="Pourcentage d'actes avec "+variable[1]+"="
+    
+    variables=("LIBE", "JURI")
+    exclude_vars_acts={variable[0]+"__in": [""]}
+
+    if factor=="csyear":
+        #get by cs and by year only (for specific cs)
+        analyses, nb_figures_cs=get_specific_cs()
+
+    for var in variables:
+        question_temp=init_question+var
+        check_vars_acts={variable[0]: var}
+        for analysis, question in analyses:
+            question=question_temp+question
+            
+            res=init(analysis)
+            res=get(analysis, res, exclude_vars_acts=exclude_vars_acts, check_vars_acts=check_vars_acts, nb_figures_cs=nb_figures_cs)
+            write(analysis, question, res)

@@ -442,7 +442,7 @@ def q78(cs=None):
     write_periods(question, res, percent=1)
 
 
-def q96():
+def q96(factor="everything"):
     #Durée de la procédure (= Moyenne DureeTotaleDepuisTransCons ET DureeProcedureDepuisTransCons) par année, par secteur, par année et par secteur
     #1/pour tous les actes 2/VotePublic=Y 3/VotePublic=N 4/AdoptCSRegleVote=U 5/AdoptCSRegleVote=V 6/VotePublic=Y et AdoptCSRegleVote=U 7/ VotePublic=Y et AdoptCSRegleVote=V
     filters=(
@@ -456,43 +456,28 @@ def q96():
     )
     variables=(("duree_tot_depuis_trans_cons", "DureeTotaleDepuisTransCons"), ("duree_proc_depuis_trans_cons", "DureeProcedureDepuisTransCons"))
     filter_vars={variables[0][0]+"__gt": 1, variables[1][0]+"__gt": 1}
-    init_question="Durée moyenne (" + variables[0][1] + "+" + variables[1][1]+ "), pour tous les actes"
+    init_question="Durée moyenne (" + variables[0][1] + "+" + variables[1][1]+ ")"
+
+    if factor=="csyear":
+        #get by cs and by year only (for specific cs)
+        analyses, nb_figures_cs=get_specific_cs()
 
     for filt in filters:
         filter_vars_temp=filter_vars.copy()
         #update filter
         filter_vars_temp.update(filt[1])
-
-        question=init_question+filt[0]
-        res_1=init_all()
-        res_2=init_all()
-        res_1=get_all(res_1, variable=variables[0][0], filter_vars=filter_vars_temp)
-        res_2=get_all(res_2, variable=variables[1][0], filter_vars=filter_vars_temp)
-        write_all(question, res_1, res_2=res_2, percent=1, query="1+2")
-
-        #~ question=init_question+filt[0]+", par secteur"
-        #~ res_1=init_cs()
-        #~ res_2=init_cs()
-        #~ res_1=get_by_cs(res_1, variable=variables[0][0], filter_vars=filter_vars_temp)
-        #~ res_2=get_by_cs(res_2, variable=variables[1][0], filter_vars=filter_vars_temp)
-        #~ write_cs(question, res_1, res_2=res_2, percent=1, query="1+2")
-#~ 
-        #~ question=init_question+filt[0]+", par année"
-        #~ res_1=init_year()
-        #~ res_2=init_year()
-        #~ res_1=get_by_year(res_1, variable=variables[0][0], filter_vars=filter_vars_temp)
-        #~ res_2=get_by_year(res_2, variable=variables[1][0], filter_vars=filter_vars_temp)
-        #~ write_year(question, res_1, res_2=res_2, percent=1, query="1+2")
-#~ 
-        #~ question=init_question+filt[0]+", par secteur et par année"
-        #~ res_1=init_cs_year()
-        #~ res_2=init_cs_year()
-        #~ res_1=get_by_cs_year(res_1, variable=variables[0][0], filter_vars=filter_vars_temp)
-        #~ res_2=get_by_cs_year(res_2, variable=variables[1][0], filter_vars=filter_vars_temp)
-        #~ write_cs_year(question, res_1, res_2=res_2, percent=1, query="1+2")
+        
+        for analysis, question in analyses:
+            question=init_question+filt[0]+question
+            
+            res_1=init(analysis)
+            res_2=init(analysis)
+            res_1=get(analysis, res_1, variable=variables[0][0], filter_vars_acts=filter_vars_temp, nb_figures_cs=nb_figures_cs)
+            res_2=get(analysis, res_2, variable=variables[1][0], filter_vars_acts=filter_vars_temp, nb_figures_cs=nb_figures_cs)
+            write(analysis, question, res_1, res_2=res_2, percent=1, query="1+2")
         
         
-def q110():
+def q110(factor="everything"):
     #Durée Moyenne DureeTotaleDepuisTransCons
     #1/pour tous les actes 2/VotePublic=Y 3/VotePublic=N 4/AdoptCSRegleVote=U 5/AdoptCSRegleVote=V 6/VotePublic=Y et AdoptCSRegleVote=U 7/ VotePublic=Y et AdoptCSRegleVote=V
     filters=(
@@ -506,30 +491,21 @@ def q110():
     )
     variable=("duree_tot_depuis_trans_cons", "DureeTotaleDepuisTransCons")
     filter_vars={variable[0]+"__gt": 1}
-    init_question=variable[1] + " moyenne, pour tous les actes"
+    init_question=variable[1] + " moyenne"
+
+    if factor=="csyear":
+        #get by cs and by year only (for specific cs)
+        analyses, nb_figures_cs=get_specific_cs()
 
     for filt in filters:
         filter_vars_temp=filter_vars.copy()
         #update filter
         filter_vars_temp.update(filt[1])
-
-        question=init_question+filt[0]
-        res=init_all()
-        res=get_all(res, variable=variable[0], filter_vars=filter_vars_temp)
-        write_all(question, res, percent=1)
-
-        #~ question=init_question+filt[0]+", par secteur"
-        #~ res=init_cs()
-        #~ res=get_by_cs(res, variable=variable[0], filter_vars=filter_vars_temp)
-        #~ write_cs(question, res, percent=1)
-#~ 
-        #~ question=init_question+filt[0]+", par année"
-        #~ res=init_year()
-        #~ res=get_by_year(res, variable=variable[0], filter_vars=filter_vars_temp)
-        #~ write_year(question, res, percent=1)
-#~ 
-        #~ question=init_question+filt[0]+", par secteur et par année"
-        #~ res=init_cs_year()
-        #~ res=get_by_cs_year(res, variable=variable[0], filter_vars=filter_vars_temp)
-        #~ write_cs_year(question, res, percent=1)
+        
+        for analysis, question in analyses:
+            question=init_question+filt[0]+question
+            
+            res=init(analysis)
+            res=get(analysis, res, variable=variable[0], filter_vars_acts=filter_vars_temp, nb_figures_cs=nb_figures_cs)
+            write(analysis, question, res, percent=1)
 

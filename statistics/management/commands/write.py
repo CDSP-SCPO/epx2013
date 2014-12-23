@@ -72,6 +72,7 @@ def compute(res, res_2, count, percent, query):
 def write(analysis, question, res, res_2=None, count=True, percent=100, query=""):
     #res_2: need to sum 2 variables before computing average (q100: votes_for_1 and votes_for_2) or percentage (q95: nb_point_a and nb_point_b)
     print question
+    res_2_temp=None
     writer.writerow([question])
 
     if analysis=="all":
@@ -88,8 +89,8 @@ def write(analysis, question, res, res_2=None, count=True, percent=100, query=""
         writer.writerow(list_var)
         for var in list_var:
             if res_2 is not None:
-                res_2=res_2[var]
-            res_final=compute(res[var], res_2, count, percent, query)
+                res_2_temp=res_2[var]
+            res_final=compute(res[var], res_2_temp, count, percent, query)
             row.append(res_final)
         writer.writerow(row)
 
@@ -99,8 +100,8 @@ def write(analysis, question, res, res_2=None, count=True, percent=100, query=""
             row=[cs]
             for year in years_list:
                 if res_2 is not None:
-                    res_2=res_2[cs][year]
-                res_final=compute(res[cs][year], res_2, count, percent, query)
+                    res_2_temp=res_2[cs][year]
+                res_final=compute(res[cs][year], res_2_temp, count, percent, query)
                 row.append(res_final)
             writer.writerow(row)
         
@@ -231,34 +232,58 @@ def write_percent_pers_cs_year(question, res, pers_type, var="Party Family"):
     print ""
 
 
-def write_periods(question, res, percent=100, res_2=None, nb=False):
+def write_periods(question, res, percent=100, res_2=None, count=True, total=None, query=None):
     print question
-    print "res:", res
     writer.writerow([question])
 
     header=[]
+    if query=="countries":
+         header.append("countries")
     for period in periods:
         header.append(period[0])
     writer.writerow(header)
 
-    row=[]
-    for index in range(nb_periods):
-        if res[index][0]==0:
-            temp=0
+    #q114: 1/pourcentage de AdoptCSContre et 2/pourcentage de AdoptCSAbs pour chaque Etat membre, par périodes
+    if query=="countries":
+        for country in countries_list:
+            res_final=0
+            num=0
+            denom=1
+            row=[country]
+            for index in range(nb_periods):
+                #if num=0 -> 0
+                if res[country][index]!=0:
+                    num=res[country][index]
+                    denom=total[index]
 
-        #no percentage, display the number of occurences only
-        elif nb:
-            temp=res[index][0]
-        else:
-            #average votes_for_1 + votes_for_2
-            if res_2 is not None:
-                res[index][0]=res[index][0]+res_2[index][0]
-                res[index][1]=res[index][1]+res_2[index][1]
-                
-            #normal case
-            temp=round(float(res[index][0])*percent/res[index][1], 3)
+                #final computation
+                res_final=round(float(num)*percent/denom, 3)
 
-        row.append(temp)
-    writer.writerow(row)
+                row.append(res_final)
+            writer.writerow(row)
+
+    else:
+        row=[]
+        for index in range(nb_periods):
+            res_final=0
+            num=0
+            denom=1
+            #if num=0 -> 0
+            if res[index][0]!=0:
+                #no percentage, display the number of occurences only
+                if not count:
+                    num=res[index][0]
+                else:
+                    #average votes_for_1 + votes_for_2
+                    if res_2 is not None:
+                        num=res[index][0]+res_2[index][0]
+                        denom=res[index][1]+res_2[index][1]
+                        
+            #final computation
+            res_final=round(float(num)*percent/denom, 3)
+
+            row.append(res_final)
+        writer.writerow(row)
+    
     writer.writerow("")
     print ""

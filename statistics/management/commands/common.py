@@ -1,18 +1,18 @@
 #-*- coding: utf-8 -*-
 
 #common functions used by init, get and write functions
-
+from act.models import Country
 
 
 #For integer variables, if there is a zero value (0), the value must be:
 
-#~ > - EPComAndtTabled: discarded
-#~ > - EPComAndtAdopt: discarded
+#~ > - EPComAmdtTabled: discarded
+#~ > - EPComAmdtAdopt: discarded
 #~ > - EPAmdtTabled: discarded
 #~ > - EPAmdtAdopt: discarded
-#~ > - EPVotesFor1-2: discarded
-#~ > - EPVotesAgst1-2: discarded
-#~ > - EPVotesAbs1-2: discarded
+#~ > - EPVotesFor1-2: discarded (except when sum 1-2 and at least one of the two is non null)
+#~ > - EPVotesAgst1-2: discarded (except when sum 1-2 and at least one of the two is non null)
+#~ > - EPVotesAbs1-2: discarded (except when sum 1-2 and at least one of the two is non null)
 
 #~ > - NombreLectures: counted as 0
 #~ > - NbPointB: counted as 0
@@ -48,7 +48,7 @@ def get_cs_list(min_cs=1, max_cs=20):
 
 
 def get_years_list():
- return [str(n) for n in range(1996, 2014)]
+ return [str(n) for n in range(1996, last_validated_year+1)]
 
 
 def get_years_list_zero(years_list):
@@ -61,12 +61,15 @@ def get_months_list():
     return [str(n) for n in range(1, 13)]
 
 
+def get_countries_list():
+    return Country.objects.values_list("country_code", flat=True)
+
 
 def get_validated_acts(Model, filter_vars_acts={}, filter_vars_acts_ids={}):
     filter_vars={}
     filter_vars_acts["validated"]=2
     #do not use validated acts of 2014
-    filter_vars_acts["releve_annee__lt"]= 2014
+    filter_vars_acts["releve_annee__lte"]= last_validated_year
     #TEST ONLY
     #~ filter_vars_acts["releve_annee__gte"]= 2009
 
@@ -112,37 +115,59 @@ def get_periods():
     # Crise : 15-09_2008 (Faillite Lehman Brothers) -31/12/2013
 
     #2014-12-4
-    periods.append(("Santer\n(1/1/96 - 15/9/99)", str_to_date("1996-1-1"), str_to_date("1999-9-15")))
-    periods.append(("Prodi\n(16/9/99 - 30/4/2004)", str_to_date("1999-9-16"), str_to_date("2004-4-30")))
-    periods.append(("Post-élargissement\n(1/5/04 - 14/09/08)", str_to_date("2004-5-1"), str_to_date("2008-9-14")))
-    periods.append(("Post-crise\n(15/9/08 - 31/12/13)", str_to_date("2008-09-15"), str_to_date("2013-12-31")))
+    #~ periods.append(("Santer\n(1/1/96 - 15/9/99)", str_to_date("1996-1-1"), str_to_date("1999-9-15")))
+    #~ periods.append(("Prodi\n(16/9/99 - 30/4/2004)", str_to_date("1999-9-16"), str_to_date("2004-4-30")))
+    #~ periods.append(("Post-élargissement\n(1/5/04 - 14/09/08)", str_to_date("2004-5-1"), str_to_date("2008-9-14")))
+    #~ periods.append(("Post-crise\n(15/9/08 - 31/12/13)", str_to_date("2008-09-15"), str_to_date("2013-12-31")))
 
+    #2014-12-18
+    periods.append(("Période 01/01/1996 - 31/10/1999", str_to_date("1996-1-1"), str_to_date("1999-10-31")))
+    periods.append(("Période 01/11/1999 - 31/10/2004", str_to_date("1999-11-1"), str_to_date("2004-10-31")))
+    periods.append(("Période 01/11/2004 - 31/10/2009", str_to_date("2004-11-1"), str_to_date("2009-10-31")))
+    periods.append(("Période 01/11/2009 - 31/12/2013", str_to_date("2009-11-1"), str_to_date("2013-12-31")))
+    
     return periods
 
 
 def get_analyses():
     analyses=[]
-    analyses.append(("all", "pour tous les actes"))
-    analyses.append(("year", "par année"))
-    analyses.append(("cs", "par secteur"))
-    analyses.append(("csyear", "par secteur et par année"))
+    analyses.append(("all", ", pour la période 1996-"+last_validated_year))
+    analyses.append(("year", ", par année"))
+    analyses.append(("cs", ", par secteur"))
+    analyses.append(("csyear", ", par secteur et par année"))
     return analyses
+
+
+def get_specific_cs():
+    analyses=(("csyear", ", par secteur et par année"), )
+    nb_figures_cs=5
+    return analyses, nb_figures_cs
     
 
 
 ### GLOBAL VARIABLES ###
-cs_list=get_cs_list()
-years_list=get_years_list()
-years_list_zero=get_years_list_zero(years_list)
-months_list=get_months_list()
-periods=get_periods()
-nb_periods=len(periods)
+
+#last validated year
+last_validated_year=2013
 #there is up to 4 code sectoriels for one act
 nb_cs=4
 #nb rapporteurs
 nb_rapp=5
 #nb resp_propos
 nb_resp=3
+
+cs_list=get_cs_list()
+#for specific queries
+cs_list=["19.10", "19.20", "19.30"]
+years_list=get_years_list()
+years_list_zero=get_years_list_zero(years_list)
+months_list=get_months_list()
+#list of countries
+countries_list=get_countries_list()
+periods=get_periods()
+nb_periods=len(periods)
+
 #list of factors (variables to study)
 analyses=get_analyses()
+
 

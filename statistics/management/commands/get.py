@@ -28,21 +28,22 @@ import copy
 
 
 
-def get_cs(cs, min_cs=1, max_cs=20):
-    #check that the cs given in parameter is part of the cs_list whose boundaries are defined by min_cs and max_cs (usually between 1 and 20)
-    cs_int=int(cs[:2])
-    if min_cs <= cs_int <= max_cs:
-        return cs[:2]
-    return None
+def get_cs(cs, nb_figures_cs):
+    return cs[:nb_figures_cs]
 
 
-def get_all_cs(act):
+def get_all_cs(act, nb_figures_cs=2):
     css=[]
     for nb in range(1,nb_cs+1):
         code_sect=getattr(act, "code_sect_"+str(nb))
         if code_sect is not None:
-            cs=get_cs(code_sect.code_sect)
-            css.append(cs)
+            cs=get_cs(code_sect.code_sect, nb_figures_cs)
+            #nb_cs !=2 -> search for specific cs (e.g.: 19.10)
+            if nb_figures_cs==2 or (nb_figures_cs !=2 and cs in cs_list):
+                css.append(cs)
+        else:
+            #if one cs is null, all the following are null too
+            break
     return css
 
 
@@ -53,7 +54,7 @@ def get_act(Model, act):
     return act
 
 
-def check_vars(act, act_act, check_vars_act, check_vars_act_ids):
+def check_vars(act, act_act, check_vars_act, check_vars_act_ids, adopt_var=None):
     for key, value in check_vars_act.iteritems():
             #greater than: "nb_lectures__gt": 1
             if key[-4:]=="__gt":
@@ -65,13 +66,19 @@ def check_vars(act, act_act, check_vars_act, check_vars_act_ids):
                     return False
             elif getattr(act_act, key)!=value:
                 return False
+                
     for key, value in check_vars_act_ids.iteritems():
         if getattr(act, key)!=value:
             return False
+
+    if adopt_var is not None:
+        if not getattr(act, adopt_var).exists():
+            return False
+    
     return True
 
 
-def get_division_res(act, num_vars, denom_vars):
+def get_division_res(act, num_vars, denom_vars, operation):
     res=0
     num=0
     denom=1
@@ -92,12 +99,17 @@ def get_division_res(act, num_vars, denom_vars):
         denom=values[1]
     #2 variables in the numerator and 2 in the denominator
     else:
+        #q106: Nombre moyen [(EPComAmdtAdopt+EPAmdtAdopt) / (EPComAmdtTabled+EPAmdtTabled)] 
+        if operation=="+":
+            num=values[0]+values[2]
+            denom=values[1]+values[3]
         #q113: Nombre moyen de (amdt_adopt - com_amdt_adopt) / (amdt_tabled - com_amdt_tabled)
-        num=values[0]-values[2]
-        denom=values[1]-values[3]
-        #TEST
-        if num<0 or denom<0:
-            print "negative num or denom", act
+        else:
+            num=values[0]-values[2]
+            denom=values[1]-values[3]
+        #~ #TEST
+        #~ if num<0 or denom<0:
+            #~ print "negative num or denom", act
         #if amdt=com_amdt (numerator or denominator = 0), 
         if denom==0 or num==0:
             #~ print "null num or denom", act
@@ -111,6 +123,40 @@ def get_division_res(act, num_vars, denom_vars):
     return res
     
 
+def get_all_pfs(act, pers_type, nb_pers):
+    pfs=set()
+    #get all rapps or resps
+    for i in range(1, nb_pers+1):
+        pers=getattr(act, pers_type+"_"+str(i))
+        #no more rapp or resp
+        if pers is None:
+            break
+        else:
+            pf=PartyFamily.objects.get(country=pers.country, party=pers.party).party_family.strip().encode("utf-8")
+            pfs.add(pf)
+    return pfs
+
+
+def compare_all_rapp_resp(act):
+    pfs_rapp=get_all_pfs(act, "rapp", nb_rapp)
+    pfs_resp=get_all_pfs(act, "resp", nb_resp)
+    #same=True if all the rapps and resps have the same party family, False otherwise
+    same=True
+
+    #if there is at least one rapp and one resp
+    if pfs_rapp and pfs_resp:
+        for pf_rapp in pfs_rapp:
+            #we have found at least two different parties -> exit the function
+            if not same:
+                break
+            for pf_resp in pfs_resp:
+                #if there are at least two different party families (one from the rapps, one from the resps)
+                if pf_rapp!=pf_resp:
+                    same=False
+                    break
+    return same
+
+    
 def copy_data_for_computation(analysis, res, act_act):
     year=None
     #copy data for computation
@@ -122,11 +168,15 @@ def copy_data_for_computation(analysis, res, act_act):
     return res_temp, year
 
 
-def computation(res_temp, value, count, variable, ok):
+def compute(res_temp, value, count, variable, ok, same):
     #computation
     if count:
         res_temp[1]+=1
-        if variable is not None or ok:
+        #check discordance: if there are at least two different party families (one from the rapps, one from the resps)
+        if same is not None:
+            if not same:
+                res_temp[0]+=1
+        elif variable is not None or ok:
             res_temp[0]+=value
     else:
         res_temp+=value
@@ -147,43 +197,59 @@ def copy_data_back_to_res(analysis, res_temp, res, cs=None, year=None):
     return res
 
 
-def get(analysis, res, num_vars=None, denom_vars=None, count=True, Model=Act, variable=None, excluded_values=[None], filter_vars={}, check_vars_act={}, check_vars_act_ids={}):
-    filter_vars=get_validated_acts(Model, filter_vars_acts=filter_vars)
-    for act in Model.objects.filter(**filter_vars):
+def get_all_year(analysis, res, act_act, value, count, variable, ok, same):
+    #copy data for computation
+    res_temp, year=copy_data_for_computation(analysis, res, act_act)
+    #computation
+    res_temp=compute(res_temp, value, count, variable, ok, same)
+    #copy data back to res dictionary (for final result)
+    res=copy_data_back_to_res(analysis, res_temp, res, year=year)
+    return res
+
+
+def get_cs_csyear(analysis, res, act_act, value, count, variable, ok, same, nb_figures_cs):
+    #get all cs
+    css=get_all_cs(act_act, nb_figures_cs=nb_figures_cs)
+    #if there is at least one non null css
+    #for each cs
+    for cs in css:
+        #copy data for computation
+        res_temp, year=copy_data_for_computation(analysis, res[cs], act_act)
+        #computation
+        res_temp=compute(res_temp, value, count, variable, ok, same)
+        #copy data back to res dictionary (for final result)
+        res=copy_data_back_to_res(analysis, res_temp, res, cs=cs, year=year)
+    return res
+    
+
+def get(analysis, res, num_vars=None, denom_vars=None, count=True, Model=Act, variable=None, excluded_values=[None, ""], filter_vars_acts={}, exclude_vars_acts={},check_vars_acts={}, check_vars_act_ids={}, query=None, operation=None, adopt_var=None, nb_figures_cs=2):
+    same=None
+    filter_vars=get_validated_acts(Model, filter_vars_acts=filter_vars_acts)
+
+    for act in Model.objects.filter(**filter_vars).exclude(**exclude_vars_acts):
         act_act=get_act(Model, act)
         value=1
         if variable is not None:
             value=getattr(act, variable)
         if value not in excluded_values:
-            ok=check_vars(act, act_act, check_vars_act, check_vars_act_ids)
+            ok=check_vars(act, act_act, check_vars_acts, check_vars_act_ids, adopt_var)
             
             #division mode, res=num/denom -> q111: #Nombre moyen de EPComAmdtAdopt / EPComAmdtTabled
             if num_vars is not None:
-                value=get_division_res(act_act, num_vars, denom_vars)
+                value=get_division_res(act_act, num_vars, denom_vars, operation)
+            #get percentage of different political families for rapp1 and resp1
+            elif query=="discordance":
+                same=compare_all_rapp_resp(act_act)
 
             if analysis in ["all", "year"]:
-                #copy data for computation
-                res_temp, year=copy_data_for_computation(analysis, res, act_act)
-                #computation
-                res_temp=computation(res_temp, value, count, variable, ok)
-                #copy data back to res dictionary (for final result)
-                res=copy_data_back_to_res(analysis, res_temp, res, year=year)
+                res=get_all_year(analysis, res, act_act, value, count, variable, ok, same)
                 
             elif analysis in ["cs", "csyear"]:
-                css=get_all_cs(act_act)
-                #if there is at least one non null css
-                #for each cs
-                for cs in css:
-                    #copy data for computation
-                    res_temp, year=copy_data_for_computation(analysis, res[cs], act_act)
-                    #computation
-                    res_temp=computation(res_temp, value, count, variable, ok)
-                    #copy data back to res dictionary (for final result)
-                    res=copy_data_back_to_res(analysis, res_temp, res, cs=cs, year=year)
+                res=get_cs_csyear(analysis, res, act_act, value, count, variable, ok, same, nb_figures_cs)
 
     print "res", res
     return res
-    
+
     
 def get_month(res, variable, count=True, filter_variables={}):
     for act_id in ActIds.objects.filter(src="index", act__validated=2, **filter_variables):
@@ -318,37 +384,6 @@ def get_percent_pers_cs(res, pers_type, max_nb, var="pf", year_var=False, filter
 
 
 
-def get_by_period(res, Model, filter_vars, filter_total, exclude_vars={}, avg_variable=None, adopt_cs={}):
-    for index in range(nb_periods):
-        filter_vars_periods=get_validated_acts_periods(Model, periods[index], filter_vars)
-        temp_filter=Model.objects.filter(**filter_vars_periods).exclude(**exclude_vars)
-
-        if Model==MinAttend:
-            for act in temp_filter:
-                #~ print act.id
-                status=Status.objects.get(verbatim=act.verbatim, country=act.country).status
-                if status not in ["NA", "AB"]:
-                    res[index][1]+=1
-                    if status in ["CS", "CS_PR"]:
-                        res[index][0]+=1
-        else:
-            #percentage among all the acts
-            if avg_variable is None:
-                if adopt_cs:
-                    res[index][0]=temp_filter.annotate(nb_countries=Count("adopt_cs_contre")).filter(**adopt_cs).count()
-                else:
-                    res[index][0]=temp_filter.count()
-                #total
-                filter_total.update(get_validated_acts_periods(Model, periods[index], filter_total))
-                res[index][1]=Model.objects.filter(**filter_total).count()
-            #average
-            else:
-                for act in temp_filter:
-                    res[index][0]+=getattr(act, avg_variable)
-                    res[index][1]+=1
-    return res
-
-
 def get_list_acts_cs(cs, Model=Act):
     acts=[]
     #get validated acts only
@@ -357,17 +392,13 @@ def get_list_acts_cs(cs, Model=Act):
     #~ #get all the acts that match the cs in parameter (each act can be counted up to 4 times, one for each matching cs)
     for act in Model.objects.filter(**filter_vars):
         act_act=get_act(Model, act)
-        #loop over each cs
-        for nb in range(1,nb_cs+1):
-            code_sect=getattr(act_act, "code_sect_"+str(nb))
-            if code_sect is not None:
-                cs_filter=get_cs(code_sect.code_sect, min_cs=cs, max_cs=cs)
-                #if the cs corresponds to the cs in parameter
-                if cs_filter is not None:
-                    acts.append(act)
-            else:
-                #if one cs is null, all the following are null too
-                break
+        #get all cs
+        css=get_all_cs(act_act)
+        #for each cs (if there is at least one non null css)
+        for cs in css:
+            acts.append(act)
+
+    print "get_list_acts_cs", acts
 
     return acts
 
@@ -433,38 +464,96 @@ def filter_exclude_list(list_acts, filter_vars={}, exclude_vars={}):
     return list_acts_new
 
 
-def get_by_period_cs(list_acts, res, Model, filter_vars, filter_total, exclude_vars={}, avg_variable=None, adopt_cs={}):
-    for index in range(nb_periods):
-        filter_vars_periods=get_validated_acts_periods(Model, periods[index], filter_vars)
+def init_by_period(Model, periods, filter_vars, list_acts, exclude_vars):
+    filter_vars_periods=get_validated_acts_periods(Model, periods, filter_vars)
+    if list_acts is None:
+        temp_filter=Model.objects.filter(**filter_vars_periods).exclude(**exclude_vars)
+    #for a specific cs
+    else:
         #from the list of acts with a specific cs, create a new list taking into account other filters / excludes
-        list_acts_new=filter_exclude_list(list_acts, filter_vars=filter_vars_periods, exclude_vars=exclude_vars)
+        temp_filter=filter_exclude_list(list_acts, filter_vars=filter_vars_periods, exclude_vars=exclude_vars)
+    return temp_filter
+
+    
+def compute_min_attend(res, index, temp_filter):
+    for act in temp_filter:
+        #~ print act.id
+        status=Status.objects.get(verbatim=act.verbatim, country=act.country).status
+        if status not in ["NA", "AB"]:
+            res[index][1]+=1
+            if status in ["CS", "CS_PR"]:
+                res[index][0]+=1
+    return res
+
+
+def compute_countries(res, index, temp_filter, total, adopt_cs):
+    for act in temp_filter:
+        total[index]+=1
+        #for each country
+        countries=getattr(act, adopt_cs)
+        for country in countries.all():
+            res[country.country_code][index]+=1
+    return res
+
+
+def compute_adopt_cs(res, index, temp_filter, adopt_cs):
+    res[index][0]=temp_filter.annotate(nb_countries=Count("adopt_cs_contre")).filter(**adopt_cs).count()
+    #OR specific cs
+    #~ key, value = adopt_cs.items()[0]
+    #~ for act in temp_filter:
+        #~ nb_countries=len(act.adopt_cs_contre.all())
+        #~ #"nb_countries": 1 or "nb_countries__gte": 2
+        #~ if (key=="nb_countries" and nb_countries==value) or (key=="nb_countries__gte" and nb_countries>=value):
+            #~ res[index][0]+=1
+    return res
+
+
+def compute_total(res, index, filter_total, Model, periods, list_acts):
+    #total
+    filter_total.update(get_validated_acts_periods(Model, periods[index], filter_total))
+    if list_acts is None:
+        res[index][1]=Model.objects.filter(**filter_total).count()
+    else:
+        res[index][1]=len(filter_exclude_list(list_acts, filter_vars=filter_total))
+    return res
+
+
+def compute_avg(res, index, temp_filter, avg_variable):
+    for act in temp_filter:
+        res[index][0]+=getattr(act, avg_variable)
+        res[index][1]+=1
+    return res
+    
+
+def get_by_period(res, filter_vars, filter_total, list_acts=None, total=None, Model=Act, exclude_vars={}, avg_variable=None, adopt_cs={}, query=None):
+    #list_acts used when query for specific cs
+    for index in range(nb_periods):
+        temp_filter=init_by_period(Model, periods[index], filter_vars, list_acts, exclude_vars)
 
         if Model==MinAttend:
-            for act in list_acts_new:
-                #~ print act.id
-                status=Status.objects.get(verbatim=act.verbatim, country=act.country).status
-                if status not in ["NA", "AB"]:
-                    res[index][1]+=1
-                    if status in ["CS", "CS_PR"]:
-                        res[index][0]+=1
+           res=compute_min_attend(res, index, temp_filter)
+                        
+        #q114: 1/pourcentage de AdoptCSContre et 2/pourcentage de AdoptCSAbs pour chaque Etat membre, par périodes
+        elif query=="countries":
+          res=compute_countries(res, index, temp_filter, total, adopt_cs)
+                    
         else:
             #percentage among all the acts
             if avg_variable is None:
                 if adopt_cs:
-                    key, value = adopt_cs.items()[0]
-                    for act in list_acts_new:
-                        nb_countries=len(act.adopt_cs_contre.all())
-                        #"nb_countries": 1 or "nb_countries__gte": 2
-                        if (key=="nb_countries" and nb_countries==value) or (key=="nb_countries__gte" and nb_countries>=value):
-                            res[index][0]+=1
+                   res=compute_adopt_cs(res, index, temp_filter, adopt_cs)
                 else:
-                    res[index][0]=len(list_acts_new)
+                    if list_acts is None:
+                        res[index][0]=temp_filter.count()
+                    else:
+                        res[index][0]=len(temp_filter)
                 #total
-                filter_total.update(get_validated_acts_periods(Model, periods[index], filter_total))
-                res[index][1]=len(filter_exclude_list(list_acts, filter_vars=filter_total))
+                res=compute_total(res, index, filter_total, Model, periods, list_acts)
             #average
             else:
-                for act in list_acts_new:
-                    res[index][0]+=getattr(act, avg_variable)
-                    res[index][1]+=1
+                res=compute_avg(res, index, temp_filter, avg_variable)
+                    
+    print "res", res
+    if query=="countries":
+        return res, total
     return res

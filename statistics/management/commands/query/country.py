@@ -65,3 +65,29 @@ def q102():
         res=get_percent_pers_cs(res, "rapp", nb_rapp, var="country", year_var=True, filter_vars={"no_unique_type": "COD", nb_lec[1]: 1})
         write_percent_pers_cs_year(question, res, "RapporteurPE", var="country")
        
+
+def q114():
+    #1/pourcentage de AdoptCSContre et 2/pourcentage de AdoptCSAbs pour chaque Etat membre, par périodes
+    variables=(("adopt_cs_contre", "AdoptCSContre"), ("adopt_cs_abs", "AdoptCSAbs"))
+    init_question="Pour chaque Etat membre, pourcentage de "
+    filter_vars_acts={}
+
+    for var in variables:
+        if var[0]=="adopt_cs_contre":
+            filter_vars_acts={"adopt_cs_regle_vote": "V"}
+        exclude_vars={var[0]: None}
+
+        #all the acts
+        analysis=("all", ", pour la période 1996-"+last_validated_year)
+        question=init_question+var[1]+analysis[1]
+        res=init(analysis[0])
+        res=get(analysis[0], res, filter_vars_acts=filter_vars_acts, exclude_vars_acts=exclude_vars_acts, check_vars_acts=check_vars_acts, nb_figures_cs=nb_figures_cs)
+        write(analysis[0], question, res)
+
+        #by period
+        question=init_question+var[1]+", par période"
+        res, filter_vars, filter_total, total=init_periods(filter_vars_acts=filter_vars_acts, query="countries")
+        res, total=get_by_period(res, filter_vars, filter_total, total=total, exclude_vars=exclude_vars, adopt_cs=var[0], query="countries")
+        write_periods(question, res, total=total, query="countries")
+
+        

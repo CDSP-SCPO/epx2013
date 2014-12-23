@@ -362,3 +362,43 @@ class Command(NoArgsCommand):
         #Duree de la procedure : DureeTotaleDepuisTransCons moyenne 1/pour tous les actes 2/VotePublic=Y 3/VotePublic=N 4/AdoptCSRegleVote=U 5/AdoptCSRegleVote=V 6/VotePublic=Y et AdoptCSRegleVote=V 7/VotePublic=Y et AdoptCSRegleVote=U
         #~ duree.q8()
 
+
+        #2014-12-18
+        #1/pourcentage de AdoptCSContre et 2/pourcentage de AdoptCSAbs pour chaque Etat membre, par périodes
+        country.q114()
+
+        #for all the acts, by cs, by year, by cs and by year
+        #Pourcentage d'actes avec NoUniqueType=COD adoptés en 1ère / (2ème ou 3ème) lecture
+        factor="csyear"
+        acts.q98(factor=factor)
+        #Durée de la procédure (= Moyenne DureeTotaleDepuisTransCons ET DureeProcedureDepuisTransCons)
+        #1/pour tous les actes 2/VotePublic=Y 3/VotePublic=N 4/AdoptCSRegleVote=U 5/AdoptCSRegleVote=V 6/VotePublic=Y et AdoptCSRegleVote=U 7/ VotePublic=Y et AdoptCSRegleVote=V
+        duree.q96(factor=factor)
+        #~ #Durée Moyenne DureeTotaleDepuisTransCons
+        #~ #1/pour tous les actes 2/VotePublic=Y 3/VotePublic=N 4/AdoptCSRegleVote=U 5/AdoptCSRegleVote=V 6/VotePublic=Y et AdoptCSRegleVote=U 7/ VotePublic=Y et AdoptCSRegleVote=V
+        duree.q110(factor=factor)
+        #~ #1/ Moyenne EPComAmdtAdopt + EPAmdtAdopt, 2/ Moyenne EPComAmdtTabled + EPAmdtTabled
+        ep_amdt_vote.q105(factor=factor)
+        #~ #Nombre moyen de EPComAmdtAdopt / EPComAmdtTabled
+        ep_amdt_vote.q111(factor=factor)
+        #~ #Nombre moyen de EPAmdtAdopt / EPAmdtTabled
+        ep_amdt_vote.q112(factor=factor)
+        #Nombre moyen de (EPAmdtAdopt - EPComAmdtAdopt) / (EPAmdtTabled - EPComAmdtTabled)
+        ep_amdt_vote.q113(factor=factor)
+        #~ #Pourcentage d'actes avec VotePublic=Y
+        acts.q107(factor=factor)
+        #1/Pourcentage "AdoptCSContre"= Y avec AdoptCSRegleVote=V 2/ Pourcentage "AdoptCSAbs"=Y, avec AdoptCSRegleVote=V 3/ pourcentage "AdoptCSAbs"=Y, avec AdoptCSRegleVote=U
+        adopt_cs.q88(factor=factor)
+        #Pourcentage d'actes avec au moins un point B
+        acts.q108(factor=factor)
+        #Nombre de mots moyen
+        nb_mots.q54(factor=factor)
+        #~ #Nombre de mots x Nombre d'actes
+        nb_mots.q83(factor=factor)
+        #Pourcentage de discordance des familles politiques
+        party_family.q84(factor=factor)
+        #~ #1/ Moyenne EPVotesFor1-2 2/ Moyenne EPVotesAgst1-2 3/ Moyenne EPVotesAbs1-2
+        ep_amdt_vote.q100(factor=factor)
+
+        #) Pourcentage d'actes avec 1/CommissionPE= LIBE 2/CommissionPE= JURI par cs et par année
+        acts.q115(factor=factor)

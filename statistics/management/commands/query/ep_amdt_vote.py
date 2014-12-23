@@ -101,43 +101,27 @@ def q99():
         write_cs_year(question, res, count=False)
 
 
-def q100():
+def q100(factor="everything"):
     #1/Moyenne EPVotesFor1-2, 3/Moyenne EPVotesAgst1-2, 5/Moyenne EPVotesAbs1-2, par année, par secteur, par année et par secteur
     variables={"votes_for_": "EPVotesFor", "votes_agst_": "EPVotesAgst", "votes_abs_": "EPVotesAbs"}
     res={}
     nb=2
 
+    if factor=="csyear":
+        #get by cs and by year only (for specific cs)
+        analyses, nb_figures_cs=get_specific_cs()
+
     for key, value in variables.iteritems():
         filter_vars={key+"1__gt": 0, key+"2__gt": 0}
-        init_question="Nombre moyen de "+value+"1-2, "
+        init_question="Nombre moyen de "+value+"1-2"
 
-        question=init_question+"pour tous les actes"
-        for index in range(1, nb+1):
-            i=str(index)
-            res["res_"+i]=init_all()
-            res["res_"+i]=get_all(res["res_"+i], variable=key+i, filter_vars=filter_vars)
-        write_all(question, res["res_1"], res_2=res["res_2"], percent=1, query="1+2")
-        
-        #~ question=init_question+"par secteur"
-        #~ for index in range(1, nb+1):
-            #~ i=str(index)
-            #~ res["res_"+i]=init_cs()
-            #~ res["res_"+i]=get_by_cs(res["res_"+i], variable=key+i, filter_vars=filter_vars)
-        #~ write_cs(question, res["res_1"], res_2=res["res_2"], percent=1, query="1+2")
-#~ 
-        #~ question=init_question+"par année"
-        #~ for index in range(1, nb+1):
-            #~ i=str(index)
-            #~ res["res_"+i]=init_year()
-            #~ res["res_"+i]=get_by_year(res["res_"+i], variable=key+i, filter_vars=filter_vars)
-        #~ write_year(question, res["res_1"], res_2=res["res_2"], percent=1, query="1+2")
-#~ 
-        #~ question=init_question+"par secteur et par année"
-        #~ for index in range(1, nb+1):
-            #~ i=str(index)
-            #~ res["res_"+i]=init_cs_year()
-            #~ res["res_"+i]=get_by_cs_year(res["res_"+i], variable=key+i, filter_vars=filter_vars)
-        #~ write_cs_year(question, res["res_1"], res_2=res["res_2"], percent=1, query="1+2")
+        for analysis, question in analyses:
+            question=init_question+question
+            for index in range(1, nb+1):
+                i=str(index)
+                res["res_"+i]=init(analysis)
+                res["res_"+i]=get(analysis, res["res_"+i], variable=key+i, filter_vars_acts=filter_vars, nb_figures_cs=nb_figures_cs)
+            write(analysis, question, res["res_1"], res_2=res["res_2"], percent=1, query="1+2")
 
 
 def q100_periods(cs=None):
@@ -170,90 +154,41 @@ def q100_periods(cs=None):
         write_periods(question, res_vars["res_1"], percent=1, res_2=res_vars["res_2"])
 
 
-def q105():
+def q105(factor="everything"):
     #1/ Moyenne EPComAmdtAdopt + EPAmdtAdopt, 2/ Moyenne EPComAmdtTabled + EPAmdtTabled
     #par année, par secteur, par année et par secteur
     variables=(
         (("com_amdt_adopt", "EPComAmdtAdopt"), ("amdt_adopt", "EPAmdtAdopt")),
         (("com_amdt_tabled", "EPComAmdtTabled"), ("amdt_tabled", "EPAmdtTabled"))
     )
-    res={}
-    nb=2
+
+    if factor=="csyear":
+        #get by cs and by year only (for specific cs)
+        analyses, nb_figures_cs=get_specific_cs()
 
     for variable in variables:
         filter_vars={variable[0][0]+"__gt": 0, variable[1][0]+"__gt": 0}
         init_question="Nombre moyen de "+variable[0][1]+"+"+variable[1][1]
-
-        question=init_question+", pour tous les actes"
-        res_1=init_all()
-        res_2=init_all()
-        res_1=get_all(res_1, variable=variable[0][0], filter_vars=filter_vars)
-        res_2=get_all(res_2, variable=variable[1][0], filter_vars=filter_vars)
-        write_all(question, res_1, res_2=res_2, percent=1, query="1+2")
         
-        #~ question=init_question+", par secteur"
-        #~ for index in range(nb):
-            #~ i=str(index)
-            #~ res["res_"+i]=init_cs()
-            #~ res["res_"+i]=get_by_cs(res["res_"+i], variable=variable[index][0], filter_vars=filter_vars)
-        #~ write_cs(question, res["res_0"], res_2=res["res_1"], percent=1, query="1+2")
-#~ 
-        #~ question=init_question+", par année"
-        #~ for index in range(nb):
-            #~ i=str(index)
-            #~ res["res_"+i]=init_year()
-            #~ res["res_"+i]=get_by_year(res["res_"+i], variable=variable[index][0], filter_vars=filter_vars)
-        #~ write_year(question, res["res_0"], res_2=res["res_1"], percent=1, query="1+2")
-#~ 
-        #~ question=init_question+", par secteur et par année"
-        #~ for index in range(nb):
-            #~ i=str(index)
-            #~ res["res_"+i]=init_cs_year()
-            #~ res["res_"+i]=get_by_cs_year(res["res_"+i], variable=variable[index][0], filter_vars=filter_vars)
-        #~ write_cs_year(question, res["res_0"], res_2=res["res_1"], percent=1, query="1+2")
+        for analysis, question in analyses:
+            question=init_question+question
+            
+            res_1=init(analysis)
+            res_2=init(analysis)
+            res_1=get(analysis, res_1, variable=variable[0][0], filter_vars_acts=filter_vars, nb_figures_cs=nb_figures_cs)
+            res_2=get(analysis, res_2, variable=variable[1][0], filter_vars_acts=filter_vars, nb_figures_cs=nb_figures_cs)
+            write(analysis, question, res_1, res_2=res_2, percent=1, query="1+2")
 
 
 #NOT USED
 def q106():
     #Nombre moyen (EPComAmdtAdopt+EPAmdtAdopt) / Nombre moyen (EPComAmdtTabled+EPAmdtTabled)
-    #par année, par secteur, par année et par secteur
-    variables=(
-        ("com_amdt_adopt", "EPComAmdtAdopt"),
-        ("amdt_adopt", "EPAmdtAdopt"),
-        ("com_amdt_tabled", "EPComAmdtTabled"),
-        ("amdt_tabled", "EPAmdtTabled")
-    )
-    init_question="Nombre moyen ("+variables[0][1]+"+"+variables[1][1]+") / Nombre moyen ("+variables[0][1]+"+"+variables[1][1]+"), "
-    filter_vars={variables[0][0]+"__gt": 0, variables[1][0]+"__gt": 0, variables[2][0]+"__gt": 0, variables[3][0]+"__gt": 0}
-    res={}
-
-    question=init_question+"pour tous les actes"
-    for var in variables:
-        variable=var[0]
-        res[variable]=init_all()
-        res[variable]=get_all(res[variable], variable=variable, filter_vars=filter_vars)
-    write_all(question, res, percent=1, query="amdt")
     
-    #~ question=init_question+"par secteur"
-    #~ for var in variables:
-        #~ variable=var[0]
-        #~ res[variable]=init_cs()
-        #~ res[variable]=get_by_cs(res[variable], variable=variable, filter_vars=filter_vars)
-    #~ write_cs(question, res, percent=1, query="amdt")
-#~ 
-    #~ question=init_question+" par année"
-    #~ for var in variables:
-        #~ variable=var[0]
-        #~ res[variable]=init_year()
-        #~ res[variable]=get_by_year(res[variable], variable=variable, filter_vars=filter_vars)
-    #~ write_year(question, res, percent=1, query="amdt")
-#~ 
-    #~ question=init_question+" par secteur et par année"
-    #~ for var in variables:
-        #~ variable=var[0]
-        #~ res[variable]=init_cs_year()
-        #~ res[variable]=get_by_cs_year(res[variable], variable=variable, filter_vars=filter_vars)
-    #~ write_cs_year(question, res, percent=1, query="amdt")
+    num_vars=("amdt_adopt", "com_amdt_adopt")
+    num_names=("EPAmdtAdopt", "EPComAmdtAdopt")
+    denom_vars=("amdt_tabled", "com_amdt_tabled")
+    denom_names=("EPAmdtTabled", "EPComAmdtTabled")
+    division(num_vars, num_names, denom_vars, denom_names, operation="+")
 
 
 #NOT USED
@@ -287,50 +222,56 @@ def q109():
         write_cs_year(question, res, percent=1)
 
 
-def division(num_vars, num_names, denom_vars, denom_names):
+def division(num_vars, num_names, denom_vars, denom_names, factor, operation=None):
     filter_vars={num_vars[0]+"__gt": 0, denom_vars[0]+"__gt": 0}
     init_question="Nombre moyen (" + num_names[0]
     
     #only one variable in the numerator and one in the denominator
     if len(num_vars)==1:
-        init_question=init_question + "/" + denom_names[0] +"), "
+        init_question=init_question + "/" + denom_names[0] +")"
     else:
         #2 variables in the numerator and 2 in the denominator
-        init_question=init_question +"-"+num_names[1]+") /  ("+denom_names[0]+"-"+denom_names[1]+"), "
+        init_question=init_question +operation+num_names[1]+") /  ("+denom_names[0]+operation+denom_names[1]+")"
+
         filter_vars.update({num_vars[1]+"__gt": 0,  denom_vars[1]+"__gt": 0})
+
+    if factor=="csyear":
+        #get by cs and by year only (for specific cs)
+        analyses, nb_figures_cs=get_specific_cs()
+
 
     for analysis, question in analyses:
         question=init_question+question
         res=init(analysis)
-        res=get(analysis, res, num_vars=num_vars, denom_vars=denom_vars, filter_vars=filter_vars)
+        res=get(analysis, res, num_vars=num_vars, denom_vars=denom_vars, filter_vars_acts=filter_vars, operation=operation, nb_figures_cs=nb_figures_cs)
         write(analysis, question, res, percent=1)
 
 
-def q111():
+def q111(factor="everything"):
     #Nombre moyen de EPComAmdtAdopt / EPComAmdtTabled
     #pour tous les actes, par année, par secteur, par année et par secteur
     num_vars=("com_amdt_adopt",)
     num_names=("EPComAmdtAdopt",)
     denom_vars=("com_amdt_tabled",)
     denom_names=("EPComAmdtTabled",)
-    division(num_vars, num_names, denom_vars, denom_names)
+    division(num_vars, num_names, denom_vars, denom_names, factor)
 
 
-def q112():
+def q112(factor="everything"):
     #Nombre moyen de EPAmdtAdopt / EPAmdtTabled
     #pour tous les actes, par année, par secteur, par année et par secteur
     num_vars=("amdt_adopt",)
     num_names=("EPAmdtAdopt",)
     denom_vars=("amdt_tabled",)
     denom_names=("EPAmdtTabled",)
-    division(num_vars, num_names, denom_vars, denom_names)
+    division(num_vars, num_names, denom_vars, denom_names, factor)
 
 
-def q113():
+def q113(factor="everything"):
     #Nombre moyen de (EPAmdtAdopt - EPComAmdtAdopt) / (EPAmdtTabled - EPComAmdtTabled)
     #pour tous les actes, par année, par secteur, par année et par secteur
     num_vars=("amdt_adopt", "com_amdt_adopt")
     num_names=("EPAmdtAdopt", "EPComAmdtAdopt")
     denom_vars=("amdt_tabled", "com_amdt_tabled")
     denom_names=("EPAmdtTabled", "EPComAmdtTabled")
-    division(num_vars, num_names, denom_vars, denom_names)
+    division(num_vars, num_names, denom_vars, denom_names, factor, operation="-")

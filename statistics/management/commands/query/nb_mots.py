@@ -11,30 +11,21 @@ from  ..write import *
 
 
 
-def q54():
-    init_question="Nombre de mots moyen, "
+def q54(factor="everything"):
+    init_question="Nombre de mots moyen"
     variable="nb_mots"
     filter_vars={variable+"__isnull": False}
 
-    question=init_question+"pour tous les actes"
-    res=init_all()
-    res=get_all(res, variable=variable, filter_vars=filter_vars)
-    write_all(question, res, percent=1)
-
-    #~ question=init_question+"par année"
-    #~ res=init_year()
-    #~ res=get_by_year(res, variable=variable, filter_vars=filter_vars)
-    #~ write_year(question, res, percent=1)
-#~ 
-    #~ question=init_question+"par secteur"
-    #~ res=init_cs()
-    #~ res=get_by_cs(res, variable=variable, filter_vars=filter_vars)
-    #~ write_cs(question, res, percent=1)
-#~ 
-    #~ question=init_question+"par secteur et par année"
-    #~ res=init_cs_year()
-    #~ res=get_by_cs_year(res, variable=variable, filter_vars=filter_vars)
-    #~ write_cs_year(question, res, percent=1)
+    if factor=="csyear":
+        #get by cs and by year only (for specific cs)
+        analyses, nb_figures_cs=get_specific_cs()
+    
+    for analysis, question in analyses:
+        question=init_question+question
+        
+        res=init(analysis)
+        res=get(analysis, res, variable=variable, filter_vars_acts=filter_vars, nb_figures_cs=nb_figures_cs)
+        write(analysis, question, res, percent=1)
 
 
 def nb_mots_type_acte(type_acte):
@@ -133,31 +124,22 @@ def q64_bis():
         nb_mots_no_unique_type_bis(key, no_unique_type)
 
 
-def q83():
+def q83(factor="everything"):
     #Nb de mots x Nb d’actes, par année, par secteur, par année et par secteur
-    init_question="Total nombre de mots * nombre d'actes, "
+    init_question="Total nombre de mots * nombre d'actes"
     variable="nb_mots"
     filter_vars={variable+"__isnull": False}
 
-    question=init_question+"pour tous les actes"
-    res=init_all()
-    res=get_all(res, variable=variable, filter_vars=filter_vars)
-    write_all(question, res, percent=1, query=variable)
+    if factor=="csyear":
+        #get by cs and by year only (for specific cs)
+        analyses, nb_figures_cs=get_specific_cs()
 
-    #~ question=init_question+"par secteur"
-    #~ res=init_cs()
-    #~ res=get_by_cs(res, variable=variable, filter_vars=filter_vars)
-    #~ write_cs(question, res, percent=1, query=variable)
-#~ 
-    #~ question=init_question+"par année"
-    #~ res=init_year()
-    #~ res=get_by_year(res, variable=variable, filter_vars=filter_vars)
-    #~ write_year(question, res, percent=1, query=variable)
-#~ 
-    #~ question=init_question+"par année et par secteur"
-    #~ res=init_cs_year()
-    #~ res=get_by_cs_year(res, variable=variable, filter_vars=filter_vars)
-    #~ write_cs_year(question, res, percent=1, query=variable)
+    for analysis, question in analyses:
+        question=init_question+question
+        
+        res=init(analysis)
+        res=get(analysis, res, variable=variable, filter_vars_acts=filter_vars, nb_figures_cs=nb_figures_cs)
+        write(analysis, question, res, percent=1, query=variable)
 
 
 def nb_mots_2009(filter_vars={}, q=""):
