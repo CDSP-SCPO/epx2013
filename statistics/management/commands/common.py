@@ -48,13 +48,13 @@ def get_cs_list(min_cs=1, max_cs=20):
 
 
 def get_years_list():
- return [str(n) for n in range(1996, last_validated_year+1)]
+    return [str(n) for n in range(1996, last_validated_year+1)]
 
 
-def get_years_list_zero(years_list):
-    years_list_zero=list(years_list)
-    years_list_zero.insert(0, "")
-    return years_list_zero
+def add_blank(list_var):
+    list_with_blank=list(list_var)
+    list_with_blank.insert(0, "")
+    return list_with_blank
 
 
 def get_months_list():
@@ -131,7 +131,7 @@ def get_periods():
 
 def get_analyses():
     analyses=[]
-    analyses.append(("all", ", pour la période 1996-"+last_validated_year))
+    analyses.append(("all", ", pour la période 1996-"+str(last_validated_year)))
     analyses.append(("year", ", par année"))
     analyses.append(("cs", ", par secteur"))
     analyses.append(("csyear", ", par secteur et par année"))
@@ -139,7 +139,8 @@ def get_analyses():
 
 
 def get_specific_cs():
-    analyses=(("csyear", ", par secteur et par année"), )
+    #by cs and by year only
+    analyses=(get_analyses()[-1], )
     nb_figures_cs=5
     return analyses, nb_figures_cs
     
@@ -157,13 +158,17 @@ nb_rapp=5
 nb_resp=3
 
 cs_list=get_cs_list()
+
+#TO COMMENT OUT
 #for specific queries
-cs_list=["19.10", "19.20", "19.30"]
+#~ cs_list=["19.10", "19.20", "19.30"]
+
 years_list=get_years_list()
-years_list_zero=get_years_list_zero(years_list)
+years_list_zero=add_blank(years_list)
 months_list=get_months_list()
 #list of countries
 countries_list=get_countries_list()
+countries_list_zero=add_blank(countries_list)
 periods=get_periods()
 nb_periods=len(periods)
 

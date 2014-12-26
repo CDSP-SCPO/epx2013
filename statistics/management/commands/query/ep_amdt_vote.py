@@ -104,24 +104,21 @@ def q99():
 def q100(factor="everything"):
     #1/Moyenne EPVotesFor1-2, 3/Moyenne EPVotesAgst1-2, 5/Moyenne EPVotesAbs1-2, par année, par secteur, par année et par secteur
     variables={"votes_for_": "EPVotesFor", "votes_agst_": "EPVotesAgst", "votes_abs_": "EPVotesAbs"}
-    res={}
-    nb=2
+    nb_figures_cs=2
 
     if factor=="csyear":
         #get by cs and by year only (for specific cs)
         analyses, nb_figures_cs=get_specific_cs()
 
     for key, value in variables.iteritems():
-        filter_vars={key+"1__gt": 0, key+"2__gt": 0}
+        exclude_vars_acts={key+"1__isnull": True, key+"2__isnull": True}
         init_question="Nombre moyen de "+value+"1-2"
 
         for analysis, question in analyses:
             question=init_question+question
-            for index in range(1, nb+1):
-                i=str(index)
-                res["res_"+i]=init(analysis)
-                res["res_"+i]=get(analysis, res["res_"+i], variable=key+i, filter_vars_acts=filter_vars, nb_figures_cs=nb_figures_cs)
-            write(analysis, question, res["res_1"], res_2=res["res_2"], percent=1, query="1+2")
+            res=init(analysis)
+            res=get(analysis, res, variable=key+"1", variable_2=key+"2", exclude_vars_acts=exclude_vars_acts, nb_figures_cs=nb_figures_cs)
+            write(analysis, question, res, percent=1)
 
 
 def q100_periods(cs=None):

@@ -34,7 +34,19 @@ def init_all(count):
     res=0
     if count:
         res=[0,0]
+
     return res
+
+
+def init_country():
+    res_total=0
+    res={}
+    #for each country
+    for country in countries_list:
+        res[country]=0
+
+    #~ print "init_country", res
+    return res, res_total
 
 
 def init_year(count, total, empty_dic, empty_list):
@@ -85,12 +97,16 @@ def init_csyear(count, total, empty_dic, empty_list, amdt):
     return res
     
 
-def init(analysis, count=True, total=False, amdt=False, empty_list=False, empty_dic=False):
+def init(analysis, count=True, total=False, amdt=False, empty_list=False, empty_dic=False, query=None):
     #use total=True to compute the percentage of each cell compared to the total of the year
     #titles_list: initialize empty list
+    res_total=None
 
     if analysis=="all":
-        res=init_all(count)
+        res, res_total=init_all(count, query)
+
+    elif analysis=="country":
+        res, res_total=init_country()
             
     elif analysis=="year":
         res=init_year(count, total, empty_dic, empty_list)
@@ -101,8 +117,8 @@ def init(analysis, count=True, total=False, amdt=False, empty_list=False, empty_
     elif analysis=="csyear":
         res=init_csyear(count, total, empty_dic, empty_list, amdt)
 
-    if total and not empty_dic:
-        return res, total_year
+    if total:
+        return res, res_total
     return res
 
 
@@ -121,17 +137,18 @@ def init_periods(Model=Act, filter_vars_acts={}, filter_vars_acts_ids={}, filter
     filter_vars=get_validated_acts(Model, filter_vars_acts=filter_vars_acts, filter_vars_acts_ids=filter_vars_acts_ids)
     filter_total=get_validated_acts(Model, filter_vars_acts=filter_total_acts, filter_vars_acts_ids=filter_total_acts_ids)
     
-    if query=="countries":
-        res={}
-        total=[]
-        #for each country
-        for country in countries_list:
-            res[country]=[]
-            #for each period
-            for period in range(nb_periods):
-                res[country].append(0)
-                total.append(0)
-        return res, filter_vars, filter_total, total
+    if query=="country":
+        res=[]
+        res_total=[]
+        #for each period
+        for index in range(nb_periods):
+            res.append({})
+            res_total.append(0)
+            #for each country
+            for country in countries_list:
+                res[index][country]=0
+            
+        return res, filter_vars, filter_total, res_total
                 
     else:
         res=[[0 for x in range(2)] for y in range(nb_periods)]

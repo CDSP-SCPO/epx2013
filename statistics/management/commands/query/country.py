@@ -68,26 +68,30 @@ def q102():
 
 def q114():
     #1/pourcentage de AdoptCSContre et 2/pourcentage de AdoptCSAbs pour chaque Etat membre, par périodes
-    variables=(("adopt_cs_contre", "AdoptCSContre"), ("adopt_cs_abs", "AdoptCSAbs"))
+    variables=(("adopt_cs_abs", "AdoptCSAbs"), ("adopt_cs_contre", "AdoptCSContre"))
     init_question="Pour chaque Etat membre, pourcentage de "
     filter_vars_acts={}
+    variable="country"
 
     for var in variables:
         if var[0]=="adopt_cs_contre":
             filter_vars_acts={"adopt_cs_regle_vote": "V"}
-        exclude_vars={var[0]: None}
+            init_question_2=", parmi les actes avec AdoptCSRegleVote=V"
+        else:
+            init_question_2=""
+        #~ exclude_vars_acts={var[0]: None}
 
         #all the acts
-        analysis=("all", ", pour la période 1996-"+last_validated_year)
-        question=init_question+var[1]+analysis[1]
-        res=init(analysis[0])
-        res=get(analysis[0], res, filter_vars_acts=filter_vars_acts, exclude_vars_acts=exclude_vars_acts, check_vars_acts=check_vars_acts, nb_figures_cs=nb_figures_cs)
-        write(analysis[0], question, res)
+        analysis=(variable, ", par pays")
+        question=init_question+var[1]+init_question_2+analysis[1]
+        res, res_total=init(analysis[0], total=True)
+        res, res_total=get(analysis[0], res, count=False, filter_vars_acts=filter_vars_acts, res_total=res_total, adopt_var=var[0])
+        write(analysis[0], question, res, count=False, res_total=res_total)
 
         #by period
-        question=init_question+var[1]+", par période"
-        res, filter_vars, filter_total, total=init_periods(filter_vars_acts=filter_vars_acts, query="countries")
-        res, total=get_by_period(res, filter_vars, filter_total, total=total, exclude_vars=exclude_vars, adopt_cs=var[0], query="countries")
-        write_periods(question, res, total=total, query="countries")
+        question=init_question+var[1]+init_question_2+", par période"
+        res, filter_vars, filter_total, res_total=init_periods(filter_vars_acts=filter_vars_acts, query=variable)
+        res, res_total=get_by_period(res, filter_vars, filter_total, res_total=res_total, adopt_cs=var[0], query=variable)
+        write_periods(question, res, count=False, res_total=res_total, query=variable)
 
         
