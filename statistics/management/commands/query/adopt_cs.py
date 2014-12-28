@@ -125,26 +125,21 @@ def q88(factor="everything"):
                 write(analysis, question, res)
 
 
-def q97():
-    #1/Pourcentage de AdoptCSContre=Y, 2/Pourcentage de AdoptCSAbs=Y, par année, par secteur, par année et par secteur
-    variables={"adopt_cs_contre": "AdoptCSContre", "adopt_cs_abs": "AdoptCSAbs"}
+def q97(factors=factors_list, periods=None, nb_figures_cs=2):
+    #1/Pourcentage "AdoptCSAbs"= Y parmi tous les actes 2/Pourcentage "AdoptCSContre"= Y parmi les actes avec AdoptCSRegleVote=V
+    variables=(("adopt_cs_abs", "AdoptCSAbs"), ("adopt_cs_contre", "AdoptCSContre"))
 
-    for key, value in variables.iteritems():
-        question="Pourcentage "+value+"=Y par secteur"
-        print question
-        res=init_cs()
-        res=percent_adopt_cs(res, key)
-        write_cs(question, res)
+    #get parameters specific to the question
+    factors_question, filter_vars_acts=get_parameters_question(factors, periods)
 
-        question="Pourcentage "+value+"=Y par année"
-        print question
-        res=init_year()
-        res=percent_adopt_year(res, key)
-        write_year(question, res)
-
-        question="Pourcentage "+value+"=Y (parmi les actes du même secteur et de la même année) par secteur et par année"
-        print question
-        res=init_cs_year()
-        res=percent_adopt_cs_year(res, key)
-        write_cs_year(question, res)
-
+    for variable in variables:
+        init_question="pourcentage "+variable[1]+"=Y"
+        if variable[0]=="adopt_cs_contre":
+            filter_vars_acts.update({"adopt_cs_regle_vote": "V"})
+            init_question+=", parmi les actes AdoptCSRegleVote=V"
+        
+        for factor, question in factors_question.iteritems():
+            question=init_question+question
+            res=init(factor)
+            res=get(factor, res, filter_vars_acts=filter_vars_acts, adopt_var=variable[0], nb_figures_cs=nb_figures_cs)
+            write(factor, question, res)

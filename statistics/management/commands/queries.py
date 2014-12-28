@@ -369,7 +369,7 @@ class Command(NoArgsCommand):
 
         #for all the acts, by cs, by year, by cs and by year
         #Pourcentage d'actes avec NoUniqueType=COD adoptés en 1ère / (2ème ou 3ème) lecture
-        factor="csyear"
+        factor=["csyear"]
         #~ acts.q98(factor=factor)
         #~ #Durée de la procédure (= Moyenne DureeTotaleDepuisTransCons ET DureeProcedureDepuisTransCons)
         #~ #1/pour tous les actes 2/VotePublic=Y 3/VotePublic=N 4/AdoptCSRegleVote=U 5/AdoptCSRegleVote=V 6/VotePublic=Y et AdoptCSRegleVote=U 7/ VotePublic=Y et AdoptCSRegleVote=V
@@ -398,7 +398,52 @@ class Command(NoArgsCommand):
         #~ #Pourcentage de discordance des familles politiques
         #~ party_family.q84(factor=factor)
         #1/ Moyenne EPVotesFor1-2 2/ Moyenne EPVotesAgst1-2 3/ Moyenne EPVotesAbs1-2
-        ep_amdt_vote.q100(factor=factor)
+        #~ ep_amdt_vote.q100(factors=factor, nb_figures_cs=5)
 #~ 
         #~ #) Pourcentage d'actes avec 1/CommissionPE= LIBE 2/CommissionPE= JURI par cs et par année
         #~ acts.q115(factor=factor)
+
+
+        #2014-12-23
+        #Nombre de mots moyen
+        #~ nb_mots.q116(factors=["year"])
+        #Nombre de mots x Nombre d’actes
+        #~ nb_mots.q83(factors=["year"])
+
+        #période 1/07/2009- 31/12/2013
+        period=("2009-07-01", "2013-12-31")
+        #Nombre d’actes par secteur
+        #~ acts.q2(factors=["cs"], periods=period)
+        #~ #pourcentage d'actes avec NoUniqueType= COD et NbLectures=1/2/3
+        #~ acts.q98(factors=["all"], periods=period)
+        #DureeTotaleDepuisTransCons moyenne
+        #~ duree.q110(factors=["all"], periods=period)
+        #1/Pourcentage "AdoptCSAbs"= Y parmi tous les actes 2/Pourcentage "AdoptCSContre"= Y parmi les actes avec AdoptCSRegleVote=V
+        #~ adopt_cs.q97(factors=["all"], periods=period)
+        #Pourcentage de M présents parmi les personnes de status différent de NA ou AB
+        #~ min_attend.q117(factors=["all"], periods=period)
+
+        #1/ Moyenne EPVotesFor1-2 2/ Moyenne EPVotesAgst1-2 3/ Moyenne EPVotesAbs1-2
+        #~ ep_amdt_vote.q100(factors=["year", "cs", "csyear"])
+#~ 
+        factors=["cs", "periods"]
+        periods=(
+            ("2000-01-01", "2004-04-30"),
+            ("2004-05-01", "2009-11-30"),
+            ("2009-12-01", "2013-12-31")
+        )
+        #Pourcentage d'actes avec au moins un points B, exactement un point B, deux points B, plus de deux points B
+        #~ acts.q108(factors=factors, periods=periods)
+        #~ #DureeTotaleDepuisTransCons quand NbPointsB = 0,1,2,3 ou plus
+        #~ duree.q118(factors=factors, periods=periods)
+        #Pourcentage d'actes avec VotePublic=Y quand NbPointsB = 1,2,3 ou plus
+        #~ acts.q119(factors=factors, periods=periods)
+#~ 
+        #~ periods=(
+            #~ ("1996-01-01", "1999-10-31"),
+            #~ ("1999-11-01", "2004-10-31"),
+            #~ ("2004-11-01", "2009-10-31"),
+            #~ ("2009-11-01", "2013-12-31")
+        #~ )
+        #~ #1/pourcentage de AdoptCSContre et 2/pourcentage de AdoptCSAbs pour chaque Etat membre, pour tous les actes puis par périodes
+        #~ country.q114(factors=["country", "periods"], periods=periods)

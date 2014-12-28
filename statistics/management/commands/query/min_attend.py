@@ -13,7 +13,7 @@ from  ..write import *
 
 def q22():
     #pourcentage de ministres presents (M) et de RP (CS ou CS_PR) par secteurs et par annee
-    question="pourcentage de ministres presents (M) et de RP (CS ou CS_PR) par année"
+    question="Pourcentage de ministres presents (M) et de RP (CS ou CS_PR) par année"
     print question
     res={}
     total_year={}
@@ -114,3 +114,18 @@ def q76(cs=None):
         res=get_by_period(res, Model, filter_vars, filter_total)
 
     write_periods(question, res)
+
+
+def q117(factors=factors_list, periods=None, nb_figures_cs=2):
+    #Pourcentage de M présents parmi les personnes de status différent de NA ou AB
+
+    #get parameters specific to the question
+    factors_question, filter_vars_acts=get_parameters_question(factors, periods)
+    
+    init_question="Pourcentage de M présents parmi les personnes de statut différent de NA ou AB"
+
+    for factor, question in factors_question.iteritems():
+        question=init_question+question
+        res=init(factor)
+        res=get(factor, res, Model=MinAttend, filter_vars_acts=filter_vars_acts, nb_figures_cs=nb_figures_cs)
+        write(factor, question, res)

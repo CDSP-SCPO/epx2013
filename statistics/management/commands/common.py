@@ -2,6 +2,7 @@
 
 #common functions used by init, get and write functions
 from act.models import Country
+from collections import OrderedDict
 
 
 #For integer variables, if there is a zero value (0), the value must be:
@@ -47,7 +48,7 @@ def get_cs_list(min_cs=1, max_cs=20):
     return cs_list
 
 
-def get_years_list():
+def get_years_list(last_validated_year):
     return [str(n) for n in range(1996, last_validated_year+1)]
 
 
@@ -129,20 +130,66 @@ def get_periods():
     return periods
 
 
-def get_analyses():
-    analyses=[]
-    analyses.append(("all", ", pour la période 1996-"+str(last_validated_year)))
-    analyses.append(("year", ", par année"))
-    analyses.append(("cs", ", par secteur"))
-    analyses.append(("csyear", ", par secteur et par année"))
-    return analyses
+def get_factors_list():
+    factors=["all", "year", "cs", "csyear"]
 
 
-def get_specific_cs():
-    #by cs and by year only
-    analyses=(get_analyses()[-1], )
-    nb_figures_cs=5
-    return analyses, nb_figures_cs
+def get_factors():
+    factors=OrderedDict({})
+    factors["all"]=", pour la période 1996-"+str(last_validated_year)
+    factors["periods"]=", par période"
+    factors["year"]=", par année"
+    factors["cs"]=", par secteur"
+    factors["csyear"]=", par secteur et par année"
+    #specific queries
+    factors["country"]=", par état membre"
+    return factors
+
+
+def us_to_fr_date(date_us):
+    #YYYY-MM-DD to DD/MM/YYYY
+    year=date_us[:4]
+    month=date_us[5:7]
+    day=date_us[8:10]
+    date_fr=day+"/"+month+"/"+year
+
+    return date_fr
+    
+
+def get_factors_question(factors_list, periods):
+    factors_question=OrderedDict({})
+    specific_period=""
+    
+    #for "all" analysis and a specific period
+    if periods is not None and type(periods[0]) is str:
+        specific_period=", pour la période du "+us_to_fr_date(periods[0])+" au "+us_to_fr_date(periods[1])
+            
+    for factor in factors_list:
+        factors_question[factor]=factors[factor]+specific_period
+        
+    return factors_question
+
+
+def filter_period_question(period):
+    filter_vars_acts={}
+    #for "all" analysis and a specific period
+    if period is not None and type(period[0]) is str:
+        filter_vars_acts={"adopt_conseil__gte": period[0], "adopt_conseil__lte": period[1]}
+    return filter_vars_acts
+
+
+def filter_periods_question(filter_vars_acts, period):
+    filter_vars_acts_temp=filter_vars_acts.copy()
+    filter_vars_acts_temp.update(filter_period_question(period))
+    return filter_vars_acts_temp
+
+
+def get_parameters_question(factors, periods):
+    #get all the factors to analyse (all the acts? by year? by cs?)
+    factors_question=get_factors_question(factors, periods)
+    #add start date and end date to filter when looking for a specific period
+    filter_vars_acts=filter_period_question(periods)
+    return factors_question, filter_vars_acts
     
 
 
@@ -158,12 +205,14 @@ nb_rapp=5
 nb_resp=3
 
 cs_list=get_cs_list()
+#number of figures to use to get all the different cs -> if nb=2 then cs=01.xx.xx.xx ... 20.xx.xx.xx, if nb=5 then cs=01.10.xx.xx ... 20.90.xx.xx
+nb_figures_cs=2
 
 #TO COMMENT OUT
 #for specific queries
 #~ cs_list=["19.10", "19.20", "19.30"]
 
-years_list=get_years_list()
+years_list=get_years_list(last_validated_year)
 years_list_zero=add_blank(years_list)
 months_list=get_months_list()
 #list of countries
@@ -173,6 +222,5 @@ periods=get_periods()
 nb_periods=len(periods)
 
 #list of factors (variables to study)
-analyses=get_analyses()
-
-
+factors=get_factors()
+factors_list=get_factors_list()

@@ -66,32 +66,41 @@ def q102():
         write_percent_pers_cs_year(question, res, "RapporteurPE", var="country")
        
 
-def q114():
+def q114(factors=factors_list, periods=None):
     #1/pourcentage de AdoptCSContre et 2/pourcentage de AdoptCSAbs pour chaque Etat membre, par périodes
     variables=(("adopt_cs_abs", "AdoptCSAbs"), ("adopt_cs_contre", "AdoptCSContre"))
-    init_question="Pour chaque Etat membre, pourcentage de "
-    filter_vars_acts={}
     variable="country"
+    init_question="Pourcentage de "
 
+    #get parameters specific to the question
+    factors_question, filter_vars_acts=get_parameters_question(factors, periods)
+    
     for var in variables:
+        init_question_2=""
         if var[0]=="adopt_cs_contre":
             filter_vars_acts={"adopt_cs_regle_vote": "V"}
             init_question_2=", parmi les actes avec AdoptCSRegleVote=V"
-        else:
-            init_question_2=""
+            
         #~ exclude_vars_acts={var[0]: None}
 
-        #all the acts
-        analysis=(variable, ", par pays")
-        question=init_question+var[1]+init_question_2+analysis[1]
-        res, res_total=init(analysis[0], total=True)
-        res, res_total=get(analysis[0], res, count=False, filter_vars_acts=filter_vars_acts, res_total=res_total, adopt_var=var[0])
-        write(analysis[0], question, res, count=False, res_total=res_total)
+        for factor, question in factors_question.iteritems():
+            question=init_question+var[1]+"=Y"+init_question_2+question
 
-        #by period
-        question=init_question+var[1]+init_question_2+", par période"
-        res, filter_vars, filter_total, res_total=init_periods(filter_vars_acts=filter_vars_acts, query=variable)
-        res, res_total=get_by_period(res, filter_vars, filter_total, res_total=res_total, adopt_cs=var[0], query=variable)
-        write_periods(question, res, count=False, res_total=res_total, query=variable)
-
-        
+            if factor=="periods":
+                res=[]
+                res_total=[]
+                #~ for period in periods:
+                    #~ filter_vars_acts_temp=filter_periods_question(filter_vars_acts, period)
+                    #~ temp=init(factor, count=False, total=True)
+                    #~ res.append(temp[0])
+                    #~ res_total.append(temp[1])
+                    #~ print "res_total", res_total
+                    #~ temp=get(factor, res[-1], count=False, filter_vars_acts=filter_vars_acts_temp, nb_figures_cs=nb_figures_cs, res_total=res_total[-1], adopt_var=var[0])
+                    #~ res[-1]=temp[0]
+                    #~ res_total[-1]=temp[1]
+                #~ write(factor, question, res, count=False, res_total=res_total, periods=periods)
+            else:
+                #~ pass
+                res, res_total=init(factor, count=False, total=True)
+                res, res_total=get(factor, res, count=False, filter_vars_acts=filter_vars_acts, nb_figures_cs=nb_figures_cs, res_total=res_total, adopt_var=var[0])
+                write(factor, question, res, count=False, res_total=res_total)

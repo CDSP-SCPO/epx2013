@@ -124,22 +124,21 @@ def q64_bis():
         nb_mots_no_unique_type_bis(key, no_unique_type)
 
 
-def q83(factor="everything"):
+def q83(factors=factors_list, nb_figures_cs=2):
     #Nb de mots x Nb d’actes, par année, par secteur, par année et par secteur
     init_question="Total nombre de mots * nombre d'actes"
     variable="nb_mots"
-    filter_vars={variable+"__isnull": False}
 
-    if factor=="csyear":
-        #get by cs and by year only (for specific cs)
-        analyses, nb_figures_cs=get_specific_cs()
+    #get parameters specific to the question
+    factors_question, filter_vars_acts=get_parameters_question(factors, periods)
 
-    for analysis, question in analyses:
+    filter_vars_acts.update({variable+"__isnull": False})
+    
+    for factor, question in factors_question.iteritems():
         question=init_question+question
-        
-        res=init(analysis)
-        res=get(analysis, res, variable=variable, filter_vars_acts=filter_vars, nb_figures_cs=nb_figures_cs)
-        write(analysis, question, res, percent=1, query=variable)
+        res=init(factor)
+        res=get(factor, res, variable=variable, filter_vars_acts=filter_vars_acts, nb_figures_cs=nb_figures_cs)
+        write(factor, question, res, percent=1, query=variable)
 
 
 def nb_mots_2009(filter_vars={}, q=""):
@@ -157,3 +156,24 @@ def q90_mois():
 
 def q90_mois_nut():
     nb_mots_2009(filter_vars={"act__releve_annee": 2009, "no_unique_type": "COD"}, q="pour les actes de NoUniqueType=COD, ")
+
+
+def nb_mots_moyen_type_acte(factors, type_actes):
+    init_question="Nombre de mots moyen pour les actes de type "+ str(type_actes)
+    variable="nb_mots"
+    #get parameters specific to the question
+    factors_question, filter_vars_acts=get_parameters_question(factors, periods)
+
+    filter_vars_acts.update({variable+"__isnull": False, "type_acte__in": type_actes})
+    
+    for factor, question in factors_question.iteritems():
+        question=init_question+question
+        res=init(factor)
+        res=get(factor, res, variable=variable, filter_vars_acts=filter_vars_acts)
+        write(factor, question, res, percent=1)
+        
+
+def q116(factors=factors_list):
+    type_actes=[["CS DVE", "DVE"], ["CS DEC CAD", "CS DEC", "DEC", "CS DEC W/O ADD"], ["CS REG", "REG"]]
+    for type_acte in type_actes:
+        nb_mots_moyen_type_acte(factors, type_acte)

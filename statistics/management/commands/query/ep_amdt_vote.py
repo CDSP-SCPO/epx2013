@@ -101,24 +101,23 @@ def q99():
         write_cs_year(question, res, count=False)
 
 
-def q100(factor="everything"):
+def q100(factors=factors_list, periods=None, nb_figures_cs=2):
     #1/Moyenne EPVotesFor1-2, 3/Moyenne EPVotesAgst1-2, 5/Moyenne EPVotesAbs1-2, par année, par secteur, par année et par secteur
-    variables={"votes_for_": "EPVotesFor", "votes_agst_": "EPVotesAgst", "votes_abs_": "EPVotesAbs"}
-    nb_figures_cs=2
+    variables=(("votes_for_", "EPVotesFor"), ("votes_agst_", "EPVotesAgst"), ("votes_abs_", "EPVotesAbs"))
+    
+    #get parameters specific to the question
+    factors_question, filter_vars_acts=get_parameters_question(factors, periods)
 
-    if factor=="csyear":
-        #get by cs and by year only (for specific cs)
-        analyses, nb_figures_cs=get_specific_cs()
+    for var in variables:
+        #the two variables cannot be null or equal to zero at the same time
+        exclude_vars_acts={var[0]+"1": 0, var[0]+"2": 0}
+        init_question="Nombre moyen de "+var[1]+"1-2"
 
-    for key, value in variables.iteritems():
-        exclude_vars_acts={key+"1__isnull": True, key+"2__isnull": True}
-        init_question="Nombre moyen de "+value+"1-2"
-
-        for analysis, question in analyses:
+        for factor, question in factors_question.iteritems():
             question=init_question+question
-            res=init(analysis)
-            res=get(analysis, res, variable=key+"1", variable_2=key+"2", exclude_vars_acts=exclude_vars_acts, nb_figures_cs=nb_figures_cs)
-            write(analysis, question, res, percent=1)
+            res=init(factor)
+            res=get(factor, res, variable=var[0]+"1", variable_2=var[0]+"2", filter_vars_acts=filter_vars_acts, exclude_vars_acts=exclude_vars_acts, nb_figures_cs=nb_figures_cs)
+            write(factor, question, res, percent=1)
 
 
 def q100_periods(cs=None):

@@ -42,29 +42,6 @@ def q7():
     print ""
 
 
-def q8():
-    #Duree de la procedure : DureeTotaleDepuisTransCons moyenne 1/pour tous les actes 2/VotePublic=Y 3/VotePublic=N 4/AdoptCSRegleVote=U 5/AdoptCSRegleVote=V 6/VotePublic=Y et AdoptCSRegleVote=V 7/VotePublic=Y et AdoptCSRegleVote=U
-    vote=("vote_public", "VotePublic")
-    regle_vote=("adopt_cs_regle_vote", "AdoptCSRegleVote")
-    filter_vars=(
-        ("", {}),
-        ("avec "+vote[1]+"=Y", {vote[0]: True}),
-        ("avec "+vote[1]+"=N", {vote[0]: False}),
-        ("avec "+regle_vote[1]+"=U", {regle_vote[0]: "U"}),
-        ("avec "+regle_vote[1]+"=V", {regle_vote[0]: "V"}),
-        ("avec "+vote[1]+"=Y et "+regle_vote[1]+"=U", {vote[0]: True, regle_vote[0]: "U"}),
-        ("avec "+vote[1]+"=Y et "+regle_vote[1]+"=V", {vote[0]: True, regle_vote[0]: "V"})
-    )
-    initial_question="DureeTotaleDepuisTransCons moyenne pour tous les actes "
-
-    for filter_var in filter_vars:
-        question=initial_question+filter_var[0]
-        res=init_all()
-        res=get_all(res, variable="duree_tot_depuis_trans_cons", filter_vars=filter_var[1])
-        write_all(question, res, percent=1)
-
-
-
 def q12():
     #durée moyenne d’adoption
     question="DureeTotaleDepuisPropCom en moyenne par année"
@@ -252,35 +229,6 @@ def q36():
     write_cs_year(question, res)
 
 
-def q48():
-    question="DureeTotaleDepuisTransCons moyenne pour les actes avec au moins une discussion en point B, par année"
-    print question
-    res={}
-    for year in years_list:
-        res[year]=[0,0]
-
-    for act in Act.objects.filter(validated=2, nb_point_b__isnull=False, duree_tot_depuis_trans_cons__isnull=False):
-        if act.nb_point_b>0:
-            year=str(act.releve_annee)
-            res[year][0]+=act.duree_tot_depuis_trans_cons
-            res[year][1]+=1
-
-    print "res", res
-
-    writer.writerow([question])
-    writer.writerow(years_list)
-    row=[]
-    for year in years_list:
-        if res[year][0]==0:
-            res_year=0
-        else:
-            res_year=round(float(res[year][0])/res[year][1], 3)
-        row.append(res_year)
-    writer.writerow(row)
-    writer.writerow("")
-    print ""
-
-
 def q49():
     question="DureeTotaleDepuisTransCons moyenne pour les actes avec au moins une discussion en point B, par secteur"
     print question
@@ -331,7 +279,7 @@ def q50():
     print "res", res
 
     write_cs_year(question, res)
-
+    
 
     question="DureeTotaleDepuisTransCons moyenne pour les actes avec au moins une discussion en point B, par année"
     print question
@@ -477,35 +425,72 @@ def q96(factor="everything"):
             write(analysis, question, res_1, res_2=res_2, percent=1, query="1+2")
         
         
-def q110(factor="everything"):
+def q110(factors=factors_list, periods=None, nb_figures_cs=2):
     #Durée Moyenne DureeTotaleDepuisTransCons
     #1/pour tous les actes 2/VotePublic=Y 3/VotePublic=N 4/AdoptCSRegleVote=U 5/AdoptCSRegleVote=V 6/VotePublic=Y et AdoptCSRegleVote=U 7/ VotePublic=Y et AdoptCSRegleVote=V
+    
+    #get parameters specific to the question
+    factors_question, filter_vars_acts=get_parameters_question(factors, periods)
+    
     filters=(
         ("", {}),
-        (" avec VotePublic=Y", {"vote_public": True}),
-        (" avec VotePublic=N", {"vote_public": False}),
-        (" avec AdoptCSRegleVote=U", {"adopt_cs_regle_vote": "U"}),
-        (" avec AdoptCSRegleVote=V", {"adopt_cs_regle_vote": "V"}),
-        (" avec VotePublic=Y et AdoptCSRegleVote=U", {"vote_public": True, "adopt_cs_regle_vote": "U"}),
-        (" avec VotePublic=Y et AdoptCSRegleVote=V", {"vote_public": True, "adopt_cs_regle_vote": "V"})
+        #~ (" avec VotePublic=Y", {"vote_public": True}),
+        #~ (" avec VotePublic=N", {"vote_public": False}),
+        #~ (" avec AdoptCSRegleVote=U", {"adopt_cs_regle_vote": "U"}),
+        #~ (" avec AdoptCSRegleVote=V", {"adopt_cs_regle_vote": "V"}),
+        #~ (" avec VotePublic=Y et AdoptCSRegleVote=U", {"vote_public": True, "adopt_cs_regle_vote": "U"}),
+        #~ (" avec VotePublic=Y et AdoptCSRegleVote=V", {"vote_public": True, "adopt_cs_regle_vote": "V"})
     )
     variable=("duree_tot_depuis_trans_cons", "DureeTotaleDepuisTransCons")
-    filter_vars={variable[0]+"__gt": 1}
+    filter_vars_acts.update({variable[0]+"__gt": 1})
     init_question=variable[1] + " moyenne"
 
-    if factor=="csyear":
-        #get by cs and by year only (for specific cs)
-        analyses, nb_figures_cs=get_specific_cs()
-
     for filt in filters:
-        filter_vars_temp=filter_vars.copy()
+        filter_vars_temp=filter_vars_acts.copy()
         #update filter
         filter_vars_temp.update(filt[1])
         
-        for analysis, question in analyses:
+        for factor, question in factors_question.iteritems():
             question=init_question+filt[0]+question
-            
-            res=init(analysis)
-            res=get(analysis, res, variable=variable[0], filter_vars_acts=filter_vars_temp, nb_figures_cs=nb_figures_cs)
-            write(analysis, question, res, percent=1)
+            res=init(factor)
+            res=get(factor, res, variable=variable[0], filter_vars_acts=filter_vars_temp, nb_figures_cs=nb_figures_cs)
+            write(factor, question, res, percent=1)
 
+
+def q118(factors=factors_list, periods=None, nb_figures_cs=2):
+    #DureeTotaleDepuisTransCons quand NbPointsB = 0,1,2,3 ou plus
+    var="nb_point_b"
+    variable="duree_tot_depuis_trans_cons"
+    filters=(
+        ({var: 0}, "exactement zéro point B"),
+        ({var: 1}, "exactement un point B"),
+        ({var: 2}, "exactement deux points B"),
+        ({var+"__gt": 2}, "plus de deux points B"),
+    )
+    
+    #get parameters specific to the question
+    factors_question, filter_vars_acts=get_parameters_question(factors, periods)
+    
+    init_question="DureeTotaleDepuisTransCons moyenne pour les actes avec "
+
+    for filt in filters:
+        filter_vars_acts_temp=filter_vars_acts.copy()
+        #update filter
+        filter_vars_acts_temp.update(filt[0])
+        init_question_2=init_question+filt[1]
+
+        for factor, question in factors_question.iteritems():
+            question=init_question_2+question
+
+            if factor=="periods":
+                res=[]
+                for period in periods:
+                    filter_vars_acts_temp_2=filter_vars_acts_temp.copy()
+                    filter_vars_acts_temp_2.update(filter_periods_question(filter_vars_acts_temp_2, period))
+                    res.append(init(factor))
+                    res[-1]=get(factor, res[-1], variable=variable, filter_vars_acts=filter_vars_acts_temp_2, nb_figures_cs=nb_figures_cs)
+            else:
+                res=init(factor)
+                res=get(factor, res, variable=variable, filter_vars_acts=filter_vars_acts_temp, nb_figures_cs=nb_figures_cs)
+                
+            write(factor, question, res, percent=1, periods=periods)
