@@ -455,176 +455,185 @@ def get_percent_pers_cs(res, pers_type, max_nb, var="pf", year_var=False, filter
     return res
 
 
+#OLD, NOT TO USE ANYMORE
+def get_list_acts_cs(cs, Model=Act):
+    acts=[]
+    #get validated acts only
+    filter_vars=get_validated_acts(Model)
 
-#~ def get_list_acts_cs(cs, Model=Act):
-    #~ acts=[]
-    #~ #get validated acts only
-    #~ filter_vars=get_validated_acts(Model)
-#~ 
-    #get all the acts that match the cs in parameter (each act can be counted up to 4 times, one for each matching cs)
-    #~ for act in Model.objects.filter(**filter_vars):
-        #~ act_act=get_act(Model, act)
-        #~ #get all cs
-        #~ css=get_all_cs(act_act)
-        #~ #for each cs (if there is at least one non null css)
-        #~ for cs in css:
-            #~ acts.append(act)
-#~ 
-    #~ print "get_list_acts_cs", acts
-#~ 
-    #~ return acts
-#~ 
-#~ 
-#~ def filter_exclude_list(list_acts, filter_vars={}, exclude_vars={}):
-    #~ list_acts_new=[]
-    #~ for act in list_acts:
-        #~ ok=True
-        #~ for key, value in filter_vars.iteritems():
-            #~ #related object: "act__validated_attendance":1
-            #~ if key[:5]=="act__":
-                #~ key=key[5:]
-                #~ instance=act.act
-            #~ else:
-                #~ instance=act
-#~ 
-            #~ #greater than or equal: "nb_point_a__gte": 1
-            #~ if key[-5:]=="__gte":
-                #~ if getattr(instance, key[:-5])<value:
-                    #~ ok=False
-                    #~ break
-            #~ #greater than or equal: "nb_point_a__lte": 1
-            #~ elif key[-5:]=="__lte":
-                #~ if getattr(instance, key[:-5])>value:
-                    #~ ok=False
-                    #~ break
-            #~ #greater than: "nb_point_a__gt": 0
-            #~ elif key[-4:]=="__gt":
-                #~ if getattr(instance, key[:-4])<=value:
-                    #~ ok=False
-                    #~ break
-            #~ elif key[-8:]=="__isnull":
-                #~ var=getattr(instance, key[:-8])
-                #~ #"com_amdt_tabled__isnull": False
-                #~ if not value and var is None:
-                    #~ ok=False
-                    #~ break
-                #~ #"nb_point_b__isnull": True
-                #~ elif value and var is not None:
-                    #~ ok=False
-                    #~ break
-                    #~ 
-            #~ #equal to: "nb_point_a": 1
-            #~ elif getattr(instance, key) != value:
-                #~ ok=False
-                #~ break
-#~ 
-        #~ if ok:
-            #~ for key, value in exclude_vars.iteritems():
-                #~ #"adopt_cs_abs": None
-                #~ if key=="adopt_cs_abs" and value is None:
-                    #~ if not getattr(instance, key).exists():
-                        #~ ok=False
-                        #~ break
-                #~ #different from: "nb_point_a": 1
-                #~ elif getattr(instance, key) == value:
-                    #~ ok=False
-                    #~ break
-#~ 
-            #~ if ok:
-                #~ list_acts_new.append(act)
-#~ 
-    #~ return list_acts_new
-#~ 
-#~ 
-#~ def init_by_period(Model, periods, filter_vars, list_acts, exclude_vars):
-    #~ filter_vars_periods=get_validated_acts_periods(Model, periods, filter_vars)
-    #~ if list_acts is None:
-        #~ temp_filter=Model.objects.filter(**filter_vars_periods).exclude(**exclude_vars)
-    #~ #for a specific cs
-    #~ else:
-        #~ #from the list of acts with a specific cs, create a new list taking into account other filters / excludes
-        #~ temp_filter=filter_exclude_list(list_acts, filter_vars=filter_vars_periods, exclude_vars=exclude_vars)
-    #~ return temp_filter
-#~ 
-    #~ 
-#~ def compute_min_attend(res, index, temp_filter):
-    #~ for act in temp_filter:
-        #~ status=Status.objects.get(verbatim=act.verbatim, country=act.country).status
-        #~ if status not in ["NA", "AB"]:
-            #~ res[index][1]+=1
-            #~ if status in ["CS", "CS_PR"]:
-                #~ res[index][0]+=1
-    #~ return res
-#~ 
-#~ 
-#~ def compute_country(res, index, temp_filter, total, adopt_cs):
-    #~ for act in temp_filter:
-        #~ total[index]+=1
-        #~ countries=getattr(act, adopt_cs)
-        #~ #for each country
-        #~ for country in countries.all():
-            #~ res[index][country.country_code]+=1
-    #~ return res
-#~ 
-#~ 
-#~ def compute_adopt_cs(res, index, temp_filter, adopt_cs):
-    #~ res[index][0]=temp_filter.annotate(nb_countries=Count("adopt_cs_contre")).filter(**adopt_cs).count()
-    #~ #OR specific cs
-    #key, value = adopt_cs.items()[0]
-    #for act in temp_filter:
-        #nb_countries=len(act.adopt_cs_contre.all())
-        ##"nb_countries": 1 or "nb_countries__gte": 2
-        #if (key=="nb_countries" and nb_countries==value) or (key=="nb_countries__gte" and nb_countries>=value):
-            #res[index][0]+=1
-    #~ return res
-#~ 
-#~ 
-#~ def compute_total(res, index, filter_total, Model, periods, list_acts):
-    #~ #total
-    #~ filter_total.update(get_validated_acts_periods(Model, periods[index], filter_total))
-    #~ if list_acts is None:
-        #~ res[index][1]=Model.objects.filter(**filter_total).count()
-    #~ else:
-        #~ res[index][1]=len(filter_exclude_list(list_acts, filter_vars=filter_total))
-    #~ return res
-#~ 
-#~ 
-#~ def compute_avg(res, index, temp_filter, avg_variable):
-    #~ for act in temp_filter:
-        #~ res[index][0]+=getattr(act, avg_variable)
-        #~ res[index][1]+=1
-    #~ return res
-    #~ 
-#~ 
-#~ def get_by_period(res, filter_vars, filter_total, list_acts=None, res_total=None, Model=Act, exclude_vars_acts={}, avg_variable=None, adopt_cs={}, query=None):
-    #~ #list_acts used when query for specific cs
-    #~ for index in range(nb_periods):
-        #~ temp_filter=init_by_period(Model, periods[index], filter_vars, list_acts, exclude_vars_acts)
-#~ 
-        #~ if Model==MinAttend:
-           #~ res=compute_min_attend(res, index, temp_filter)
-                        #~ 
-        #~ #q114: 1/pourcentage de AdoptCSContre et 2/pourcentage de AdoptCSAbs pour chaque Etat membre, par périodes
-        #~ elif query=="country":
-          #~ res=compute_country(res, index, temp_filter, res_total, adopt_cs)
-          #~ 
-        #~ else:
-            #~ #percentage among all the acts
-            #~ if avg_variable is None:
-                #~ if adopt_cs:
-                   #~ res=compute_adopt_cs(res, index, temp_filter, adopt_cs)
-                #~ else:
-                    #~ if list_acts is None:
-                        #~ res[index][0]=temp_filter.count()
-                    #~ else:
-                        #~ res[index][0]=len(temp_filter)
-                #~ #total
-                #~ res=compute_total(res, index, filter_total, Model, periods, list_acts)
-            #~ #average
-            #~ else:
-                #~ res=compute_avg(res, index, temp_filter, avg_variable)
-                    #~ 
-    #~ print "res", res
-    #~ if query=="country":
-        #~ return res, res_total
-    #~ return res
+    #~ #get all the acts that match the cs in parameter (each act can be counted up to 4 times, one for each matching cs)
+    for act in Model.objects.filter(**filter_vars):
+        act_act=get_act(Model, act)
+        #get all cs
+        css=get_all_cs(act_act)
+        #for each cs (if there is at least one non null css)
+        for cs in css:
+            acts.append(act)
+
+    print "get_list_acts_cs", acts
+
+    return acts
+
+#~ #OLD, NOT TO USE ANYMORE
+def filter_exclude_list(list_acts, filter_vars={}, exclude_vars={}):
+    list_acts_new=[]
+    for act in list_acts:
+        ok=True
+        for key, value in filter_vars.iteritems():
+            #related object: "act__validated_attendance":1
+            if key[:5]=="act__":
+                key=key[5:]
+                instance=act.act
+            else:
+                instance=act
+
+            #greater than or equal: "nb_point_a__gte": 1
+            if key[-5:]=="__gte":
+                if getattr(instance, key[:-5])<value:
+                    ok=False
+                    break
+            #greater than or equal: "nb_point_a__lte": 1
+            elif key[-5:]=="__lte":
+                if getattr(instance, key[:-5])>value:
+                    ok=False
+                    break
+            #greater than: "nb_point_a__gt": 0
+            elif key[-4:]=="__gt":
+                if getattr(instance, key[:-4])<=value:
+                    ok=False
+                    break
+            elif key[-8:]=="__isnull":
+                var=getattr(instance, key[:-8])
+                #"com_amdt_tabled__isnull": False
+                if not value and var is None:
+                    ok=False
+                    break
+                #"nb_point_b__isnull": True
+                elif value and var is not None:
+                    ok=False
+                    break
+                    
+            #equal to: "nb_point_a": 1
+            elif getattr(instance, key) != value:
+                ok=False
+                break
+
+        if ok:
+            for key, value in exclude_vars.iteritems():
+                #"adopt_cs_abs": None
+                if key=="adopt_cs_abs" and value is None:
+                    if not getattr(instance, key).exists():
+                        ok=False
+                        break
+                #different from: "nb_point_a": 1
+                elif getattr(instance, key) == value:
+                    ok=False
+                    break
+
+            if ok:
+                list_acts_new.append(act)
+
+    return list_acts_new
+
+
+#~ #OLD, NOT TO USE ANYMORE
+def init_by_period(Model, periods, filter_vars, list_acts, exclude_vars):
+    filter_vars_periods=get_validated_acts_periods(Model, periods, filter_vars)
+    if list_acts is None:
+        temp_filter=Model.objects.filter(**filter_vars_periods).exclude(**exclude_vars)
+    #for a specific cs
+    else:
+        #from the list of acts with a specific cs, create a new list taking into account other filters / excludes
+        temp_filter=filter_exclude_list(list_acts, filter_vars=filter_vars_periods, exclude_vars=exclude_vars)
+    return temp_filter
+
+
+#~ #OLD, NOT TO USE ANYMORE
+def compute_min_attend(res, index, temp_filter):
+    for act in temp_filter:
+        status=Status.objects.get(verbatim=act.verbatim, country=act.country).status
+        if status not in ["NA", "AB"]:
+            res[index][1]+=1
+            if status in ["CS", "CS_PR"]:
+                res[index][0]+=1
+    return res
+
+
+#~ #OLD, NOT TO USE ANYMORE
+def compute_country(res, index, temp_filter, res_total, adopt_cs):
+    for act in temp_filter:
+        res_total[index]+=1
+        countries=getattr(act, adopt_cs)
+        #for each country
+        for country in countries.all():
+            res[index][country.country_code]+=1
+    return res, res_total
+
+
+#~ #OLD, NOT TO USE ANYMORE
+def compute_adopt_cs(res, index, temp_filter, adopt_cs):
+    res[index][0]=temp_filter.annotate(nb_countries=Count("adopt_cs_contre")).filter(**adopt_cs).count()
+    #OR specific cs
+    #~ #key, value = adopt_cs.items()[0]
+    #~ #for act in temp_filter:
+        #~ #nb_countries=len(act.adopt_cs_contre.all())
+        #~ ##"nb_countries": 1 or "nb_countries__gte": 2
+        #~ #if (key=="nb_countries" and nb_countries==value) or (key=="nb_countries__gte" and nb_countries>=value):
+            #~ #res[index][0]+=1
+    return res
+
+
+#~ #OLD, NOT TO USE ANYMORE
+def compute_total(res, index, filter_total, Model, periods, list_acts):
+    #total
+    filter_total.update(get_validated_acts_periods(Model, periods[index], filter_total))
+    if list_acts is None:
+        res[index][1]=Model.objects.filter(**filter_total).count()
+    else:
+        res[index][1]=len(filter_exclude_list(list_acts, filter_vars=filter_total))
+    return res
+
+
+#~ #OLD, NOT TO USE ANYMORE
+def compute_avg(res, index, temp_filter, avg_variable):
+    for act in temp_filter:
+        res[index][0]+=getattr(act, avg_variable)
+        res[index][1]+=1
+    return res
+
+    
+#~ #OLD, NOT TO USE ANYMORE
+def get_by_period(res, filter_vars, filter_total, list_acts=None, res_total=None, Model=Act, exclude_vars_acts={}, avg_variable=None, adopt_cs={}, query=None):
+    #list_acts used when query for specific cs
+    for index in range(nb_periods):
+        temp_filter=init_by_period(Model, periods[index], filter_vars, list_acts, exclude_vars_acts)
+
+        if Model==MinAttend:
+           res=compute_min_attend(res, index, temp_filter)
+                        
+        #q114: 1/pourcentage de AdoptCSContre et 2/pourcentage de AdoptCSAbs pour chaque Etat membre, par périodes
+        elif query=="country":
+            res, res_total=compute_country(res, index, temp_filter, res_total, adopt_cs)
+            print "res", res
+            print "res_total", res_total 
+          
+        else:
+            #percentage among all the acts
+            if avg_variable is None:
+                if adopt_cs:
+                   res=compute_adopt_cs(res, index, temp_filter, adopt_cs)
+                else:
+                    if list_acts is None:
+                        res[index][0]=temp_filter.count()
+                    else:
+                        res[index][0]=len(temp_filter)
+                #total
+                res=compute_total(res, index, filter_total, Model, periods, list_acts)
+            #average
+            else:
+                res=compute_avg(res, index, temp_filter, avg_variable)
+                    
+    print "res", res
+    if query=="country":
+        return res, res_total
+    return res

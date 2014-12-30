@@ -35,10 +35,12 @@ def compute(res, res_2, count, percent, query, res_total=None):
     num=0
     denom=1
 
+    #~ print "res_total", res_total
+
     #only one value in res -> sum
     if not count:
         #if num=0 -> 0
-        if res!=0:
+        if res>0:
             if query=="pt_b_a":
                 #percentage nb_point_b regarding nb_point_a)
                 num=res
@@ -46,13 +48,13 @@ def compute(res, res_2, count, percent, query, res_total=None):
             #normal query
             else:
                 num=res
-                if res_total is not None:
+                if res_total>0:
                     denom=res_total
             
     #count=True -> two values in res, either for an average or for a percentage computation
     else:
         #if num or denom=0 -> 0
-        if res[0]!=0:
+        if res[0]>0:
             if query=="nb_mots":
                 num=res[0]
                 #indice de contrainte legislative -> nombre mots total * nb actes et non nombre mots total / nb actes
@@ -65,6 +67,9 @@ def compute(res, res_2, count, percent, query, res_total=None):
             else:
                 num=res[0]
                 denom=res[1]
+
+    #~ print "num", num
+    #~ print "denom", denom
 
     #final computation
     res_final=round(float(num)*percent/denom, 3)
@@ -265,38 +270,40 @@ def write_percent_pers_cs_year(question, res, pers_type, var="Party Family"):
     print ""
 
 
-#~ def compute_periods(row, res, res_2, count, percent, query, res_total):
-    #~ res_2_temp=None
-    #~ 
-    #~ if query=="country":
-        #~ for country in countries_list:
-            #~ if res_2 is not None:
-                #~ res_2_temp=res_2[country]
-            #~ res_final=compute(res[country], res_2_temp, count, percent, query, res_total=res_total)
-            #~ row.append(res_final)
+#OLD, NOT TO USE ANYMORE
+def compute_periods(row, res, res_2, count, percent, query, res_total):
+    res_2_temp=None
+    
+    if query=="country":
+        for country in countries_list:
+            if res_2 is not None:
+                res_2_temp=res_2[country]
+            res_final=compute(res[country], res_2_temp, count, percent, query, res_total=res_total)
+            row.append(res_final)
+
+        writer.writerow(row)
+
+    #normal query, by period only
+    else:
+        res_final=compute(res, res_2, count, percent, query)
+        row.append(res_final)
+        writer.writerow(row)
+
 #~ 
-        #~ writer.writerow(row)
-#~ 
-    #~ #normal query, by period only
-    #~ else:
-        #~ res_final=compute(res, res_2, count, percent, query)
-        #~ row.append(res_final)
-        #~ writer.writerow(row)
-#~ 
-   #~ 
-#~ def write_periods(question, res, percent=100, res_2=None, count=True, res_total=None, query=None):
-    #~ print question
-    #~ writer.writerow([question])
-    #~ res_2_temp=None
-#~ 
-    #~ if query=="country":
-         #~ writer.writerow(countries_list_zero)
-#~ 
-    #~ for index in range(nb_periods):
-        #~ row=[periods[index][0]]
-        #~ if res_2 is not None:
-            #~ res_2_temp=res_2[index]
-        #~ compute_periods(row, res[index], res_2_temp, count, percent, query, res_total[index])
-        #~ 
-    #~ writer.writerow("")
-    #~ print ""
+#~ #OLD, NOT TO USE ANYMORE
+def write_periods(question, res, percent=100, res_2=None, count=True, res_total=None, query=None):
+    print question
+    writer.writerow([question])
+    res_2_temp=None
+
+    if query=="country":
+         writer.writerow(countries_list_zero)
+
+    for index in range(nb_periods):
+        row=[periods[index][0]]
+        if res_2 is not None:
+            res_2_temp=res_2[index]
+        compute_periods(row, res[index], res_2_temp, count, percent, query, res_total[index])
+        
+    writer.writerow("")
+    print ""

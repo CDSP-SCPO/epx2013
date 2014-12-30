@@ -447,3 +447,5 @@ class Command(NoArgsCommand):
         #~ )
         #~ #1/pourcentage de AdoptCSContre et 2/pourcentage de AdoptCSAbs pour chaque Etat membre, pour tous les actes puis par périodes
         #~ country.q114(factors=["country", "periods"], periods=periods)
+        #old version
+        country.q114()

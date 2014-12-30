@@ -134,24 +134,25 @@ def init_month(count=True):
     return res
 
 
-#~ def init_periods(Model=Act, filter_vars_acts={}, filter_vars_acts_ids={}, filter_total_acts={}, filter_total_acts_ids={}, query=None):
-    #~ filter_vars=get_validated_acts(Model, filter_vars_acts=filter_vars_acts, filter_vars_acts_ids=filter_vars_acts_ids)
-    #~ filter_total=get_validated_acts(Model, filter_vars_acts=filter_total_acts, filter_vars_acts_ids=filter_total_acts_ids)
-    #~ 
-    #~ if query=="country":
-        #~ res=[]
-        #~ res_total=[]
-        #~ #for each period
-        #~ for index in range(nb_periods):
-            #~ res.append({})
-            #~ res_total.append(0)
-            #~ #for each country
-            #~ for country in countries_list:
-                #~ res[index][country]=0
-            #~ 
-        #~ return res, filter_vars, filter_total, res_total
-                #~ 
-    #~ else:
-        #~ res=[[0 for x in range(2)] for y in range(nb_periods)]
-        #~ return res, filter_vars, filter_total
+#OLD, NOT TO USE ANYMORE
+def init_periods(Model=Act, filter_vars_acts={}, filter_vars_acts_ids={}, filter_total_acts={}, filter_total_acts_ids={}, query=None):
+    filter_vars=get_validated_acts(Model, filter_vars_acts=filter_vars_acts, filter_vars_acts_ids=filter_vars_acts_ids)
+    filter_total=get_validated_acts(Model, filter_vars_acts=filter_total_acts, filter_vars_acts_ids=filter_total_acts_ids)
+    
+    if query=="country":
+        res=[]
+        res_total=[]
+        #for each period
+        for index in range(nb_periods):
+            res.append({})
+            res_total.append(0)
+            #for each country
+            for country in countries_list:
+                res[index][country]=0
+            
+        return res, filter_vars, filter_total, res_total
+                
+    else:
+        res=[[0 for x in range(2)] for y in range(nb_periods)]
+        return res, filter_vars, filter_total
     
