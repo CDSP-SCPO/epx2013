@@ -94,6 +94,10 @@ def get_headers(excl_fields_act_ids, excl_fields_act):
     headers.append(var_name_data.var_name["verbatim_min_attend"])
     headers.append(var_name_data.var_name["status_min_attend"])
 
+    #DEBUG
+    #~ for index in range(len(headers)):
+        #~ print str(index) + ":" + str(headers[index])
+
     return headers
 
 
@@ -112,6 +116,8 @@ def get_save_acts(excl_fields_act_ids, excl_fields_act, writer):
     tic=time.time()
     
     qs=Act.objects.filter(validated=2)
+    #~ #TEST
+    #~ qs=Act.objects.filter(validated=2, releve_annee=1999, releve_mois=1, no_ordre=1)
     nb=0
 
     for act in qs.iterator():
@@ -154,10 +160,7 @@ def get_save_acts(excl_fields_act_ids, excl_fields_act, writer):
                             print e
                             fields.append(None)
                     else:
-                        if "resp_" in field.name:
-                            temp=[None]*4
-                        else:
-                            temp=[None]*3
+                        temp=[None]*4
                         fields.extend(temp)
                 #DG and related
                 elif "dg_" in field.name:
@@ -231,6 +234,10 @@ def get_save_acts(excl_fields_act_ids, excl_fields_act, writer):
     
     tac=time.time()
     print "time", tac-tic
+
+    #DEBUG
+    #~ for index in range(len(fields)):
+        #~ print str(index) + ":" + str(fields[index])
 
     #~ return acts
 
