@@ -4,6 +4,7 @@ from django.core.management.base import NoArgsCommand
 
 
 #import specific queries
+from common import *
 from query import acts, adopt_cs, duree, ep_amdt_vote, min_attend, modif_propos, nb_mots, party_family, pers, point_b, type_acte, vote, country
 
 
@@ -332,30 +333,37 @@ class Command(NoArgsCommand):
 
         #2014-12-4 : Hausse de la bureaucratisation, Conflictualité pour le secteur Économie
         # NOUVELLES PERIODES
-        css=[None, [10, "Économie"]]
-        #~ for cs in css:
-            #~ #pourcentages de propositions de la Commission adoptées par procédure écrite
-            #~ acts.q71(cs=cs)
-            #pourcentage de textes adoptés en « points A » au Conseil
-            #~ acts.q72(cs=cs)
-            #~ #nombre de moyen de points B par texte
-            #~ point_b.q73(cs=cs)
-            #pourcentage de textes adoptés en 1ère lecture au Parlement Européen
-            #~ acts.q74(cs=cs)
-            #nombre moyen d’amendements déposés
-            #~ ep_amdt_vote.q75(cs=cs)
-            #% moyen de représentants permanents par acte
-            #~ min_attend.q76(cs=cs)
-            #% ages moyens de votes publics, vote contre, abstentions là où VMQ est possible
-            #~ acts.q77(cs=cs)
-            #durée moyenne par acte
-            #~ duree.q78(cs=cs)
-            #~ #% d’actes adoptés en 2ème lecture
-            #~ acts.q79(cs=cs)
-            #~ #% d’actes avec au moins 1 point B
-            #~ acts.q80(cs=cs)
-            #1/Moyenne EPVotesFor1-2, 2/Moyenne EPVotesAgst1-2, 3/MoyenneEPVotesAbs1-2
-            #~ ep_amdt_vote.q100_periods(cs=cs)
+        factors=["periods"]
+        periods=(
+            ("Période 01/01/1996 - 15/09/1999", fr_to_us_date("01/01/1996"), fr_to_us_date("15/09/1999")),
+            ("Période 16/09/1999 - 30/04/2004", fr_to_us_date("16/09/1999"), fr_to_us_date("30/04/2004")),
+            ("Période 01/05/2004 - 14/09/2008", fr_to_us_date("01/05/2004"), fr_to_us_date("14/09/2008")),
+            ("Période 15/09/2008 - 31/12/2013", fr_to_us_date("15/09/2008"), fr_to_us_date("31/12/2013"))
+        )
+        for period in periods:
+            print period[1]
+        #~ #pourcentages de propositions de la Commission adoptées par procédure écrite
+        #~ acts.q71(cs=cs)
+        #pourcentage de textes adoptés en « points A » au Conseil
+        #~ acts.q72(cs=cs)
+        #~ #nombre de moyen de points B par texte
+        #~ point_b.q73(cs=cs)
+        #pourcentage de textes adoptés en 1ère lecture au Parlement Européen
+        #~ acts.q74(cs=cs)
+        #nombre moyen d’amendements déposés
+        #~ ep_amdt_vote.q75(cs=cs)
+        #% moyen de représentants permanents par acte
+        #~ min_attend.q76(cs=cs)
+        #% ages moyens de votes publics, vote contre, abstentions là où VMQ est possible
+        acts.q77(factors=factors, periods=periods)
+        #durée moyenne par acte
+        #~ duree.q78(cs=cs)
+        #~ #% d’actes adoptés en 2ème lecture
+        #~ acts.q79(cs=cs)
+        #~ #% d’actes avec au moins 1 point B
+        #~ acts.q80(cs=cs)
+        #1/Moyenne EPVotesFor1-2, 2/Moyenne EPVotesAgst1-2, 3/MoyenneEPVotesAbs1-2
+        #~ ep_amdt_vote.q100_periods(cs=cs)
 
 
         #2014-12-4
@@ -448,4 +456,16 @@ class Command(NoArgsCommand):
         #~ #1/pourcentage de AdoptCSContre et 2/pourcentage de AdoptCSAbs pour chaque Etat membre, pour tous les actes puis par périodes
         #~ country.q114(factors=["country", "periods"], periods=periods)
         #old version
-        country.q114()
+        #~ country.q114()
+
+
+        #2015-02-05
+        #Liste des actes pour lesquels au moins 1 CodeSect commence par 03 / 12 / 13 / 15
+        #~ acts.q120()
+        #~ #Liste des actes pour lesquels plusieurs Bases Juridiques
+        #~ acts.q121()
+        #Pourcentage d’actes adoptés avec M=0 (Ministers Attendance)
+        factors=["cs", "year", "csyear"]
+        #TEST
+        #~ factors=["year"]
+        #~ acts.q122(factors=factors)

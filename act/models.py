@@ -241,6 +241,7 @@ class Act(models.Model):
     validated=models.PositiveSmallIntegerField(max_length=1, default=0, db_index=True)
     #1 if the attendances of the act have been validated, 0 otherwise
     validated_attendance=models.BooleanField(default=False, db_index=True)
+        
 
     #joined primary keys
     class Meta:

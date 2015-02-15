@@ -8,7 +8,7 @@ from functions import list_reverse_enum, remove_nonspacing_marks
 def get_act_ids(act):
     """
     FUNCTION
-    ge the act ids for each source ("index", "eurlex", "oeil" and "prelex") given the act in paramater
+    get the act ids for each source ("index", "eurlex", "oeil" and "prelex") given the act in paramater
     PARAMETERS
     act: instance of the act [Act model instance]
     RETURN
@@ -52,7 +52,7 @@ def save_fk_code_sect(instance, field):
 def save_get_object(model, fields):
     """
     FUNCTION
-    save and get an instance object (add/modif/import of an act):
+    save and get an instance object (add/modif/import of an act)
     PARAMETERS
     model: model of the field [model object]
     fields: maps names and values of each field [dictionary]
@@ -74,7 +74,7 @@ def save_get_object(model, fields):
 def save_get_field_and_fk(field, fields_fk, src=""):
     """
     FUNCTION
-    save a field and its foreign keys in its table (add/modif/import of an act)
+    save a field and its foreign keys in the corresponding models (add/modif/import of an act)
     PARAMETERS
     field: model name, field name and field value [list]
     [Person, "name", <value>]
@@ -151,23 +151,21 @@ def save_get_resp_prelex(names):
         #check that there are the associated data
         print instance.country.country
     except:
-        #there is an error on prelex
-        #problem of accent?
-        #remove accents
+        #resp not found! the resp might be present in the db and is not found because of the accents -> remove accents of the resp in parameter
         names=remove_nonspacing_marks(names)
         #problem of case?
         names=[name.strip().upper() for name in names.split()]
+        #the resp might still not be found because the first name and last name are reversed
         persons=Person.objects.filter(src="resp")
+        #for each resp, loop over every word in the name fields: if all the words are found, it's a match!
         for person in persons:
+            #remove accents of the resp in the db
             person_name=remove_nonspacing_marks(person.name.upper())
             found=True
             for name in names:
                 if name not in person_name:
                     found=False
                     break
-                #~ else:
-                    #~ print "person_name", person_name
-                    #~ print "name", name
             #if a match is found, stop the program and return the instance
             if found==True and person.country!=None:
                 instance=person

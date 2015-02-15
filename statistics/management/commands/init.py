@@ -2,7 +2,7 @@
 
 from act.models import Act, Country
 #initiate dictionary that will contain the result of a query
-from  common import *
+from common import *
 
 
 #count=False and variable=True: count the sum of all the values taken by a variable

@@ -5,7 +5,10 @@
 from act.models import Act
 from django.conf import settings
 import csv
-from  common import *
+from common import *
+#variables name
+import act_ids.var_name_ids as var_name_ids
+import act.var_name_data as var_name_data
 
 
 #count is False
@@ -65,6 +68,7 @@ def compute(res, res_2, count, percent, query, res_total=None):
                 denom=res[1]+res_2[1]
             #normal query
             else:
+                #~ print "normal query count=True"
                 num=res[0]
                 denom=res[1]
 
@@ -82,28 +86,29 @@ def write_all(res, res_2, count, percent, query):
     writer.writerow([res_final])
 
 
-def write_year_cs_country(factor, res, res_2, count, percent, query, res_total, periods):
+def write_year_cs_country_periods(factor, res, res_2, count, percent, query, res_total, periods):
     row=[]
     res_2_temp=None
     res_total_temp=res_total
 
-    if factor=="periods":
-        list_var=range(len(res))
     if factor=="year":
         list_var=years_list
     elif factor=="cs":
         list_var=cs_list
     elif factor=="country":
         list_var=countries_list
+    elif factor=="periods":
+        list_var=range(len(res))
 
     #header: every period
     if factor=="periods":
         header=[]
         for period in periods:
-            header.append("Période du "+us_to_fr_date(period[0])+ " au "+us_to_fr_date(period[1]))
+            header.append(period[0])
         writer.writerow(header)
     else:
         writer.writerow(list_var)
+        res=res[0]
         
     for var in list_var:
         if res_2 is not None:
@@ -133,15 +138,15 @@ def write(factor, question, res, res_2=None, count=True, percent=100, query=None
     #res_2: need to sum 2 variables before computing average (q100: votes_for_1 and votes_for_2) or percentage (q95: nb_point_a and nb_point_b)
     print question
     writer.writerow([question])
-
+    
     if factor=="all":
-        write_all(res, res_2, count, percent, query)
+        write_all(res[0], res_2, count, percent, query)
 
-    elif factor in ["periods", "year", "cs", "country"]:
-        write_year_cs_country(factor, res, res_2, count, percent, query, res_total, periods)
+    elif factor in ["year", "cs", "country", "periods"]:
+        write_year_cs_country_periods(factor, res, res_2, count, percent, query, res_total, periods)
 
     elif factor=="csyear":
-      write_csyear(res, res_2, count, percent, query)
+      write_csyear(res[0], res_2, count, percent, query)
         
     writer.writerow("")
     print ""
@@ -305,5 +310,30 @@ def write_periods(question, res, percent=100, res_2=None, count=True, res_total=
             res_2_temp=res_2[index]
         compute_periods(row, res[index], res_2_temp, count, percent, query, res_total[index])
         
+    writer.writerow("")
+    print ""
+
+
+def write_list_acts(question, acts, fields):
+    print question
+    writer.writerow([question])
+    #write headers
+    headers=[]
+    #act ids
+    act_ids=["releve_annee", "releve_mois", "no_ordre"]
+    fields=act_ids+fields
+    for field in fields:
+        #ActIds
+        if field=="propos_origine":
+            headers.append(var_name_ids.var_name[field])
+        #Act
+        else:
+            headers.append(var_name_data.var_name[field])
+    writer.writerow(headers)
+
+    #write acts
+    for act in acts:
+        writer.writerow(act)
+            
     writer.writerow("")
     print ""

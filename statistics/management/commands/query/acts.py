@@ -277,55 +277,51 @@ def q74(cs=None):
     write_periods(question, res)
 
 
-def q77(cs=None):
+def q77(factors=factors_list, periods=None, nb_figures_cs=2):
 
+    #get the factors specific to the question
+    factors_question=get_factors_question(factors)
+    
     Model=Act
-    filter_total_acts={"adopt_cs_regle_vote": "V"}
-    filter_vars_acts=filter_total_acts.copy()
-    filter_var_acts_vote=filter_total_acts.copy()
+    filter_vars_acts={"adopt_cs_regle_vote": "V"}
+    filter_var_acts_vote=filter_vars_acts.copy()
     filter_var_acts_vote["vote_public"]=True
-    if cs is not None:
-        list_acts_cs=get_list_acts_cs(cs[0], Model=Model)
 
-    question="Pourcentage d’actes adoptés avec un vote public, parmi les actes avec une majorité qualifiée lors de l'adoption au conseil, par période"
-    res, filter_vars, filter_total=init_periods(Model, filter_vars_acts=filter_var_acts_vote, filter_total_acts=filter_total_acts)
-    #filter by specific cs
-    if cs is not None:
-        question+=" (code sectoriel : "+cs[1]+")"
-        res=get_by_period_cs(list_acts_cs, res, Model, filter_vars, filter_total)
-    else:
-        res=get_by_period(res, Model, filter_vars, filter_total)
-    write_periods(question, res)
+    #~ question="Pourcentage d’actes adoptés avec un vote public, parmi les actes avec une majorité qualifiée lors de l'adoption au conseil, par période"
+    #~ res, filter_vars, filter_total=init_periods(Model, filter_vars_acts=filter_var_acts_vote, filter_total_acts=filter_total_acts)
+    #~ #filter by specific cs
+    #~ if cs is not None:
+        #~ question+=" (code sectoriel : "+cs[1]+")"
+        #~ res=get_by_period_cs(list_acts_cs, res, Model, filter_vars, filter_total)
+    #~ else:
+        #~ res=get_by_period(res, Model, filter_vars, filter_total)
+    #~ write_periods(question, res)
+#~ 
+    #~ question="Pourcentage d’actes adoptés avec avec opposition d'exactement un état, parmi les actes avec une majorité qualifiée lors de l'adoption au conseil, par période"
+    #~ res, filter_vars, filter_total=init_periods(Model, filter_vars_acts=filter_vars_acts, filter_total_acts=filter_total_acts)
+    #~ #filter by specific cs
+    #~ if cs is not None:
+        #~ question+=" (code sectoriel : "+cs[1]+")"
+        #~ res=get_by_period_cs(list_acts_cs, res, Model, filter_vars, filter_total, adopt_cs={"nb_countries": 1})
+    #~ else:
+        #~ res=get_by_period(res, Model, filter_vars, filter_total, adopt_cs={"nb_countries": 1})
+    #~ write_periods(question, res)
 
-    question="Pourcentage d’actes adoptés avec avec opposition d'exactement un état, parmi les actes avec une majorité qualifiée lors de l'adoption au conseil, par période"
-    res, filter_vars, filter_total=init_periods(Model, filter_vars_acts=filter_vars_acts, filter_total_acts=filter_total_acts)
-    #filter by specific cs
-    if cs is not None:
-        question+=" (code sectoriel : "+cs[1]+")"
-        res=get_by_period_cs(list_acts_cs, res, Model, filter_vars, filter_total, adopt_cs={"nb_countries": 1})
-    else:
-        res=get_by_period(res, Model, filter_vars, filter_total, adopt_cs={"nb_countries": 1})
-    write_periods(question, res)
+    for factor, question in factors_question.iteritems():
+        question="Pourcentage d’actes adoptés avec opposition d'au moins deux états, parmi les actes avec une majorité qualifiée lors de l'adoption au conseil"+question
+        res=init(factor)
+        res=get(factor, res, Model=Model, filter_vars_acts=filter_vars_acts, adopt_var="adopt_cs_contre", query=2, periods=periods)
+        write(factor, question, res, periods=periods)
 
-    question="Pourcentage d’actes adoptés avec opposition d'au moins deux états, parmi les actes avec une majorité qualifiée lors de l'adoption au conseil, par période"
-    res, filter_vars, filter_total=init_periods(Model, filter_vars_acts=filter_vars_acts, filter_total_acts=filter_total_acts)
-    #filter by specific cs
-    if cs is not None:
-        question+=" (code sectoriel : "+cs[1]+")"
-        res=get_by_period_cs(list_acts_cs, res, Model, filter_vars, filter_total, adopt_cs={"nb_countries__gte": 2})
-    else:
-        res=get_by_period(res, Model, filter_vars, filter_total, adopt_cs={"nb_countries__gte": 2})
-    write_periods(question, res)
-
-    question="Pourcentage d’actes adoptés avec abstention d'au moins un état, parmi les actes avec une majorité qualifiée lors de l'adoption au conseil, par période"
-    res, filter_vars, filter_total=init_periods(Model, filter_vars_acts=filter_vars_acts, filter_total_acts=filter_total_acts)
-    #filter by specific cs
-    if cs is not None:
-        question+=" (code sectoriel : "+cs[1]+")"
-        res=get_by_period_cs(list_acts_cs, res, Model, filter_vars, filter_total, exclude_vars={"adopt_cs_abs": None})
-    else:
-        res=get_by_period(res, Model, filter_vars, filter_total, exclude_vars={"adopt_cs_abs": None})
-    write_periods(question, res)
+    #~ question="Pourcentage d’actes adoptés avec abstention d'au moins un état, parmi les actes avec une majorité qualifiée lors de l'adoption au conseil, par période"
+    #~ res, filter_vars, filter_total=init_periods(Model, filter_vars_acts=filter_vars_acts, filter_total_acts=filter_total_acts)
+    #~ #filter by specific cs
+    #~ if cs is not None:
+        #~ question+=" (code sectoriel : "+cs[1]+")"
+        #~ res=get_by_period_cs(list_acts_cs, res, Model, filter_vars, filter_total, exclude_vars={"adopt_cs_abs": None})
+    #~ else:
+        #~ res=get_by_period(res, Model, filter_vars, filter_total, exclude_vars={"adopt_cs_abs": None})
+    #~ write_periods(question, res)
 
 
 def q79(cs=None):
@@ -363,7 +359,6 @@ def q80(cs=None):
         res=get_by_period(res, Model, filter_vars, filter_total)
 
     write_periods(question, res)
-
 
 
 def liste_titre_actes_cs(cs, cs_list):
@@ -405,7 +400,6 @@ def q82():
         liste_titre_actes_cs(cs, css)
     writer.writerow("")
     print ""
-
 
 
 def q98(factors=factors_list, periods=None, nb_figures_cs=2):
@@ -477,7 +471,7 @@ def q108(factors=factors_list, periods=None, nb_figures_cs=2):
     )
     
     #get parameters specific to the question
-    factors_question, filter_vars_acts=get_parameters_question(factors, periods)
+    factors_question=get_factors_question(factors)
     
     init_question="Pourcentage d'actes avec "
     filter_vars_acts.update({var+"__isnull": False})
@@ -560,3 +554,65 @@ def q119(factors=factors_list, periods=None, nb_figures_cs=2):
                 res=get(factor, res, filter_vars_acts=filter_vars_acts_temp, check_vars_acts=check_vars_acts, nb_figures_cs=nb_figures_cs)
                 
             write(factor, question, res, periods=periods)
+
+
+def list_acts(Model, search, cs, fields):
+    if search=="cs":
+        #List of acts with at least one code sectoriel "cs" -> display only the fields "fields"
+        question="Liste des actes avec au moins un code sectoriel commençant par "+ cs +"."
+    elif search=="bj":
+        #List of acts with many bases juridiques -> for those acts, display only the fields "fields"
+        question="Liste des actes avec plusieurs bases juridiques."
+    acts=get_list_acts(Model, search, cs, fields)
+    write_list_acts(question, acts, fields)
+
+
+def q120():
+    #Liste des actes pour lesquels au moins 1 CodeSect commence par 03 / 12 / 13 / 15
+    list_acts(ActIds, "cs", "03", ["titre_rmc", "code_sect_1", "code_sect_2", "code_sect_3", "code_sect_4", "propos_origine", "resp_1", "resp_2", "resp_3", "cons_b", "council_a"])
+    list_acts(Act, "cs", "15", ["titre_rmc", "code_sect_1", "code_sect_2", "code_sect_3", "code_sect_4", "nb_point_b", "votes_for_1", "votes_for_2", "commission", "com_amdt_tabled", "com_amdt_adopt", "amdt_tabled", "amdt_adopt", "adopt_cs_contre", "adopt_cs_abs"])
+    list_acts(Act, "cs", "12", ["titre_rmc", "code_sect_1", "code_sect_2", "code_sect_3", "code_sect_4", "nb_point_b", "votes_for_1", "votes_for_2", "commission", "com_amdt_tabled", "com_amdt_adopt", "amdt_tabled", "amdt_adopt", "adopt_cs_contre", "adopt_cs_abs"])
+    list_acts(ActIds, "cs", "13", ["titre_rmc", "propos_origine", "dg_1", "dg_2", "commission", "votes_for_1", "votes_for_2", "votes_agst_1", "votes_agst_2", "votes_abs_1", "votes_abs_2", "adopt_cs_contre", "adopt_cs_abs", "np", "nb_mots", "duree_tot_depuis_trans_cons"])
+
+
+def q121():
+    #Liste des actes avec plusieurs bases juridiques
+    list_acts(ActIds, "bj", "", ["titre_rmc", "propos_origine", "dg_1", "dg_2", "commission", "votes_for_1", "votes_for_2", "votes_agst_1", "votes_agst_2", "votes_abs_1", "votes_abs_2", "adopt_cs_contre", "adopt_cs_abs", "np", "nb_mots", "duree_tot_depuis_trans_cons"])
+
+
+def q122(factors=factors_list, periods=None, nb_figures_cs=2):
+    #Pourcentage d'actes sans M présents
+
+    #get parameters specific to the question
+    factors_question, filter_vars_acts=get_parameters_question(factors, periods)
+    #TEST
+    #~ filter_vars_acts["releve_annee"]=1996
+
+    #~ init_question="Nombre d'actes avec au moins une présence de ministre (au moins un statut différent de 'NA' et 'AB')"
+    #~ for factor, question in factors_question.iteritems():
+        #~ question=init_question+question
+        #~ res=init(factor, count=False)
+        #~ res=get(factor, res, filter_vars_acts=filter_vars_acts, nb_figures_cs=nb_figures_cs, query="nb_attendances", count=False)
+        #~ write(factor, question, res, count=False, percent=1)
+    
+    init_question="Pourcentage d'actes avec au moins un EM sans statut 'M' (et au moins un 'CS' ou 'CS_PR')"
+    for factor, question in factors_question.iteritems():
+        question=init_question+question
+        res=init(factor)
+        res=get(factor, res, filter_vars_acts=filter_vars_acts, nb_figures_cs=nb_figures_cs, query="no_minister_percent")
+        write(factor, question, res)
+#~ 
+    init_question="Nombre d'actes avec au moins un EM sans statut 'M' (et au moins un 'CS' ou 'CS_PR')"
+    for factor, question in factors_question.iteritems():
+        question=init_question+question
+        res=init(factor, count=False)
+        res=get(factor, res, filter_vars_acts=filter_vars_acts, nb_figures_cs=nb_figures_cs, query="no_minister_nb_1", count=False)
+        write(factor, question, res, count=False, percent=1)
+#~ 
+    init_question="Nombre d'actes avec au moins deux EM sans statut 'M' (et au moins un 'CS' ou 'CS_PR')"
+    for factor, question in factors_question.iteritems():
+        question=init_question+question
+        res=init(factor, count=False)
+        res=get(factor, res, filter_vars_acts=filter_vars_acts, nb_figures_cs=nb_figures_cs, query="no_minister_nb_2", count=False)
+        write(factor, question, res, count=False, percent=1)
+

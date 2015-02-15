@@ -5,7 +5,7 @@ from django.db import models
 from act.models import Act, MinAttend, Status, NP, PartyFamily
 from act_ids.models import ActIds
 from django.db.models import Count
-from  common import *
+from common import *
 import copy
 
 
@@ -34,7 +34,7 @@ def get_cs(cs, nb_figures_cs):
 
 def get_all_cs(act, nb_figures_cs=2):
     css=[]
-    for nb in range(1,nb_cs+1):
+    for nb in range(1, nb_cs+1):
         code_sect=getattr(act, "code_sect_"+str(nb))
         if code_sect is not None:
             cs=get_cs(code_sect.code_sect, nb_figures_cs)
@@ -45,6 +45,20 @@ def get_all_cs(act, nb_figures_cs=2):
             #if one cs is null, all the following are null too
             break
     return css
+
+
+def check_cs(act, cs_list, nb_figures_cs=2):
+    #check that the act in parameter has at least one cs present in the list "cs_list" (the beginning of the two cs must be similar, the number of similar characters is identified by "nb_figures_cs")
+    for nb in range(1, nb_cs+1):
+        code_sect=getattr(act, "code_sect_"+str(nb))
+        if code_sect is not None:
+            cs=get_cs(code_sect.code_sect, nb_figures_cs)
+            if cs in cs_list:
+                return True
+        else:
+            #if one cs is null, all the following are null too
+            break
+    return False
 
 
 def get_act(Model, act):
@@ -191,7 +205,60 @@ def copy_data_for_computation(factor, res, act_act=None):
     return res_temp, year
 
 
-def compute(Model, act_act, act, res_temp, value, count, variable=None, ok=None, same=None, adopt_var=None, res_total=None):
+def compute_no_minister(act_act, res_temp, query):
+    attendances=MinAttend.objects.filter(act=act_act)
+    total=0
+    if attendances:
+        #store statuses for each country
+        statuses={}
+        for attendance in attendances:
+            country=attendance.country
+            country_code=country.country_code
+            if country_code not in statuses:
+                statuses[country_code]=[]
+            status=Status.objects.get(verbatim=attendance.verbatim, country=country).status
+            #don't take into account "NA" and "AB" statuses
+            if status not in ["NA", "AB"]:
+                #nb of acts with at least one attendance
+                if query=="nb_attendances":
+                    res_temp+=1
+                    return res_temp
+                statuses[country_code].append(status)
+
+        #counter nb countries with no M
+        nb_no_m=0
+        #for each country:
+        for country, status_list in statuses.iteritems():
+            #if there is at least one CS or CS_PR for the country:
+            if status_list:
+                #the act can be taken into account for the percentage computation (it has attendances and at least one M or one CS or one CS_PR)
+                total=1
+                #if there is no M for the country
+                if "M" not in status_list:
+                    #~ print "no M for country", country
+                    if query=="no_minister_percent":
+                        res_temp[0]+=1
+                        #there is no M for at least one country -> no need to check the rest of the data and we can now check the next act
+                        break
+                    elif query=="no_minister_nb_1":
+                        res_temp+=1
+                        #there is no M for at least one country -> no need to check the rest of the data and we can now check the next act
+                        break
+                    elif query=="no_minister_nb_2":
+                        nb_no_m+=1
+                        #at least two countries have no M status
+                        if nb_no_m==2:
+                            res_temp+=1
+                            break
+
+    #the act can be taken into account for the percentage computation (it has attendances and at least one M or one CS or one CS_PR)
+    if query=="no_minister_percent":
+        res_temp[1]+=total
+                        
+    return res_temp
+    
+
+def compute(Model, act_act, act, res_temp, value, count, variable=None, ok=None, same=None, adopt_var=None, res_total=None, query=None):
     #computation
     if count:
         #ministers' attendance query
@@ -202,20 +269,31 @@ def compute(Model, act_act, act, res_temp, value, count, variable=None, ok=None,
                 if status=="M":
                     res_temp[0]+=1
         else:
-            res_temp[1]+=1
-            
-            #check discordance: if there are at least two different party families (one from the rapps, one from the resps)
-            if same is not None:
-                if not same:
+            #q122: Pourcentage d'actes avec au moins un EM sans statut 'M' (et au moins un 'CS' ou 'CS_PR')
+            if query=="no_minister_percent":
+                res_temp=compute_no_minister(act_act, res_temp, query)
+            else:
+                res_temp[1]+=1
+                #check discordance: if there are at least two different party families (one from the rapps, one from the resps)
+                if same is not None:
+                    if not same:
+                        res_temp[0]+=value
+                elif adopt_var is not None:
+                    #q77: Pourcentage d’actes adoptés avec opposition d'au moins deux états
+                    countries=getattr(act_act, adopt_var)
+                    if len(countries.all())>=query:
+                        res_temp[0]+=value   
+                elif variable is not None or ok:
                     res_temp[0]+=value
-            elif variable is not None or ok:
-                res_temp[0]+=value
     else:
         if res_total is not None:
             res_total+=1
-            
-        #country factor
-        if adopt_var is not None:
+
+        #q122: Nombre d'actes avec au moins un / au moins deux EM sans statut 'M' (et au moins un 'CS' ou 'CS_PR')
+        if query in ["no_minister_nb_1", "no_minister_nb_2", "nb_attendances"]:
+            res_temp=compute_no_minister(act_act, res_temp, query)
+        elif adopt_var is not None:
+             #country factor
             countries=getattr(act_act, adopt_var)
             #for each country
             for country in countries.all():
@@ -241,11 +319,17 @@ def copy_data_back_to_res(factor, res_temp, res=None, cs=None, year=None):
     return res
 
 
-def get_all_year(factor, Model, res, act_act, act, value, count, adopt_var, variable, ok, same, res_total):
+def get_all_year(factor, Model, res, act_act, act, value, count, adopt_var, variable, ok, same, res_total, query):
+    css=[]
+    #q77: by periods for a specific cs
+    if factor=="periods" and len(cs_list)==1:
+        #get all cs
+        css=get_all_cs(act_act, nb_figures_cs=nb_figures_cs)
+    
     #copy data for computation
     res_temp, year=copy_data_for_computation(factor, res, act_act)
     #computation
-    res_temp, res_total=compute(Model, act_act, act, res_temp, value, count, variable, ok, same, adopt_var=adopt_var, res_total=res_total)
+    res_temp, res_total=compute(Model, act_act, act, res_temp, value, count, variable, ok, same, adopt_var=adopt_var, res_total=res_total, query=query)
     #copy data back to res dictionary (for final result)
     res=copy_data_back_to_res(factor, res_temp, res, year=year)
     return res, res_total
@@ -261,7 +345,7 @@ def get_countries(factor, Model, res, act_act, act, value, count, adopt_var, res
     return res_temp, res_total
 
 
-def get_cs_csyear(factor, Model, res, act_act, act, value, count, variable, ok, same, nb_figures_cs):
+def get_cs_csyear(factor, Model, res, act_act, act, value, count, variable, ok, same, nb_figures_cs, query):
     #get all cs
     css=get_all_cs(act_act, nb_figures_cs=nb_figures_cs)
     
@@ -271,7 +355,7 @@ def get_cs_csyear(factor, Model, res, act_act, act, value, count, variable, ok, 
         #copy data for computation
         res_temp, year=copy_data_for_computation(factor, res[cs], act_act)
         #computation
-        res_temp, res_total=compute(Model, act_act, act, res_temp, value, count, variable, ok, same)
+        res_temp, res_total=compute(Model, act_act, act, res_temp, value, count, variable, ok, same, query=query)
         #copy data back to res dictionary (for final result)
         res=copy_data_back_to_res(factor, res_temp, res, cs=cs, year=year)
 
@@ -284,42 +368,61 @@ def check_var1_var2(val_1, val_2):
     return True
     
 
-def get(factor, res, num_vars=None, denom_vars=None, count=True, Model=Act, variable=None, variable_2=None, excluded_values=[None, ""], filter_vars_acts={}, filter_vars_acts_ids={}, exclude_vars_acts={},check_vars_acts={}, check_vars_act_ids={}, query=None, operation=None, adopt_var=None, nb_figures_cs=2, res_total=None):
+def get(factor, res_init, Model=Act, count=True, variable=None, variable_2=None, excluded_values=[None, ""], filter_vars_acts={}, filter_vars_acts_ids={}, exclude_vars_acts={},check_vars_acts={}, check_vars_act_ids={}, query=None, adopt_var=None, num_vars=None, denom_vars=None, operation=None, nb_figures_cs=2, res_total_init=None, periods=None):
+    res=[]
+    res_total=[]
     same=None
     filter_vars=get_validated_acts(Model, filter_vars_acts=filter_vars_acts, filter_vars_acts_ids=filter_vars_acts_ids)
+    nb_periods=get_nb_periods(factor)
 
-    for act in Model.objects.filter(**filter_vars).exclude(**exclude_vars_acts):
-        ok=True
-        act_act=get_act(Model, act)
-        value=1
-        if variable is not None:
-            value=getattr(act, variable)
-            if variable_2 is not None:
-                value_2=getattr(act, variable_2)
-                ok=check_var1_var2(value, value_2)
-        if (value not in excluded_values and ok) or (variable_2 not in excluded_values and ok):
-            ok=check_vars(act, act_act, check_vars_acts, check_vars_act_ids, adopt_var)
+    #for each period or loop through all the acts only once if there is no period
+    for index in range(nb_periods):
+        res_temp=copy.deepcopy(res_init)
+        res_total_temp=copy.deepcopy(res_total_init)
+        
+        #if analysis by period
+        if factor=="periods":
+            filter_vars=get_validated_acts_periods(Model, periods[index], filter_vars)
 
-            #division mode, res=num/denom -> q111: #Nombre moyen de EPComAmdtAdopt / EPComAmdtTabled
-            if num_vars is not None:
-                value=get_division_res(act_act, num_vars, denom_vars, operation)
-            #"1+2" with at least one non null value -> q100: Moyenne EPVotesFor1-2
-            elif variable_2 is not None:
-                value=get_1_plus_2_res([value, value_2])
-            #get percentage of different political families for rapp1 and resp1
-            elif query=="discordance":
-                same=compare_all_rapp_resp(act_act)
+        #for each act
+        for act in Model.objects.filter(**filter_vars).exclude(**exclude_vars_acts):
+            ok=True
+            act_act=get_act(Model, act)
+            value=1
+            if variable is not None:
+                value=getattr(act, variable)
+                if variable_2 is not None:
+                    value_2=getattr(act, variable_2)
+                    ok=check_var1_var2(value, value_2)
+            if (value not in excluded_values and ok) or (variable_2 not in excluded_values and ok):
+                ok=check_vars(act, act_act, check_vars_acts, check_vars_act_ids, adopt_var)
 
-            if factor in ["all", "periods", "year"]:
-                res, res_total=get_all_year(factor, Model, res, act_act, act, value, count, adopt_var, variable, ok, same, res_total)
-            elif factor=="country":
-                res, res_total=get_countries(factor, Model, res, act_act, act, value, count, adopt_var, res_total)
-            elif factor in ["cs", "csyear"]:
-                res=get_cs_csyear(factor, Model, res, act_act, act, value, count, variable, ok, same, nb_figures_cs)
+                #division mode, res=num/denom -> q111: #Nombre moyen de EPComAmdtAdopt / EPComAmdtTabled
+                if num_vars is not None:
+                    value=get_division_res(act_act, num_vars, denom_vars, operation)
+                #"1+2" with at least one non null value -> q100: Moyenne EPVotesFor1-2
+                elif variable_2 is not None:
+                    value=get_1_plus_2_res([value, value_2])
+                #get percentage of different political families for rapp1 and resp1
+                elif query=="discordance":
+                    same=compare_all_rapp_resp(act_act)
+
+                if factor in ["all", "periods", "year"]:
+                    res_temp, res_total_temp=get_all_year(factor, Model, res_temp, act_act, act, value, count, adopt_var, variable, ok, same, res_total_temp, query)
+                elif factor=="country":
+                    res_temp, res_total_temp=get_countries(factor, Model, res_temp, act_act, act, value, count, adopt_var, res_total_temp)
+                elif factor in ["cs", "csyear"]:
+                    res_temp=get_cs_csyear(factor, Model, res_temp, act_act, act, value, count, variable, ok, same, nb_figures_cs, query)
+
+        res.append(res_temp)
+        if res_total_init is not None:
+            res_total.append(res_total_temp)
 
     print "res", res
-    if res_total is not None:
+        
+    if res_total_init is not None:
         return res, res_total
+    
     return res
 
     
@@ -637,3 +740,62 @@ def get_by_period(res, filter_vars, filter_total, list_acts=None, res_total=None
     if query=="country":
         return res, res_total
     return res
+
+
+def check_bj(base_j):
+    #True if an act countains many bases juridiques , False otherwise
+    if base_j.find(';')>0:
+        return True
+    return False
+    
+
+def get_list_acts(Model, search, cs, fields):
+    #search: acts with a specific cs OR with many bases juridiques
+    acts=[]
+    filter_vars=get_validated_acts(Model)
+    if search=="cs":
+        cs_list=[cs]
+    
+    for act in Model.objects.filter(**filter_vars):
+        act_act=get_act(Model, act)
+        #search for acts with a specific cs
+        if search=="cs":
+            #if there is at least one matching cs
+            ok=check_cs(act_act, cs_list)
+        #search for acts with multiple bases juridiques
+        elif search=="bj":
+            ok=check_bj(act_act.base_j)
+
+        if ok:
+            act_fields=[]
+
+            #act ids
+            act_fields.extend([act_act.releve_annee, act_act.releve_mois, act_act.no_ordre])
+            
+            for field in fields:
+                #ActIds
+                if field=="propos_origine":
+                    act_field=getattr(act, field)
+                #Act
+                else:
+                    #NP
+                    if field=="np":
+                        act_field=act_act.np_set.all()
+                        #~ print act_field
+                    else:
+                        act_field=getattr(act_act, field)
+                        #accents problems
+                        if field=="titre_rmc":
+                            act_field=act_field.encode("utf-8")
+                    #adopt_cs variables
+                    if ("adopt_cs" in field or field=="np") and act_field is not None:
+                        temp=""
+                        for country in act_field.all():
+                            if field=="np":
+                                country=country.np
+                            temp+=country.country_code+"; "
+                        act_field=temp[:-2]
+                act_fields.append(act_field)
+            acts.append(act_fields)
+
+    return acts

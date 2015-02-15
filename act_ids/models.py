@@ -25,6 +25,7 @@ class ActIds(models.Model):
     propos_chrono=models.CharField(max_length=8, blank=True, null=True, default=None)
     dos_id=models.IntegerField(max_length=7, blank=True, null=True, default=None)
     act=models.ForeignKey(Act)
+        
 
     #joined primary keys
     class Meta:

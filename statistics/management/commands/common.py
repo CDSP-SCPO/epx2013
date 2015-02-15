@@ -66,6 +66,33 @@ def get_countries_list():
     return Country.objects.values_list("country_code", flat=True)
 
 
+#transform a us string date to a date format
+def str_to_date(string):
+    return datetime.strptime(string, '%Y-%m-%d').date()
+
+
+#transform a fr string date to a us string date
+def fr_to_us_date(date_fr):
+    #DD/MM/YYYY to YYYY-MM-DD
+    year=date_fr[-4:]
+    month=date_fr[3:5]
+    day=date_fr[:2]
+    date_us=year+"-"+month+"-"+day
+    #~ print "date us"
+    #~ print date_us
+    return date_us
+    
+
+#transform a us string date to a fr string date
+#~ def us_to_fr_date(date_us):
+    #~ #YYYY-MM-DD to DD/MM/YYYY
+    #~ year=date_us[:4]
+    #~ month=date_us[5:7]
+    #~ day=date_us[8:10]
+    #~ date_fr=day+"/"+month+"/"+year
+    #~ return date_fr
+
+
 def get_validated_acts(Model, filter_vars_acts={}, filter_vars_acts_ids={}):
     filter_vars={}
     filter_vars_acts["validated"]=2
@@ -88,7 +115,7 @@ def get_validated_acts(Model, filter_vars_acts={}, filter_vars_acts_ids={}):
             filter_vars["act__validated_attendance"]=1
 
     return filter_vars
-
+    
 
 def get_validated_acts_periods(Model, period, filter_vars):
     gte="adopt_conseil__gte"
@@ -96,14 +123,19 @@ def get_validated_acts_periods(Model, period, filter_vars):
     if Model!=Act:
         gte="act__"+gte
         lte="act__"+lte
-    filter_vars[gte]=period[1]
-    filter_vars[lte]=period[2]
+    filter_vars[gte]=str_to_date(period[1])
+    filter_vars[lte]=str_to_date(period[2])
     return filter_vars
 
 
-def str_to_date(string):
-    return datetime.strptime(string, '%Y-%m-%d').date()
-
+def get_nb_periods(factor):
+    #get the number of periods (1 if there is no period)
+    nb_periods=1
+     #if analysis by period
+    if factor=="periods":
+        nb_periods=len(periods)
+    return nb_periods
+        
 
 def get_periods():
     periods=[]
@@ -116,16 +148,16 @@ def get_periods():
     # Crise : 15-09_2008 (Faillite Lehman Brothers) -31/12/2013
 
     #2014-12-4
-    #~ periods.append(("Santer\n(1/1/96 - 15/9/99)", str_to_date("1996-1-1"), str_to_date("1999-9-15")))
-    #~ periods.append(("Prodi\n(16/9/99 - 30/4/2004)", str_to_date("1999-9-16"), str_to_date("2004-4-30")))
-    #~ periods.append(("Post-élargissement\n(1/5/04 - 14/09/08)", str_to_date("2004-5-1"), str_to_date("2008-9-14")))
-    #~ periods.append(("Post-crise\n(15/9/08 - 31/12/13)", str_to_date("2008-09-15"), str_to_date("2013-12-31")))
-
-    #2014-12-18
-    periods.append(("Période 01/01/1996 - 31/10/1999", str_to_date("1996-1-1"), str_to_date("1999-10-31")))
-    periods.append(("Période 01/11/1999 - 31/10/2004", str_to_date("1999-11-1"), str_to_date("2004-10-31")))
-    periods.append(("Période 01/11/2004 - 31/10/2009", str_to_date("2004-11-1"), str_to_date("2009-10-31")))
-    periods.append(("Période 01/11/2009 - 31/12/2013", str_to_date("2009-11-1"), str_to_date("2013-12-31")))
+    periods.append(("Santer\n(1/1/96 - 15/9/99)", str_to_date("1996-1-1"), str_to_date("1999-9-15")))
+    periods.append(("Prodi\n(16/9/99 - 30/4/2004)", str_to_date("1999-9-16"), str_to_date("2004-4-30")))
+    periods.append(("Post-élargissement\n(1/5/04 - 14/09/08)", str_to_date("2004-5-1"), str_to_date("2008-9-14")))
+    periods.append(("Post-crise\n(15/9/08 - 31/12/13)", str_to_date("2008-09-15"), str_to_date("2013-12-31")))
+#~ 
+    #~ #2014-12-18
+    #~ periods.append(("Période 01/01/1996 - 31/10/1999", str_to_date("1996-1-1"), str_to_date("1999-10-31")))
+    #~ periods.append(("Période 01/11/1999 - 31/10/2004", str_to_date("1999-11-1"), str_to_date("2004-10-31")))
+    #~ periods.append(("Période 01/11/2004 - 31/10/2009", str_to_date("2004-11-1"), str_to_date("2009-10-31")))
+    #~ periods.append(("Période 01/11/2009 - 31/12/2013", str_to_date("2009-11-1"), str_to_date("2013-12-31")))
     
     return periods
 
@@ -135,62 +167,24 @@ def get_factors_list():
 
 
 def get_factors():
+    #store factors in an ordered dictionary: key=factor (e.g. "cs"), value=question (e.g. ", by cs")
     factors=OrderedDict({})
     factors["all"]=", pour la période 1996-"+str(last_validated_year)
     factors["periods"]=", par période"
     factors["year"]=", par année"
     factors["cs"]=", par secteur"
     factors["csyear"]=", par secteur et par année"
-    #specific queries
     factors["country"]=", par état membre"
     return factors
-
-
-def us_to_fr_date(date_us):
-    #YYYY-MM-DD to DD/MM/YYYY
-    year=date_us[:4]
-    month=date_us[5:7]
-    day=date_us[8:10]
-    date_fr=day+"/"+month+"/"+year
-
-    return date_fr
     
 
-def get_factors_question(factors_list, periods):
+def get_factors_question(factors_list):
+    #get factors specific to the question
     factors_question=OrderedDict({})
-    specific_period=""
-    
-    #for "all" analysis and a specific period
-    if periods is not None and type(periods[0]) is str:
-        specific_period=", pour la période du "+us_to_fr_date(periods[0])+" au "+us_to_fr_date(periods[1])
-            
     for factor in factors_list:
-        factors_question[factor]=factors[factor]+specific_period
-        
+        factors_question[factor]=factors[factor]
     return factors_question
 
-
-def filter_period_question(period):
-    filter_vars_acts={}
-    #for "all" analysis and a specific period
-    if period is not None and type(period[0]) is str:
-        filter_vars_acts={"adopt_conseil__gte": period[0], "adopt_conseil__lte": period[1]}
-    return filter_vars_acts
-
-
-def filter_periods_question(filter_vars_acts, period):
-    filter_vars_acts_temp=filter_vars_acts.copy()
-    filter_vars_acts_temp.update(filter_period_question(period))
-    return filter_vars_acts_temp
-
-
-def get_parameters_question(factors, periods):
-    #get all the factors to analyse (all the acts? by year? by cs?)
-    factors_question=get_factors_question(factors, periods)
-    #add start date and end date to filter when looking for a specific period
-    filter_vars_acts=filter_period_question(periods)
-    return factors_question, filter_vars_acts
-    
 
 
 ### GLOBAL VARIABLES ###
@@ -210,7 +204,7 @@ nb_figures_cs=2
 
 #TO COMMENT OUT
 #for specific queries
-#~ cs_list=["19.10", "19.20", "19.30"]
+cs_list=["10"]
 
 years_list=get_years_list(last_validated_year)
 years_list_zero=add_blank(years_list)

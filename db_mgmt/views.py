@@ -43,13 +43,12 @@ def init_response(field):
 def add(request, field):
     """
     VIEW
-    processes the add of a DG or responsible
+    processes the add of a DG or rapporteur or responsible
     PARAMETERS
     request: request Object [object]
-    field: main field to add "dg" or "resp" [string]
-    form: "AddDG" or "AddResp" [string]
+    field: main field to add "dg" or "rapp" or "resp" [string]
     TEMPLATES:
-    db_mgmt/add.html: display a form to add a dg or a responsible and theirs related fields
+    db_mgmt/add.html: display a form to add a dg or a rapporteur or a responsible and theirs related fields
     """
     response=init_response(field)
 
@@ -111,7 +110,7 @@ def add(request, field):
 def form_add(request, field):
     """
     VIEW
-    display the form to add a dg / rapp / resp
+    display the form to add a dg / rapp / resp (empty / reset)
     TEMPLATES
     'db_mgmt/form_add'
     """

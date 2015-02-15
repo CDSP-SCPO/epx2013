@@ -20,7 +20,7 @@ class HistoryListView(ListView):
     #~ model = History
     template_name = 'history/index.html'
     #get last 100 entries
-    queryset = History.objects.all().order_by('pk').reverse()[:100]
+    queryset = History.objects.all().order_by('-pk')[:100]
 
     def get_context_data(self, **kwargs):
         context = super(HistoryListView, self).get_context_data(**kwargs)

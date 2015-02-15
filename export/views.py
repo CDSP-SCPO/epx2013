@@ -104,7 +104,7 @@ def get_headers(excl_fields_act_ids, excl_fields_act):
 def get_save_acts(excl_fields_act_ids, excl_fields_act, writer):
     """
     FUNCTION
-    return all the validated acts of the model
+    fetch and save all the validated acts
     PARAMETERS
     excl_fields_act_ids: fields not to be exported (ActIds) [list of strings]
     excl_fields_act: fields not to be exported (Act) [list of strings]

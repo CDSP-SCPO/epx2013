@@ -28,8 +28,6 @@ class AddRapp(forms.ModelForm):
     country=forms.ModelChoiceField(label=var_name_data.var_name["rapp_country"], queryset=Country.objects.order_by('country').all(), empty_label="Select a " + var_name_data.var_name["rapp_country"], required=True)
     party=forms.ModelChoiceField(label=var_name_data.var_name["rapp_party"], queryset=Party.objects.order_by('party').filter(person__src="rapp").distinct(), empty_label="Select a " + var_name_data.var_name["rapp_party"], required=True)
 
-
-
     class Meta:
         model=Person
         exclude=('id', 'src')
