@@ -71,7 +71,7 @@ def init_year(count, total, empty_dic, empty_list):
 
 def init_cs(count, total, empty_dic, empty_list):
     res={}
-    for cs in cs_list:
+    for cs in css:
         res[cs]=init_temp(count, empty_dic, empty_list)
         if empty_dic and total:
             res[cs]["total"]=0
@@ -81,7 +81,7 @@ def init_cs(count, total, empty_dic, empty_list):
 def init_csyear(count, total, empty_dic, empty_list, amdt):
     res={}
     total_year={}
-    for cs in cs_list:
+    for cs in css:
         res[cs]={}
         for year in years_list:
             temp=init_temp(count, empty_dic, empty_list)
@@ -98,7 +98,7 @@ def init_csyear(count, total, empty_dic, empty_list, amdt):
     return res
     
 
-def init(factor, count=True, total=False, amdt=False, empty_list=False, empty_dic=False, query=None):
+def init(factor, count=True, total=False, amdt=False, empty_list=False, empty_dic=False):
     #use total=True to compute the percentage of each cell compared to the total of the year
     #titles_list: initialize empty list
     res_total=None
@@ -132,27 +132,3 @@ def init_month(count=True):
             temp=0
         res[month]=temp
     return res
-
-
-#OLD, NOT TO USE ANYMORE
-def init_periods(Model=Act, filter_vars_acts={}, filter_vars_acts_ids={}, filter_total_acts={}, filter_total_acts_ids={}, query=None):
-    filter_vars=get_validated_acts(Model, filter_vars_acts=filter_vars_acts, filter_vars_acts_ids=filter_vars_acts_ids)
-    filter_total=get_validated_acts(Model, filter_vars_acts=filter_total_acts, filter_vars_acts_ids=filter_total_acts_ids)
-    
-    if query=="country":
-        res=[]
-        res_total=[]
-        #for each period
-        for index in range(nb_periods):
-            res.append({})
-            res_total.append(0)
-            #for each country
-            for country in countries_list:
-                res[index][country]=0
-            
-        return res, filter_vars, filter_total, res_total
-                
-    else:
-        res=[[0 for x in range(2)] for y in range(nb_periods)]
-        return res, filter_vars, filter_total
-    

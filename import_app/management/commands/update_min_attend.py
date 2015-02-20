@@ -4,8 +4,8 @@ command to recreate the min_attend instances for validated acts
 """
 from django.core.management.base import NoArgsCommand
 #new table
-from act.models import Verbatim, Status, Country, Act, Person, PartyFamily
-from import_app.models import ImportMinAttend, ImportRappPartyFamily
+from act.models import Verbatim, Status, Country, Act
+from import_app.models import ImportMinAttend
 from act_ids.models import ActIds
 from act.get_data_others import link_act_min_attend
 import os
@@ -37,38 +37,6 @@ class Command(NoArgsCommand):
     """
 
     def handle(self, **options):
-
-        #~ #update attendance_pdf
-        #~ path=settings.MEDIA_ROOT+"/import/"
-        #~ years=[str(n) for n in range(2003, 2010)]
-        #~ for year in years:
-            #~ path_file=path+"RMC_"+year+".csv"
-            #~ with open(path_file, 'r') as csv_file_temp:
-                #~ #detect delimiter and skip header
-                #~ header=csv_file_temp.readline()
-                #~ #skip empty lines at the beginning of the file
-                #~ while header.strip()=="":
-                    #~ header=csv_file_temp.readline()
-                #~ delimiter=detect_delim(header)
-                #~ reader=csv.reader(csv_file_temp, delimiter=delimiter)
-#~
-#~
-                #~ for row in reader:
-                    #~ if row[0].strip()!="":
-                        #~ releve_annee=int(row[0])
-                        #~ releve_mois=int(row[1])
-                        #~ no_ordre=int(row[2])
-                        #~ attendance_pdf=row[18].strip().strip(".").lower()
-                        #~ if attendance_pdf not in ["", "na"]:
-                            #~ print releve_annee, releve_mois, no_ordre
-                            #~ try:
-                                #~ act=Act.objects.get(releve_annee=releve_annee, releve_mois=releve_mois, no_ordre=no_ordre)
-                                #~ act.attendance_pdf=attendance_pdf
-                                #~ act.save()
-                            #~ except:
-                                #~ pass
-
-
 
         #~ path=os.path.dirname(__file__)+"/attendance_pb.csv"
         #~ writer=csv.writer(open(path, 'w'))
@@ -133,17 +101,3 @@ class Command(NoArgsCommand):
         #~ for act in ImportMinAttend.objects.all():
             #~ act.no_celex=act.no_celex.strip()
             #~ act.save()
-
-        i=0
-        #update party family of rapporteurs
-        for rapp in Person.objects.filter(src="rapp"):
-            i+=1
-            print "i", i
-            print "name", rapp.name
-            country=rapp.country
-            party=rapp.party
-            try:
-                party_family=ImportRappPartyFamily.objects.get(party=party).party_family
-                PartyFamily.objects.get_or_create(party=party, country=country, party_family=party_family)
-            except Exception, e:
-                print e

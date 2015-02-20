@@ -11,35 +11,20 @@ from  ..write import *
 
 
 
-def q54(factor="everything"):
+def q54(factors=factors, periods=None):
     init_question="Nombre de mots moyen"
     variable="nb_mots"
-    filter_vars={variable+"__isnull": False}
+    filter_vars_acts={variable+"__isnull": False}
 
-    if factor=="csyear":
-        #get by cs and by year only (for specific cs)
-        analyses, nb_figures_cs=get_specific_cs()
-    
-    for analysis, question in analyses:
+    #get the factors specific to the question
+    factors_question=get_factors_question(factors)
+
+    #for each factor
+    for factor, question in factors_question.iteritems():
         question=init_question+question
-        
-        res=init(analysis)
-        res=get(analysis, res, variable=variable, filter_vars_acts=filter_vars, nb_figures_cs=nb_figures_cs)
-        write(analysis, question, res, percent=1)
-
-
-def nb_mots_type_acte(type_acte):
-    question="Nombre de mots moyen pour les actes de type "+type_acte+", par année"
-    print question
-    res=init_year()
-    res=get_by_year_variable(Act, res, {"validated": 2, "type_acte": type_acte}, "nb_mots")
-    write_year(question, res)
-
-
-def q63():
-    type_actes=["CS DEC", "CS DVE", "CS REG", "DEC", "DVE", "REG", "CS DEC W/O ADD"]
-    for type_acte in type_actes:
-        nb_mots_type_acte(type_acte)
+        res=init(factor)
+        res=get(factor, res, variable=variable, filter_vars_acts=filter_vars_acts, periods=periods)
+        write(factor, question, res, percent=1, periods=periods)
 
 
 def nb_mots_type_acte_bis(type_actes):
@@ -124,7 +109,7 @@ def q64_bis():
         nb_mots_no_unique_type_bis(key, no_unique_type)
 
 
-def q83(factors=factors_list, nb_figures_cs=2):
+def q83(factors=factors, nb_figures_cs=2):
     #Nb de mots x Nb d’actes, par année, par secteur, par année et par secteur
     init_question="Total nombre de mots * nombre d'actes"
     variable="nb_mots"
@@ -173,7 +158,53 @@ def nb_mots_moyen_type_acte(factors, type_actes):
         write(factor, question, res, percent=1)
         
 
-def q116(factors=factors_list):
+def q116(factors=factors):
     type_actes=[["CS DVE", "DVE"], ["CS DEC CAD", "CS DEC", "DEC", "CS DEC W/O ADD"], ["CS REG", "REG"]]
     for type_acte in type_actes:
         nb_mots_moyen_type_acte(factors, type_acte)
+
+
+def q123(factors=factors):
+    #Nombre total de mots pour les actes de type...
+    variable="nb_mots"
+    filter_vars_acts={variable+"__isnull": False}
+    #get the factors specific to the question
+    factors_question=get_factors_question(factors)
+
+    #CS DEC, CS DEC CAD, DEC, DEC W/O ADD, DEC W/ ADD
+    type_actes=[["CS DVE", "DVE"], ["CS DEC CAD", "CS DEC", "DEC", "DEC W/O ADD", "CS DEC W/O ADD"], ["CS REG", "REG"]]
+
+    #for each type
+    for type_acte in type_actes:
+        init_question="Nombre total de mots pour les actes de type "+str(type_acte)
+        filter_vars_acts["type_acte__in"]=type_acte
+
+        #for each factor
+        for factor, question in factors_question.iteritems():
+            question=init_question+question
+            res=init(factor, count=False)
+            res=get(factor, res, variable=variable, filter_vars_acts=filter_vars_acts, count=False)
+            write(factor, question, res, count=False)
+
+
+def q125(factors=factors):
+    #Nombre de mots moyens pour les actes de type...
+    variable="nb_mots"
+    filter_vars_acts={variable+"__isnull": False}
+    #get the factors specific to the question
+    factors_question=get_factors_question(factors)
+
+    #CS DEC, CS DEC CAD, DEC, DEC W/O ADD, DEC W/ ADD
+    type_actes=[["CS DVE", "DVE"], ["CS DEC CAD", "CS DEC", "DEC", "DEC W/O ADD", "CS DEC W/O ADD"], ["CS REG", "REG"]]
+
+    #for each type
+    for type_acte in type_actes:
+        init_question="Nombre de mots moyens pour les actes de type "+str(type_acte)
+        filter_vars_acts["type_acte__in"]=type_acte
+
+        #for each factor
+        for factor, question in factors_question.iteritems():
+            question=init_question+question
+            res=init(factor)
+            res=get(factor, res, variable=variable, filter_vars_acts=filter_vars_acts)
+            write(factor, question, res, percent=1)

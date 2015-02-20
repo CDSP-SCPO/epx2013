@@ -9,7 +9,6 @@ from query import acts, adopt_cs, duree, ep_amdt_vote, min_attend, modif_propos,
 
 
 
-
 class Command(NoArgsCommand):
     def handle(self, **options):
         #proportion d’actes avec plusieurs codes sectoriels
@@ -254,7 +253,7 @@ class Command(NoArgsCommand):
 
 
         #2014-11-12 : Hausse de la bureaucratisation, Conflictualité pour le secteur Économie
-        cs=[10, "Économie"]
+        #~ cs=[10, "Économie"]
         #pourcentages de propositions de la Commission adoptées par procédure écrite
         #~ acts.q71(cs=cs)
         #pourcentage de textes adoptés en « points A » au Conseil
@@ -333,15 +332,16 @@ class Command(NoArgsCommand):
 
         #2014-12-4 : Hausse de la bureaucratisation, Conflictualité pour le secteur Économie
         # NOUVELLES PERIODES
-        factors=["periods"]
-        periods=(
-            ("Période 01/01/1996 - 15/09/1999", fr_to_us_date("01/01/1996"), fr_to_us_date("15/09/1999")),
-            ("Période 16/09/1999 - 30/04/2004", fr_to_us_date("16/09/1999"), fr_to_us_date("30/04/2004")),
-            ("Période 01/05/2004 - 14/09/2008", fr_to_us_date("01/05/2004"), fr_to_us_date("14/09/2008")),
-            ("Période 15/09/2008 - 31/12/2013", fr_to_us_date("15/09/2008"), fr_to_us_date("31/12/2013"))
-        )
-        for period in periods:
-            print period[1]
+        #~ factors=["periods"]
+        #~ css_list=[css, "10"]
+        #~ periods=(
+            #~ ("Période 01/01/1996 - 15/09/1999", fr_to_us_date("01/01/1996"), fr_to_us_date("15/09/1999")),
+            #~ ("Période 16/09/1999 - 30/04/2004", fr_to_us_date("16/09/1999"), fr_to_us_date("30/04/2004")),
+            #~ ("Période 01/05/2004 - 14/09/2008", fr_to_us_date("01/05/2004"), fr_to_us_date("14/09/2008")),
+            #~ ("Période 15/09/2008 - 31/12/2013", fr_to_us_date("15/09/2008"), fr_to_us_date("31/12/2013"))
+        #~ )
+        #~ for period in periods:
+            #~ print period[1], period[2]
         #~ #pourcentages de propositions de la Commission adoptées par procédure écrite
         #~ acts.q71(cs=cs)
         #pourcentage de textes adoptés en « points A » au Conseil
@@ -355,7 +355,7 @@ class Command(NoArgsCommand):
         #% moyen de représentants permanents par acte
         #~ min_attend.q76(cs=cs)
         #% ages moyens de votes publics, vote contre, abstentions là où VMQ est possible
-        acts.q77(factors=factors, periods=periods)
+        #~ acts.q77(factors=factors, periods=periods)
         #durée moyenne par acte
         #~ duree.q78(cs=cs)
         #~ #% d’actes adoptés en 2ème lecture
@@ -377,7 +377,7 @@ class Command(NoArgsCommand):
 
         #for all the acts, by cs, by year, by cs and by year
         #Pourcentage d'actes avec NoUniqueType=COD adoptés en 1ère / (2ème ou 3ème) lecture
-        factor=["csyear"]
+        #~ factor=["csyear"]
         #~ acts.q98(factor=factor)
         #~ #Durée de la procédure (= Moyenne DureeTotaleDepuisTransCons ET DureeProcedureDepuisTransCons)
         #~ #1/pour tous les actes 2/VotePublic=Y 3/VotePublic=N 4/AdoptCSRegleVote=U 5/AdoptCSRegleVote=V 6/VotePublic=Y et AdoptCSRegleVote=U 7/ VotePublic=Y et AdoptCSRegleVote=V
@@ -419,7 +419,7 @@ class Command(NoArgsCommand):
         #~ nb_mots.q83(factors=["year"])
 
         #période 1/07/2009- 31/12/2013
-        period=("2009-07-01", "2013-12-31")
+        #~ period=("2009-07-01", "2013-12-31")
         #Nombre d’actes par secteur
         #~ acts.q2(factors=["cs"], periods=period)
         #~ #pourcentage d'actes avec NoUniqueType= COD et NbLectures=1/2/3
@@ -434,12 +434,12 @@ class Command(NoArgsCommand):
         #1/ Moyenne EPVotesFor1-2 2/ Moyenne EPVotesAgst1-2 3/ Moyenne EPVotesAbs1-2
         #~ ep_amdt_vote.q100(factors=["year", "cs", "csyear"])
 #~ 
-        factors=["cs", "periods"]
-        periods=(
-            ("2000-01-01", "2004-04-30"),
-            ("2004-05-01", "2009-11-30"),
-            ("2009-12-01", "2013-12-31")
-        )
+        #~ factors=["cs", "periods"]
+        #~ periods=(
+            #~ ("2000-01-01", "2004-04-30"),
+            #~ ("2004-05-01", "2009-11-30"),
+            #~ ("2009-12-01", "2013-12-31")
+        #~ )
         #Pourcentage d'actes avec au moins un points B, exactement un point B, deux points B, plus de deux points B
         #~ acts.q108(factors=factors, periods=periods)
         #~ #DureeTotaleDepuisTransCons quand NbPointsB = 0,1,2,3 ou plus
@@ -465,7 +465,43 @@ class Command(NoArgsCommand):
         #~ #Liste des actes pour lesquels plusieurs Bases Juridiques
         #~ acts.q121()
         #Pourcentage d’actes adoptés avec M=0 (Ministers Attendance)
-        factors=["cs", "year", "csyear"]
+        #~ factors=["cs", "year", "csyear"]
         #TEST
         #~ factors=["year"]
         #~ acts.q122(factors=factors)
+
+
+        #2015-02-17
+        #~ factors=["year"]
+        #Nombre total de mots pour les actes de type...
+        #~ nb_mots.q123(factors=factors)
+        #nombre d'actes pour les actes de type...
+        #~ acts.q124(factors=factors)
+        #Nombre de mots moyen pour les actes de type...
+        #~ nb_mots.q125(factors=factors)
+
+
+        #2015-02-20
+        #TESTS
+        #Nombre d'actes
+        #~ factors=["all", "year", "cs", "csyear", "periods"]
+        #~ acts.q2(factors=factors, periods=periods)
+        #~ factors=["year"]
+        #Nombre de mots moyen
+        #~ nb_mots.q54(factors=factors, periods=periods)
+        #Pourcentage d'actes avec un vote public
+        #~ acts.q107(factors=factors, periods=periods)
+        #Parmi les votes AdoptCSAbs=Y, pourcentage de chaque Etat membre
+        #~ factors=["country"]
+        #~ country.q126(factors=factors, periods=periods)
+        #Pourcentage d'actes avec au moins un EM sans statut 'M' (et au moins un 'CS' ou 'CS_PR')
+        #~ acts.q122(factors=factors, periods=periods)
+        #Pourcentage d'actes provenant de la Commission et adoptés par procédure écrite
+        #~ acts.q71(factors=factors, periods=periods)
+        #Nombre moyen de EPVotesFor1-2
+        #~ ep_amdt_vote.q127(factors=factors, periods=periods)
+        #Pourcentage d'actes adoptés en 1ère lecture parmi les actes de codécision
+        #~ factors=["periods"]
+        #~ acts.q74(factors=factors, periods=periods)
+        #Durée de la procédure (= Moyenne DureeTotaleDepuisTransCons ET DureeProcedureDepuisTransCons)
+        #~ duree.q128(factors=factors, periods=periods)

@@ -45,9 +45,6 @@ def pdf_to_string(file_object):
         return None
 
 
-
-
-
 def find_nth(string, substring, n):
     """
     FUNCTION
@@ -97,9 +94,7 @@ def get_participants(string):
     #~ print "get_participants"
     #~ print participants
     return participants
-
-
-
+    
 
 def capitalized_word(words, display=False):
     """

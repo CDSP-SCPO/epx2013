@@ -27,8 +27,8 @@ path=settings.PROJECT_ROOT+'/statistics/management/commands/queries.csv'
 writer=csv.writer(open(path, 'w'))
 
 
-nb_acts=Act.objects.filter(validated=2).count()
-writer.writerow(["Les requêtes suivantes sont recueillies à partir des "+ str(nb_acts)+ " actes validés."])
+nb_acts=Act.objects.filter(validated=2, releve_annee__lte=last_validated_year).count()
+writer.writerow(["Les requêtes suivantes sont recueillies à partir des "+ str(nb_acts)+ " actes validés sur la période 1996-"+str(last_validated_year)+"."])
 writer.writerow(["En présence de la variable secteur, chaque acte peut être compté jusqu'à 4 fois (une fois pour chaque secteur)."])
 writer.writerow([""])
 
@@ -76,6 +76,7 @@ def compute(res, res_2, count, percent, query, res_total=None):
     #~ print "denom", denom
 
     #final computation
+    #~ print percent
     res_final=round(float(num)*percent/denom, 3)
 
     return res_final
@@ -94,7 +95,7 @@ def write_year_cs_country_periods(factor, res, res_2, count, percent, query, res
     if factor=="year":
         list_var=years_list
     elif factor=="cs":
-        list_var=cs_list
+        list_var=css
     elif factor=="country":
         list_var=countries_list
     elif factor=="periods":
@@ -108,13 +109,17 @@ def write_year_cs_country_periods(factor, res, res_2, count, percent, query, res
         writer.writerow(header)
     else:
         writer.writerow(list_var)
-        res=res[0]
         
     for var in list_var:
+        #~ print var
         if res_2 is not None:
             res_2_temp=res_2[var]
-        if factor=="periods" and res_total is not None:
-            res_total_temp=res_total[var]
+
+        if res_total is not None:
+            if factor=="periods":
+                res_total_temp=res_total[var]
+            #~ else:
+                #~ res_total_temp=res_total[0]
         res_final=compute(res[var], res_2_temp, count, percent, query, res_total_temp)
         row.append(res_final)
     writer.writerow(row)
@@ -124,7 +129,7 @@ def write_csyear(res, res_2, count, percent, query):
     writer.writerow(years_list_zero)
     res_2_temp=None
     
-    for cs in cs_list:
+    for cs in css:
         row=[cs]
         for year in years_list:
             if res_2 is not None:
@@ -138,15 +143,27 @@ def write(factor, question, res, res_2=None, count=True, percent=100, query=None
     #res_2: need to sum 2 variables before computing average (q100: votes_for_1 and votes_for_2) or percentage (q95: nb_point_a and nb_point_b)
     print question
     writer.writerow([question])
+
+    #if we don't want to compute a percentage or an average but count the number of occurences
+    if not count and res_total is None:
+        percent=1
+
+    #only one period -> first element of the list
+    if factor != "periods":
+        res=res[0]
+        if res_2 is not None:
+            res_2=res_2[0]
+        if res_total is not None:
+            res_total=res_total[0]
     
     if factor=="all":
-        write_all(res[0], res_2, count, percent, query)
+        write_all(res, res_2, count, percent, query)
 
     elif factor in ["year", "cs", "country", "periods"]:
         write_year_cs_country_periods(factor, res, res_2, count, percent, query, res_total, periods)
 
     elif factor=="csyear":
-      write_csyear(res[0], res_2, count, percent, query)
+      write_csyear(res, res_2, count, percent, query)
         
     writer.writerow("")
     print ""
@@ -271,45 +288,6 @@ def write_percent_pers_cs_year(question, res, pers_type, var="Party Family"):
                     writer.writerow([stat, res_stat])
 
         writer.writerow("")
-    writer.writerow("")
-    print ""
-
-
-#OLD, NOT TO USE ANYMORE
-def compute_periods(row, res, res_2, count, percent, query, res_total):
-    res_2_temp=None
-    
-    if query=="country":
-        for country in countries_list:
-            if res_2 is not None:
-                res_2_temp=res_2[country]
-            res_final=compute(res[country], res_2_temp, count, percent, query, res_total=res_total)
-            row.append(res_final)
-
-        writer.writerow(row)
-
-    #normal query, by period only
-    else:
-        res_final=compute(res, res_2, count, percent, query)
-        row.append(res_final)
-        writer.writerow(row)
-
-#~ 
-#~ #OLD, NOT TO USE ANYMORE
-def write_periods(question, res, percent=100, res_2=None, count=True, res_total=None, query=None):
-    print question
-    writer.writerow([question])
-    res_2_temp=None
-
-    if query=="country":
-         writer.writerow(countries_list_zero)
-
-    for index in range(nb_periods):
-        row=[periods[index][0]]
-        if res_2 is not None:
-            res_2_temp=res_2[index]
-        compute_periods(row, res[index], res_2_temp, count, percent, query, res_total[index])
-        
     writer.writerow("")
     print ""
 

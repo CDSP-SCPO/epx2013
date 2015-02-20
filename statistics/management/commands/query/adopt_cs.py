@@ -125,7 +125,7 @@ def q88(factor="everything"):
                 write(analysis, question, res)
 
 
-def q97(factors=factors_list, periods=None, nb_figures_cs=2):
+def q97(factors=factors, periods=None, nb_figures_cs=2):
     #1/Pourcentage "AdoptCSAbs"= Y parmi tous les actes 2/Pourcentage "AdoptCSContre"= Y parmi les actes avec AdoptCSRegleVote=V
     variables=(("adopt_cs_abs", "AdoptCSAbs"), ("adopt_cs_contre", "AdoptCSContre"))
 

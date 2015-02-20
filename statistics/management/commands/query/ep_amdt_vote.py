@@ -101,7 +101,7 @@ def q99():
         write_cs_year(question, res, count=False)
 
 
-def q100(factors=factors_list, periods=None, nb_figures_cs=2):
+def q100(factors=factors, periods=None, nb_figures_cs=2):
     #1/Moyenne EPVotesFor1-2, 3/Moyenne EPVotesAgst1-2, 5/Moyenne EPVotesAbs1-2, par année, par secteur, par année et par secteur
     variables=(("votes_for_", "EPVotesFor"), ("votes_agst_", "EPVotesAgst"), ("votes_abs_", "EPVotesAbs"))
     
@@ -271,3 +271,20 @@ def q113(factor="everything"):
     denom_vars=("amdt_tabled", "com_amdt_tabled")
     denom_names=("EPAmdtTabled", "EPComAmdtTabled")
     division(num_vars, num_names, denom_vars, denom_names, factor, operation="-")
+
+
+def q127(factors=factors, periods=None):
+    #Nombre moyen de EPVotesFor1-2
+    init_question="Nombre moyen de EPVotesFor1-2"
+    variable="votes_for_"
+    #get the factors specific to the question
+    factors_question=get_factors_question(factors)
+    #the two variables cannot be null or equal to zero at the same time
+    exclude_vars_acts={variable+"1": 0, variable+"2": 0}
+
+    #for each factor
+    for factor, question in factors_question.iteritems():
+        question=init_question+question
+        res=init(factor)
+        res=get(factor, res, variable=variable+"1", variable_2=variable+"2", exclude_vars_acts=exclude_vars_acts, periods=periods)
+        write(factor, question, res, percent=1, periods=periods)

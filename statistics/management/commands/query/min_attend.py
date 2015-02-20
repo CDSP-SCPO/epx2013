@@ -116,7 +116,7 @@ def q76(cs=None):
     write_periods(question, res)
 
 
-def q117(factors=factors_list, periods=None, nb_figures_cs=2):
+def q117(factors=factors, periods=None, nb_figures_cs=2):
     #Pourcentage de M présents parmi les personnes de status différent de NA ou AB
 
     #get parameters specific to the question

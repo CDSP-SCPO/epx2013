@@ -425,7 +425,7 @@ def q96(factor="everything"):
             write(analysis, question, res_1, res_2=res_2, percent=1, query="1+2")
         
         
-def q110(factors=factors_list, periods=None, nb_figures_cs=2):
+def q110(factors=factors, periods=None, nb_figures_cs=2):
     #Durée Moyenne DureeTotaleDepuisTransCons
     #1/pour tous les actes 2/VotePublic=Y 3/VotePublic=N 4/AdoptCSRegleVote=U 5/AdoptCSRegleVote=V 6/VotePublic=Y et AdoptCSRegleVote=U 7/ VotePublic=Y et AdoptCSRegleVote=V
     
@@ -457,7 +457,7 @@ def q110(factors=factors_list, periods=None, nb_figures_cs=2):
             write(factor, question, res, percent=1)
 
 
-def q118(factors=factors_list, periods=None, nb_figures_cs=2):
+def q118(factors=factors, periods=None, nb_figures_cs=2):
     #DureeTotaleDepuisTransCons quand NbPointsB = 0,1,2,3 ou plus
     var="nb_point_b"
     variable="duree_tot_depuis_trans_cons"
@@ -494,3 +494,21 @@ def q118(factors=factors_list, periods=None, nb_figures_cs=2):
                 res=get(factor, res, variable=variable, filter_vars_acts=filter_vars_acts_temp, nb_figures_cs=nb_figures_cs)
                 
             write(factor, question, res, percent=1, periods=periods)
+
+
+def q128(factors=factors, periods=None):
+    #Durée de la procédure (= Moyenne DureeTotaleDepuisTransCons ET DureeProcedureDepuisTransCons)
+    init_question="Durée moyenne de la procédure (= Moyenne DureeTotaleDepuisTransCons + DureeProcedureDepuisTransCons)"
+    variables=("duree_tot_depuis_trans_cons", "duree_proc_depuis_trans_cons")
+    filter_vars_acts={variables[0]+"__gt": 1, variables[1]+"__gt": 1}
+    #get the factors specific to the question
+    factors_question=get_factors_question(factors)
+
+    #for each factor
+    for factor, question in factors_question.iteritems():
+        question=init_question+question
+        res_1=init(factor)
+        res_2=init(factor)
+        res_1=get(factor, res_1, variable=variables[0], filter_vars_acts=filter_vars_acts, periods=periods)
+        res_2=get(factor, res_2, variable=variables[1], filter_vars_acts=filter_vars_acts, periods=periods)
+        write(factor, question, res_1, res_2=res_2, percent=1, periods=periods, query="1+2")

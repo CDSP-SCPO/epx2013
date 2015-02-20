@@ -38,17 +38,17 @@ from act_ids.models import ActIds
 from datetime import datetime
 
 
-def get_cs_list(min_cs=1, max_cs=20):
+def get_css(min_cs=1, max_cs=20):
     #get all the different possible cs -> cs header to be written in the csv file
-    cs_list=[str(n) for n in range(min_cs, (max_cs+1))]
+    css=[str(n) for n in range(min_cs, (max_cs+1))]
     #add extra leading zero for cs with only one figure ("1"->"01")
-    for index in range(len(cs_list)):
-        if len(cs_list[index])==1:
-            cs_list[index]="0"+cs_list[index]
-    return cs_list
+    for index in range(len(css)):
+        if len(css[index])==1:
+            css[index]="0"+css[index]
+    return css
 
 
-def get_years_list(last_validated_year):
+def get_years(last_validated_year):
     return [str(n) for n in range(1996, last_validated_year+1)]
 
 
@@ -58,11 +58,11 @@ def add_blank(list_var):
     return list_with_blank
 
 
-def get_months_list():
+def get_months():
     return [str(n) for n in range(1, 13)]
 
 
-def get_countries_list():
+def get_countries():
     return Country.objects.values_list("country_code", flat=True)
 
 
@@ -126,6 +126,17 @@ def get_validated_acts_periods(Model, period, filter_vars):
     filter_vars[gte]=str_to_date(period[1])
     filter_vars[lte]=str_to_date(period[2])
     return filter_vars
+        
+
+def get_periods():
+    #2014-12-4
+    periods=(
+        ("Période 01/01/1996 - 15/09/1999", fr_to_us_date("01/01/1996"), fr_to_us_date("15/09/1999")),
+        ("Période 16/09/1999 - 30/04/2004", fr_to_us_date("16/09/1999"), fr_to_us_date("30/04/2004")),
+        ("Période 01/05/2004 - 14/09/2008", fr_to_us_date("01/05/2004"), fr_to_us_date("14/09/2008")),
+        ("Période 15/09/2008 - 31/12/2013", fr_to_us_date("15/09/2008"), fr_to_us_date("31/12/2013"))
+    )
+    return periods
 
 
 def get_nb_periods(factor):
@@ -135,38 +146,14 @@ def get_nb_periods(factor):
     if factor=="periods":
         nb_periods=len(periods)
     return nb_periods
-        
-
-def get_periods():
-    periods=[]
-    ##2014-07-24, 2014-11-12
-    #~ periods.append(("pré-élargissement\n(1/1/96 - 30/6/99)", str_to_date("1996-1-1"), str_to_date("1999-6-30")))
-    #~ periods.append(("pré-élargissement\n(1/7/99 - 30/04/04)", str_to_date("1999-7-1"), str_to_date("2004-4-30")))
-    #~ periods.append(("post-élargissement\n(1/5/04 - 30/11/09)", str_to_date("2004-5-1"), str_to_date("2009-11-30")))
-    #~ periods.append(("post-Lisbonne \n(1/12/09 - 31/12/13)", str_to_date("2009-12-1"), str_to_date("2013-12-31")))
-    #~ periods.append(("crise\n(15/9/08 - 31/12/13)", str_to_date("2008-09-15"), str_to_date("2013-12-31")))
-    # Crise : 15-09_2008 (Faillite Lehman Brothers) -31/12/2013
-
-    #2014-12-4
-    periods.append(("Santer\n(1/1/96 - 15/9/99)", str_to_date("1996-1-1"), str_to_date("1999-9-15")))
-    periods.append(("Prodi\n(16/9/99 - 30/4/2004)", str_to_date("1999-9-16"), str_to_date("2004-4-30")))
-    periods.append(("Post-élargissement\n(1/5/04 - 14/09/08)", str_to_date("2004-5-1"), str_to_date("2008-9-14")))
-    periods.append(("Post-crise\n(15/9/08 - 31/12/13)", str_to_date("2008-09-15"), str_to_date("2013-12-31")))
-#~ 
-    #~ #2014-12-18
-    #~ periods.append(("Période 01/01/1996 - 31/10/1999", str_to_date("1996-1-1"), str_to_date("1999-10-31")))
-    #~ periods.append(("Période 01/11/1999 - 31/10/2004", str_to_date("1999-11-1"), str_to_date("2004-10-31")))
-    #~ periods.append(("Période 01/11/2004 - 31/10/2009", str_to_date("2004-11-1"), str_to_date("2009-10-31")))
-    #~ periods.append(("Période 01/11/2009 - 31/12/2013", str_to_date("2009-11-1"), str_to_date("2013-12-31")))
-    
-    return periods
-
-
-def get_factors_list():
-    factors=["all", "year", "cs", "csyear"]
 
 
 def get_factors():
+    factors=["all", "year", "cs", "csyear"]
+    return factors
+
+
+def get_factors_dic():
     #store factors in an ordered dictionary: key=factor (e.g. "cs"), value=question (e.g. ", by cs")
     factors=OrderedDict({})
     factors["all"]=", pour la période 1996-"+str(last_validated_year)
@@ -178,11 +165,11 @@ def get_factors():
     return factors
     
 
-def get_factors_question(factors_list):
+def get_factors_question(factors):
     #get factors specific to the question
     factors_question=OrderedDict({})
-    for factor in factors_list:
-        factors_question[factor]=factors[factor]
+    for factor in factors:
+        factors_question[factor]=factors_dic[factor]
     return factors_question
 
 
@@ -192,29 +179,23 @@ def get_factors_question(factors_list):
 #last validated year
 last_validated_year=2013
 #there is up to 4 code sectoriels for one act
-nb_cs=4
+nb_css=4
 #nb rapporteurs
-nb_rapp=5
+nb_rapps=5
 #nb resp_propos
-nb_resp=3
+nb_resps=3
+#list of cs to look for
+css=get_css()
 
-cs_list=get_cs_list()
-#number of figures to use to get all the different cs -> if nb=2 then cs=01.xx.xx.xx ... 20.xx.xx.xx, if nb=5 then cs=01.10.xx.xx ... 20.90.xx.xx
-nb_figures_cs=2
-
-#TO COMMENT OUT
-#for specific queries
-cs_list=["10"]
-
-years_list=get_years_list(last_validated_year)
+years_list=get_years(last_validated_year)
 years_list_zero=add_blank(years_list)
-months_list=get_months_list()
+months_list=get_months()
 #list of countries
-countries_list=get_countries_list()
+countries_list=get_countries()
 countries_list_zero=add_blank(countries_list)
 periods=get_periods()
-nb_periods=len(periods)
 
 #list of factors (variables to study)
 factors=get_factors()
-factors_list=get_factors_list()
+#from the list of factors, get an ordered dic with factors as keys ("csyear") and questions as values ("by cs and by year")
+factors_dic=get_factors_dic()
