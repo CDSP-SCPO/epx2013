@@ -484,16 +484,17 @@ class Command(NoArgsCommand):
         #2015-02-20
         #TESTS
         #Nombre d'actes
-        #~ factors=["all", "year", "cs", "csyear", "periods"]
-        #~ acts.q2(factors=factors, periods=periods)
+        factors=["all", "year", "cs", "csyear", "periods"]
+        acts.q2(factors=factors, periods=periods)
         #~ factors=["year"]
-        #Nombre de mots moyen
+        #~ #Nombre de mots moyen
         #~ nb_mots.q54(factors=factors, periods=periods)
         #Pourcentage d'actes avec un vote public
         #~ acts.q107(factors=factors, periods=periods)
         #Parmi les votes AdoptCSAbs=Y, pourcentage de chaque Etat membre
         #~ factors=["country"]
         #~ country.q126(factors=factors, periods=periods)
+        
         #Pourcentage d'actes avec au moins un EM sans statut 'M' (et au moins un 'CS' ou 'CS_PR')
         #~ acts.q122(factors=factors, periods=periods)
         #Pourcentage d'actes provenant de la Commission et adoptés par procédure écrite

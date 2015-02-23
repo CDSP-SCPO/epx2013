@@ -28,11 +28,26 @@ nb_figures_cs=len(max(css, key=len))
 
 
 def get_cs(cs):
+    """
+    FUNCTION
+    extract the first figures of a cs as required in the analysis ("01.20.30.60" gives "01" if a two-digit cs is required)
+    PARAMETERS
+    cs: cs to extract from [string]
+    RETURN
+    new_cs: shortened cs to match with the cs of the analysis [string]
+    """
     return cs[:nb_figures_cs]
 
 
 def get_all_css(act):
-    #get all the matching cs of an act
+    """
+    FUNCTION
+    get all the matching cs of an act (every act has up to four cs)
+    PARAMETERS
+    act: act to extract the cs from [Act instance]
+    RETURN
+    css_list: list of cs of the act [list of strings]
+    """
     css_list=[]
     for nb in range(1, nb_css+1):
         code_sect=getattr(act, "code_sect_"+str(nb))
@@ -47,7 +62,15 @@ def get_all_css(act):
 
 
 def check_css(act, searched_css):
-    #check that the act in parameter has at least one cs in "searched_cs" list
+    """
+    FUNCTION
+    check that the act in parameter has at least one matching cs in "searched_css" list
+    PARAMETERS
+    act: act to extract the cs from [Act instance]
+    searched_css: list of cs to use for the analysis [list of strings]
+    RETURN
+    True if there is at least one matching cs, False if there is None [boolean]
+    """
     for nb in range(1, nb_css+1):
         code_sect=getattr(act, "code_sect_"+str(nb))
         if code_sect is not None:
@@ -61,6 +84,15 @@ def check_css(act, searched_css):
 
 
 def get_act(Model, act):
+    """
+    FUNCTION
+    get the Act instance of the act in parameter
+    PARAMETERS
+    Model: current model used for the act [Act/ActIds/MinAttend model]
+    act: act being processed [Act/ActIds/MinAttend instance]
+    RETURN
+    act: Act instance of the act [Act instance]
+    """
     #ActIds or MinAttend
     if Model!=Act:
         act=act.act
@@ -68,6 +100,18 @@ def get_act(Model, act):
 
 
 def check_vars(act, act_act, check_vars_act, check_vars_act_ids, adopt_var=None):
+    """
+    FUNCTION
+    from a filter dictionary using django syntax, check whether an act respects the criteria given in the analysis (for percentage computation)
+    PARAMETERS
+    act: act being processed [ActIds/MinAttend instance]
+    act_act: act being processed [Act instance]
+    check_vars_act: checking criteria of the Act instance [dictionary]
+    check_vars_act_ids: checking criteria of the ActIds instance [dictionary]
+    adopt_var: 
+    RETURN
+    True if the act respects the criteria and False otherwise [boolean]
+    """
     for key, value in check_vars_act.iteritems():
             #greater than: "nb_lectures__gt": 1
             if key[-4:]=="__gt":
@@ -96,6 +140,17 @@ def check_vars(act, act_act, check_vars_act, check_vars_act_ids, adopt_var=None)
 
 
 def get_division_res(act, num_vars, denom_vars, operation):
+    """
+    FUNCTION
+    get the result of the division of two numbers, with up to two variables for the numerator (num_vars) and two variables for the denominator (denom_vars)
+    PARAMETERS
+    act: act being processed [ActIds/MinAttend instance]
+    num_vars: variables to use for the numerator [list of strings]
+    denom_vars: variables to use for the denominator [list of strings]
+    operation: operation to perform for both the numerator and denominator if they have more than one variable (addition or soustraction) [string]
+    RETURN
+    res: result of the division [float]
+    """
     res=0
     num=0
     denom=1
@@ -140,7 +195,15 @@ def get_division_res(act, num_vars, denom_vars, operation):
     return res
 
 
-def get_1_plus_2_res(vals):
+def get_average_res(vals):
+    """
+    FUNCTION
+    get the average of a set of numbers given in parameter
+    PARAMETERS
+    vals: set of values to be used for the average computation [list of integers]
+    RETURN
+    value: result of the average [float]
+    """
     #~ print vals
     num=0
     denom=0
@@ -158,6 +221,16 @@ def get_1_plus_2_res(vals):
     
 
 def get_all_pfs(act, pers_type, nb_pers):
+    """
+    FUNCTION
+    get the different party_family variables of all the rapps or resps of the act in parameter
+    PARAMETERS
+    act: act being processed [Act instance]
+    pers_type: "rapp" or "resp" [string]
+    nb_pers: nb of rapps or resps [int]
+    RETURN
+    pfs: different party_family variables of all the rapps or resps of the act in parameter [list of strings]
+    """
     pfs=set()
     #get all rapps or resps
     for i in range(1, nb_pers+1):
@@ -172,6 +245,14 @@ def get_all_pfs(act, pers_type, nb_pers):
 
 
 def compare_all_rapp_resp(act):
+    """
+    FUNCTION
+    check if all the rapps and resps of the act in parameter have the same party family
+    PARAMETERS
+    act: act being processed [Act instance]
+    RETURN
+    same: True if all the rapps and resps have the same party family, False otherwise [boolean]
+    """
     pfs_rapp=get_all_pfs(act, "rapp", nb_rapps)
     pfs_resp=get_all_pfs(act, "resp", nb_resps)
     #same=True if all the rapps and resps have the same party family, False otherwise
@@ -191,20 +272,30 @@ def compare_all_rapp_resp(act):
     return same
 
     
-def copy_data_for_computation(factor, res, act_act=None):
-    year=None
-
+def copy_res(res):
+    """
+    FUNCTION
+    copy the temporary result of a specific factor to evaluate (specific year and / or specific cs, specific period, etc.)
+    PARAMETERS
+    res: temporary result of the specific factor [int, list if ints]
+    RETURN
+    res_copy: copy of the subfactor temporary result [int, list if ints]
+    """
     #copy data for computation
-    if factor in ["all", "periods", "cs", "country"]:
-        res_temp=copy.copy(res)
-    elif factor in ["year", "csyear"]:
-        year=str(act_act.releve_annee)
-        res_temp=copy.copy(res[year])
-        
-    return res_temp, year
+    return copy.copy(res)
 
 
 def compute_no_minister(act_act, res_temp, query):
+    """
+    FUNCTION
+    compute the result of the query q122 (Pourcentage d'actes avec au moins un EM sans statut 'M')
+    PARAMETERS
+    act_act: act being processed [Act instance]
+    res_temp: temporary result of the specific factor [int, list if ints]
+    query: name of the specific query to realize [string]
+    RETURN
+    res_temp: updated temporary result of the subfactor [int, list if ints]
+    """
     attendances=MinAttend.objects.filter(act=act_act)
     total=0
     if attendances:
@@ -258,6 +349,26 @@ def compute_no_minister(act_act, res_temp, query):
     
 
 def compute(Model, act_act, act, res_temp, value, count, variable=None, ok=None, same=None, adopt_var=None, res_total=None, query=None):
+    """
+    FUNCTION
+    do the temporary computation of the current analysis of the current subfactor
+    PARAMETERS
+    Model: Model to use [Act/ActIds/MinAttend model]
+    act_act: act being processed [Act instance]
+    act: act being processed [ActIds instance]
+    res_temp: temporary result of the specific factor [int, list if ints]
+    value: value to add to the temporary result (1 if count or percentage computation, variable value if average computation) [int]
+    count: True if need to count the number of occurences for percentage or average computation; False otherwise (used for simple count analysis) [boolean]
+    variable: variable to use (for average computation) [string]
+    ok: indicate whether an act respects the criteria of the analysis (for average computation) [boolean]
+    same: indicate whether the rapps and resps variables of the current act have the same party family [boolean]
+    adopt_var: when using adopt_cs_abs or adopt_cs_contre variables, this indicator tells the program to perform a different result computation [boolean]
+    res_total: store the temporary result of the total of each row / column (row / column analysis) [int]
+    query: name of the specific query to realize [string]
+    RETURN
+    res_temp: updated temporary result of the subfactor [int, list if ints]
+    res_total: updated temporary result of the total of each row / column (row / column analysis) [int]
+    """
     #computation
     if count:
         #ministers' attendance query
@@ -272,6 +383,7 @@ def compute(Model, act_act, act, res_temp, value, count, variable=None, ok=None,
             if query=="no_minister_percent":
                 res_temp=compute_no_minister(act_act, res_temp, query)
             else:
+                #~ print "res_temp", res_temp
                 res_temp[1]+=1
                 #check discordance: if there are at least two different party families (one from the rapps, one from the resps)
                 if same is not None:
@@ -300,10 +412,21 @@ def compute(Model, act_act, act, res_temp, value, count, variable=None, ok=None,
     return res_temp, res_total
 
 
-def copy_data_back_to_res(factor, res_temp, res=None, cs=None, year=None, country=None):
-    #copy data back to res dictionary (for final result)
-    #~ if not int(res_temp):
-        #~ res_temp=list(res_temp)
+def update_res(factor, res, res_temp, cs=None, year=None, country=None):
+    """
+    FUNCTION
+    update the dictionary subfactor
+    PARAMETERS
+    factor: factor of the analysis [string]
+    res: subfactor dictionary [dictionary]
+    res_temp: temporary result of the specific subfactor [int]
+    cs: current cs subfactor if any [string]
+    year: current year subfactor if any [int]
+    country: current country subfactor if any [int]
+    RETURN
+    res: updated temporary result of the subfactor [int, list if ints]
+    """
+    #update res
     if factor in ["all", "periods"]:
         res=res_temp
     elif factor=="year":
@@ -318,68 +441,167 @@ def copy_data_back_to_res(factor, res_temp, res=None, cs=None, year=None, countr
 
 
 def get_all_year_periods(factor, Model, res, act_act, act, value, count, adopt_var, variable, ok, same, res_total, query):
+    """
+    FUNCTION
+    update the result dictionary with the current act ("all", "year" or "periods" analysis)
+    PARAMETERS
+    factor: factor of the analysis [string]
+    Model: Model to use [Act/ActIds/MinAttend model]
+    res: result dictionary [dictionary]
+    act_act: act being processed [Act instance]
+    act: act being processed [ActIds instance]
+    value: value to add to the temporary result (1 if count or percentage computation, variable value if average computation) [int]
+    count: True if need to count the number of occurences for percentage or average computation; False otherwise (used for simple count analysis) [boolean]
+    adopt_var: when using adopt_cs_abs or adopt_cs_contre variables, this indicator tells the program to perform a different result computation [boolean]
+    variable: variable to use (for average computation) [string]
+    ok: indicate whether an act respects the criteria of the analysis (for average computation) [boolean]
+    same: indicate whether the rapps and resps variables of the current act have the same party family [boolean]
+    res_total: result dictionary of the total of each row / column (row / column analysis) [dictionary]
+    query: name of the specific query to realize [string]
+    RETURN
+    res: updated result dictionary [dictionary]
+    res_total: result dictionary of the total of each row / column (row / column analysis) [dictionary]
+    """
     nb_css=1
     #q77: by periods for a specific cs
     if factor=="periods" and len(css)==1:
         #get all css
         nb_css=len(get_all_css(act_act))
 
+    year=None
+    res_subfactor=res
+    if factor=="year":
+        year=str(act_act.releve_annee)
+        res_subfactor=res[year]
+
     #for each matching cs
     for nb in range(nb_css):
         #copy data for computation
-        res_temp, year=copy_data_for_computation(factor, res, act_act)
+        res_temp=copy_res(res_subfactor)
         #computation
         res_temp, res_total=compute(Model, act_act, act, res_temp, value, count, variable, ok, same, adopt_var=adopt_var, res_total=res_total, query=query)
         #copy data back to res dictionary (for final result)
-        res=copy_data_back_to_res(factor, res_temp, res, year=year)
+        res=update_res(factor, res, res_temp, year=year)
     return res, res_total
 
 
 def get_countries(factor, Model, res, act_act, act, value, count, adopt_var, ok, res_total):
+    """
+    FUNCTION
+    update the result dictionary with the current act ("country" analysis)
+    PARAMETERS
+    factor: factor of the analysis [string]
+    Model: Model to use [Act/ActIds/MinAttend model]
+    res: result dictionary [dictionary]
+    act_act: act being processed [Act instance]
+    act: act being processed [ActIds instance]
+    value: value to add to the temporary result (1 if count or percentage computation, variable value if average computation) [int]
+    count: True if need to count the number of occurences for percentage or average computation; False otherwise (used for simple count analysis) [boolean]
+    adopt_var: when using adopt_cs_abs or adopt_cs_contre variables, this indicator tells the program to perform a different result computation [boolean]
+    ok: indicate whether an act respects the criteria of the analysis (for average computation) [boolean]
+    res_total: result dictionary of the total of each row / column (row / column analysis) [dictionary]
+    RETURN
+    res: updated result dictionary [dictionary]
+    res_total: result dictionary of the total of each row / column (row / column analysis) [dictionary]
+    """
     countries=getattr(act_act, adopt_var)
     #for each country
     for country in countries.all():
         country_code=country.country_code
-        #~ print "begin get_countries: res", res
         #copy data for computation
-        res_temp, year=copy_data_for_computation(factor, res[country_code])
-        #~ print "res_temp", res_temp
-        #~ print "year", year
-        #~ print ""
+        res_temp=copy_res(res[country_code])
         #computation
         res_temp, res_total=compute(Model, act_act, act, res_temp, value, count, ok=ok, adopt_var=adopt_var, res_total=res_total)
         #copy data back to res dictionary (for final result)
-        res=copy_data_back_to_res(factor, res_temp, res, country=country_code)
-        #~ print "end get_countries: res", res
+        res=update_res(factor, res, res_temp, country=country_code)
         
     return res, res_total
 
 
 def get_cs_csyear(factor, Model, res, act_act, act, value, count, variable, ok, same, query):
+    """
+    FUNCTION
+    update the result dictionary with the current act ("cs" or "csyear" analysis)
+    PARAMETERS
+    factor: factor of the analysis [string]
+    Model: Model to use [Act/ActIds/MinAttend model]
+    res: result dictionary [dictionary]
+    act_act: act being processed [Act instance]
+    act: act being processed [ActIds instance]
+    value: value to add to the temporary result (1 if count or percentage computation, variable value if average computation) [int]
+    count: True if need to count the number of occurences for percentage or average computation; False otherwise (used for simple count analysis) [boolean]
+    variable: variable to use (for average computation) [string]
+    ok: indicate whether an act respects the criteria of the analysis (for average computation) [boolean]
+    same: indicate whether the rapps and resps variables of the current act have the same party family [boolean]
+    query: name of the specific query to realize [string]
+    RETURN
+    res: updated result dictionary [dictionary]
+    """
     #get all css
     css=get_all_css(act_act)
+
+    year=None
     
     #if there is at least one non null css
     #for each cs
     for cs in css:
+        res_subfactor=res[cs]
+        if factor=="csyear":
+            year=str(act_act.releve_annee)
+            res_subfactor=res[cs][year]
+        
         #copy data for computation
-        res_temp, year=copy_data_for_computation(factor, res[cs], act_act)
+        res_temp=copy_res(res_subfactor)
         #computation
         res_temp, res_total=compute(Model, act_act, act, res_temp, value, count, variable, ok, same, query=query)
-        #~ print "res_temp", res_temp, cs
         #copy data back to res dictionary (for final result)
-        res=copy_data_back_to_res(factor, res_temp, res, cs=cs, year=year)
+        res=update_res(factor, res, res_temp, cs=cs, year=year)
 
     return res
 
 
 def check_var1_var2(val_1, val_2):
+    """
+    FUNCTION
+    check that at least one of the two values in parameters contains a real value (not None and greater than zero)
+    PARAMETERS
+    val_1: first value to check [int]
+    val_2: second value to check [int]
+    RETURN
+    check: True if there is at least one not none and greater than 0 value, False otherwise [boolean]
+    """
     if val_1 in [None, 0] and val_2 in [None, 0]:
         return False
     return True
     
 
 def get(factor, res_init, Model=Act, count=True, variable=None, variable_2=None, excluded_values=[None, ""], filter_vars_acts={}, filter_vars_acts_ids={}, exclude_vars_acts={},check_vars_acts={}, check_vars_acts_ids={}, query=None, adopt_var=None, num_vars=None, denom_vars=None, operation=None, res_total_init=None, periods=None):
+    """
+    FUNCTION
+    update and get the result dictionary with all the acts
+    PARAMETERS
+    factor: factor of the analysis [string]
+    res_init: initialized result dictionary [dictionary]
+    Model: Model to use [Act/ActIds/MinAttend model]
+    count: True if need to count the number of occurences for percentage or average computation; False otherwise (used for simple count analysis) [boolean]
+    variable: variable to use (for average computation) [string]
+    variable_2: second variable to use (for average computation) [string]
+    excluded_values: when a variable is used for the analyse, check that its value is not to be excluded [list]
+    filter_vars_acts: filtering criteria from the Act model [dictionary]
+    filter_vars_acts_ids: filtering criteria from the ActIds model [dictionary]
+    exclude_vars_acts: excluding criteria from the Act model [dictionary]
+    check_vars_acts: checking criteria from the Act model [dictionary]
+    check_vars_acts_ids: checking criteria from the ActIds model [dictionary]
+    query: name of the specific query to realize [string]
+    adopt_var: when using adopt_cs_abs or adopt_cs_contre variables, this indicator tells the program to perform a different result computation [boolean]
+    num_vars: for division queries, list of numerator variables [list of strings]
+    denom_vars: for division queries, list of denominator variables [list of strings]
+    operation: for division queries, operation to perform for the numerator and the denominator [string]
+    res_total_init: result dictionary of the total of each row / column (row / column analysis) [dictionary]
+    periods: periods to use for the periods analysis [tuple of tuples of strings]
+    RETURN
+    res: final result dictionary [dictionary]
+    """
     res=[]
     res_total=[]
     same=None
@@ -419,7 +641,7 @@ def get(factor, res_init, Model=Act, count=True, variable=None, variable_2=None,
                     value=get_division_res(act_act, num_vars, denom_vars, operation)
                 #"1+2" with at least one non null value -> q100: Moyenne EPVotesFor1-2
                 elif variable_2 is not None:
-                    value=get_1_plus_2_res([value, value_2])
+                    value=get_average_res([value, value_2])
                 #get percentage of different political families for rapp1 and resp1
                 elif query=="discordance":
                     same=compare_all_rapp_resp(act_act)
@@ -447,9 +669,21 @@ def get(factor, res_init, Model=Act, count=True, variable=None, variable_2=None,
     
     return res
 
-    
-def get_month(res, variable, count=True, filter_variables={}):
-    for act_id in ActIds.objects.filter(src="index", act__validated=2, **filter_variables):
+
+#NOT UP-TO-DATE!!!
+def get_month(res, variable, count=True, filter_vars_acts={}):
+    """
+    FUNCTION
+    update and get the result dictionary with all the acts for a months analysis
+    PARAMETERS
+    res: initialized result dictionary [dictionary]
+    variable: variable to use (for average computation) [string]
+    count: True if need to count the number of occurences for percentage or average computation; False otherwise (used for simple count analysis) [boolean]
+    filter_vars_acts: filtering criteria from the Act model [dictionary]
+    RETURN
+    res: final result dictionary [dictionary]
+    """
+    for act_id in ActIds.objects.filter(src="index", act__validated=2, **filter_vars_acts):
         act=act_id.act
         value=getattr(act, variable)
         if value>0:
@@ -464,8 +698,20 @@ def get_month(res, variable, count=True, filter_variables={}):
     return res
 
 
-def get_list_pers_year(res, pers_type, max_nb, filter_variables={}):
-    for act_ids in ActIds.objects.filter(act__validated=2, src="index", **filter_variables):
+#NOT UP-TO-DATE!!!
+def get_list_pers_year(res, pers_type, max_nb, filter_vars_acts={}):
+    """
+    FUNCTION
+    get the list of persons with their related data and number of occurences for the year analysis (q91 and q92)
+    PARAMETERS
+    res: initialized result dictionary [dictionary]
+    pers_type: "rapp" or "resp" [string]
+    max_nb: number of rapps or resps [int]
+    filter_vars_acts: filtering criteria from the Act model [dictionary]
+    RETURN
+    res: final result dictionary [dictionary]
+    """
+    for act_ids in ActIds.objects.filter(act__validated=2, src="index", **filter_vars_acts):
         act=act_ids.act
         year=str(act.releve_annee)
         #loop over each pers
@@ -479,8 +725,21 @@ def get_list_pers_year(res, pers_type, max_nb, filter_variables={}):
     return res
 
 
-def get_list_pers_cs(res, pers_type, max_nb, year_var=False, filter_variables={}):
-    for act_ids in ActIds.objects.filter(act__validated=2, src="index", **filter_variables):
+#NOT UP-TO-DATE!!!
+def get_list_pers_cs(res, pers_type, max_nb, year_var=False, filter_vars_acts={}):
+    """
+    FUNCTION
+    get the list of persons with their related data and number of occurences for the cs and csyear analysis (q91 and q92)
+    PARAMETERS
+    res: initialized result dictionary [dictionary]
+    pers_type: "rapp" or "resp" [string]
+    max_nb: number of rapps or resps [int]
+    year_var: True if year is a subfactor (csyear analysis), False otherwise [boolean]
+    filter_vars_acts: filtering criteria from the Act model [dictionary]
+    RETURN
+    res: final result dictionary [dictionary]
+    """
+    for act_ids in ActIds.objects.filter(act__validated=2, src="index", **filter_vars_acts):
         act=act_ids.act
         #loop over each cs
         for nb in range(1,nb_css+1):
@@ -510,10 +769,27 @@ def get_list_pers_cs(res, pers_type, max_nb, year_var=False, filter_variables={}
 
 
 def get_pf(pers):
+    """
+    FUNCTION
+    get the party_family variable of the person (rapp or resp) in parameter
+    PARAMETERS
+    pers: "rapp" or "resp" instance [Person instance]
+    RETURN
+    party_family: party_family of the person [string]
+    """
     return PartyFamily.objects.get(country=pers.country, party=pers.party).party_family.encode("utf-8")
 
 
 def get_stat(var, pers):
+    """
+    FUNCTION
+    get the party_family or country variable of the person (rapp or resp) in parameter
+    PARAMETERS
+    var: "pf" or "country" [string]
+    pers: "rapp" or "resp" instance [Person instance]
+    RETURN
+    stat: party_family or country code of the person [string]
+    """
     #statistics on party family
     if var=="pf":
         stat=get_pf(pers)
@@ -523,8 +799,20 @@ def get_stat(var, pers):
     return stat
 
 
+#NOT UP-TO-DATE!!!
 def get_percent_pers_year(res, pers_type, max_nb, var="pf", filter_vars={}):
-    #percentage of each party family or country for Rapporteurs and RespPropos
+    """
+    FUNCTION
+    get percentage of each party family or country for Rapporteurs and RespPropos for the year analysis (q93 and q94)
+    PARAMETERS
+    res: initialized result dictionary [dictionary]
+    pers_type: "rapp" or "resp" [string]
+    max_nb: number of rapps or resps [int]
+    var: "pf" or "country" [string]
+    filter_vars_acts: filtering criteria from the Act model [dictionary]
+    RETURN
+    res: final result dictionary [dictionary]
+    """
     #year only
     filter_vars=get_validated_acts(ActIds, filter_vars)
     for act_ids in ActIds.objects.filter(**filter_vars):
@@ -544,8 +832,21 @@ def get_percent_pers_year(res, pers_type, max_nb, var="pf", filter_vars={}):
     return res
     
 
+#NOT UP-TO-DATE!!!
 def get_percent_pers_cs(res, pers_type, max_nb, var="pf", year_var=False, filter_vars={}):
-    #percentage of each party family or country for Rapporteurs and RespPropos
+    """
+    FUNCTION
+    get percentage of each party family or country for Rapporteurs and RespPropos for the cs or csyear analysis (q93 and q94)
+    PARAMETERS
+    res: initialized result dictionary [dictionary]
+    pers_type: "rapp" or "resp" [string]
+    max_nb: number of rapps or resps [int]
+    var: "pf" or "country" [string]
+    year_var: True if year is a subfactor (csyear analysis), False otherwise [boolean]
+    filter_vars_acts: filtering criteria from the Act model [dictionary]
+    RETURN
+    res: final result dictionary [dictionary]
+    """
     #cs only / cs and year
     filter_vars=get_validated_acts(ActIds, filter_vars)
     for act_ids in ActIds.objects.filter(**filter_vars):
@@ -581,14 +882,31 @@ def get_percent_pers_cs(res, pers_type, max_nb, var="pf", year_var=False, filter
 
 
 def check_bj(base_j):
-    #True if an act countains many bases juridiques , False otherwise
+    """
+    FUNCTION
+    check if the base_j field contains only one or many bases juridiques (q121)
+    PARAMETERS
+    base_j: base_j field [string]
+    RETURN
+    True if th field countains many bases juridiques, False otherwise [boolean]
+    """
     if base_j.find(';')>0:
         return True
     return False
     
 
 def get_list_acts(Model, search, cs, fields):
-    #search: acts with a specific cs OR with many bases juridiques
+    """
+    FUNCTION
+    get a list of fields of acts matching searching criteria (q120, q121)
+    PARAMETERS
+    Model: model to use for the query [Act/ActIds model]
+    search: acts with a specific cs OR with many bases juridiques
+    cs: specific cs to analyze [string]
+    fields: fields of the acts to retrive [list of strings]
+    RETURN
+    acts: list of the fields of acts matching searching criteria [list of ints or integers]
+    """
     acts=[]
     filter_vars=get_validated_acts(Model)
     if search=="cs":

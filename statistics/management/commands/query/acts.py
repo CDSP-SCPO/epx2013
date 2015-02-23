@@ -563,7 +563,7 @@ def q121():
 
 
 def q122(factors=factors, periods=None):
-    #Pourcentage d'actes sans M présents
+    #Pourcentage d'actes avec au moins un EM sans statut 'M'
 
     #get the factors specific to the question
     factors_question=get_factors_question(factors)

@@ -1,7 +1,7 @@
 #-*- coding: utf-8 -*-
 from django.core.management.base import NoArgsCommand
 from django.conf import settings
-from export.views import get_headers, get_save_acts
+from export.views import get_excl_fields_acts_ids, get_excl_fields_acts, get_headers, get_save_acts
 import datetime
 import os
 import csv
@@ -21,15 +21,15 @@ class Command(NoArgsCommand):
         if os.path.exists(dir_server+file_name):
             os.remove(dir_server+file_name)
         #get the headers
-        excl_fields_act_ids=["id", 'src', "url_exists", 'act']
-        excl_fields_act=["id",  'date_doc', "url_prelex", "validated", "validated_attendance"]
-        headers=get_headers(excl_fields_act_ids, excl_fields_act)
+        excl_fields_acts_ids=get_excl_fields_acts_ids()
+        excl_fields_acts=get_excl_fields_acts()
+        headers=get_headers(excl_fields_acts_ids, excl_fields_acts)
         #file to write in
         writer=csv.writer(open(dir_server+file_name, 'w'),  delimiter=';', quotechar='"', quoting=csv.QUOTE_ALL)
         #write headers
         writer.writerow(headers)
         #fetch all the acts of the db and save them into the csv file
-        get_save_acts(excl_fields_act_ids, excl_fields_act, writer)
+        get_save_acts(excl_fields_acts_ids, excl_fields_acts, writer)
 
         #~ display="csv export: "+ today
         #~ print display

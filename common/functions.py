@@ -74,8 +74,9 @@ def date_string_to_iso(string):
             #the year must be coded on 4 digits
             year, month, day=strings[2], strings[1], strings[0]
         return date_split_to_iso(year, month, day)
-    else:
-        return None
+
+    #return None if date string is None
+    return None
 
 
 def list_reverse_enum(string):

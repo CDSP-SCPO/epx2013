@@ -54,8 +54,7 @@ def get_adopt_propos_origine(soup, propos_origine):
             print "TODO: extraction pdf almost done (see tests)"
 
         #transform dates to the iso format (YYYY-MM-DD)
-        if adopt_propos_origine!=None:
-            adopt_propos_origine=date_string_to_iso(adopt_propos_origine)
+        adopt_propos_origine=date_string_to_iso(adopt_propos_origine)
     except:
         print "no adopt_propos_origine!"
 

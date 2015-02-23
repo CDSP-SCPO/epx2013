@@ -31,30 +31,33 @@ import datetime
 import re
 
 
-def get_headers(excl_fields_act_ids, excl_fields_act):
+def get_headers(excl_fields_acts_ids, excl_fields_acts):
     """
     FUNCTION
     get the headers of the fields to export (csv file)
     PARAMETERS
-    excl_fields_act_ids: fields not to be exported (ActIds) [list of strings]
-    excl_fields_act:  fields not to be exported (Act) [list of strings]
+    excl_fields_acts_ids: fields not to be exported (ActIds) [list of strings]
+    excl_fields_acts:  fields not to be exported (Act) [list of strings]
     RETURNS
     headers: name of the fields to be saved in the csv file [list of strings]
     """
     headers=[]
     #ActIds
     for field in ActIds()._meta.fields:
-        if field.name not in excl_fields_act_ids:
+        if field.name not in excl_fields_acts_ids:
             headers.append(var_name_ids.var_name[field.name])
 
     #Act
     for field in Act()._meta.fields:
-        if field.name not in excl_fields_act:
+        if field.name not in excl_fields_acts:
             headers.append(var_name_data.var_name[field.name])
             #CodeSect and related
             if "code_sect_" in field.name:
                 index=field.name[-1]
                 headers.append(var_name_data.var_name["code_agenda_"+index])
+                #config_cons
+                if index=="1":
+                    headers.append(var_name_data.var_name["config_cons"])
             #Rapporteurs (Person) and related (oeil)
             elif "rapp_" in field.name:
                 index=field.name[-1]
@@ -74,7 +77,7 @@ def get_headers(excl_fields_act_ids, excl_fields_act):
 
     #Act many to many fields
     for field in Act()._meta.many_to_many:
-        if field.name not in excl_fields_act:
+        if field.name not in excl_fields_acts:
             #GvtCompo: country, party and party_family variable
             if "gvt_compo"==field.name:
                 headers.append(var_name_data.var_name[field.name+"_country"])
@@ -101,13 +104,13 @@ def get_headers(excl_fields_act_ids, excl_fields_act):
     return headers
 
 
-def get_save_acts(excl_fields_act_ids, excl_fields_act, writer):
+def get_save_acts(excl_fields_acts_ids, excl_fields_acts, writer):
     """
     FUNCTION
     fetch and save all the validated acts
     PARAMETERS
-    excl_fields_act_ids: fields not to be exported (ActIds) [list of strings]
-    excl_fields_act: fields not to be exported (Act) [list of strings]
+    excl_fields_acts_ids: fields not to be exported (ActIds) [list of strings]
+    excl_fields_acts: fields not to be exported (Act) [list of strings]
     RETURNS
     writer: object to write in the csv file [Writer object]
     #~ RETURNS
@@ -131,24 +134,34 @@ def get_save_acts(excl_fields_act_ids, excl_fields_act, writer):
 
         #ActIds
         for field in ActIds()._meta.fields:
-            if field.name not in excl_fields_act_ids:
+            if field.name not in excl_fields_acts_ids:
                 fields.append(getattr(act_ids, field.name))
 
         #Act
         for field in Act()._meta.fields:
-            if field.name not in excl_fields_act:
+            if field.name not in excl_fields_acts:
                 #CodeSect and related
                 if "code_sect_" in field.name:
                     temp=getattr(act, field.name)
-                    if temp!=None:
+                    index=field.name[-1]
+                    if temp is not None:
                         fields.append(temp.code_sect)
                         fields.append(temp.code_agenda.code_agenda)
+                        #config_cons
+                        if index=="1":
+                            #~ print "pb config cons", act
+                            config_cons=temp.config_cons
+                            if config_cons is not None:
+                                fields.append(config_cons.config_cons)
+                            else:
+                                fields.append(None)
                     else:
-                        fields.extend([None, None])
+                        #empty fields
+                        fields.extend([None]*2)
                 #Rapporteurs (Person) and related (oeil) or Responsibles (Person) and related (prelex)
                 elif "rapp_" in field.name or "resp_" in field.name:
                     temp=getattr(act, field.name)
-                    if temp!=None:
+                    if temp is not None:
                         fields.append(temp.name)
                         country=temp.country
                         party=temp.party
@@ -160,12 +173,11 @@ def get_save_acts(excl_fields_act_ids, excl_fields_act, writer):
                             print e
                             fields.append(None)
                     else:
-                        temp=[None]*4
-                        fields.extend(temp)
+                        fields.extend([None]*4)
                 #DG and related
                 elif "dg_" in field.name:
                     temp=getattr(act, field.name)
-                    if temp!=None:
+                    if temp is not None:
                         fields.append(temp.dg)
                         fields.append(temp.dg_sigle.dg_sigle)
                     else:
@@ -263,7 +275,32 @@ def send_file(file_server, file_client):
     return response
 
 
+def get_excl_fields_acts_ids():
+    """
+    FUNCTION
+    get the list of fields to exclude of the export (from the ActIds model)
+    PARAMETERS
+    None
+    RETURNS
+    excl_fields_acts_ids: list of fields to exclude (from the ActIds model) [list of strings]
+    """
+    excl_fields_acts_ids=["id", 'src', "url_exists", 'act']
+    return excl_fields_acts_ids
 
+
+def get_excl_fields_acts():
+    """
+    FUNCTION
+    get the list of fields to exclude of the export (from the Act model)
+    PARAMETERS
+    None
+    RETURNS
+    excl_fields_acts_ids: list of fields to exclude(from the Act model) [list of strings]
+    """
+    excl_fields_acts=["id",  'date_doc', "url_prelex", "validated", "validated_attendance"]
+    return excl_fields_acts
+    
+    
 @login_required
 @user_passes_test(lambda u: is_member(u, ["admin", "import_export"]))
 def export(request):
@@ -282,15 +319,15 @@ def export(request):
         if os.path.exists(dir_server+file_name):
             os.remove(dir_server+file_name)
         #get the headers
-        excl_fields_act_ids=["id", 'src', "url_exists", 'act']
-        excl_fields_act=["id",  'date_doc', "url_prelex", "validated", "validated_attendance"]
-        headers=get_headers(excl_fields_act_ids, excl_fields_act)
+        excl_fields_acts_ids=get_excl_fields_acts_ids()
+        excl_fields_acts=get_excl_fields_acts()
+        headers=get_headers(excl_fields_acts_ids, excl_fields_acts)
         #file to write in
         writer=csv.writer(open(dir_server+file_name, 'w'),  delimiter=';', quotechar='"', quoting=csv.QUOTE_ALL)
         #write headers
         writer.writerow(headers)
         #fetch all the acts of the db and save them into the csv file
-        get_save_acts(excl_fields_act_ids, excl_fields_act, writer)
+        get_save_acts(excl_fields_acts_ids, excl_fields_acts, writer)
 
         print "csv export"
         return send_file(dir_server+file_name, file_name)

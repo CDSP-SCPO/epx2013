@@ -34,6 +34,19 @@ writer.writerow([""])
 
 
 def compute(res, res_2, count, percent, query, res_total=None):
+    """
+    FUNCTION
+    compute the final result of a subfactor (specific cs, year or cross of specific cs and year)
+    PARAMETERS
+    res: result dictionary [dictionary]
+    res_2: result dictionary of a second variable if any (average computation) [dictionary]
+    count: True if need to count the number of occurences for percentage or average computation; False otherwise (used for simple count analysis) [boolean]
+    percent: percentage rate to use (by default 100% for percentage computation and 1 for other computations) [int]
+    query: name of the specific query to realize [string]
+    res_total: result dictionary of the total of each row / column (row / column analysis) [dictionary]
+    RETURN
+    acts: list of the fields of acts matching searching criteria [list of ints or integers]
+    """
     res_final=0
     num=0
     denom=1
@@ -83,11 +96,38 @@ def compute(res, res_2, count, percent, query, res_total=None):
 
 
 def write_all(res, res_2, count, percent, query):
+    """
+    FUNCTION
+    write the results table of the query in a csv file (all analysis)
+    PARAMETERS
+    res: result dictionary [dictionary]
+    res_2: result dictionary of the second variable if any (average computation) [dictionary]
+    count: True if need to count the number of occurences for percentage or average computation; False otherwise (used for simple count analysis) [boolean]
+    percent: percentage rate to use (by default 100% for percentage computation and 1 for other computations) [int]
+    query: name of the specific query to realize [string]
+    RETURN
+    None
+    """
     res_final=compute(res, res_2, count, percent, query)
     writer.writerow([res_final])
 
 
 def write_year_cs_country_periods(factor, res, res_2, count, percent, query, res_total, periods):
+    """
+    FUNCTION
+    write the results table of the query in a csv file (year, cs, country or periods analysis)
+    PARAMETERS
+    factor: factor of the analysis [string]
+    res: result dictionary [dictionary]
+    res_2: result dictionary of the second variable if any (average computation) [dictionary]
+    count: True if need to count the number of occurences for percentage or average computation; False otherwise (used for simple count analysis) [boolean]
+    percent: percentage rate to use (by default 100% for percentage computation and 1 for other computations) [int]
+    query: name of the specific query to realize [string]
+    res_total: result dictionary of the total of each row / column (row / column analysis) [dictionary]
+    periods: periods to use for the periods analysis [tuple of tuples of strings]
+    RETURN
+    None
+    """
     row=[]
     res_2_temp=None
     res_total_temp=res_total
@@ -126,6 +166,18 @@ def write_year_cs_country_periods(factor, res, res_2, count, percent, query, res
 
 
 def write_csyear(res, res_2, count, percent, query):
+    """
+    FUNCTION
+    write the results table of the query in a csv file (csyear analysis)
+    PARAMETERS
+    res: result dictionary [dictionary]
+    res_2: result dictionary of the second variable if any (average computation) [dictionary]
+    count: True if need to count the number of occurences for percentage or average computation; False otherwise (used for simple count analysis) [boolean]
+    percent: percentage rate to use (by default 100% for percentage computation and 1 for other computations) [int]
+    query: name of the specific query to realize [string]
+    RETURN
+    None
+    """
     writer.writerow(years_list_zero)
     res_2_temp=None
     
@@ -139,7 +191,22 @@ def write_csyear(res, res_2, count, percent, query):
         writer.writerow(row)
     
 
-def write(factor, question, res, res_2=None, count=True, percent=100, query=None , res_total=None, periods=None):
+def write(factor, question, res, res_2=None, count=True, percent=100, query=None, res_total=None, periods=None):
+    """
+    FUNCTION
+    write the results table of the query in a csv file
+    PARAMETERS
+    question: text of the question of the query [string]
+    res: result dictionary [dictionary]
+    res_2: result dictionary of the second variable if any (average computation) [dictionary]
+    count: True if need to count the number of occurences for percentage or average computation; False otherwise (used for simple count analysis) [boolean]
+    percent: percentage rate to use (by default 100% for percentage computation and 1 for other computations) [int]
+    query: name of the specific query to realize [string]
+    res_total: result dictionary of the total of each row / column (row / column analysis) [dictionary]
+    periods: periods to use for the periods analysis [tuple of tuples of strings]
+    RETURN
+    None
+    """
     #res_2: need to sum 2 variables before computing average (q100: votes_for_1 and votes_for_2) or percentage (q95: nb_point_a and nb_point_b)
     print question
     writer.writerow([question])
@@ -169,7 +236,20 @@ def write(factor, question, res, res_2=None, count=True, percent=100, query=None
     print ""
 
 
+#NOT UP-TO-DATE!!!
 def write_month(question, res, count=True, percent=1, query=""):
+    """
+    FUNCTION
+    write the results table of the query in a csv file (months analysis)
+    PARAMETERS
+    question: text of the question of the query [string]
+    res: result dictionary [dictionary]
+    count: True if need to count the number of occurences for percentage or average computation; False otherwise (used for simple count analysis) [boolean]
+    percent: percentage rate to use (by default 100% for percentage computation and 1 for other computations) [int]
+    query: name of the specific query to realize [string]
+    RETURN
+    None
+    """
     writer.writerow([question])
     writer.writerow(months_list)
     row=[]
@@ -192,8 +272,18 @@ def write_month(question, res, count=True, percent=1, query=""):
 
 
 def write_list_pers(question, the_list, element, res, pers_type):
-    #crosses cs OR year
-    #element: cs OR year
+    """
+    FUNCTION
+    write the results table of queries that count the number of occurences of resp and rapp variables (cs or year analysis)
+    PARAMETERS
+    question: text of the question of the query [string]
+    the_list: list of resp or rapp [list of Person instances]
+    element: "CS" or "YEAR" [string]
+    res: result dictionary [dictionary]
+    pers_type: "rapp" or "resp" [string]
+    RETURN
+    None
+    """
     writer.writerow([question])
     for value in the_list:
         writer.writerow("")
@@ -222,6 +312,16 @@ def write_list_pers(question, the_list, element, res, pers_type):
 
 
 def write_list_pers_cs_year(question, res, pers_type):
+    """
+    FUNCTION
+    write the results table of queries that count the number of occurences of resp and rapp variables (csyear analysis)
+    PARAMETERS
+    question: text of the question of the query [string]
+    res: result dictionary [dictionary]
+    pers_type: "rapp" or "resp" [string]
+    RETURN
+    None
+    """
     writer.writerow([question])
     for cs in get_cs_list():
         writer.writerow("")
@@ -253,6 +353,19 @@ def write_list_pers_cs_year(question, res, pers_type):
 
 
 def write_percent_pers(question, the_list, element, res, pers_type, var="Party Family"):
+    """
+    FUNCTION
+    write the results table of queries that show the country repartition of rapp or resp variables, for cs or year analysis (q101 and q102)
+    PARAMETERS
+    question: text of the question of the query [string]
+    the_list: list of resp or rapp [list of Person instances]
+    element: "CS" or "YEAR" [string]
+    res: result dictionary [dictionary]
+    pers_type: "rapp" or "resp" [string]
+    var: variable to fetch (party family or country) [string]
+    RETURN
+    None
+    """
     #crosses cs OR year
     #element: cs OR year
     writer.writerow([question])
@@ -272,6 +385,17 @@ def write_percent_pers(question, the_list, element, res, pers_type, var="Party F
 
 
 def write_percent_pers_cs_year(question, res, pers_type, var="Party Family"):
+    """
+    FUNCTION
+    write the results table of queries that show the country repartition of rapp or resp variables, for csyear analysis (q101 and q102)
+    PARAMETERS
+    question: text of the question of the query [string]
+    res: result dictionary [dictionary]
+    pers_type: "rapp" or "resp" [string]
+    var: variable to fetch (party family or country) [string]
+    RETURN
+    None
+    """
     writer.writerow([question])
     for cs in get_cs_list():
         writer.writerow("")
@@ -293,6 +417,16 @@ def write_percent_pers_cs_year(question, res, pers_type, var="Party Family"):
 
 
 def write_list_acts(question, acts, fields):
+    """
+    FUNCTION
+    write the results table of queries that list acts with specific fields (q120 and q121)
+    PARAMETERS
+    question: text of the question of the query [string]
+    acts: acts to display [list of ints or strings]
+    fields: field names to display [list of strings]
+    RETURN
+    None
+    """
     print question
     writer.writerow([question])
     #write headers
