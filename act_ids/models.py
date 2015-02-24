@@ -7,12 +7,12 @@ class ActIds(models.Model):
     """
     MODEL
     instances of acts ids
-    for each act, several sources: index file (monthly council summary), eurlex, oeil, prelex
+    for each act, several sources: index file (monthly council summary), eurlex, oeil
     """
     #when importing an index file, acts are inserted into the db except if:
     #a no_celex has been added while importing a dos_id or opal file
 
-    #src="index", "eurlex", "oeil" or "prelex"
+    #src="index", "eurlex", "oeil"
     src=models.CharField(max_length=6, default="index", db_index=True)
     url_exists=models.BooleanField(default=True)
     #no_celex for index file must be unique

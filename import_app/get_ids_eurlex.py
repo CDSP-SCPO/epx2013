@@ -70,11 +70,11 @@ def get_no_celex(soup):
 def get_chrono(chrono):
     """
     FUNCTION
-    remove the 0 at the beginning of the chrono field (no_chrono for oeil or propos_chrono for prelex)
+    remove the 0 at the beginning of the oeil no_chrono field
     PARAMETERS
-    chrono: no_chrono or propos_chrono [string]
+    chrono: no_chrono variable [string]
     RETURN
-    updated no_chrono or propos_chrono [string]
+    updated no_chrono [string]
     """
     index_start=0
     #we remove the 0s at the beginning
@@ -142,7 +142,7 @@ def get_nos_unique(soup):
 def get_proposs(soup):
     """
     FUNCTION
-    get prelex ids from eurlex
+    get prelex ids from eurlex (prelex was the website of the European commission and was discontinued in late 2014)
     PARAMETERS
     soup: eurlex url content [BeautifulSoup object]
     RETURN

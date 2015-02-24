@@ -30,34 +30,6 @@ var_name["type_acte"]="TypeActe"
 var_name["base_j"]="BaseJuridique"
 var_name["nb_mots"]="NombreMots"
 
-#oeil
-var_name["commission"]="CommissionPE"
-var_name["com_amdt_tabled"]="EPComAmdtTabled"
-var_name["com_amdt_adopt"]="EPComAmdtAdopt"
-var_name["amdt_tabled"]="EPAmdtTabled"
-var_name["amdt_adopt"]="EPAmdtAdopt"
-for index in xrange(1,3):
-    num=str(index)
-    var_name["votes_for_"+num]="EPVotesFor"+num
-    var_name["votes_agst_"+num]="EPVotesAgst"+num
-    var_name["votes_abs_"+num]="EPVotesAbs"+num
-var_name["rapp"]="Rapporteur*"
-var_name["rapp_party"]="GroupePolitiqueRapporteur*"
-var_name["rapp_party_"]="GroupePolitiqueRapporteur"
-var_name["rapp_country"]="EtatMbRapport*"
-var_name["rapp_country_"]="EtatMbRapport"
-var_name["rapp_party_family_"]="PartyFamilyRapp"
-for index in xrange(1,6):
-    num=str(index)
-    var_name["rapp_party_"+num]="GroupePolitiqueRapporteur"+num
-    var_name["rapp_"+num]="RapporteurPE"+num
-    var_name["rapp_country_"+num]="EtatMbRapport"+num
-    var_name["rapp_party_family_"+num]="PartyFamilyRapp"+num
-var_name["modif_propos"]="ModifPropos"
-var_name["nb_lectures"]="NombreLectures"
-var_name["sign_pecs"]="SignPECS"
-
-#prelex
 var_name["adopt_propos_origine"]="AdoptionProposOrigine"
 var_name["com_proc"]="ComProc"
 var_name["dg"]="DGProposition*"
@@ -115,6 +87,34 @@ var_name["gvt_compo_party_family"]="NationGvtPoliticalCompositionPartyFamily"
 var_name["country"]="Country"
 var_name["party"]="Party"
 var_name["party_family"]="PartyFamily"
+
+#oeil
+var_name["commission"]="CommissionPE"
+var_name["com_amdt_tabled"]="EPComAmdtTabled"
+var_name["com_amdt_adopt"]="EPComAmdtAdopt"
+var_name["amdt_tabled"]="EPAmdtTabled"
+var_name["amdt_adopt"]="EPAmdtAdopt"
+for index in xrange(1,3):
+    num=str(index)
+    var_name["votes_for_"+num]="EPVotesFor"+num
+    var_name["votes_agst_"+num]="EPVotesAgst"+num
+    var_name["votes_abs_"+num]="EPVotesAbs"+num
+var_name["rapp"]="Rapporteur*"
+var_name["rapp_party"]="GroupePolitiqueRapporteur*"
+var_name["rapp_party_"]="GroupePolitiqueRapporteur"
+var_name["rapp_country"]="EtatMbRapport*"
+var_name["rapp_country_"]="EtatMbRapport"
+var_name["rapp_party_family_"]="PartyFamilyRapp"
+for index in xrange(1,6):
+    num=str(index)
+    var_name["rapp_party_"+num]="GroupePolitiqueRapporteur"+num
+    var_name["rapp_"+num]="RapporteurPE"+num
+    var_name["rapp_country_"+num]="EtatMbRapport"+num
+    var_name["rapp_party_family_"+num]="PartyFamilyRapp"+num
+var_name["modif_propos"]="ModifPropos"
+var_name["nb_lectures"]="NombreLectures"
+var_name["sign_pecs"]="SignPECS"
+
 
 #OPAL
 var_name["case_nb"]="NPCaseNumber"

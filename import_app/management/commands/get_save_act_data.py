@@ -1,6 +1,6 @@
 #-*- coding: utf-8 -*-
 """
-command to retrieve data on eurlex, prelex and oeil automatically and validate the act
+command to retrieve data on eurlex and oeil automatically and validate the act
 """
 from django.core.management.base import NoArgsCommand
 
@@ -40,16 +40,16 @@ class Command(NoArgsCommand):
                 #retrieve the act ids for each source
                 act_ids=get_act_ids(act)
 
-                #"compute" the url of the eurlex, oeil and prelex page
-                urls=get_urls(act_ids["index"], act.url_prelex, act_ids["index"].dos_id)
+                #"compute" the url of the eurlex and oeil page
+                urls=get_urls(act_ids["index"], act_ids["index"].dos_id)
 
-                #get data on eurlex, oeil and prelex
-                act.__dict__.update(get_data("eurlex", act_ids["eurlex"], urls["url_eurlex"], act)[0])
-                fields, dg_names_oeil, resp_names_oeil=get_data("oeil", act_ids["oeil"], urls["url_oeil"], act)
+                #get data on eurlex
+                fields, dg_names_eurlex, resp_names_eurlex=get_data("eurlex", act_ids["eurlex"], urls["url_eurlex"])
                 act.__dict__.update(fields)
-                nb_lectures=act.nb_lectures
-                #~ #prelex config_cons needs eurlex, gvt_compo needs oeil
-                fields, dg_names_prelex, resp_names_prelex=get_data("prelex", act_ids["prelex"], urls["url_prelex"], act)
+                #get data on œil
+                fields, dg_names_oeil, resp_names_oeil=get_data("oeil", act_ids["oeil"], urls["url_oeil"])
+                act.__dict__.update(fields)
+
                 #pb empty dgs (empty list instead of None)
                 fields["dg_1_id"]=set_empty_dg(fields["dg_1_id"])
                 fields["dg_2_id"]=set_empty_dg(fields["dg_2_id"])
@@ -57,9 +57,9 @@ class Command(NoArgsCommand):
                 #nb_lectures already retrieved from oeil
                 act.nb_lectures=nb_lectures
                 
-                #~ #store dg/resp from oeil and prelex to be displayed as text in the template
-                act=store_dg_resp(act, dg_names_oeil, dg_names_prelex, "dg")[0]
-                act=store_dg_resp(act, resp_names_oeil, resp_names_prelex, "resp")[0]
+                #~ #store dg/resp from eurlex and oeil to be displayed as text in the template
+                act=store_dg_resp(act, dg_names_eurlex, dg_names_oeil, "dg")[0]
+                act=store_dg_resp(act, resp_names_eurlex, resp_names_oeil, "resp")[0]
 
                 #~ #check multiple values for dgs with numbers
                 act=check_multiple_dgs(act)[1]

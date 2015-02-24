@@ -70,14 +70,14 @@
     </tbody>
 </table>
 
-<!-- eurlex validation table -->
-<table id="eurlex_table" class="table table-bordered table-hover table-condensed">
+<!-- eurlex validation tables -->
+<table id="eurlex_table_1" class="table table-bordered table-hover table-condensed">
 
     <!-- link view to update code_sect data -->
     <div id="code_sect" style="display:none">{% url update_code_sect %}</div>
 
     {% for field in form_data %}
-        {% if field.name in vars_eurlex %}
+        {% if field.name in vars_eurlex_1 %}
             <tr>
                 <!-- get_value template tag used to print display_name.field.name or display_name[field[name]] -->
                 <td class="first_column table_column_title">{{ display_name|get_value:field.name }}</td>
@@ -109,103 +109,7 @@
 <br />
 
 
-<div class="row-fluid"><h4>Oeil:</h4></div>
-
-<table id="oeil_ids_table" class="ids_table table table-bordered table-hover table-condensed">
-    <thead>
-        <tr>
-            <th>{{ display_name.no_unique_type }}</th>
-            <th>{{ display_name.no_unique_annee }}</th>
-            <th>{{ display_name.no_unique_chrono }}</th>
-            <th>url exists?</th>
-            <th>url link</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>{{ act_ids.index.no_unique_type }}</td>
-            <td>{{ act_ids.index.no_unique_annee }}</td>
-            <td>{{ act_ids.index.no_unique_chrono }}</td>
-            {% if act_ids.oeil.url_exists %}<td>{% else %}<td class="error_msg">{% endif %}
-            {{ act_ids.oeil.url_exists }}</td>
-            <td><a href="{{ urls.url_oeil }}" target="_blank">oeil</a></td>
-        </tr>
-    </tbody>
-</table>
-
-<!-- oeil validation table -->
-<table id="oeil_table" class="table table-bordered table-hover table-condensed">
-
-    <!-- link view to update rapp or resp data -->
-    <div id="person" style="display:none">{% url update_person %}</div>
-     <!-- field that triggered the modal -->
-    <div id="modal_field" style="display:none"></div>
-    <!-- link view to add a rapp -->
-    <div id="link_add_rapp" style="display:none">{% url form_add field='rapp' %}</div>
-
-    {% for field in form_data %}
-        {% if field.name in vars_oeil %}
-            <tr>
-                <td class="first_column table_column_title">{{ display_name|get_value:field.name }}</td>
-                <td class="second_column">
-                    <div class="fieldWrapper">
-                        <div id="id_{{ field.name }}_errors" class="row-fluid">{{ field.errors }}</div>
-                        {{ field }}
-
-                        <!-- rapporteurs rapp_1, rapp_2, rapp_3, rapp_4, rapp_5 -->
-                        {% if field.name|slice:":5" == 'rapp_' %}
-                            {% with index=field.name|slice:"-1:" %}
-                                <!-- if javascript disabled -->
-                                <button id="update_rapp_{{ index }}" name="update_rapp_{{ index }}" type="submit" class="btn btn-primary update_btn">Update</button>
-                                <div id="rapp_{{ index }}" class="update_fields">
-                                    {{ display_name.rapp_country_ }}{{ index }}=<span id="rapp_country_{{ index }}">{% get_related_field "Person" field.value "country" %}</span><br />
-                                    {{ display_name.rapp_party_ }}{{ index }}=<span id="rapp_party_{{ index }}">{% get_related_field "Person" field.value "party" %}</span><br />
-                                    {{ display_name.rapp_party_family_ }}{{ index }}=<span id="rapp_party_family_{{ index }}">
-                                    {% get_party_family field.value %}</span>
-                                </div>
-                                <a class="add_rapp add_rapp_no_js" href="{% url add field='rapp' %}" target="_blank">Add a new {{ display_name.rapp }}</a>
-                                <a  id="modal_{{ field.name }}" class="add_rapp add_rapp_js" href="#modal_add" role="button"  data-id="rapp;{{ display_name.rapp }}" data-toggle="modal">Add a new {{ display_name.rapp }}</a>
-                            {% endwith %}
-                        {% endif %}
-
-                    </div>
-                </td>
-            </tr>
-        {% endif %}
-    {% endfor %}
-</table>
-
-<br />
-
-
-<div class="row-fluid"><h4>Prelex:</h4></div>
-
-<table id="prelex_ids_table" class="ids_table table table-bordered table-hover table-condensed">
-    <thead>
-        <tr>
-            <th>{{ display_name.propos_origine }}</th>
-            <th>{{ display_name.propos_annee }}</th>
-            <th>{{ display_name.propos_chrono }}</th>
-            <th>{{ display_name.dos_id }}</th>
-            <th>url exists?</th>
-            <th>url link</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>{{ act_ids.index.propos_origine }}</td>
-            <td>{{ act_ids.index.propos_annee }}</td>
-            <td>{{ act_ids.index.propos_chrono }}</td>
-            <td>{{ act_ids.index.dos_id }}</td>
-            {% if act_ids.prelex.url_exists %}<td>{% else %}<td class="error_msg">{% endif %}
-            {{ act_ids.prelex.url_exists }}</td>
-            <td><a href="{{ urls.url_prelex }}" target="_blank">prelex</a></td>
-        </tr>
-    </tbody>
-</table>
-
-<!-- prelex validation tables -->
-<table id="prelex_table_1" class="table table-bordered table-hover table-condensed">
+<table id="eurlex_table_2" class="table table-bordered table-hover table-condensed">
 
     <!-- link view to update dg data -->
     <div id="dg" style="display:none">{% url update_dg %}</div>
@@ -216,15 +120,17 @@
     <!-- link view to add a resp -->
     <div id="link_add_resp" style="display:none">{% url form_add field='resp' %}</div>
 
+    <input id="hidden_dg_eurlex_dic" name="hidden_dg_eurlex_dic" type="hidden" value="{{dg_names_eurlex}}"></input>
     <input id="hidden_dg_oeil_dic" name="hidden_dg_oeil_dic" type="hidden" value="{{dg_names_oeil}}"></input>
-    <input id="hidden_dg_prelex_dic" name="hidden_dg_prelex_dic" type="hidden" value="{{dg_names_prelex}}"></input>
+    
+    <input id="hidden_resp_eurlex_dic" name="hidden_resp_eurlex_dic" type="hidden" value="{{resp_names_eurlex}}"></input>
     <input id="hidden_resp_oeil_dic" name="hidden_resp_oeil_dic" type="hidden" value="{{resp_names_oeil}}"></input>
-    <input id="hidden_resp_prelex_dic" name="hidden_resp_prelex_dic" type="hidden" value="{{resp_names_prelex}}"></input>
+    
     <input id="hidden_dg_dic" name="hidden_dg_dic" type="hidden" value="{{dg}}"></input>
 
 
     {% for field in form_data %}
-        {% if field.name in vars_prelex_1 %}
+        {% if field.name in vars_eurlex_2 %}
 
             <tr>
                 <td class="first_column table_column_title">{{ display_name|get_value:field.name }}</td>
@@ -238,13 +144,13 @@
                                 {% if field.name|slice:":3" == 'dg_' %}
                                     {% with index=field.name|slice:"-1:" %}
                                         <div class="row-fluid">
-                                            {% with dg_prelex=dg_names_prelex|get_value:index dg_oeil=dg_names_oeil|get_value:index %}
-                                                {% if dg_prelex != dg_oeil %}
+                                            {% with dg_eurlex=dg_names_eurlex|get_value:index dg_oeil=dg_names_oeil|get_value:index %}
+                                                {% if dg_eurlex != dg_oeil %}
                                                     <span class="error_msg">
                                                 {% else %}
                                                     <span>
                                                 {% endif %}
-                                                Value found on prelex: {{ dg_prelex }}; Value found on oeil: {{ dg_oeil }}.</span>
+                                                Value found on eurlex: {{ dg_eurlex }}; Value found on oeil: {{ dg_oeil }}.</span>
                                                 {% if dg and dg|get_value:index %}
                                                     <strong class="data_msg">
                                                         More than one possible value. Please choose among: {{ dg|get_value:index }}
@@ -258,13 +164,13 @@
                                 {% elif field.name|slice:":5" == 'resp_' %}
                                     {% with index=field.name|slice:"-1:" %}
                                         <div class="row-fluid">
-                                            {% with resp_prelex=resp_names_prelex|get_value:index resp_oeil=resp_names_oeil|get_value:index %}
-                                                {% if resp_prelex != resp_oeil %}
+                                            {% with resp_eurlex=resp_names_eurlex|get_value:index resp_oeil=resp_names_oeil|get_value:index %}
+                                                {% if resp_eurlex != resp_oeil %}
                                                     <span class="error_msg">
                                                 {% else %}
                                                     <span>
                                                 {% endif %}
-                                                Value found on prelex: {{ resp_prelex }}; Value found on oeil: {{ resp_oeil }}.
+                                                Value found on eurlex: {{ resp_eurlex }}; Value found on oeil: {{ resp_oeil }}.
                                             {% endwith %}
                                         </div>
                                     {% endwith %}
@@ -318,11 +224,9 @@
 
 <br />
 
-<!-- prelex validation tables -->
-<!-- prelex data split in two tables -> 2d table starts with the field rejet_conseil  -->
-<table id="prelex_table_2"  class="table table-bordered table-hover table-condensed">
+<table id="eurlex_table_3"  class="table table-bordered table-hover table-condensed">
     {% for field in form_data %}
-        {% if field.name in vars_prelex_2 %}
+        {% if field.name in vars_eurlex_3 %}
 
             <!-- display config_cons after chgt_base_j -->
             {% if field.name == "chgt_base_j" %}
@@ -426,6 +330,75 @@
                             </div>
                         </div>
                     {% endif %}
+                </td>
+            </tr>
+        {% endif %}
+    {% endfor %}
+</table>
+
+<br />
+
+
+<div class="row-fluid"><h4>Oeil:</h4></div>
+
+<table id="oeil_ids_table" class="ids_table table table-bordered table-hover table-condensed">
+    <thead>
+        <tr>
+            <th>{{ display_name.no_unique_type }}</th>
+            <th>{{ display_name.no_unique_annee }}</th>
+            <th>{{ display_name.no_unique_chrono }}</th>
+            <th>url exists?</th>
+            <th>url link</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>{{ act_ids.index.no_unique_type }}</td>
+            <td>{{ act_ids.index.no_unique_annee }}</td>
+            <td>{{ act_ids.index.no_unique_chrono }}</td>
+            {% if act_ids.oeil.url_exists %}<td>{% else %}<td class="error_msg">{% endif %}
+            {{ act_ids.oeil.url_exists }}</td>
+            <td><a href="{{ urls.url_oeil }}" target="_blank">oeil</a></td>
+        </tr>
+    </tbody>
+</table>
+
+<!-- oeil validation table -->
+<table id="oeil_table" class="table table-bordered table-hover table-condensed">
+
+    <!-- link view to update rapp or resp data -->
+    <div id="person" style="display:none">{% url update_person %}</div>
+     <!-- field that triggered the modal -->
+    <div id="modal_field" style="display:none"></div>
+    <!-- link view to add a rapp -->
+    <div id="link_add_rapp" style="display:none">{% url form_add field='rapp' %}</div>
+
+    {% for field in form_data %}
+        {% if field.name in vars_oeil %}
+            <tr>
+                <td class="first_column table_column_title">{{ display_name|get_value:field.name }}</td>
+                <td class="second_column">
+                    <div class="fieldWrapper">
+                        <div id="id_{{ field.name }}_errors" class="row-fluid">{{ field.errors }}</div>
+                        {{ field }}
+
+                        <!-- rapporteurs rapp_1, rapp_2, rapp_3, rapp_4, rapp_5 -->
+                        {% if field.name|slice:":5" == 'rapp_' %}
+                            {% with index=field.name|slice:"-1:" %}
+                                <!-- if javascript disabled -->
+                                <button id="update_rapp_{{ index }}" name="update_rapp_{{ index }}" type="submit" class="btn btn-primary update_btn">Update</button>
+                                <div id="rapp_{{ index }}" class="update_fields">
+                                    {{ display_name.rapp_country_ }}{{ index }}=<span id="rapp_country_{{ index }}">{% get_related_field "Person" field.value "country" %}</span><br />
+                                    {{ display_name.rapp_party_ }}{{ index }}=<span id="rapp_party_{{ index }}">{% get_related_field "Person" field.value "party" %}</span><br />
+                                    {{ display_name.rapp_party_family_ }}{{ index }}=<span id="rapp_party_family_{{ index }}">
+                                    {% get_party_family field.value %}</span>
+                                </div>
+                                <a class="add_rapp add_rapp_no_js" href="{% url add field='rapp' %}" target="_blank">Add a new {{ display_name.rapp }}</a>
+                                <a  id="modal_{{ field.name }}" class="add_rapp add_rapp_js" href="#modal_add" role="button"  data-id="rapp;{{ display_name.rapp }}" data-toggle="modal">Add a new {{ display_name.rapp }}</a>
+                            {% endwith %}
+                        {% endif %}
+
+                    </div>
                 </td>
             </tr>
         {% endif %}

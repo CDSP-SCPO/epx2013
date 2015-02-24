@@ -136,7 +136,7 @@ def get_nos_unique(soup):
 def get_proposs(soup):
     """
     FUNCTION
-    get prelex ids from oeil
+    get prelex ids from oeil (prelex was the website of the European commission and was discontinued in late 2014)
     PARAMETERS
     soup: oeil url content [BeautifulSoup object]
     RETURN

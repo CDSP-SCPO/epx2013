@@ -17,11 +17,9 @@ import act.var_name_data as var_name_data
 #retrieve url contents
 from import_app.get_ids_eurlex import get_url_eurlex, get_url_content_eurlex
 from import_app.get_ids_oeil import get_url_oeil, get_url_content_oeil
-from import_app.get_ids_prelex import get_url_prelex, get_url_content_prelex
 #retrieve data
-from get_data_eurlex import get_data_eurlex
+from get_data_eurlex import get_data_eurlex, get_date_diff, save_config_cons
 from get_data_oeil import get_data_oeil
-from get_data_prelex import get_data_prelex, get_date_diff, save_config_cons
 from get_data_others import get_data_others
 #redirect to login page if not logged
 from django.contrib.auth.decorators import login_required
@@ -43,29 +41,20 @@ logger = logging.getLogger(__name__)
 
 
 
-def get_urls(act_ids, url_prelex, dos_id):
+def get_urls(act_ids, dos_id):
     """
     FUNCTION
-    get the eurlex, oeil and prelex urls
+    get the eurlex and oeil url
     PARAMETERS
     act_ids: ids of the act [ActIds model instance]
-    url_prelex: url of prelex [string]
     dos_id: validated dos_id of the act or None if does not exist
     RETURN
-    urls: urls of eurlex, oeil and prelex [dictionary of strings]
+    urls: urls of eurlex and oeil [dictionary of strings]
     """
     urls={}
     #["data" variables url to retrieve all the variables, "ids" variables url to retrieve the directory code variables (code_sect and rep_en variables)]
     urls["url_eurlex"]=[get_url_eurlex(act_ids.no_celex), get_url_eurlex(act_ids.no_celex, "HIS")]
     urls["url_oeil"]=get_url_oeil(str(act_ids.no_unique_type), str(act_ids.no_unique_annee), str(act_ids.no_unique_chrono))
-    #for ids retrieval, if split proposition (ProposChrono has a dash)-> oeil ids to construct url
-    #for data retrieval, if split proposition (ProposChrono has a dash)-> dos_id to construct url
-    if "-" in act_ids.propos_chrono and dos_id!=None:
-        urls["url_prelex"]=get_url_prelex(dos_id)
-    else:
-        #url saved in the database using the oeil ids in case of a split proposition
-        urls["url_prelex"]=url_prelex
-
     return urls
 
 
@@ -83,7 +72,7 @@ def get_party_family(resps):
             #if id and not instance, get the instance instead
             if type(resps[index]) is long:
                 resps[index]=Person.objects.get(pk=resps[index])
-            # if party None: the responsible does not exist in responsible file (on prelex, we have only names, no party, no country)
+            # if party None: the responsible does not exist in external responsible file -> we can only display his name (on eurlex and œil, no data about country or party of responsibles)
             if resps[index].party!=None:
                 resps[index]=PartyFamily.objects.get(party=resps[index].party, country=resps[index].country).party_family
             else:
@@ -93,15 +82,14 @@ def get_party_family(resps):
     return resps
 
 
-def get_data(src, act_ids, url, act=None):
+def get_data(src, act_ids, url):
     """
     FUNCTION
     get data of an act from a source in parameter
     PARAMETERS
-    src: source (eurlex, oeil or prelex) [string]
+    src: source (eurlex or oeil) [string]
     act_ids: ids of the act for a given source source [ActIds model instance]
     url: link to the act page [string]
-    act: data of the act for prelex only [Act model instance]
     RETURN
     fields:  dictionary which contains retrieved data for a given source [dictionary]
     dg_names: list of dg names [list of strings]
@@ -111,36 +99,29 @@ def get_data(src, act_ids, url, act=None):
     fields={}
     dg_names=[None]*2
     resp_names=[None]*3
+    ok=False
     
     logger.debug("get_url_content_"+src)
 
     if src=="eurlex":
-        url_content=[eval("get_url_content_"+src)(url[0]), eval("get_url_content_"+src)(url[1])]
-        if url_content[0]!=False:
-             setattr(act_ids, "url_exists", True)
-             fields=eval("get_data_"+src)(url_content, act_ids.no_celex)
-        else:
-            setattr(act_ids, "url_exists", False)
-            logger.debug("error while retrieving "+src+" url")
-            print "error while retrieving "+src+" url"
-
+        url_content=[get_url_content_eurlex(url[0]), get_url_content_eurlex(url[1])]
+        if url_content[0] is not False:
+            ok=True
+    elif src=="oeil":
+        #oeil
+        url_content=get_url_content_oeil(url)
+        if url_content is not False:
+            ok=True
+        
+    #if the url exists and there is a valid content
+    if ok:
+         setattr(act_ids, "url_exists", True)
+         fields, dg_names, resp_names=eval("get_data_"+src)(url_content, act_ids)
     else:
-        #oeil and prelex
-        url_content=eval("get_url_content_"+src)(url)
-        #act doesn't exist, problem on page or problem with the Internet connection
-        if url_content!=False:
-            #set the url_exists attribute of the given source to True
-            setattr(act_ids, "url_exists", True)
-            #call the corresponding function to retrieve the data and pass it to an object
-            fields, dg_names, resp_names=eval("get_data_"+src)(url_content, act_ids, act)
-        else:
-            setattr(act_ids, "url_exists", False)
-            print "error while retrieving "+src+" url"
-            logger.debug("error while retrieving "+src+" url")
-            #retrieve fields not related to the prelex page
-            if src=="prelex":
-                #config_cons
-                save_config_cons(act.code_sect_1_id)
+        setattr(act_ids, "url_exists", False)
+        logger.debug("error while retrieving "+src+" url")
+        print "error while retrieving "+src+" url"
+
 
     #actualization url exist attribute
     logger.debug("act_ids to be saved")
@@ -180,29 +161,29 @@ def check_multiple_dgs(act):
     return dgs, act
 
 
-def store_dg_resp(act, oeil_list, prelex_list, field):
+def store_dg_resp(act, eurlex_list, oeil_list, field):
     """
     FUNCTION
-    store dg or resp names from oeil and prelex in a dictionary and store dgs or resps from oeil in the act object if there is none on prelex
+    get all the dgs and resps on eurlex / œil and save œil dgs / resps in Act model if none was found on eurlex
     PARAMETERS
     act: instance of the data of the act [Act model instance]
+    eurlex_list: list of dg or resp names from eurlex [list of strings]
     oeil_list: list of dg or resp names from oeil [list of strings]
-    prelex_list: list of dg or resp names from prelex [list of strings]
-s   field: name of the field ("dg" or "resp") [string]
+    field: name of the field ("dg" or "resp") [string]
     RETURN
     act: instance of the data of the act (with updated dgs or resps if any) [Act model instance]
+    eurlex_dic: list of dg or resp names from eurlex [dictionary of strings]
     oeil_dic: list of dg or resp names from oeil [dictionary of strings]
-    prelex_dic: list of dg or resp names from prelex [dictionary of strings]
     """
     print "oeil_list", oeil_list
     oeil_dic={}
     for index, field in enumerate(oeil_list):
         index=str(index+1)
         oeil_dic[index]=field
-    prelex_dic={}
-    for index, field in enumerate(prelex_list):
+    eurlex_dic={}
+    for index, field in enumerate(eurlex_list):
         num=str(index+1)
-        prelex_dic[num]=field
+        eurlex_dic[num]=field
         if field==None and oeil_dic[num]!=None:
             try:
                 #update the act instance with the oeil resp
@@ -214,7 +195,7 @@ s   field: name of the field ("dg" or "resp") [string]
             except Exception, e:
                 print "except store_dg_resp", e
 
-    return act, oeil_dic, prelex_dic
+    return act, eurlex_dic, oeil_dic
 
 
 def get_adopt_variables(act):
@@ -260,7 +241,7 @@ def check_update(POST):
 def get_data_all(context, add_modif, act, POST):
     """
     FUNCTION
-    get all data of an act (from eurlex, oeil and prelex)
+    get all data of an act (from eurlex and oeil)
     PARAMETERS
     context: variables to be displayed in the html form [dictionary]
     add_modif: "add" if the form is in add mode, "modif" otherwise [string]
@@ -273,8 +254,8 @@ def get_data_all(context, add_modif, act, POST):
     #retrieve the act ids for each source
     act_ids=get_act_ids(act)
 
-    #"compute" the url of the eurlex, oeil and prelex page
-    urls=get_urls(act_ids["index"], act.url_prelex, act_ids["index"].dos_id)
+    #"compute" the url of the eurlex and oeil page
+    urls=get_urls(act_ids["index"], act_ids["index"].dos_id)
     
     #an act has been selected in the drop down list -> the related data is displayed
     #if state different of modif, save and ongoing and if the act is not being modified
@@ -286,24 +267,19 @@ def get_data_all(context, add_modif, act, POST):
         #COMMENT FOR TESTS ONLY
         logger.debug('eurlex to be processed')
         print "eurlex to be processed"
-        act.__dict__.update(get_data("eurlex", act_ids["eurlex"], urls["url_eurlex"], act)[0])
+        fields, dg_names_eurlex, resp_names_eurlex=get_data("eurlex", act_ids["eurlex"], urls["url_eurlex"])
+        print "fields", fields
+        act.__dict__.update(fields)
+        
         logger.debug('oeil to be processed')
         print "oeil to be processed"
-        fields, dg_names_oeil, resp_names_oeil=get_data("oeil", act_ids["oeil"], urls["url_oeil"], act)
-        logger.debug('prelex to be processed')
-        print "prelex to be processed"
+        fields, dg_names_oeil, resp_names_oeil=get_data("oeil", act_ids["oeil"], urls["url_oeil"])
         act.__dict__.update(fields)
-        #~ nb_lectures=act.nb_lectures
-        #~ #prelex config_cons needs eurlex, gvt_compo needs oeil
-        fields, dg_names_prelex, resp_names_prelex=get_data("prelex", act_ids["prelex"], urls["url_prelex"], act)
-        act.__dict__.update(fields)
-        #nb_lectures already retrieved from oeil
-        #~ act.nb_lectures=nb_lectures
-#~
-        #~ #store dg/resp from oeil and prelex to be displayed as text in the template
+        
+        #~ #store dg/resp from eurlex and oeil to be displayed as text in the template
         logger.debug('dg and resp to be processed')
-        act, context["dg_names_oeil"], context["dg_names_prelex"]=store_dg_resp(act, dg_names_oeil, dg_names_prelex, "dg")
-        act, context["resp_names_oeil"], context["resp_names_prelex"]=store_dg_resp(act, resp_names_oeil, resp_names_prelex, "resp")
+        act, context["dg_names_eurlex"], context["dg_names_oeil"]=store_dg_resp(act, dg_names_eurlex, dg_names_oeil, "dg")
+        act, context["resp_names_eurlex"], context["resp_names_oeil"]=store_dg_resp(act, resp_names_eurlex, resp_names_oeil, "resp")
 #~
         #~ #check multiple values for dgs with numbers
         context["dg"], act=check_multiple_dgs(act)
@@ -311,7 +287,7 @@ def get_data_all(context, add_modif, act, POST):
         #on ADD
         #get information about dg and resp when updating a field
         #literal_eval to convert unicode dic to dic
-        names={"dg_names_oeil": "hidden_dg_oeil_dic", "dg_names_prelex": "hidden_dg_prelex_dic", "resp_names_oeil": "hidden_resp_oeil_dic", "resp_names_prelex": "hidden_resp_prelex_dic", "dg": "hidden_dg_dic"}
+        names={"dg_names_eurlex": "hidden_dg_eurlex_dic", "dg_names_oeil": "hidden_dg_oeil_dic", "resp_names_eurlex": "hidden_resp_eurlex_dic", "resp_names_oeil": "hidden_resp_oeil_dic", "dg": "hidden_dg_dic"}
         for name in names:
             try:
                 context[name]=literal_eval(POST[names[name]])
@@ -361,12 +337,15 @@ def init_context(context):
     #display "real" name of variables (names given by europolix team, not the names stored in db)
     context['display_name']=var_name_ids.var_name
     context['display_name'].update(var_name_data.var_name)
+    
     #the template contains 4 main tables, each of these tables contains a subset of variables from the Act model -> this allows the template to loop over the corresponding subset of variables only (the one corresponding to the table to be displayed)
-    #one table for eurlex, one for oeil and two for prelex
-    context["vars_eurlex"]=["titre_en", "code_sect_1", "code_sect_2", "code_sect_3", "code_sect_4", "rep_en_1", "rep_en_2", "rep_en_3", "rep_en_4", "type_acte", "base_j", "nb_mots"]
+    #three tables for eurlex, one for oeil
+    context["vars_eurlex_1"]=["titre_en", "code_sect_1", "code_sect_2", "code_sect_3", "code_sect_4", "rep_en_1", "rep_en_2", "rep_en_3", "rep_en_4", "type_acte", "base_j", "nb_mots"]
+    context["vars_eurlex_2"]=["adopt_propos_origine", "com_proc", "dg_1", "dg_2", "resp_1", "resp_2", "resp_3", "transm_council", "cons_b", "nb_point_b", "adopt_conseil", "nb_point_a", "council_a"]
+    context["vars_eurlex_3"]=["rejet_conseil", "chgt_base_j", "duree_adopt_trans", "duree_proc_depuis_prop_com", "duree_proc_depuis_trans_cons", "duree_tot_depuis_prop_com", "duree_tot_depuis_trans_cons", "vote_public", "adopt_cs_regle_vote", "adopt_cs_contre", "adopt_cs_abs", "adopt_pc_contre", "adopt_pc_abs", "adopt_ap_contre", "adopt_ap_abs", "dde_em", "split_propos", "proc_ecrite", "suite_2e_lecture_pe", "gvt_compo"]
+    
     context["vars_oeil"]=["commission", "com_amdt_tabled", "com_amdt_adopt", "amdt_tabled", "amdt_adopt", "votes_for_1", "votes_agst_1", "votes_abs_1", "votes_for_2", "votes_agst_2", "votes_abs_2", "rapp_1", "rapp_2", "rapp_3", "rapp_4", "rapp_5", "modif_propos", "nb_lectures", "sign_pecs"]
-    context["vars_prelex_1"]=["adopt_propos_origine", "com_proc", "dg_1", "dg_2", "resp_1", "resp_2", "resp_3", "transm_council", "cons_b", "nb_point_b", "adopt_conseil", "nb_point_a", "council_a"]
-    context["vars_prelex_2"]=["rejet_conseil", "chgt_base_j", "duree_adopt_trans", "duree_proc_depuis_prop_com", "duree_proc_depuis_trans_cons", "duree_tot_depuis_prop_com", "duree_tot_depuis_trans_cons", "vote_public", "adopt_cs_regle_vote", "adopt_cs_contre", "adopt_cs_abs", "adopt_pc_contre", "adopt_pc_abs", "adopt_ap_contre", "adopt_ap_abs", "dde_em", "split_propos", "proc_ecrite", "suite_2e_lecture_pe", "gvt_compo"]
+    
     return context
 
 
@@ -612,7 +591,7 @@ def update_code_sect(request):
 def update_person(request):
     """
     VIEW
-    update the rapp (oeil) or resp (prelex) variables when a different person is selected from the drop down list
+    update the resp (eurlex) or rapp (oeil) variables when a different person is selected from the drop down list
     TEMPLATES
     None (Ajax only)
     """

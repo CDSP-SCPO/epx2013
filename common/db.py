@@ -1,5 +1,5 @@
 """
-eurlex, oeil or prelex data retrieval: db access and modif
+eurlex and oeil data retrieval: db access and modif
 """
 from act_ids.models import ActIds
 from act.models import CodeSect, Country, Person
@@ -8,7 +8,7 @@ from functions import list_reverse_enum, remove_nonspacing_marks
 def get_act_ids(act):
     """
     FUNCTION
-    get the act ids for each source ("index", "eurlex", "oeil" and "prelex") given the act in paramater
+    get the act ids for each source ("index", "eurlex" and "oeil") given the act in paramater
     PARAMETERS
     act: instance of the act [Act model instance]
     RETURN
@@ -135,10 +135,10 @@ def save_get_field_and_fk(field, fields_fk, src=""):
     return instance, exist
 
 
-def save_get_resp_prelex(names):
+def save_get_resp_eurlex(names):
     """
     FUNCTION
-    save a resp from prelex and get its instance
+    save a resp from eurlex and get its instance
     PARAMETERS
     names: first name(s) and last name(s) of the responsible [string]
     RETURN

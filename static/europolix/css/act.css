@@ -44,17 +44,6 @@
     width: 41.1%;
 }
 
-#prelex_ids_table
-{
-    width: 46.5%;
-}
-
-#prelex_ids_table td
-{
-    width: 65px;
-}
-
-
 .first_column
 {
     width: 225px;
@@ -65,13 +54,13 @@
     width: 79%;
 }
 
-/* length of eurlex, oeil and prelex input fields (except for fields with a reload button) */
+/* length of eurlex and oeil input fields (except for fields with a reload button) */
 .second_column input[type="text"]
 {
     width: 99%;
 }
 
-/* length of eurlex, oeil and prelex input fields with a reload button */
+/* length of eurlex and oeil input fields with a reload button */
 .reload input[type="text"]
 {
     float: left;
@@ -87,13 +76,13 @@
 
 
 /*display person related fields*/
-#eurlex_table select, #oeil_table select, #prelex_table_1 select, .update_fields, .update_btn
+#eurlex_table_1 select, #eurlex_table_2 select, #oeil_table select, .update_fields, .update_btn
 {
     float: left;
     margin-top: 2px;
 }
 
-#eurlex_table select, #oeil_table select, #prelex_table_1 select
+#eurlex_table_1 select, #eurlex_table_2 select, #oeil_table select
 {
     width: 40%;
     padding-left: 5px;
@@ -101,7 +90,7 @@
 
 
 /* drop down lists for adopt_ fields */
-#prelex_table_2 select
+#eurlex_table_3 select
 {
     width: 20%;
     margin-top: 2px;

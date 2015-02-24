@@ -48,7 +48,7 @@ class PartyFamily(models.Model):
 class Person(models.Model):
     """
     MODEL
-    instances of person (rapporteurs from oeil or responsibles from prelex) variables
+    instances of person (rapporteurs from oeil or responsibles from eurlex) variables
     """
     #src="rapp" or "resp"
     src=models.CharField(max_length=4, db_index=True)
@@ -174,6 +174,41 @@ class Act(models.Model):
     date_doc=models.DateField(max_length=10, blank=True, null=True, default=None)
     nb_mots=models.PositiveIntegerField(max_length=6, blank=False, null=False, validators=[MinValueValidator(1)])
 
+    adopt_propos_origine=models.DateField(max_length=10, blank=True, null=True, default=None)
+    com_proc=models.CharField(max_length=100, blank=True, null=True, default=None)
+    dg_1=models.ForeignKey(DG, related_name='dg_1', blank=True, null=True, default=None)
+    dg_2=models.ForeignKey(DG, related_name='dg_2', blank=True, null=True, default=None)
+    resp_1=models.ForeignKey(Person, related_name='resp_1', blank=True, null=True, default=None)
+    resp_2=models.ForeignKey(Person, related_name='resp_2', blank=True, null=True, default=None)
+    resp_3=models.ForeignKey(Person, related_name='resp_3', blank=True, null=True, default=None)
+    transm_council=models.DateField(max_length=10, blank=True, null=True, default=None)
+    cons_b=models.CharField(max_length=500, blank=True, null=True, default=None)
+    nb_point_b=models.PositiveSmallIntegerField(max_length=1, blank=True, null=True, default=None)
+    adopt_conseil=models.DateField(max_length=10, blank=True, null=True, default=None)
+    nb_point_a=models.PositiveSmallIntegerField(max_length=1, blank=True, null=True, default=None)
+    council_a=models.CharField(max_length=200, blank=True, null=True, default=None)
+
+    chgt_base_j=models.BooleanField(default=False)
+    duree_adopt_trans=models.PositiveSmallIntegerField(max_length=5, blank=True, null=True, default=None)
+    duree_proc_depuis_prop_com=models.PositiveSmallIntegerField(max_length=5, blank=True, null=True, default=None, validators=[MinValueValidator(1)])
+    duree_proc_depuis_trans_cons=models.PositiveSmallIntegerField(max_length=5, blank=True, null=True, default=None, validators=[MinValueValidator(1)])
+    duree_tot_depuis_prop_com=models.PositiveSmallIntegerField(max_length=5, blank=True, null=True, default=None, validators=[MinValueValidator(1)])
+    duree_tot_depuis_trans_cons=models.PositiveSmallIntegerField(max_length=5, blank=True, null=True, default=None, validators=[MinValueValidator(1)])
+    vote_public=models.BooleanField(default=False)
+    adopt_cs_regle_vote=models.CharField(max_length=2, blank=True, null=True, default=None)
+    adopt_cs_contre=models.ManyToManyField(Country, related_name='adopt_cs_contre')
+    adopt_cs_abs=models.ManyToManyField(Country, related_name='adopt_cs_abs')
+    adopt_pc_contre=models.ManyToManyField(Country, related_name='adopt_pc_contre')
+    adopt_pc_abs=models.ManyToManyField(Country, related_name='adopt_pc_abs')
+    adopt_ap_contre=models.CharField(max_length=50, blank=True, null=True, default=None)
+    adopt_ap_abs=models.CharField(max_length=50, blank=True, null=True, default=None)
+    dde_em=models.BooleanField(default=False)
+    split_propos=models.BooleanField(default=False)
+    proc_ecrite=models.BooleanField(default=False)
+    suite_2e_lecture_pe=models.BooleanField(default=False)
+    gvt_compo=models.ManyToManyField(GvtCompo)
+    
+
     #OEIL
     commission=models.CharField(max_length=10, blank=True, null=True, default=None)
     com_amdt_tabled=models.PositiveSmallIntegerField(max_length=3, blank=True, null=True, default=None)
@@ -195,44 +230,7 @@ class Act(models.Model):
     nb_lectures=models.PositiveSmallIntegerField(max_length=1, blank=True, null=True, default=None)
     sign_pecs=models.DateField(max_length=10, blank=True, null=True, default=None)
 
-    #PRELEX
-    url_prelex=models.CharField(max_length=200, blank=True, null=True, default=None)
-    #data
-    adopt_propos_origine=models.DateField(max_length=10, blank=True, null=True, default=None)
-    com_proc=models.CharField(max_length=100, blank=True, null=True, default=None)
-    dg_1=models.ForeignKey(DG, related_name='dg_1', blank=True, null=True, default=None)
-    dg_2=models.ForeignKey(DG, related_name='dg_2', blank=True, null=True, default=None)
-    resp_1=models.ForeignKey(Person, related_name='resp_1', blank=True, null=True, default=None)
-    resp_2=models.ForeignKey(Person, related_name='resp_2', blank=True, null=True, default=None)
-    resp_3=models.ForeignKey(Person, related_name='resp_3', blank=True, null=True, default=None)
-    transm_council=models.DateField(max_length=10, blank=True, null=True, default=None)
-    cons_b=models.CharField(max_length=500, blank=True, null=True, default=None)
-    nb_point_b=models.PositiveSmallIntegerField(max_length=1, blank=True, null=True, default=None)
-    adopt_conseil=models.DateField(max_length=10, blank=True, null=True, default=None)
-    nb_point_a=models.PositiveSmallIntegerField(max_length=1, blank=True, null=True, default=None)
-    council_a=models.CharField(max_length=200, blank=True, null=True, default=None)
-
-    rejet_conseil=models.BooleanField(default=False)
-    chgt_base_j=models.BooleanField(default=False)
-    duree_adopt_trans=models.PositiveSmallIntegerField(max_length=5, blank=True, null=True, default=None)
-    duree_proc_depuis_prop_com=models.PositiveSmallIntegerField(max_length=5, blank=True, null=True, default=None, validators=[MinValueValidator(1)])
-    duree_proc_depuis_trans_cons=models.PositiveSmallIntegerField(max_length=5, blank=True, null=True, default=None, validators=[MinValueValidator(1)])
-    duree_tot_depuis_prop_com=models.PositiveSmallIntegerField(max_length=5, blank=True, null=True, default=None, validators=[MinValueValidator(1)])
-    duree_tot_depuis_trans_cons=models.PositiveSmallIntegerField(max_length=5, blank=True, null=True, default=None, validators=[MinValueValidator(1)])
-    vote_public=models.BooleanField(default=False)
-    adopt_cs_regle_vote=models.CharField(max_length=2, blank=True, null=True, default=None)
-    adopt_cs_contre=models.ManyToManyField(Country, related_name='adopt_cs_contre')
-    adopt_cs_abs=models.ManyToManyField(Country, related_name='adopt_cs_abs')
-    adopt_pc_contre=models.ManyToManyField(Country, related_name='adopt_pc_contre')
-    adopt_pc_abs=models.ManyToManyField(Country, related_name='adopt_pc_abs')
-    adopt_ap_contre=models.CharField(max_length=50, blank=True, null=True, default=None)
-    adopt_ap_abs=models.CharField(max_length=50, blank=True, null=True, default=None)
-    dde_em=models.BooleanField(default=False)
-    split_propos=models.BooleanField(default=False)
-    proc_ecrite=models.BooleanField(default=False)
-    suite_2e_lecture_pe=models.BooleanField(default=False)
-    gvt_compo=models.ManyToManyField(GvtCompo)
-
+    
     #GENERAL
     notes=models.CharField(max_length=2000,  blank=True, null=True, default=None)
     #validated=0 if the act hasn't been validated yet

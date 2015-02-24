@@ -15,7 +15,6 @@ import sys
 from django.conf import settings
 import import_app.get_ids_eurlex as eurlex
 import import_app.get_ids_oeil as oeil
-import import_app.get_ids_prelex as prelex
 from import_app.views import get_save_act_ids
 #redirect to login page if not logged
 from django.contrib.auth.decorators import login_required
@@ -260,14 +259,14 @@ def act_ids(request):
 
                     #check dos_id
                     data["dos_id"]=False
-                    if act_ids["prelex"].dos_id!=None:
+                    if act_ids["eurlex"].dos_id!=None:
                         #if there is a validated dos_id, do the comparison with that one
                         if act_ids["index"].dos_id!=None:
-                            data["dos_id"]=check_equality_fields([act_ids["index"].dos_id, act_ids["prelex"].dos_id])
+                            data["dos_id"]=check_equality_fields([act_ids["index"].dos_id, act_ids["eurlex"].dos_id])
                         else:
-                            #otherwise search for the dos_id from prelex in the ImportDosId model matching the no_celex
+                            #otherwise search for the dos_id from the ImportDosId model matching the no_celex
                             try:
-                                ImportDosId.objects.get(dos_id=act_ids["prelex"].dos_id, no_celex=act_ids["index"].no_celex)
+                                ImportDosId.objects.get(dos_id=act_ids["eurlex"].dos_id, no_celex=act_ids["index"].no_celex)
                                 data["dos_id"]=True
                             except Exception, e:
                                 print "no matching dos_id", e
@@ -275,7 +274,6 @@ def act_ids(request):
                     #get urls
                     data["url_eurlex"]=eurlex.get_url_eurlex(act_ids["index"].no_celex, "HIS")
                     data["url_oeil"]=oeil.get_url_oeil(str(act_ids["index"].no_unique_type), str(act_ids["index"].no_unique_annee), str(act_ids["index"].no_unique_chrono))
-                    data["url_prelex"]=act.url_prelex
 
                     response['form_ids']=form_ids
                     response['form_data']=form_data

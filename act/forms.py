@@ -83,15 +83,6 @@ class ActForm(forms.ModelForm):
     #prevent zero value
     nb_mots=forms.IntegerField(min_value=1)
 
-    #oeil
-    #rapp* drop down list -> order nouns
-    rapp_1=forms.ModelChoiceField(queryset=Person.objects.order_by('name').filter(src="rapp"), empty_label="Select a " + var_name_data.var_name["rapp"], widget=forms.Select(attrs={'id': 'rapp_1_id', 'name': 'rapp_1_id',}), required=False)
-    rapp_2=forms.ModelChoiceField(queryset=Person.objects.order_by('name').filter(src="rapp"), empty_label="Select a " + var_name_data.var_name["rapp"], widget=forms.Select(attrs={'id': 'rapp_2_id', 'name': 'rapp_2_id',}), required=False)
-    rapp_3=forms.ModelChoiceField(queryset=Person.objects.order_by('name').filter(src="rapp"), empty_label="Select a " + var_name_data.var_name["rapp"], widget=forms.Select(attrs={'id': 'rapp_3_id', 'name': 'rapp_3_id',}), required=False)
-    rapp_4=forms.ModelChoiceField(queryset=Person.objects.order_by('name').filter(src="rapp"), empty_label="Select a " + var_name_data.var_name["rapp"], widget=forms.Select(attrs={'id': 'rapp_4_id', 'name': 'rapp_4_id',}), required=False)
-    rapp_5=forms.ModelChoiceField(queryset=Person.objects.order_by('name').filter(src="rapp"), empty_label="Select a " + var_name_data.var_name["rapp"], widget=forms.Select(attrs={'id': 'rapp_5_id', 'name': 'rapp_5_id',}), required=False)
-
-    #prelex
     config_cons=forms.RegexField(regex=r'^CAG|RE|ECOFIN|JAI|EPSCO|COMPET|TTE|AGRIFISH|AGRI-FISH|ENV|EYC$', required=False)
 
     #dgs
@@ -118,8 +109,17 @@ class ActForm(forms.ModelForm):
     #hidden control used to populate gentleSelect selects when ajax
     countries=forms.ModelMultipleChoiceField(queryset=Country.objects.only("country_code"), required=False)
 
-
     gvt_compo=forms.CharField(required=False)
+    
+
+    #oeil
+    #rapp* drop down list -> order nouns
+    rapp_1=forms.ModelChoiceField(queryset=Person.objects.order_by('name').filter(src="rapp"), empty_label="Select a " + var_name_data.var_name["rapp"], widget=forms.Select(attrs={'id': 'rapp_1_id', 'name': 'rapp_1_id',}), required=False)
+    rapp_2=forms.ModelChoiceField(queryset=Person.objects.order_by('name').filter(src="rapp"), empty_label="Select a " + var_name_data.var_name["rapp"], widget=forms.Select(attrs={'id': 'rapp_2_id', 'name': 'rapp_2_id',}), required=False)
+    rapp_3=forms.ModelChoiceField(queryset=Person.objects.order_by('name').filter(src="rapp"), empty_label="Select a " + var_name_data.var_name["rapp"], widget=forms.Select(attrs={'id': 'rapp_3_id', 'name': 'rapp_3_id',}), required=False)
+    rapp_4=forms.ModelChoiceField(queryset=Person.objects.order_by('name').filter(src="rapp"), empty_label="Select a " + var_name_data.var_name["rapp"], widget=forms.Select(attrs={'id': 'rapp_4_id', 'name': 'rapp_4_id',}), required=False)
+    rapp_5=forms.ModelChoiceField(queryset=Person.objects.order_by('name').filter(src="rapp"), empty_label="Select a " + var_name_data.var_name["rapp"], widget=forms.Select(attrs={'id': 'rapp_5_id', 'name': 'rapp_5_id',}), required=False)
+
 
     #transform textbox to textarea
     notes = forms.CharField(widget=forms.Textarea, required=False)
@@ -127,7 +127,7 @@ class ActForm(forms.ModelForm):
     class Meta:
         model=Act
         #fields NOT used for the validation and not displayed in the form
-        exclude=('id', 'releve_annee', 'releve_mois', 'no_ordre', 'titre_rmc', 'council_path', 'attendance_pdf', 'date_doc', 'url_prelex', "validated", "validated_attendance")
+        exclude=('id', 'releve_annee', 'releve_mois', 'no_ordre', 'titre_rmc', 'council_path', 'attendance_pdf', 'date_doc', "validated", "validated_attendance")
 
 
     #dynamically create drop down lists for adopt_cs and adopt_pc fields

@@ -5,7 +5,6 @@
 """
 import get_ids_eurlex as eurlex
 import get_ids_oeil as oeil
-import get_ids_prelex as prelex
 
 
 def check_get_ids_eurlex(no_celex):
@@ -69,36 +68,3 @@ def check_get_ids_oeil(no_unique_type, no_unique_annee, no_unique_chrono):
         fields['propos_chrono']=None
 
     return fields
-
-
-def check_get_ids_prelex(ids, no_celex):
-    """
-    FUNCTION
-    check and get all the ids from the prelex ids
-    PARAMETERS
-    ids: dos_id id or proposs ids or nos_unique ids [dictionary]
-    no_celex: no_celex id [string]
-    RETURN
-    fields: retrieved data from prelex [dictionary]
-    url_prelex: prelex url [string]
-    """
-    fields={}
-    url_prelex=None
-    if "propos_origine" in ids:
-        url_prelex=prelex.get_url_prelex_propos(ids['propos_origine'], ids['propos_annee'], ids['propos_chrono'])
-    elif "no_unique_annee" in ids and ids["no_unique_annee"]!=None:
-        url_prelex=prelex.get_url_prelex_no_unique(ids['no_unique_type'], ids['no_unique_annee'], ids['no_unique_chrono'])
-    elif "dos_id" in ids:
-        url_prelex=prelex.get_url_prelex(ids['dos_id'])
-
-    url_prelex_content=prelex.get_url_content_prelex(url_prelex)
-    #act doesn't exist, problem on page or problem with the Internet connection
-    if url_prelex_content!=False:
-        #~ #get data from prelex
-        fields=prelex.get_ids_prelex(url_prelex_content, no_celex)
-        fields['url_exists']=True
-    else:
-        print "prelex url does not exist!!"
-        fields['url_exists']=False
-
-    return fields, url_prelex

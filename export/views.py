@@ -64,7 +64,7 @@ def get_headers(excl_fields_acts_ids, excl_fields_acts):
                 headers.append(var_name_data.var_name["rapp_country_"+index])
                 headers.append(var_name_data.var_name["rapp_party_"+index])
                 headers.append(var_name_data.var_name["rapp_party_family_"+index])
-            #Responsibles (Person) and related (prelex)
+            #Responsibles (Person) and related fields
             elif "resp_" in field.name:
                 index=field.name[-1]
                 headers.append(var_name_data.var_name["resp_country_"+index])
@@ -158,7 +158,7 @@ def get_save_acts(excl_fields_acts_ids, excl_fields_acts, writer):
                     else:
                         #empty fields
                         fields.extend([None]*2)
-                #Rapporteurs (Person) and related (oeil) or Responsibles (Person) and related (prelex)
+                #Responsibles and related fields (eurlex) or Rapporteurs and related fields (oeil)
                 elif "rapp_" in field.name or "resp_" in field.name:
                     temp=getattr(act, field.name)
                     if temp is not None:
@@ -297,7 +297,7 @@ def get_excl_fields_acts():
     RETURNS
     excl_fields_acts_ids: list of fields to exclude(from the Act model) [list of strings]
     """
-    excl_fields_acts=["id",  'date_doc', "url_prelex", "validated", "validated_attendance"]
+    excl_fields_acts=["id", 'date_doc', "validated", "validated_attendance"]
     return excl_fields_acts
     
     

@@ -494,7 +494,7 @@ def get_resp_names(soup):
 
 
 
-def get_data_oeil(soup, act_ids, act=None):
+def get_data_oeil(soup, act_ids):
     """
     FUNCTION
     get all data from the oeil url

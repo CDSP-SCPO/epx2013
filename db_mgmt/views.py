@@ -7,7 +7,7 @@ from django.template.loader import render_to_string
 from django.utils import simplejson
 #models
 from act.models import PartyFamily
-from act.get_data_prelex import format_resp_name
+from act.get_data_eurlex import format_resp_name
 #forms
 from forms import AddDG, AddRapp, AddResp
 #variables names

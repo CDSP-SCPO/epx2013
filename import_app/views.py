@@ -13,7 +13,7 @@ from common.db import save_get_object, save_get_field_and_fk
 from common.functions import date_string_to_iso
 #manipulate csv files, path of the file to import, copy a list and use regex
 import csv, os, copy, re
-#cross validation functions and get data from eurlex, oeil, prelex
+#cross validation functions and get data from eurlex and oeil
 import get_ids
 #redirect to login page if not logged
 from django.contrib.auth.decorators import login_required
@@ -97,7 +97,7 @@ def save_2_tables(row, fields, fields_fk, party_family=""):
     field_fk=copy.deepcopy(fields_fk)
     #the position becomes the value (in order to call the save_get_field_and_fk function)
     field[2]=row[field[2]].strip()
-    #if import of responsibles (prelex) -> change name format of person: "LASTNAME, Firstname" -> "LASTNAME Firstname"
+    #if import of responsibles (eurlex) -> change name format of person: "LASTNAME, Firstname" -> "LASTNAME Firstname"
     if field[1]=="name":
         field[2]=field[2].replace(",","")
         src="resp"
@@ -315,7 +315,7 @@ def get_data_act(row):
             #save act_ids
             act_ids.save()
 
-            #success (row saved): get the ids of the act to retrieve the ids on eurlex, oeil and prelex
+            #success (row saved): get the ids of the act to retrieve the ids on eurlex and oeil
             msg=ids_row
         else:
             #error message
@@ -327,7 +327,7 @@ def get_data_act(row):
 def get_save_act_ids(acts_ids):
     """
     FUNCTION
-    get and save retrieved ids from eurlex, oeil and prelex in the the database (import or update act ids)
+    get and save retrieved ids from eurlex and oeil in the the database (import or update act ids)
     PARAMETERS
     acts_ids: list of act ids to save (monthly summary ids) [list of dictionaries of releve_* variables]
     RETURN
@@ -339,7 +339,7 @@ def get_save_act_ids(acts_ids):
 
         act_ids={}
         #get or create the act ids instance for each source
-        for src in ["index", "eurlex", "oeil", "prelex"]:
+        for src in ["index", "eurlex", "oeil"]:
             act_ids[src]=save_get_object(ActIds, {"act": act, "src": src})
 
         #get ids
@@ -350,28 +350,6 @@ def get_save_act_ids(acts_ids):
         #oeil
         act_ids["oeil"].__dict__.update(get_ids.check_get_ids_oeil(act_ids["index"].no_unique_type, str(act_ids["index"].no_unique_annee), act_ids["index"].no_unique_chrono))
         #~ act_ids["oeil"].__dict__.update(get_ids.check_get_ids_oeil(act_ids["index"].no_unique_type, str(act_ids["index"].no_unique_annee), act_ids["index"].no_unique_chrono))
-
-        #prelex
-        ids={}
-        #url: try with dos_id
-        if act_ids["index"].dos_id!=None:
-            ids['dos_id']=str(act_ids["index"].dos_id)
-        #no propos_chrono? is it a split proposition?
-        elif act_ids["index"].propos_chrono==None or "-" in act_ids["index"].propos_chrono:
-            #try with the oeil ids
-            ids['no_unique_type']=act_ids["index"].no_unique_type
-            ids['no_unique_annee']=act_ids["index"].no_unique_annee
-            ids['no_unique_chrono']=act_ids["index"].no_unique_chrono
-        else:
-            #prelex ids
-            ids['propos_origine']=act_ids["index"].propos_origine
-            ids['propos_annee']=act_ids["index"].propos_annee
-            ids['propos_chrono']=act_ids["index"].propos_chrono
-
-        prelex_ids, act.url_prelex=get_ids.check_get_ids_prelex(ids, act_ids["index"].no_celex)
-        #save prelex url
-        act.save()
-        act_ids["prelex"].__dict__.update(prelex_ids)
 
         #save ids
         for src in act_ids:
