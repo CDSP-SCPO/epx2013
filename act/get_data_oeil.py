@@ -28,8 +28,8 @@ def get_nb_lectures(soup, suite_2e_lecture_pe, no_unique_type):
     RETURN
     nb_lectures [int]
     """
-    #nb_lectures none if no_unique_type!= COD or SYN
-    if no_unique_type in ["COD", "SYN"]:
+    #nb_lectures none if no_unique_type!= COD
+    if no_unique_type == "COD":
         try:
             #search in the key event table only
             key_events_soup=soup.find("a", {"class": "expand_button"}, text="Key events").find_next("table")
@@ -39,14 +39,10 @@ def get_nb_lectures(soup, suite_2e_lecture_pe, no_unique_type):
                 return 3
 
             #2d lecture
-            #if suite_2e_lecture_pe=Yes
-            if suite_2e_lecture_pe==True:
-                pattern="Decision by Parliament, 2nd reading"
-            #if suite_2e_lecture_pe=No
-            else:
-                pattern="Act approved by Council, 2nd reading"
-            if key_events_soup.find(text=re.compile(pattern))>0:
-                return 2
+            patterns=["Decision by Parliament, 2nd reading", "Act approved by Council, 2nd reading"]
+            for pattern in patterns:
+                if key_events_soup.find(text=re.compile(pattern))>0:
+                    return 2
 
             #1st lecture
             if key_events_soup.find(text=re.compile("Act adopted by Council after Parliament's 1st reading"))>0 or key_events_soup.find(text=re.compile("Committee referral announced in Parliament, 1st reading/single reading"))>0:

@@ -407,6 +407,7 @@ def get_adopt_conseil(soup, suite_2e_lecture_pe, split_propos, nb_lectures):
             adopt_conseil=date_table_soup.find("b").get_text()
 
     # if there is no  2d Lecture at PE
+    #~ if no unique type != COD OU nb lectures=1 OU suite_2e_lecture_pe==False:
     if adopt_conseil==None and suite_2e_lecture_pe==False:
         acts=["Formal adoption by Council", "Adoption common position", "Council approval 1st rdg"]
         for act in acts:
@@ -446,6 +447,7 @@ def get_nb_point_a(soup, propos_origine):
     """
     nb_point_a=None
     try:
+        #~ and propos origine != EM
         if propos_origine!="CONS" and propos_origine!="BCE":
             nb_point_a=len(soup.find_all(text=re.compile('ITEM "A"')))
     except:
