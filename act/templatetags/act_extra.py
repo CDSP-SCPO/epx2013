@@ -60,3 +60,17 @@ def get_party_family(pers_id):
     except Exception, e:
         print e
         return None
+
+
+@register.filter
+def numeric_loop(val):
+    """
+    FUNCTION
+    use a numeric loop in template
+    PARAMETERS
+    val: number of iterations [int]
+    RETURN
+    range: for loop [list of integers]
+    """
+    print val
+    return range(val)

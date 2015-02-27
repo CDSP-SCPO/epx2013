@@ -12,7 +12,7 @@ from import_app.views import save_adopt_cs_pc
 from import_app.models import ImportAdoptPC
 from common.functions import list_reverse_enum, date_string_to_iso
 from common.db import save_fk_code_sect, save_get_object, save_get_resp_eurlex
-from common import config_file as conf
+from common.config_file import *
 #get pdf file (nb_mots)
 import urllib2
 #read pdf file (nb_mots)
@@ -140,7 +140,6 @@ def get_code_sect(directory_code, tab="ALL"):
 #second, third and fourth: can be null
 
 
-
 def get_rep_en(directory_code, tab="ALL"):
     """
     FUNCTION
@@ -253,7 +252,7 @@ def get_type_acte(soup):
         if form=="directive":
             return author_code+"DVE"
         #regulation
-        if form=="regulation":
+        elif form=="regulation":
             return author_code+"REG"
 
         return author+" "+form
@@ -387,7 +386,7 @@ def get_nb_mots(no_celex):
     #http://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:31996R0122&from=EN
     #http://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:32010R0053&from=EN
     src="html"
-    url=conf.url_text_act_html
+    url=url_text_act_html
     url=url.replace("NOCELEX", no_celex, 1)
     soup=BeautifulSoup(urllib.urlopen(url))
     nb_mots=0
@@ -398,7 +397,7 @@ def get_nb_mots(no_celex):
         if soup.title.string=="The requested document does not exist. - EUR-Lex":
             print "no english for html text, or no html text -> use pdf"
             src="pdf"
-            url=conf.url_text_act_pdf
+            url=url_text_act_pdf
             url=url.replace("NOCELEX", no_celex, 1)
             file_object=urllib2.urlopen(urllib2.Request(url)).read()
             #~ return None
@@ -407,7 +406,6 @@ def get_nb_mots(no_celex):
         print "link to 2 documents (STATEMENTS)", e
         return None
         #TODO: SELECT one of the two documents
-        #~ return None
 
     #read text of the act from an html document
     if src=="html":
@@ -429,47 +427,33 @@ def get_nb_mots(no_celex):
     #http://eur-lex.europa.eu/legal-content/EN/TXT/PDF/?uri=CELEX:32000D0283(01)&from=EN
 
 
+
 # TO DO
-
-def get_adopt_com_table(soup):
-    """
-    FUNCTION
-    get the html content of the table tag "Adoption by Commission" from the prelex url
-    PARAMETERS
-    soup: prelex url content [BeautifulSoup object]
-    RETURN
-    html content of the table "Adoption by Commission" [BeautifulSoup object]
-    """
-    try:
-        return soup.find("b", text=re.compile("Adoption by Commission")).find_parent('table')
-    except:
-        print "no table called 'Adoption by Commission' (prelex)"
-        return None
-
 
 def get_adopt_propos_origine(soup, propos_origine):
     """
     FUNCTION
-    get the adopt_propos_origine variable from the prelex url
+    get the adopt_propos_origine variable from the eurlex url
     PARAMETERS
-    soup: prelex url content [BeautifulSoup object]
+    soup: eurlex url content [BeautifulSoup object]
     propos_origine: propos_origine variable [string]
     RETURN
     adopt_propos_origine: adopt_propos_origine variable [date]
     """
     adopt_propos_origine=None
     try:
+        #(2013-12-45) http://eur-lex.europa.eu/legal-content/EN/HIS/?uri=CELEX:32013L0062
         if propos_origine=="COM":
-            adopt_propos_origine=soup.find("a", text=re.compile("Adoption by Commission")).find_next('br').next.strip()
+            adopt_propos_origine=soup.find("div", {"class": "procedureHeader"}).find(text=re.compile("Adoption by Commission")).lstrip()[:10]
+        #TODO
+        #(2014-3-20) http://eur-lex.europa.eu/legal-content/EN/HIS/?uri=CELEX:32014L0041
         elif propos_origine=="JAI":
             adopt_propos_origine=get_transm_council(soup, propos_origine)
-        elif propos_origine=="CONS":
-            print "TODO: extraction pdf almost done (see tests)"
 
         #transform dates to the iso format (YYYY-MM-DD)
         adopt_propos_origine=date_string_to_iso(adopt_propos_origine)
-    except:
-        print "no adopt_propos_origine!"
+    except Exception, e:
+        print "no adopt_propos_origine!", e
 
     return adopt_propos_origine
 
@@ -485,16 +469,17 @@ def get_adopt_propos_origine(soup, propos_origine):
 def get_com_proc(soup, propos_origine):
     """
     FUNCTION
-    get the com_proc variable from the prelex url
+    get the com_proc variable from the eurlex url
     PARAMETERS
-    soup: prelex url content [BeautifulSoup object]
+    soup: eurlex url content [BeautifulSoup object]
     propos_origine: propos_origine variable [string]
     RETURN
     com_proc variable [string]
     """
     try:
+        #(2013-12-45) http://eur-lex.europa.eu/legal-content/EN/HIS/?uri=CELEX:32013L0062
         if propos_origine=="COM":
-            return soup.find("td", text="Decision mode:").find_next('td').get_text().strip()
+            return soup.find("th", text="Decision mode:").find_next('td').get_text().strip()
     except:
         print "no com_proc!"
     return None
@@ -505,98 +490,129 @@ def get_com_proc(soup, propos_origine):
 #~ Null if ProposOrigine !=COM
 
 
-def format_resp_name(names):
-    """
-    FUNCTION
-    rewrite  the name of the responsible in the right format (also used for rapporteurs)
-    PARAMETERS
-    names: full name of the person [string]
-    RETURN
-    instance: full name of the person, in the right format [string]
-    """
-    #remove trailing "'"
-    if names[-1]=="'":
-        names=names[:-1]
-    #change name format: "Firstname LASTNAME" -> "LASTNAME Firstname"
-    names=names.split()
-    first_name=last_name=""
-    for name in names:
-        #get last names
-        if name.isupper():
-            last_name+=name+" "
-        #get first names
-        else:
-            first_name+=name+" "
-
-    names=last_name+first_name[:-1]
-
-    return names
-
-
-def get_jointly_resps(soup):
-    """
-    FUNCTION
-    get the names of the jointly responsible persons (dg_2 and resp_2 or resp_3) from the prelex url
-    PARAMETERS
-    soup: prelex url content [BeautifulSoup object]
-    RETURN
-    names of jointly responsible persons (dg_2 and resp_2 or resp_3 ) [list of strings]
-    """
-    dg_2=resp_2=None
-    try:
-        #~ http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=en&DosId=191926
-        jointly_resps=soup.find_all("td", text="Jointly responsible")
-        #dg_2
-        dg_2=jointly_resps[0].find_next('td').get_text().strip()
-        #resp_2 or 3
-        resp_2=jointly_resps[1].find_next('td').get_text()
-
-    except:
-        print "no dg_2 or resp_2"
-
-    return dg_2, resp_2
-
-#in front of "Jointly responsible"
-#can be Null
-
-
 def get_dg_1(soup):
     """
     FUNCTION
-    get the dg_1 variable from the prelex url
+    get the dg_1 variable from the eurlex url
     PARAMETERS
-    soup: prelex url content [BeautifulSoup object]
+    soup: eurlex url content [BeautifulSoup object]
     RETURN
     dg_1 variable [string]
     """
-    try:
-        #dg
-        dg_1=soup.find("td", text="Primarily responsible").find_next('td').get_text().strip()
-        if dg_1!="":
-            return dg_1
-    except:
-        pass
+    if propos_origine=="COM":
+        try:
+            #(2013-12-45) http://eur-lex.europa.eu/legal-content/EN/HIS/?uri=CELEX:32013L0062
+            dg=soup.find("th", text="Leading service:").find_next('td').get_text().strip()
+            return dg
+        except:
+            pass
     return None
 
-#~ in front of "Primarily responsible"
+#~ in front of "Leading service"
 #can be Null
 
 
-def save_get_dg(dg):
+def check_resp_format(names):
     """
     FUNCTION
-    get the dg instance(s) associated to the dg passed in parameter
+    check that the resp_name string in parameter matches the resp name format: Firstname(s) LASTNAME(S)
+    PARAMETERS
+    names: resp name? [string]
+    RETURN
+    True if resp_name is a resp and False otherwise [boolean]
+    """
+    if names is not None:
+        names=names.split()
+        first_name=0
+        last_name=False
+        #check format
+        for name in names:
+            #checking Firstname(s)
+            if not last_name:
+                if not name[0].isupper() or not name [1:].islower():
+                    #it does not match a first name format and no first name was found before -> this is not a responsible!
+                    if first_name==0:
+                        return False
+                    else:
+                        #we are now checking last names
+                        last_name=True
+                else:
+                    #this is a first name
+                    first_name=1
+
+            #checking LASTNAME(S)
+            if last_name and not name.isupper():
+                return False
+
+    #if the string matches the responsible name format (none error was detected), return True
+    return True
+
+
+def get_dg_2_3(soup):
+    """
+    FUNCTION
+    get the dg_2 and dg_3 variable (if any) from the eurlex url
+    PARAMETERS
+    soup: eurlex url content [BeautifulSoup object]
+    RETURN
+    dg_2: dg_2 variable [string]
+    dg_3: dg_3 variable [string]
+    """
+    dg_2=None
+    dg_3=None
+    if propos_origine=="COM":
+        try:
+            #no problem
+            #(1999-4-2) http://eur-lex.europa.eu/legal-content/EN/HIS/?uri=CELEX:31999D1296
+            
+            #problem
+            #(2005-7-3) http://eur-lex.europa.eu/legal-content/EN/HIS/?uri=CELEX:32005D0600
+            #Joint leading service is also used to identify for resp_2 / resp_3)
+            #use find_all to get both dg_2 and resp_2 / resp_2
+            #take the first item and check if the field format matches a resp
+            #if yes, dg_1 is in the second item
+            #if no, dg_1 is in the first item
+            fields_temp=soup.find_all("th", text="Joint leading service:")
+            fields=[]
+            #for each field, split it if more than one dg / resp
+            for field in fields_temp:
+                fields.append(field.find_next('td').get_text().split(";"))
+            #check only the first field (there is maximum two Joint leading service on the same page)
+            check=check_resp_format(fields[0][0])
+            #resp_format, the dg variable is the other item (if any)
+            if check:
+                if len(fields)>1:
+                    dg_2=fields[1][0].strip()
+                    dg_3=fields[1][1].strip()
+            else:
+                #the field doesn't match a responsible, it must be a dg!
+                dg_2=fields[0][0].strip()
+                dg_3=fields[0][1].strip()
+        except Exception, e:
+            print "dg_2 except", e
+            pass
+        
+    return dg_2, dg_3
+
+#~ in front of "Leading service"
+#can be Null
+
+
+def get_dgs(dgs):
+    """
+    FUNCTION
+    get the dg instances associated to the dg passed in parameter
     PARAMETERS
     dg: dg 1 or 2 [string]
     RETURN
-    dg_instance: list of dg instance(s) [list of DG model instances]
+    dg_instances: list of dg instances [list of DG model instances]
     """
-    dg_instance=[]
+    dg_instances=[]
     many=False
-    if dg!=None and dg.strip()!="":
+    if dgs is not None and dgs.strip()!="":
         #if there are two possible dgs separated by a semi-column
-        print "dg", dg
-        temp=dg.split(";")
+        #~ print "dgs", dgs
+        temp=dgs.split(";")
         for dg in temp:
             dg=dg.strip()
             #if it is a dg_nb, it can refer to more than one DG (manual validation)
@@ -607,11 +623,11 @@ def save_get_dg(dg):
                     try:
                         instance=DG.objects.get(dg_nb=dg_nb)
                     except Exception, e:
-                        print "many possible dgs", e
+                        #~ print "many possible dgs", e
                         instances=DG.objects.filter(dg_nb=dg_nb)
                         many=True
                 except Exception, e:
-                    print "save_get_dgs exception", e
+                    #~ print "get_dgs exception", e
                     instance=None
             #it is a dg
             else:
@@ -619,66 +635,178 @@ def save_get_dg(dg):
                     #dg exists
                     instance=DG.objects.get(dg=dg)
                 except Exception, e:
-                    print "dg does not exist yet", e
+                    #~ print "dg does not exist yet", e
                     #TODO
                     instance=dg
 
             if many:
                 for instance in instances:
-                    dg_instance.append(instance)
+                    dg_instances.append(instance)
             else:
-                dg_instance.append(instance)
+                dg_instances.append(instance)
 
-    return dg_instance
+    return dg_instances
 
 
-def get_resps(soup):
+def display_dgs(dgs, name):
     """
     FUNCTION
-    get the responsible names from the prelex url (resp_1, resp_2, resp_3)
+    display dg and dg_sigle variables
     PARAMETERS
-    soup: prelex url content [BeautifulSoup object]
+    dgs: dg_1 or dg_2 or dg_3 [DG instance]
+    name: variable name [string]
     RETURN
-    resps: resp_* names [list of strings]
+    None
     """
-    resps=[None]*3
-    try:
-        temps=soup.find("td", text="Responsible").find_next('td').get_text().split(";")
-        for index in range(len(temps)):
-            resps[index]=temps[index]
-    except Exception, e:
-        print "no responsible", e
-    #two responsibles (2006, 7, 19)
-    #http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=en&DosId=191554 (2006, 7, 19)
-    return resps
+    if dgs!=None:
+        #get index
+        dg_sigle_name="dg_sigle_"+name[-1]
+        for dg in dgs:
+            #if the dg was found in the database, we have its instance
+            if isinstance(dg, DG):
+                print name, dg.dg
+                print dg_sigle_name, dg.dg_sigle.dg_sigle
+            #if the dg was not found in the database, we have the string name found on eurlex (no dg_sigle)
+            else:
+                print name, dg
+                print dg_sigle_name, "dg not found in db so no dg_sigle"
+            
 
-#~ in front of "Responsible"
+def format_resp_name(names):
+    """
+    FUNCTION
+    rewrite  the name of the responsible in the right format (also used for rapporteurs)
+    PARAMETERS
+    names: full name of the person [string]
+    RETURN
+    instance: full name of the person, in the right format [string]
+    """
+    if names is not None:
+        #remove trailing "'"
+        if names[-1]=="'":
+            names=names[:-1]
+        #change name format: "Firstname LASTNAME" -> "LASTNAME Firstname"
+        names=names.split()
+        first_name=last_name=""
+        for name in names:
+            #get last names
+            if name.isupper():
+                last_name+=name+" "
+            #get first names
+            else:
+                first_name+=name+" "
+
+        names=last_name+first_name[:-1]
+
+    return names
+
+
+def get_resp_1(soup):
+    """
+    FUNCTION
+    get the resp_1 variable from the eurlex url
+    PARAMETERS
+    soup: eurlex url content [BeautifulSoup object]
+    RETURN
+    resp_1 variable [string]
+    """
+    try:
+        #1999-4-2 http://eur-lex.europa.eu/legal-content/EN/HIS/?uri=CELEX:31999D1296
+        resp=soup.find("th", text="Leading person:").find_next('td').get_text().strip()
+        return resp
+    except:
+        pass
+    return None
+
+#~ in front of "Leading person"
 #can be Null
 
 
-def get_resp_objs(resps):
+def get_resp_2_3(soup):
     """
     FUNCTION
-    get the responsible objects from the responsible names
+    get the resp_2 variable and resp_3 variable (if any) from the eurlex url
     PARAMETERS
-    resps: list of responsible names [list of strings]
+    soup: eurlex url content [BeautifulSoup object]
     RETURN
-    persons: resp_* variables [list of Person model instances]
+    resp_2 variable [string]
+    resp_3 variable [string]
     """
-    persons=[None for i in range(3)]
+    resp_2=None
+    resp_3=None
     try:
-        for index in xrange(len(persons)):
-            names=format_resp_name(resps[index].strip())
-            persons[index]=save_get_resp_prelex(names)
-    except Exception, e:
-        print "exception", e
-    return persons
+        #1 dg only (dg_2)
+        #(1999-4-2) http://eur-lex.europa.eu/legal-content/EN/HIS/?uri=CELEX:31999D1296
+        resps=soup.find("th", text="Leading person:").find_next("th", text="Joint leading service:").find_next('td').get_text().strip()
+        #variables separated by a semicolon
+        resps=resps.split(";")
+        resp_2=resps[0]
+        
+        #if more than one dg (dg_2 and dg_3)
+        #(2005-7-3) http://eur-lex.europa.eu/legal-content/EN/HIS/?uri=CELEX:32005D0600
+        if len(resps)>1:
+            resp_3=resps[1]
+
+    except:
+        pass
+
+    return resp_2, resp_3
+
+#~ in front of "Joint leading service" (IT'S A MISTAKE ON EURLEX, IT SHOULD BE JOINT LEADING PERSON)
+#can be Null
+
+
+def get_resp(resp_name):
+    """
+    FUNCTION
+    get the resp instance of the resp_name variable
+    PARAMETERS
+    resp_name: name of the responsible list of responsible names [string]
+    RETURN
+    instance: instance of the resp in parameter [Person instance]
+    """
+    if resp_name is not None:
+        try:
+            name=format_resp_name(resp_name)
+            return save_get_resp_eurlex(name)
+        except Exception, e:
+            print "exception", e
+    return None
+
+
+def display_resps(resp, name):
+    """
+    FUNCTION
+    display resp and related variables (name, country, party, party_family)
+    PARAMETERS
+    resp: resp_1 or resp_2 or resp_3 [Person instance]
+    name: variable name [string]
+    RETURN
+    None
+    """
+    if resp!=None:
+        #get index
+        resp_name="resp_"+name[-1]
+        country_name="country_"+name[-1]
+        party_name="party_"+name[-1]
+        party_family_name="party_family_"+name[-1]
+        
+        #if the resp was found in the database, we have its instance
+        if isinstance(resp, Person):
+            print resp_name, resp.name
+            print country_name, resp.country.country
+            print party_name, resp.party.party
+            print party_family_name, PartyFamily.objects.get(party=resp.party, country=resp.country).party_family
+        #if the dg was not found in the database, we have the string name found on eurlex (no dg_sigle)
+        else:
+            print resp_name, resp
+            print "resp not found in db so there is no related data (country, party, party_family)"
 
 
 def get_transm_council(soup, propos_origine):
     """
     FUNCTION
-    get the transm_council variable from the prelex url
+    get the transm_council variable from the eurlex url
     PARAMETERS
     soup: prelex url content [BeautifulSoup object]
     propos_origine: propos_origine variable [string]
@@ -687,22 +815,19 @@ def get_transm_council(soup, propos_origine):
     """
     transm_council=None
     try:
-        if propos_origine=="CONS":
-            transm_council=get_adopt_propos_origine(soup, propos_origine)
-        else:
-            transm_council=soup.find("a", text=re.compile("Transmission to Council")).find_next('br').next.strip()
+        #(2014-3-20) http://eur-lex.europa.eu/legal-content/EN/HIS/?uri=CELEX:32014L0041 
+        if propos_origine!="CONS":
+            transm_council=soup.find("div", {"class": "procedureHeader"}).find(text=re.compile("Transmission to Council")).lstrip()[:10]
+            #transform dates to the iso format (YYYY-MM-DD)
+            transm_council=date_string_to_iso(transm_council)
     except:
         print "pb transm_council"
 
-    #transform dates to the iso format (YYYY-MM-DD)
-    if transm_council!=None:
-        transm_council=date_string_to_iso(transm_council)
     return transm_council
 
 #date in front of "Transmission to Council"
 #not Null (except blank page -> error on page)
 #AAAA-MM-JJ format
-#ProposOrigine=CONS -> AdoptionProposOrigine
 
 
 def get_nb_point_b(soup, propos_origine):
@@ -717,7 +842,7 @@ def get_nb_point_b(soup, propos_origine):
     """
     nb_point_b=None
     try:
-        if propos_origine!="CONS" and propos_origine!="BCE":
+        if propos_origine not in ["CONS", "BCE", "EM", "CJUE"]:
             nb_point_b= len(soup.find_all(text=re.compile('ITEM "B"')))
     except:
         print "no nb_point_b!"
@@ -742,7 +867,7 @@ def get_cons_b(soup, propos_origine):
     """
     cons_b=None
     try:
-        if propos_origine!="CONS":
+        if propos_origine not in ["CONS", "BCE", "EM", "CJUE"]:
             cons_b_temp=""
             for tables in soup.find_all(text=re.compile('ITEM "B" ON COUNCIL AGENDA')):
                 cons_b_temp+=tables.find_parent('table').find(text=re.compile("SUBJECT")).find_next("font", {"size":-2}).get_text().strip()+'; '
@@ -861,7 +986,7 @@ def get_nb_point_a(soup, propos_origine):
     nb_point_a=None
     try:
         #~ and propos origine != EM
-        if propos_origine!="CONS" and propos_origine!="BCE":
+        if propos_origine not in ["CONS", "BCE", "EM", "CJUE"]:
             nb_point_a=len(soup.find_all(text=re.compile('ITEM "A"')))
     except:
         print "no nb_point_a!"
@@ -994,7 +1119,7 @@ def get_data_eurlex(soups, act_ids):
     FUNCTION
     get all data from the eurlex url
     PARAMETERS
-    soups: eurlex url content from the all and his tab [list of BeautifulSoup objects]
+    soups: eurlex url content from the "all" and "his" tab [list of BeautifulSoup objects]
     act_ids: act ids instance [ActIds instance]
     RETURN
     fields: retrieved data from eurlex [dictionary]
@@ -1003,138 +1128,120 @@ def get_data_eurlex(soups, act_ids):
     """
     fields={}
     act=act_ids.act
+    #display in the Act data validation form dg and resp names as written on eurlex
+    dg_names=[]
+    resp_names=[]
 
+    #ALL TAB
     #<div id="content">
-    soup=soups[0].find("div", {"id": "content"})
+    soup_all=soups[0].find("div", {"id": "content"})
+
+    #HIS tab (Procedure)
+    #<div class="tabContent tabContentForDocument">
+    soup_his=soups[1].find("div", {"class": "tabContent"})
+    
 
     #titre_en
-    fields['titre_en']=get_titre_en(soup)
-    print "titre_en:", fields['titre_en']
-
-    #all and his url
-    directory_code_soup, tab=get_directory_code(soup, soups[1])
-
-    #code_sect_1, code_sect_2, code_sect_3, code_sect_4
-    code_sects=get_code_sect(directory_code_soup, tab)
-
-    #code_agenda_1-4
-    save_code_agenda(code_sects)
-
-    #print code_sect_* and code_agenda_*
-    for index in xrange(len(code_sects)):
-        num=str(index+1)
-        #django adds "_id" to foreign keys field names
-        fields['code_sect_'+num+"_id"]=code_sects[index]
-        if code_sects[index]!=None:
-            print 'code_sect_'+num+": ", fields['code_sect_'+num+"_id"].code_sect
-            print 'code_agenda_'+num+": ", fields['code_sect_'+num+"_id"].code_agenda.code_agenda
-
-    #rep_en_1, rep_en_2, rep_en_3, rep_en_4
-    rep_ens=get_rep_en(directory_code_soup, tab)
-    for index in xrange(len(rep_ens)):
-        num=str(index+1)
-        fields['rep_en_'+num]=rep_ens[index]
-        print 'rep_en_'+num+": ", fields['rep_en_'+num]
-
-    #type_acte
-    fields['type_acte']=get_type_acte(soup)
-    print "type_acte:", fields['type_acte']
-
-    #base_j
-    fields['base_j']=get_base_j(soup)
-    print "base_j:", fields['base_j']
-
-    #date_doc
-    fields['date_doc']=get_date_doc(soup)
-    print "date_doc:", fields['date_doc']
-
-    #nb_mots
-    fields['nb_mots']=get_nb_mots(act_ids.no_celex)
-    print "nb_mots:", fields['nb_mots']
+    #~ name='titre_en'
+    #~ fields[]=get_titre_en(soup_all)
+    #~ print name, fields[name]
+#~ 
+    #~ #all and his url
+    #~ directory_code_soup, tab=get_directory_code(soup_all, soup_his)
+#~ 
+    #~ #code_sect_1, code_sect_2, code_sect_3, code_sect_4
+    #~ code_sects=get_code_sect(directory_code_soup, tab)
+#~ 
+    #~ #code_agenda_1-4
+    #~ save_code_agenda(code_sects)
+#~ 
+    #~ #print code_sect_* and code_agenda_*
+    #~ name='code_sect_'
+    #~ for index in xrange(len(code_sects)):
+        #~ num=str(index+1)
+        #~ #django adds "_id" to foreign keys field names
+        #~ fields[name+num+"_id"]=code_sects[index]
+        #~ if code_sects[index]!=None:
+            #~ print name+num+": ", fields[name+num+"_id"].code_sect
+            #~ print 'code_agenda_'+num+": ", fields[name+num+"_id"].code_agenda.code_agenda
+#~ 
+    #~ #rep_en_1, rep_en_2, rep_en_3, rep_en_4
+    #~ rep_ens=get_rep_en(directory_code_soup, tab)
+    #~ name='rep_en_'
+    #~ for index in xrange(len(rep_ens)):
+        #~ num=str(index+1)
+        #~ fields[name+num]=rep_ens[index]
+        #~ print name+num+": ", fields[name+num]
+#~ 
+    #~ #type_acte
+    #~ name='type_acte'
+    #~ fields[name]=get_type_acte(soup_all)
+    #~ print name, fields[name]
+#~ 
+    #~ #base_j
+    #~ name='base_j'
+    #~ fields[name]=get_base_j(soup_all)
+    #~ print name, fields[name]
+#~ 
+    #~ #date_doc
+    #~ name='date_doc'
+    #~ fields[name]=get_date_doc(soup_all)
+    #~ print name, fields[name]
+#~ 
+    #~ #nb_mots
+    #~ name="nb_mots"
+    #~ fields[name]=get_nb_mots(act_ids.no_celex)
+    #~ print name, fields[name]
 
 
     #TO DO
 
-    dg_names=[]
-    resp_names=[]
 
-    #~ #<table border="0" cellpadding="0" cellspacing="1">
-    #~ soup_table_dates=soup.find("table", {"cellspacing": "1"})
-#~ 
-    #~ #adopt_propos_origine
-    #~ fields['adopt_propos_origine']=get_adopt_propos_origine(soup_table_dates, act_ids.propos_origine)
-    #~ print "adopt_propos_origine:", fields['adopt_propos_origine']
-#~ 
-    #~ #extract Adoption by Commission table (html content)
-    #~ soup_adopt_com_table=get_adopt_com_table(soup)
-#~ 
+
+    #adopt_propos_origine
+    #~ name='adopt_propos_origine'
+    #~ fields[name]=get_adopt_propos_origine(soup_his, act_ids.propos_origine)
+    #~ print name, fields[name]
+
     #~ #com_proc
-    #~ fields['com_proc']=get_com_proc(soup_adopt_com_table, act_ids.propos_origine)
-    #~ print "com_proc:", fields['com_proc']
+    #~ name='com_proc'
+    #~ fields[name]=get_com_proc(soup_his, act_ids.propos_origine)
+    #~ print name, fields[name]
 #~ 
-    #~ #dg_1
-    #~ dg_1=get_dg_1(soup_adopt_com_table)
+    #dg_1, #dg_2, dg_3
+    #~ fields["dg_1"]=get_dg_1(soup_his)
+    #~ fields["dg_2"], fields["dg_3"]=get_dg_2_3(soup_his)
+    #~ for index in range(nb_dgs):
+        #~ index=str(index+1)
+        #~ name="dg_"+index
+        #~ #dg names as displayed on eurlex
+        #~ dg_names.append(fields[name])
+        #~ #DG instances
+        #~ fields[name]=get_dgs(fields[name])
+        #~ display_dgs(fields[name], name)
 #~ 
-    #~ #jointly responsible persons (dg_2 and resp_2 or resp_3)
-    #~ dg_2, resp_2=get_jointly_resps(soup_adopt_com_table)
+    #~ print "dg_names", dg_names
+    
 #~ 
-    #~ #dg_* and dg_sigle_*
-    #~ dgs_temp=[dg_1, dg_2]
-    #~ for index in xrange(len(dgs_temp)):
-        #~ dgs=save_get_dg(dgs_temp[index])
-        #~ num=str(index+1)
-        #~ #django adds "_id" to foreign keys field names
-        #~ dg='dg_'+num+"_id"
-        #~ fields[dg]=None
-        #~ if dgs!=None:
-            #~ fields[dg]=dgs
-            #~ #list possible dgs
-            #~ try:
-                #~ for possible_dg in dgs:
-                    #~ print dg+":", possible_dg.dg
-                    #~ print "dg_sigle_"+num+":", possible_dg.dg_sigle.dg_sigle
-            #~ except Exception, e:
-                #~ print "only one dg to display", e
-                #~ #only one dg
-                #~ #error: dg does not exist in db yet
-                #~ if isinstance(dgs[0], unicode):
-                    #~ print dg+":", dgs[0]
-                #~ else:
-                    #~ try:
-                        #~ print dg+":", dgs[0].dg
-                        #~ print "dg_sigle_"+num+":", dgs[0].dg_sigle.dg_sigle
-                    #~ except Exception, e:
-                        #~ print "pb display dgs", e
-#~ 
-#~ 
-    #~ #resp_1, resp_2, resp_3
-    #~ resp_names=get_resps(soup_adopt_com_table)
-#~ 
-    #~ if resp_2!=None:
-        #~ if resp_names[1]==None:
-            #~ resp_names[1]=resp_2
-        #~ elif resp_names[2]==None:
-            #~ resp_names[2]=resp_2
-    #~ resps=get_resp_objs(resp_names)
-#~ 
-    #~ #resp variables (name, country, party, party_family)
-    #~ for index in xrange(len(resps)):
-        #~ num=str(index+1)
-        #~ #django adds "_id" to foreign keys field names
-        #~ name="resp_"+num+"_id"
-        #~ fields[name]=None
-        #~ if resps[index]!=None:
-            #~ fields[name]=resps[index]
-            #~ print name+":", fields[name].name
-            #~ if fields[name].country!=None:
-                #~ print "country_"+num+":", fields[name].country.pk
-                #~ party=fields[name].party
-                #~ print "party_"+num+":", party.party
-                #~ print "party_family_"+num+":", PartyFamily.objects.only("party_family").get(party=party.pk, country=fields[name].country.pk)
-#~ 
-    #~ #transm_council
-    #~ fields['transm_council']=get_transm_council(soup_table_dates, act_ids.propos_origine)
-    #~ print "transm_council:", fields['transm_council']
+    #~ #resp_1, resp_2, res_3
+    
+    #~ fields["resp_1"]=get_resp_1(soup_his)
+    #~ fields["resp_2"], fields["resp_3"]=get_resp_2_3(soup_his)
+    #~ for index in range(nb_resps):
+        #~ index=str(index+1)
+        #~ name="resp_"+index
+        #~ #resp names as displayed on eurlex
+        #~ resp_names.append(fields[name])
+        #~ #Person instances
+        #~ fields[name]=get_resp(fields[name])
+        #~ display_resps(fields[name], name)
+
+    #~ print "resp_names", resp_names
+
+    
+    #transm_council
+    fields['transm_council']=get_transm_council(soup_his, act_ids.propos_origine)
+    print "transm_council:", fields['transm_council']
 #~ 
     #~ #nb_point_b
     #~ fields['nb_point_b']=get_nb_point_b(soup, act_ids.propos_origine)

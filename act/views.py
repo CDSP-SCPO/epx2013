@@ -14,6 +14,7 @@ from django.forms.models import model_to_dict
 #variables name
 import act_ids.var_name_ids as var_name_ids
 import act.var_name_data as var_name_data
+from common.config_file import max_cons
 #retrieve url contents
 from import_app.get_ids_eurlex import get_url_eurlex, get_url_content_eurlex
 from import_app.get_ids_oeil import get_url_oeil, get_url_content_oeil
@@ -263,17 +264,18 @@ def get_data_all(context, add_modif, act, POST):
     if context["state"]=="display" and add_modif=="add" and not check_update(POST):
         print "data retrieval"
         logger.debug('data retrieval')
+        
         #retrieve all the data from all the sources
         #COMMENT FOR TESTS ONLY
-        logger.debug('eurlex to be processed')
-        print "eurlex to be processed"
-        fields, dg_names_eurlex, resp_names_eurlex=get_data("eurlex", act_ids["eurlex"], urls["url_eurlex"])
-        print "fields", fields
-        act.__dict__.update(fields)
         
         logger.debug('oeil to be processed')
         print "oeil to be processed"
         fields, dg_names_oeil, resp_names_oeil=get_data("oeil", act_ids["oeil"], urls["url_oeil"])
+        act.__dict__.update(fields)
+        
+        logger.debug('eurlex to be processed')
+        print "eurlex to be processed"
+        fields, dg_names_eurlex, resp_names_eurlex=get_data("eurlex", act_ids["eurlex"], urls["url_eurlex"])
         act.__dict__.update(fields)
         
         #~ #store dg/resp from eurlex and oeil to be displayed as text in the template
@@ -318,11 +320,29 @@ def get_data_all(context, add_modif, act, POST):
     context['gvt_compos']=temp["gvt_compo"]
     context['min_attends']=temp["min_attend"]
     context["party_family"]=get_party_family({"1": act.resp_1_id, "2": act.resp_2_id, "3": act.resp_3_id})
+    context["cons_vars_b"]=get_cons_vars("b", act.date_cons_b, act.cons_b)
+    context["cons_vars_a"]=get_cons_vars("a", act.date_cons_a, act.cons_a)
     context['act_ids']=act_ids
     context['form_data']=form_data
     
     return context
 
+
+def get_cons_vars(char, date_cons, cons):
+    cons_vars={}
+    date_conss=date_cons.split(";")
+    conss=cons.split(";")
+    
+    for num in xrange(1, max_cons+1):
+        index=str(num)
+        try:
+            #fill dictionary with vartiable values
+            cons_vars[index]=[date_conss[num], conss[num]]
+        except Exception, e:
+            #initialize date_cons and cons
+            cons_vars[index]=[None]*2
+
+    return cons_vars
 
 
 def init_context(context):
@@ -341,7 +361,9 @@ def init_context(context):
     #the template contains 4 main tables, each of these tables contains a subset of variables from the Act model -> this allows the template to loop over the corresponding subset of variables only (the one corresponding to the table to be displayed)
     #three tables for eurlex, one for oeil
     context["vars_eurlex_1"]=["titre_en", "code_sect_1", "code_sect_2", "code_sect_3", "code_sect_4", "rep_en_1", "rep_en_2", "rep_en_3", "rep_en_4", "type_acte", "base_j", "nb_mots"]
-    context["vars_eurlex_2"]=["adopt_propos_origine", "com_proc", "dg_1", "dg_2", "resp_1", "resp_2", "resp_3", "transm_council", "cons_b", "nb_point_b", "adopt_conseil", "nb_point_a", "council_a"]
+    cons_a_list=
+    
+    context["vars_eurlex_2"]=["adopt_propos_origine", "com_proc", "dg_1", "dg_2", "dg_3", "resp_1", "resp_2", "resp_3", "transm_council", "nb_point_b", "adopt_conseil", "nb_point_a"]
     context["vars_eurlex_3"]=["rejet_conseil", "chgt_base_j", "duree_adopt_trans", "duree_proc_depuis_prop_com", "duree_proc_depuis_trans_cons", "duree_tot_depuis_prop_com", "duree_tot_depuis_trans_cons", "vote_public", "adopt_cs_regle_vote", "adopt_cs_contre", "adopt_cs_abs", "adopt_pc_contre", "adopt_pc_abs", "adopt_ap_contre", "adopt_ap_abs", "dde_em", "split_propos", "proc_ecrite", "suite_2e_lecture_pe", "gvt_compo"]
     
     context["vars_oeil"]=["commission", "com_amdt_tabled", "com_amdt_adopt", "amdt_tabled", "amdt_adopt", "votes_for_1", "votes_agst_1", "votes_abs_1", "votes_for_2", "votes_agst_2", "votes_abs_2", "rapp_1", "rapp_2", "rapp_3", "rapp_4", "rapp_5", "modif_propos", "nb_lectures", "sign_pecs"]

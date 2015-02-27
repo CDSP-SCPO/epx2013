@@ -164,11 +164,38 @@
 }
 
 
-/* gvt_compo opal, and min_attend tables */
-#gvt_compo, #opal, #min_attend
+/* cons_b, cons_a, gvt_compo opal, and min_attend tables */
+.cons_b_table_div, .cons_a_table_div, .gvt_compo_table_div, .opal_table_div, .min_attend_table_div
+{
+    padding-bottom: 0;
+}
+
+
+#cons_a, #cons_b, #gvt_compo, #opal, #min_attend
 {
     margin: 2px;
     width: auto;
+}
+
+/* date_cons fields */
+#cons_b .date_cons_border 
+{
+    /* dotted right-border */
+    border-right-style: dotted;
+}
+
+
+/* date_cons fields */
+#cons_b .date_cons_border input[type="text"]
+{
+    width: 95%;
+}
+
+
+/* cons fields */
+#cons_b .cons_border input[type="text"]
+{
+    width: 184px;
 }
 
 /* borders for min_attend table*/
@@ -182,10 +209,6 @@
     width: 800px;
 }
 
-.gvt_compo_table_div, .opal_table_div, .min_attend_table_div
-{
-    padding-bottom: 0;
-}
 
 /* opal and min_attend */
 .empty

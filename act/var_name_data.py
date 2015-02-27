@@ -1,3 +1,5 @@
+from common.config_file import *
+
 #Acts
 #do the match between variables name used in the program (db) and variables name displayed
 var_name={}
@@ -33,13 +35,13 @@ var_name["nb_mots"]="NombreMots"
 var_name["adopt_propos_origine"]="AdoptionProposOrigine"
 var_name["com_proc"]="ComProc"
 var_name["dg"]="DGProposition*"
-var_name["dg_sigle_"]="SiglesDG"
-var_name["dg_sigle"]="SiglesDG*"
-var_name["dg_nb"]="ChiffresDG*"
-for index in xrange(1,3):
+var_name["dg_sigle_"]="SigleDG"
+var_name["dg_sigle"]="SigleDG*"
+var_name["dg_nb"]="ChiffreDG*"
+for index in xrange(1, nb_dgs+1):
     num=str(index)
     var_name["dg_"+num]="DGProposition"+num
-    var_name["dg_sigle_"+num]="SiglesDG"+num
+    var_name["dg_sigle_"+num]="SigleDG"+num
 var_name["resp"]="RespPropos*"
 var_name["name"]=var_name["resp"]
 var_name["resp_country"]="NationResp*"
@@ -55,10 +57,12 @@ for index in xrange(1,4):
     var_name["resp_party_"+num]="NationalPartyResp"+num
     var_name["resp_party_family_"+num]="PartyFamilyResp"+num
 var_name["transm_council"]="TransmissionCouncil"
-var_name["cons_b"]="ConsB"
 var_name["nb_point_b"]="NbPointB"
+var_name["date_cons_b"]="DateConsB"
+var_name["cons_b"]="ConsB"
 var_name["adopt_conseil"]="AdoptionConseil"
 var_name["nb_point_a"]="NbPointA"
+var_name["date_cons_a"]="DateConsA"
 var_name["council_a"]="CouncilA"
 
 var_name["rejet_conseil"]="RejetConseil"

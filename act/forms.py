@@ -7,6 +7,7 @@ from django.forms.util import ErrorList
 import var_name_data
 #reverse list with original index
 from common.functions import list_reverse_enum
+from common.config_file import max_cons
 
 
 def check_order_fields(fields):
@@ -88,6 +89,7 @@ class ActForm(forms.ModelForm):
     #dgs
     dg_1=forms.ModelChoiceField(queryset=DG.objects.order_by('dg').all(), empty_label="Select a " + var_name_data.var_name["dg"], widget=forms.Select(attrs={'id': 'dg_1_id', 'name': 'dg_1_id',}), required=False)
     dg_2=forms.ModelChoiceField(queryset=DG.objects.order_by('dg').all(), empty_label="Select a " + var_name_data.var_name["dg"], widget=forms.Select(attrs={'id': 'dg_2_id', 'name': 'dg_2_id',}), required=False)
+    dg_3=forms.ModelChoiceField(queryset=DG.objects.order_by('dg').all(), empty_label="Select a " + var_name_data.var_name["dg"], widget=forms.Select(attrs={'id': 'dg_3_id', 'name': 'dg_3_id',}), required=False)
 
     #resp* drop down list -> order nouns
     resp_1=forms.ModelChoiceField(queryset=Person.objects.order_by('name').filter(src="resp"), empty_label="Select a " + var_name_data.var_name["resp"], widget=forms.Select(attrs={'id': 'resp_1_id', 'name': 'resp_1_id',}), required=False)
@@ -130,12 +132,25 @@ class ActForm(forms.ModelForm):
         exclude=('id', 'releve_annee', 'releve_mois', 'no_ordre', 'titre_rmc', 'council_path', 'attendance_pdf', 'date_doc', "validated", "validated_attendance")
 
 
-    #dynamically create drop down lists for adopt_cs and adopt_pc fields
     def __init__(self, *args, **kwargs):
         super(ActForm, self).__init__(*args, **kwargs)
+
+        #15 date_cons_b / date_cons_a and cons_b / cons_a maximum
+        #create date_cons_b / date_cons_a and cons_b / cons_a variables
+        for character in "ab":
+            for index in range(max_cons):
+                index=str(index)
+                date_name="temp_date_cons_"+character+"_"+index
+                cons_name="temp_cons_"+character+"_"+index
+                self.fields[date_name] = forms.DateField(required=False)
+                self.fields[date_name].max_length=10
+                self.fields[cons_name] = forms.CharField(required=False)
+                self.fields[cons_name].max_length=500
+        
         #don't display the country, just its code
         self.fields["countries"].label_from_instance = lambda obj: "%s" % obj.country_code
 
+        #dynamically create drop down lists for adopt_cs and adopt_pc fields
         names=["adopt_cs_contre_", "adopt_pc_contre_", "adopt_cs_abs_", "adopt_pc_abs_"]
         cs_contre, pc_contre, cs_abs, pc_abs=([] for i in range(4))
         lists=[cs_contre, pc_contre, cs_abs, pc_abs]
@@ -150,7 +165,7 @@ class ActForm(forms.ModelForm):
                 self.fields[names[index]+str(nb)].widget.attrs.update({'class' : names[index]})
                 lists[index].append(self[names[index]+str(nb)])
 
-        #loop over each set of adopt drop down lists in the template
+        #update the adopt variables of the form
         self.cs_contre=cs_contre
         self.pc_contre=pc_contre
         self.cs_abs=cs_abs
@@ -158,6 +173,12 @@ class ActForm(forms.ModelForm):
 
         #nb_mots not editable
         self.fields["nb_mots"].widget.attrs['readonly'] = True
+
+
+    def get_date_cons_b_fields(self):
+        for name in self.fields:
+            if name.startswith("temp_date_cons_"):
+                yield([self[name], self[name]])
 
 
     def clean(self):

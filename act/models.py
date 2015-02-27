@@ -178,15 +178,22 @@ class Act(models.Model):
     com_proc=models.CharField(max_length=100, blank=True, null=True, default=None)
     dg_1=models.ForeignKey(DG, related_name='dg_1', blank=True, null=True, default=None)
     dg_2=models.ForeignKey(DG, related_name='dg_2', blank=True, null=True, default=None)
+    dg_3=models.ForeignKey(DG, related_name='dg_3', blank=True, null=True, default=None)
     resp_1=models.ForeignKey(Person, related_name='resp_1', blank=True, null=True, default=None)
     resp_2=models.ForeignKey(Person, related_name='resp_2', blank=True, null=True, default=None)
     resp_3=models.ForeignKey(Person, related_name='resp_3', blank=True, null=True, default=None)
     transm_council=models.DateField(max_length=10, blank=True, null=True, default=None)
+    nb_point_b=models.PositiveSmallIntegerField(max_length=2, blank=True, null=True, default=None)
+    #string dates separated by ";"
+    date_cons_b=models.CharField(max_length=200, blank=True, null=True, default=None)
+    #strings separated by ";"
     cons_b=models.CharField(max_length=500, blank=True, null=True, default=None)
-    nb_point_b=models.PositiveSmallIntegerField(max_length=1, blank=True, null=True, default=None)
     adopt_conseil=models.DateField(max_length=10, blank=True, null=True, default=None)
-    nb_point_a=models.PositiveSmallIntegerField(max_length=1, blank=True, null=True, default=None)
-    council_a=models.CharField(max_length=200, blank=True, null=True, default=None)
+    nb_point_a=models.PositiveSmallIntegerField(max_length=2, blank=True, null=True, default=None)
+    #string dates separated by ";"
+    date_cons_a=models.CharField(max_length=200, blank=True, null=True, default=None)
+    #strings separated by ";"
+    council_a=models.CharField(max_length=500, blank=True, null=True, default=None)
 
     chgt_base_j=models.BooleanField(default=False)
     duree_adopt_trans=models.PositiveSmallIntegerField(max_length=5, blank=True, null=True, default=None)

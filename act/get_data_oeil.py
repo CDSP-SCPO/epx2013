@@ -421,7 +421,7 @@ def get_sign_pecs(soup, no_unique_type):
     RETURN
     sign_pecs [date]
     """
-    if no_unique_type=="COD" or no_unique_type=="ACI":
+    if no_unique_type=="COD":
         try:
             sign_pecs=soup.find("td", text="Final act signed").find_previous("td").get_text()
             return date_string_to_iso(sign_pecs)

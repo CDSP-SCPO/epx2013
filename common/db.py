@@ -149,9 +149,11 @@ def save_get_resp_eurlex(names):
         #get the instance
         instance=Person.objects.get(src="resp", name=names)
         #check that there are the associated data
-        print instance.country.country
+        test=instance.country.country
     except:
-        #resp not found! the resp might be present in the db and is not found because of the accents -> remove accents of the resp in parameter
+        #resp not found! 2 solutions:
+        #1/the resp is not present in db and we will not have its associated data (country, party, party_family)
+        #2/the resp is present in the db but is not found because of the accents -> remove accents of the resp in parameter
         names=remove_nonspacing_marks(names)
         #problem of case?
         names=[name.strip().upper() for name in names.split()]

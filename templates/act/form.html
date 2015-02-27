@@ -130,6 +130,9 @@
 
 
     {% for field in form_data %}
+<!--
+        {{ field.name }}, 
+-->
         {% if field.name in vars_eurlex_2 %}
 
             <tr>
@@ -138,7 +141,7 @@
                     <div class="fieldWrapper">
                         <div id="id_{{ field.name }}_errors" class="row-fluid">{{ field.errors }}</div>
 
-                            <!-- disply different values for dgs and resps ONLY for add -->
+                            <!-- display different values for dgs and resps ONLY for add -->
                             {% if add_modif == "add" %}
                                 <!--dg: original values and message if more than one possible dg -->
                                 {% if field.name|slice:":3" == 'dg_' %}
@@ -183,10 +186,9 @@
                                 <button id="update_durations" name="update_durations" type="submit">
                                     <img id="update_durations_img" src="{{STATIC_URL}}europolix/img/reload.png" class="reload_img" alt="update duration fields" title="update duration fields">
                                 </button>
-                            {% endif %}
 
                             <!-- dg_1, dg_2 -->
-                            {% if field.name|slice:":3" == 'dg_' %}
+                            {% elif field.name|slice:":3" == 'dg_' %}
                                 {% with index=field.name|slice:"-1:" %}
                                     <!-- if javascript disabled -->
                                     <button id="update_dg_{{ index }}" name="update_dg_{{ index }}" type="submit" class="btn btn-primary update_btn">Update</button>
@@ -197,10 +199,9 @@
                                     <a class="add_dg add_dg_no_js" href="{% url add field='dg' %}" target="_blank">Add a new {{ display_name.dg }}</a>
                                     <a id="modal_{{ field.name }}" class="add_dg add_dg_js" href="#modal_add" role="button" data-id="dg;{{ display_name.dg }}" data-toggle="modal">Add a new {{ display_name.dg }}</a>
                                 {% endwith %}
-                            {% endif %}
 
                             <!-- responsibles resp_1, resp_2, resp_3 -->
-                            {% if field.name|slice:":5" == 'resp_' %}
+                            {% elif field.name|slice:":5" == 'resp_' %}
                                 {% with index=field.name|slice:"-1:" %}
                                     <!-- if javascript disabled -->
                                     <button id="update_resp_{{ index }}" name="update_resp_{{ index }}" type="submit" class="btn btn-primary update_btn">Update</button>
@@ -212,7 +213,58 @@
                                     <a class="add_resp add_resp_no_js" href="{% url add field='resp' %}" target="_blank">Add a new {{ display_name.resp }}</a>
                                     <a  id="modal_{{ field.name }}" class="add_resp add_resp_js" href="#modal_add" role="button"  data-id="resp;{{ display_name.resp }}" data-toggle="modal">Add a new {{ display_name.resp }}</a>
                                 {% endwith %}
+
+                             <!-- date_cons_b and cons_b fields -->
+                            {% elif field.name == 'nb_point_b' %}
+                                <tr>
+                                    <td class="first_column table_column_title">{{ display_name.cons_b }}</td>
+                                    <td class="second_column">
+
+                                        <div class="fieldWrapper cons_b_div">
+                                            <table id="cons_b" class="table table-bordered table-condensed">
+                                                {% with nb_rows=5 nb_cols=3 nb_items=15 %}  
+                                                    <!-- column names -->
+                                                    <tr>
+                                                        {% for col_index in nb_cols|numeric_loop %}
+                                                            <td class="table_column_title date_cons_border">{{ display_name.date_cons_b}}</td>
+                                                            <td class="table_column_title cons_border">{{ display_name.cons_b }}</td>
+                                                        {% endfor %}
+                                                    </tr>
+                                                    <tr>
+                                                        {% for index in nb_items|numeric_loop %}
+                                                            <!-- create a new row when reach maximum number of columns -->
+                                                            {% if index|divisibleby:nb_cols %}
+                                                                </tr><tr>
+                                                            {% endif %}
+
+                                                            <td class="date_cons_border">
+                                                                <div class="fieldWrapper">
+                                                                    <div id="id_{{ temp_date_cons_b_0 }}_errors" class="row-fluid">
+                                                                        {{ form_data.temp_date_cons_b_0.errors }}
+                                                                    </div>
+                                                                    {{ form_data.temp_date_cons_b_0 }}
+                                                                </div>
+                                                            </td>
+
+                                                            <td class="cons_border">
+                                                                <div class="fieldWrapper">
+                                                                    <div id="id_{{ temp_cons_b_0 }}_errors" class="row-fluid">
+                                                                        {{ form_data.temp_cons_b_0.errors }}
+                                                                    </div>
+                                                                    {{ form_data.temp_cons_b_0 }}
+                                                                </div>
+                                                            </td>   
+                                                    
+                                                        {% endfor %}
+                                                    </tr>
+                                                {% endwith %} 
+                                            </table>
+                                        </div>
+      
+                                    </td>
+                                </tr>
                             {% endif %}
+
 
                         </div>
                     </div>

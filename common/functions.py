@@ -56,27 +56,32 @@ def date_string_to_iso(string):
     RETURN
     date in the iso format [date]
     """
-    if string!=None:
-        #if separator is "-"
-        if "-" in string:
-            strings=string.split("-")
-        else:
-            strings=string.split("/")
+    date=None
+    if string is not None:
+        try:
+            #if separator is "-"
+            if "-" in string:
+                strings=string.split("-")
+            else:
+                strings=string.split("/")
 
-        #~ print "strings"
-        #~ print strings
-            
-        #if year is first
-        if len(strings[0])==4:
-            year, month, day=strings[0], strings[1], strings[2]
-        #if year is last
-        else:
-            #the year must be coded on 4 digits
-            year, month, day=strings[2], strings[1], strings[0]
-        return date_split_to_iso(year, month, day)
+            #~ print "strings"
+            #~ print strings
+                
+            #if year is first
+            if len(strings[0])==4:
+                year, month, day=strings[0], strings[1], strings[2]
+            #if year is last
+            else:
+                #the year must be coded on 4 digits
+                year, month, day=strings[2], strings[1], strings[0]
+            date=date_split_to_iso(year, month, day)
+        except Exception, e:
+            print "pb", string
+            print "wrong date format", e
 
     #return None if date string is None
-    return None
+    return date
 
 
 def list_reverse_enum(string):
