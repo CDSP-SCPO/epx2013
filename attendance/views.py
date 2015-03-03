@@ -9,8 +9,8 @@ from history.models import History
 from forms import ImportMinAttendForm, Add, Modif
 from django.shortcuts import render_to_response
 from django.template import RequestContext
-#get the add_modif fct
-from act_ids.views import add_modif_fct
+#get the check_add_modif_forms function
+from common.views import check_add_modif_forms
 #variables name
 import act_ids.var_name_ids as var_name_ids
 import act.var_name_data as var_name_data
@@ -101,7 +101,7 @@ class MinAttendUpdate(UpdateView):
         """
         print "post"
         context={}
-        mode, add_modif, attendances, context=add_modif_fct(request, context, Add, Modif, "attendance_form")
+        mode, add_modif, attendances, context=check_add_modif_forms(request, context, Add, Modif, "attendance_form")
 
         #not called with ajax!
         #~ context = self.get_context_data(**kwargs)

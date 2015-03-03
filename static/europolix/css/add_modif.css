@@ -1,22 +1,12 @@
 /* css for the add_modif.html file */
 
+/* ADD AND MODIF */
+
 #add_modif
 {
     overflow: auto;
     border-top: 1px groove #ddd;
     border-bottom: 1px groove #ddd;
-}
-
-/* add_act and modif_act buttons, modif_act textboxes */
-#add_modif input
-{
-    width: 93%;
-}
-
-#id_act_to_validate
-{
-    width: auto;
-    font-size: 13px;
 }
 
 #add_div, #modif_div
@@ -26,10 +16,44 @@
     text-align:center;
 }
 
+/* add_act and modif_act buttons, modif_act textboxes -> space between textboxes and button */
+#add_modif input[type="text"]
+{
+    width: 100%;
+}
+
+
+
+/* ADD */
+
+#id_act_to_validate
+{
+    width: auto;
+    font-size: 13px;
+}
+
 #add_act
 {
     margin-left: 1%;
 }
+
+/* loading gif */
+#act_to_validate_div
+{
+    position: relative;
+}
+
+#loading_gif_add_act
+{
+    display: none;
+    position: absolute;
+    top: 14.1%;
+    right: 5%;
+}
+
+
+
+/* MODIF */
 
 #modif_div
 {
@@ -39,58 +63,79 @@
 
 #modif
 {
-    width: 80%;
+    width: 100%;
     margin-left: auto;
     margin-right: auto;
 }
 
+#radio_button_and_textbox_div
+{
+    width: 75%;
+}
 
-#releve_annee_modif, #releve_mois_modif, #no_ordre_modif
+/*radio buttons for releve and propos ids*/
+#releve_ids, #propos_ids
 {
     width: 23%;
-    margin-right: 1%;
+    padding-top: 8%;
+    text-align: left;
+}
+
+#modif input[type="radio"]
+{
+    margin: 0;
+}
+
+#releve_ids_radio, #propos_ids_radio
+{
+    margin-bottom: 5%;
+}
+
+/* input boxes */
+#releve_annee_modif, #releve_mois_modif, #no_ordre_modif, #propos_origine_modif, #propos_annee_modif, #propos_chrono_modif
+{
+    width: 20.5%;
+    margin-right: 2.4%;
 }
 
 .modif_label
 {
     margin-bottom: 0;
-    margin-left: 5px;
 }
 
 
-/* loading gif */
 
-#act_to_validate_div
-{
-    position: relative;
-}
+/*button*/
 
 #modif_act_button_div
 {
-    position: relative;
-/*
-    margin-top: 5.8%;
-*/
-    padding-left: 1%;
-    width: 20%;
+    width: 25%;
+    margin-left: 0;
+    padding-top: 10.5%;
 }
 
-
-#loading_gif_add_act
+#modif_act
 {
-    display: none;
-    position: absolute;
-    top: 14.1%;
-    right: 1%;
+    float: left;
+    margin-left: 18%;
+    margin-right: 14%;
+    padding-left: 5px;
+    padding-right: 5px;
+    
 }
 
+
+
+/* loading gif */
 #loading_gif_modif_act
 {
+    float: left;
     display: none;
-    position: absolute;
-    bottom: 3%;
-    left: 120%;
 }
+
+
+
+/* ANCHORS */
 
 /* hidden by fixed menu */
 #top_anchor

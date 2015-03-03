@@ -6,8 +6,8 @@ from act.models import Act, DG, Person, NP, PartyFamily, Country, CodeSect
 from history.models import History
 from import_app.models import ImportNP
 from common.db import get_act_ids
-#get the add_modif fct
-from act_ids.views import add_modif_fct
+#get the add_modif check_add_modif_forms
+from common.views import check_add_modif_forms, get_ajax_errors
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.forms.models import model_to_dict
@@ -36,6 +36,7 @@ import time
 import logging
 #convert unicode to dict
 from ast import literal_eval
+from collections import OrderedDict
  
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
@@ -272,7 +273,8 @@ def get_data_all(context, add_modif, act, POST):
         print "oeil to be processed"
         fields, dg_names_oeil, resp_names_oeil=get_data("oeil", act_ids["oeil"], urls["url_oeil"])
         act.__dict__.update(fields)
-        
+
+        #adopt_conseil from eurlex needs nb_lectures from oeil -> eurlex after oeil
         logger.debug('eurlex to be processed')
         print "eurlex to be processed"
         fields, dg_names_eurlex, resp_names_eurlex=get_data("eurlex", act_ids["eurlex"], urls["url_eurlex"])
@@ -328,19 +330,45 @@ def get_data_all(context, add_modif, act, POST):
     return context
 
 
-def get_cons_vars(char, date_cons, cons):
-    cons_vars={}
+
+def get_cons_vars(character, date_cons="", cons=""):
+    """
+    FUNCTION
+    from the character (a or b), date_cons and cons fields in parameter, return a dictionary of all the temp_date_cons and temp_cons values
+    PARAMETERS
+    character: "a" or "b" [string]
+    date_cons: value of the date_cons field [string]
+    cons: value of the cons field [string]
+    RETURN
+    cons_vars: dictionary of all the temp_date_cons and temp_cons values [dictionary]
+    """
+    cons_vars=OrderedDict({})
     date_conss=date_cons.split(";")
     conss=cons.split(";")
-    
+    date_cons_name="date_cons_"
+    cons_name="cons_"
+
+    #initialization
     for num in xrange(1, max_cons+1):
-        index=str(num)
-        try:
-            #fill dictionary with vartiable values
-            cons_vars[index]=[date_conss[num], conss[num]]
-        except Exception, e:
-            #initialize date_cons and cons
-            cons_vars[index]=[None]*2
+        suffix=character+"_"+str(num)
+        #initialize date_cons and cons
+        cons_vars[date_cons_name+suffix]=None
+        cons_vars[cons_name+suffix]=None
+
+    #there is at least one cons variable
+    if date_cons!="":
+        for num in xrange(1, max_cons+1):
+            suffix=character+"_"+str(num)
+            try:
+                #fill dictionary with vartiable values
+                cons_vars[date_cons_name+suffix]=date_conss[num]
+                cons_vars[cons_name+suffix]=conss[num]
+            except Exception, e:
+                #no more cons variable
+                break
+            
+
+    print "cons_vars", cons_vars
 
     return cons_vars
 
@@ -360,9 +388,7 @@ def init_context(context):
     
     #the template contains 4 main tables, each of these tables contains a subset of variables from the Act model -> this allows the template to loop over the corresponding subset of variables only (the one corresponding to the table to be displayed)
     #three tables for eurlex, one for oeil
-    context["vars_eurlex_1"]=["titre_en", "code_sect_1", "code_sect_2", "code_sect_3", "code_sect_4", "rep_en_1", "rep_en_2", "rep_en_3", "rep_en_4", "type_acte", "base_j", "nb_mots"]
-    cons_a_list=
-    
+    context["vars_eurlex_1"]=["titre_en", "code_sect_1", "code_sect_2", "code_sect_3", "code_sect_4", "rep_en_1", "rep_en_2", "rep_en_3", "rep_en_4", "type_acte", "base_j", "nb_mots"]    
     context["vars_eurlex_2"]=["adopt_propos_origine", "com_proc", "dg_1", "dg_2", "dg_3", "resp_1", "resp_2", "resp_3", "transm_council", "nb_point_b", "adopt_conseil", "nb_point_a"]
     context["vars_eurlex_3"]=["rejet_conseil", "chgt_base_j", "duree_adopt_trans", "duree_proc_depuis_prop_com", "duree_proc_depuis_trans_cons", "duree_tot_depuis_prop_com", "duree_tot_depuis_trans_cons", "vote_public", "adopt_cs_regle_vote", "adopt_cs_contre", "adopt_cs_abs", "adopt_pc_contre", "adopt_pc_abs", "adopt_ap_contre", "adopt_ap_abs", "dde_em", "split_propos", "proc_ecrite", "suite_2e_lecture_pe", "gvt_compo"]
     
@@ -438,6 +464,9 @@ class ActUpdate(UpdateView):
          #state=display (display the data of an act), saved (the act is being saved) or ongoing (validation errors while saving)
         if "state" not in context:
             context['state']="display"
+
+        context["cons_vars_b"]=get_cons_vars("b")
+        context["cons_vars_a"]=get_cons_vars("a")
         
         print "end get_context_data"
 
@@ -459,7 +488,7 @@ class ActUpdate(UpdateView):
         #add_modif=None, "add" or "modif"
         #act=act to validate / modify or None if no act is found (modification)
         #context: add add or modif to the forms being displayed / to be displayed
-        mode, add_modif, act, context=add_modif_fct(request, context, Add, Modif, "act")
+        mode, add_modif, act, context=check_add_modif_forms(request, context, Add, Modif, "act")
         
         print "ACT", act
         print "ACTION",  add_modif
@@ -571,7 +600,7 @@ class ActUpdate(UpdateView):
         """
         print "form_data not valid", form_data.errors
         if self.request.is_ajax():
-            context['save_act_errors']= dict([(k, form_data.error_class.as_text(v)) for k, v in form_data.errors.items()])
+            context['save_act_errors']= get_ajax_errors(form_data)
         else:
             context['form_data']=form_data
         context["msg"]="The form contains errors! Please correct them before submitting again."

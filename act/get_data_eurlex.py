@@ -1214,7 +1214,7 @@ def get_data_eurlex(soups, act_ids):
     #~ for index in range(nb_dgs):
         #~ index=str(index+1)
         #~ name="dg_"+index
-        #~ #dg names as displayed on eurlex
+        #~ #dg names as written on eurlex
         #~ dg_names.append(fields[name])
         #~ #DG instances
         #~ fields[name]=get_dgs(fields[name])
@@ -1230,7 +1230,7 @@ def get_data_eurlex(soups, act_ids):
     #~ for index in range(nb_resps):
         #~ index=str(index+1)
         #~ name="resp_"+index
-        #~ #resp names as displayed on eurlex
+        #~ #resp names as written on eurlex
         #~ resp_names.append(fields[name])
         #~ #Person instances
         #~ fields[name]=get_resp(fields[name])

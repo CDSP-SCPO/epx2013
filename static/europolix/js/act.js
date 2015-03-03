@@ -56,8 +56,19 @@ function display_errors(errors, action)
     }
 }
 
+/* get maximum height of a set of elements */
+function get_max_height_divs(elements)
+{
+    return Math.max.apply(null, elements.map(function ()
+    {
+        //~ alert($(this).attr("id") + " " + $(this).height());
+        return $(this).height();
+    }).get());
+}
+
+
 //handle django view return (act ids and act data) when displaying an act from the drop down list (add form) or mdifying an act (modif form)
-function display_or_update_result(result, action)
+function display_or_update_result(result, action, ids)
 {
     //add mode -> an act has been selected in the drop down list
     if (action=="add_act")
@@ -90,12 +101,25 @@ function display_or_update_result(result, action)
         //ajust height divs for the modif
         if (action=="modif_act")
         {
-            var maxHeight=Math.max.apply(null, $('.modif_errors').map(function ()
+            /* releve ids or propos ids to modify an act? */
+            error_div=".modif_errors_"+ids
+            max_height=get_max_height_divs($(error_div))
+            //update height radio button
+            $("#"+ids+"_ids "+error_div).height(max_height);
+            
+             //~ alert("radio: "+ids+", max height: "+max_height);
+            
+            
+            /* using propos ids to modify an act */
+            if (ids=="propos")
             {
-                return $(this).height();
-            }).get());
+                /*height for the modif button*/
+                max_height=max_height/2;
+            }
 
-            $('.modif_errors').height(maxHeight);
+            //update height  modif button
+            $("#modif_act_button_div "+error_div).height(max_height);
+
         }
     }
     else
@@ -165,8 +189,6 @@ function save_result(result)
 /* add of an act (selection from drop down list) */
 $("#id_act_to_validate").change(function(event)
 {
-    //~ alert("add act on change");
-    //~ alert($("#id_act_to_validate").val());
     display_or_update_act("add_act", event);
 });
 
@@ -174,17 +196,20 @@ $("#id_act_to_validate").change(function(event)
 /* modification or update of an act (act ids form) */
 $('#act_form').on('click', '#modif_act, #update_act', function(event)
 {
+    var ids;
     if ($(this).attr('name')=="modif_act")
     {
         //tells the view we are trying to modif an act
         $('#modif_button_clicked').val('yes');
+        /* releve ids or propos ids ? */
+        ids=$("input:radio[name=ids_radio]:checked").val();
     }
-    display_or_update_act($(this).attr('name'), event);
+    display_or_update_act($(this).attr('name'), event, ids);
 });
 
 
 /* display/modif or update the ids/datas of the selected act */
-function display_or_update_act(button_name, event)
+function display_or_update_act(button_name, event, ids)
 {
     //do not follow the href link
     event.preventDefault();
@@ -211,7 +236,7 @@ function display_or_update_act(button_name, event)
         if (result!="")
         {
             //display or mpdify an act
-            display_or_update_result(result, button_name);
+            display_or_update_result(result, button_name, ids);
         }
         //hide loading gif
         $("#loading_gif_"+button_name).hide();

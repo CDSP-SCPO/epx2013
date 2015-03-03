@@ -1,14 +1,15 @@
-from django import forms
+#models
 from models import ActIds
 from act.models import Act
 from  import_app.models import ImportDosId
-#modif form: add non field error
+#forms
+from common.forms import AbstractModif, regex_propos_origine, regex_propos_chrono, min_value_year, max_value_year
+from django import forms
 from django.forms.util import ErrorList
 #variables name
 import act_ids.var_name_ids as var_name_ids
 import act.var_name_data as var_name_data
-#concatain querysets
-from itertools import chain
+
 
 
 class ActIdsForm(forms.ModelForm):
@@ -18,7 +19,7 @@ class ActIdsForm(forms.ModelForm):
     """
 
     #EURLEX
-    no_celex=forms.RegexField(regex=r'^[0-9](195[789]|19[6-9][0-9]|20[0-1][0-9])([dflryDFLRY]|PC)[0-9]{4}(\(0[1-9]\)|R\(0[1-9]\))?$')
+    no_celex=forms.RegexField(regex=r'^(?i)[0-9](195[789]|19[6-9][0-9]|20[0-1][0-9])([DFLRY]|PC)[0-9]{4}(\(0[1-9]\)|R\(0[1-9]\))?$')
     #~ act
     #Ne peut etre=000L (sauf pour l'acte de NoSaisie 329)
     #Chaque acte a un numero Celex et ce numero est unique (sauf exception : acte de releve_annee='2004', ReleveMois='4' et NoOrdre='52', OrdreSaisie='329')
@@ -41,7 +42,7 @@ class ActIdsForm(forms.ModelForm):
     #~ ou ACI, uniquement sur les fiches Prelex et Celex si NoUniqueType=ACC
     #~ Valeur 000L si NumUniqueType=CS
 
-    no_unique_chrono=forms.RegexField(regex=r'^([1-9]([0-9]?){3})([a-zA-Z])?$', required=False)
+    no_unique_chrono=forms.RegexField(regex=r'^(?i)([1-9]([0-9]?){3})([A-Z])?$', required=False)
     #~ no_unique_chrono
     #4 digits or 4 digits + 1 letter (if splitted proposition)
     #De 1 a 999
@@ -51,7 +52,7 @@ class ActIdsForm(forms.ModelForm):
 
     #PRELEX
     #normal case
-    propos_origine=forms.RegexField(regex=r'^COM|JAI|BCE|EM|CONS|CJEU$', required=False)
+    propos_origine=forms.RegexField(regex=regex_propos_origine(), required=False)
     #~ Ne peut etre=000L. Une valeur parmi :COM, JAI, BCE, EM, CONS
     #~ Valeurs COM et JAI indiquees sur la fiche Prelex, Celex (et oeIL si le PE intervient dans la procedure)
     #~ Valeurs BCE indiquees sur la fiche Celex (il n'y a pas toujours de fiche Prelex)
@@ -69,7 +70,7 @@ class ActIdsForm(forms.ModelForm):
     #~ Lorsque ProposOrigine=EM et que la date de la demande de l'Etat membre ne figure pas sur l'acte publie au
     #~ JO, la valeur est l'annee du document le plus ancien que nous puissions trouver dans le registre du Conseil
 
-    propos_chrono=forms.RegexField(regex=r'^([0-9]([0-9]?){4})(-[1-9][0-9]?)?$', required=False)
+    propos_chrono=forms.RegexField(regex=regex_propos_chrono(), required=False)
     #one to 5 digits (+ one hyphen and digit if splitted proposition)
     #~ Valeurs possibles : Peut etre=000L
     #~ De 1 a 99999
@@ -122,11 +123,11 @@ class ActIdsForm(forms.ModelForm):
         if 'dos_id_choices' in self._errors:
             del self._errors['dos_id_choices']
 
-        #trim trailing spaces
+        #trim trailing spaces and uppercase
         for field in self.cleaned_data:
             try:
                 #only strings
-                cleaned_data[field]=self.cleaned_data[field].strip()
+                cleaned_data[field]=self.cleaned_data[field].strip().upper()
             except:
                 pass
         return cleaned_data
@@ -176,18 +177,58 @@ class Add(forms.Form):
     details the Add form (fields for the add mode of ActIdsForm)
     """
     act_to_validate=forms.ModelChoiceField(queryset=Act.objects.filter(validated=0).order_by("releve_annee", "releve_mois", "no_ordre"), empty_label="Select an act to validate")
+        
 
-
-class Modif(forms.Form):
+class Modif(AbstractModif):
     """
     FORM
     details the Modif form (fields for the modification mode of ActIdsForm)
     """
-    #ids input boxes used for the modification
-    releve_annee_modif=forms.IntegerField(label=var_name_data.var_name['releve_annee'], min_value=1957, max_value=2020)
+    CHOICES=(
+        ('releve','releve ids'),
+        ('propos','propos ids')
+    )
+    #radio button
+    ids_radio = forms.ChoiceField(choices=CHOICES, widget=forms.RadioSelect(), initial=CHOICES[0][0])
+
+    #releve ids input boxes for the modification
+    releve_annee_modif=forms.IntegerField(label=var_name_data.var_name['releve_annee'], min_value=min_value_year(), max_value=max_value_year())
     releve_mois_modif=forms.IntegerField(label=var_name_data.var_name['releve_mois'], min_value=1, max_value=12)
     no_ordre_modif=forms.IntegerField(label=var_name_data.var_name['no_ordre'], min_value=1, max_value=99)
 
+    #releve ids input boxes for the modification
+    propos_origine_modif=forms.RegexField(label=var_name_ids.var_name['propos_origine'], regex=regex_propos_origine())
+    propos_annee_modif=forms.IntegerField(label=var_name_ids.var_name['propos_annee'], min_value=min_value_year(), max_value=max_value_year())
+    propos_chrono_modif=forms.RegexField(label=var_name_ids.var_name['propos_chrono'], regex=regex_propos_chrono())
+
+    #upper case for propos origine
+    def clean_propos_origine_modif(self):
+        return self.cleaned_data['propos_origine_modif'].upper()
+
+
+    def clean(self):
+        cleaned_data = super(Modif, self).clean()
+        #~ cleaned_data=self.cleaned_data
+
+        #releve ids or propos ids?
+        ids = cleaned_data.get("ids_radio")
+        errors=[]
+        
+        #we use releve ids -> do not validate propos ids
+        if ids == 'releve':
+            errors=['propos_origine_modif', 'propos_annee_modif', 'propos_chrono_modif']
+        #we use propos ids -> do not validate releve ids
+        elif ids=="propos":
+            errors=['releve_annee_modif', 'releve_mois_modif', 'no_ordre_modif']
+
+        #remove validation errors
+        for error in errors:
+            if error in self.errors:
+                del self.errors[error]
+
+        return cleaned_data
+            
+        
     #check if the searched act already exists in the db and has been validated
     def is_valid(self):
         # run the parent validation first
@@ -198,18 +239,38 @@ class Modif(forms.Form):
             return valid
 
         #if the form is valid
-        releve_annee_modif=self.cleaned_data.get("releve_annee_modif")
-        releve_mois_modif=self.cleaned_data.get("releve_mois_modif")
-        no_ordre_modif=self.cleaned_data.get("no_ordre_modif")
+        ids=self.cleaned_data.get("ids_radio")
 
-        try:
-            act=Act.objects.get(releve_annee=releve_annee_modif, releve_mois=releve_mois_modif, no_ordre=no_ordre_modif)
-            if act.validated==0:
-                self._errors['__all__']=ErrorList([u"The act you are looking for has not been validated yet!"])
+        #check releve_ids
+        if ids=="releve":
+            releve_annee_modif=self.cleaned_data.get("releve_annee_modif")
+            releve_mois_modif=self.cleaned_data.get("releve_mois_modif")
+            no_ordre_modif=self.cleaned_data.get("no_ordre_modif")
+            
+            try:
+                act=Act.objects.get(releve_annee=releve_annee_modif, releve_mois=releve_mois_modif, no_ordre=no_ordre_modif)
+                if act.validated==0:
+                    self._errors['__all__']=ErrorList([u"The act you are looking for has not been validated yet!"])
+                    return False
+            except Exception, e:
+                self._errors['__all__']=ErrorList([u"The act you are looking for doesn't exist in our database!"])
                 return False
-        except Exception, e:
-            self._errors['__all__']=ErrorList([u"The act you are looking for doesn't exist in our database!"])
-            return False
+                
+        else:
+            #check propos_ids
+            propos_origine_modif=self.cleaned_data.get("propos_origine_modif")
+            propos_annee_modif=self.cleaned_data.get("propos_annee_modif")
+            propos_chrono_modif=self.cleaned_data.get("propos_chrono_modif")
+
+            try:
+                act=ActIds.objects.get(src="index", propos_origine=propos_origine_modif, propos_annee=propos_annee_modif, propos_chrono=propos_chrono_modif)
+                if act.act.validated==0:
+                    self._errors['__all__']=ErrorList([u"The act you are looking for has not been validated yet!"])
+                    return False
+            except Exception, e:
+                self._errors['__all__']=ErrorList([u"The act you are looking for doesn't exist in our database!"])
+                return False
+        
 
         # form valid -> return True
         return True

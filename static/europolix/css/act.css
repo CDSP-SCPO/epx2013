@@ -178,7 +178,7 @@
 }
 
 /* date_cons fields */
-#cons_b .date_cons_border 
+#cons_b .date_cons_border, #cons_a .date_cons_border 
 {
     /* dotted right-border */
     border-right-style: dotted;
@@ -186,14 +186,14 @@
 
 
 /* date_cons fields */
-#cons_b .date_cons_border input[type="text"]
+#cons_b .date_cons_border input[type="text"], #cons_a .date_cons_border input[type="text"]
 {
     width: 95%;
 }
 
 
 /* cons fields */
-#cons_b .cons_border input[type="text"]
+#cons_b .cons_border input[type="text"], #cons_a .cons_border input[type="text"]
 {
     width: 184px;
 }
@@ -210,11 +210,11 @@
 }
 
 
-/* opal and min_attend */
+/* opal and min_attend tables when no result */
 .empty
 {
     font-weight: bold;
-    width: 1000px;
+    width: 1500px;
 }
 
 /* drop down list of all the countries, used to display adopt variables */

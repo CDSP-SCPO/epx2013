@@ -130,9 +130,7 @@
 
 
     {% for field in form_data %}
-<!--
-        {{ field.name }}, 
--->
+
         {% if field.name in vars_eurlex_2 %}
 
             <tr>
@@ -214,7 +212,7 @@
                                     <a  id="modal_{{ field.name }}" class="add_resp add_resp_js" href="#modal_add" role="button"  data-id="resp;{{ display_name.resp }}" data-toggle="modal">Add a new {{ display_name.resp }}</a>
                                 {% endwith %}
 
-                             <!-- date_cons_b and cons_b fields -->
+                            <!-- date_cons_b and cons_b fields -->
                             {% elif field.name == 'nb_point_b' %}
                                 <tr>
                                     <td class="first_column table_column_title">{{ display_name.cons_b }}</td>
@@ -222,7 +220,8 @@
 
                                         <div class="fieldWrapper cons_b_div">
                                             <table id="cons_b" class="table table-bordered table-condensed">
-                                                {% with nb_rows=5 nb_cols=3 nb_items=15 %}  
+                                                {% with nb_cols=3 nb_vars_col=6 %} 
+                                                    
                                                     <!-- column names -->
                                                     <tr>
                                                         {% for col_index in nb_cols|numeric_loop %}
@@ -230,34 +229,77 @@
                                                             <td class="table_column_title cons_border">{{ display_name.cons_b }}</td>
                                                         {% endfor %}
                                                     </tr>
+
+                                                    <!-- display 15 date_cons vars and 15 cons vars -->
                                                     <tr>
-                                                        {% for index in nb_items|numeric_loop %}
-                                                            <!-- create a new row when reach maximum number of columns -->
-                                                            {% if index|divisibleby:nb_cols %}
-                                                                </tr><tr>
-                                                            {% endif %}
 
+                                                    {% for cons_field in form_data.cons_b_fields %}
+                                                        {% if 'date' in cons_field.name %}
                                                             <td class="date_cons_border">
-                                                                <div class="fieldWrapper">
-                                                                    <div id="id_{{ temp_date_cons_b_0 }}_errors" class="row-fluid">
-                                                                        {{ form_data.temp_date_cons_b_0.errors }}
-                                                                    </div>
-                                                                    {{ form_data.temp_date_cons_b_0 }}
-                                                                </div>
-                                                            </td>
-
+                                                        {% else %}
                                                             <td class="cons_border">
-                                                                <div class="fieldWrapper">
-                                                                    <div id="id_{{ temp_cons_b_0 }}_errors" class="row-fluid">
-                                                                        {{ form_data.temp_cons_b_0.errors }}
-                                                                    </div>
-                                                                    {{ form_data.temp_cons_b_0 }}
-                                                                </div>
-                                                            </td>   
+                                                        {% endif %}
+                                                            {{ cons_field }}
+                                                        </td>
+
+                                                        <!-- create a new row when reach maximum number of columns -->
+                                                        {% if forloop.counter|divisibleby:nb_vars_col %}
+                                                            </tr><tr>
+                                                        {% endif %}
+
+                                                    {% endfor %}
+
+                                                    </tr>
+
+                                                {% endwith %}
+                                                
+                                            </table>
+                                        </div>
+      
+                                    </td>
+                                </tr>
+
+                             <!-- date_cons_a and cons_a fields -->
+                            {% elif field.name == 'nb_point_a' %}
+                                <tr>
+                                    <td class="first_column table_column_title">{{ display_name.council_a }}</td>
+                                    <td class="second_column">
+
+                                        <div class="fieldWrapper cons_b_div">
+                                            <table id="cons_a" class="table table-bordered table-condensed">
+                                                {% with nb_cols=3 nb_vars_col=6 %} 
                                                     
+                                                    <!-- column names -->
+                                                    <tr>
+                                                        {% for col_index in nb_cols|numeric_loop %}
+                                                            <td class="table_column_title date_cons_border">{{ display_name.date_cons_a}}</td>
+                                                            <td class="table_column_title cons_border">{{ display_name.cons_a }}</td>
                                                         {% endfor %}
                                                     </tr>
-                                                {% endwith %} 
+
+                                                    <!-- display 15 date_cons vars and 15 cons vars -->
+                                                    <tr>
+
+                                                    {% for cons_field in form_data.cons_a_fields %}
+                                                        {% if 'date' in cons_field.name %}
+                                                            <td class="date_cons_border">
+                                                        {% else %}
+                                                            <td class="cons_border">
+                                                        {% endif %}
+                                                            {{ cons_field }}
+                                                        </td>
+
+                                                        <!-- create a new row when reach maximum number of columns -->
+                                                        {% if forloop.counter|divisibleby:nb_vars_col %}
+                                                            </tr><tr>
+                                                        {% endif %}
+
+                                                    {% endfor %}
+
+                                                    </tr>
+
+                                                {% endwith %}
+                                                
                                             </table>
                                         </div>
       

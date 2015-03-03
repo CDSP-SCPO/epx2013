@@ -137,15 +137,26 @@ class ActForm(forms.ModelForm):
 
         #15 date_cons_b / date_cons_a and cons_b / cons_a maximum
         #create date_cons_b / date_cons_a and cons_b / cons_a variables
+        self.cons_a_fields=[]
+        self.cons_b_fields=[]
         for character in "ab":
-            for index in range(max_cons):
-                index=str(index)
-                date_name="temp_date_cons_"+character+"_"+index
-                cons_name="temp_cons_"+character+"_"+index
+            for index in range(1, max_cons+1):
+                suffix=character+"_"+str(index)
+                date_name="date_cons_"+suffix
+                cons_name="cons_"+suffix
+                #create form fields
                 self.fields[date_name] = forms.DateField(required=False)
                 self.fields[date_name].max_length=10
                 self.fields[cons_name] = forms.CharField(required=False)
                 self.fields[cons_name].max_length=500
+                
+                #add form fields to a list to loop over them in template
+                if character=="a":
+                    self.cons_a_fields.append(self[date_name])
+                    self.cons_a_fields.append(self[cons_name])
+                elif character=="b":
+                    self.cons_b_fields.append(self[date_name])
+                    self.cons_b_fields.append(self[cons_name])
         
         #don't display the country, just its code
         self.fields["countries"].label_from_instance = lambda obj: "%s" % obj.country_code
