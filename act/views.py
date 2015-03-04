@@ -43,7 +43,7 @@ logger = logging.getLogger(__name__)
 
 
 
-def get_urls(act_ids, dos_id):
+def get_urls(act_ids):
     """
     FUNCTION
     get the eurlex and oeil url
@@ -257,7 +257,7 @@ def get_data_all(context, add_modif, act, POST):
     act_ids=get_act_ids(act)
 
     #"compute" the url of the eurlex and oeil page
-    urls=get_urls(act_ids["index"], act_ids["index"].dos_id)
+    urls=get_urls(act_ids["index"])
     
     #an act has been selected in the drop down list -> the related data is displayed
     #if state different of modif, save and ongoing and if the act is not being modified
@@ -323,7 +323,7 @@ def get_data_all(context, add_modif, act, POST):
     context['min_attends']=temp["min_attend"]
     context["party_family"]=get_party_family({"1": act.resp_1_id, "2": act.resp_2_id, "3": act.resp_3_id})
     context["cons_vars_b"]=get_cons_vars("b", act.date_cons_b, act.cons_b)
-    context["cons_vars_a"]=get_cons_vars("a", act.date_cons_a, act.cons_a)
+    context["cons_vars_a"]=get_cons_vars("a", act.date_cons_a, act.council_a)
     context['act_ids']=act_ids
     context['form_data']=form_data
     
@@ -342,13 +342,10 @@ def get_cons_vars(character, date_cons="", cons=""):
     RETURN
     cons_vars: dictionary of all the temp_date_cons and temp_cons values [dictionary]
     """
+    #initialization
     cons_vars=OrderedDict({})
-    date_conss=date_cons.split(";")
-    conss=cons.split(";")
     date_cons_name="date_cons_"
     cons_name="cons_"
-
-    #initialization
     for num in xrange(1, max_cons+1):
         suffix=character+"_"+str(num)
         #initialize date_cons and cons
@@ -356,7 +353,9 @@ def get_cons_vars(character, date_cons="", cons=""):
         cons_vars[cons_name+suffix]=None
 
     #there is at least one cons variable
-    if date_cons!="":
+    if date_cons is not None:
+        date_conss=date_cons.split(";")
+        conss=cons.split(";")
         for num in xrange(1, max_cons+1):
             suffix=character+"_"+str(num)
             try:

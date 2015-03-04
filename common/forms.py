@@ -7,7 +7,7 @@ from act_ids.models import ActIds
 from act.models import Act
 #forms
 from django import forms
-from django.forms.util import ErrorList
+from django.core.exceptions import ValidationError
 #variables name
 import act_ids.var_name_ids as var_name_ids
 import act.var_name_data as var_name_data
@@ -51,11 +51,6 @@ class AbstractModif(forms.Form):
     propos_origine_modif=forms.RegexField(label=var_name_ids.var_name['propos_origine'], regex=regex_propos_origine())
     propos_annee_modif=forms.IntegerField(label=var_name_ids.var_name['propos_annee'], min_value=min_value_year(), max_value=max_value_year())
     propos_chrono_modif=forms.RegexField(label=var_name_ids.var_name['propos_chrono'], regex=regex_propos_chrono())
-
-
-    class Meta:
-        #abstract form
-        abstract = True
         
 
     #upper case for propos origine
@@ -83,20 +78,8 @@ class AbstractModif(forms.Form):
             if error in self.errors:
                 del self.errors[error]
 
-        return cleaned_data
-            
-        
-    #check if the searched act already exists in the db and has been validated
-    def is_valid(self, *args, **kwargs):
-        # run the parent validation first
-        valid=super(AbstractModif, self).is_valid()
 
-        # we're done now if not valid
-        if not valid:
-            return valid
-
-        #if the form is valid
-        ids=self.cleaned_data.get("ids_radio")
+        #check if the act exists and has been validated already
         fields={}
 
         #check releve_ids
@@ -112,21 +95,21 @@ class AbstractModif(forms.Form):
             fields["propos_origine"]=self.cleaned_data.get("propos_origine_modif")
             fields["propos_annee"]=self.cleaned_data.get("propos_annee_modif")
             fields["propos_chrono"]=self.cleaned_data.get("propos_chrono_modif")
-            
+
+        act=None
         try:
             act=Model.objects.get(**fields)
             if Model!=Act:
                 act=act.act
+        except Exception, e:
+            print "exception", e
+            raise ValidationError("The act you are looking for doesn't exist in our database!")
+
+        if act is not None:
             #ActIds form: check act.validated==0
             #MinAttend form: check act.validated_attendance==0
             #Act form: check act.validated<2
-            if eval(self.cleaned_data.get("validated_modif")):
-                self._errors['__all__']=ErrorList([u"The act you are looking for has not been validated yet!"])
-                return False
-        except Exception, e:
-            self._errors['__all__']=ErrorList([u"The act you are looking for doesn't exist in our database!"])
-            print "exception", e
-            return False
-
-        # form valid -> return True
-        return True
+            if self.not_yet_validated(act):
+                raise ValidationError("The act you are looking for has not been validated yet!")
+        
+        return cleaned_data

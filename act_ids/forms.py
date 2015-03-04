@@ -184,8 +184,9 @@ class Modif(AbstractModif):
     FORM
     details the Modif form (fields for the modification mode of ActIdsForm)
     """
-    #fake field for the is_valid method
-    validated_modif=forms.CharField(widget=forms.HiddenInput(), initial="act.validated==0")
+    #condition to check in the clean method of the parent form
+    def not_yet_validated(self, act):
+        return act.validated == 0
 
 
 

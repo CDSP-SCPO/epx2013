@@ -814,14 +814,25 @@ def get_transm_council(soup, propos_origine):
     transm_council: transm_council variable [date]
     """
     transm_council=None
-    try:
-        #(2014-3-20) http://eur-lex.europa.eu/legal-content/EN/HIS/?uri=CELEX:32014L0041 
-        if propos_origine!="CONS":
+    #Transmission to Parliament
+    if propos_origine in ["CONS", "EM"]:
+        try:
+            #(2001-05-03) http://eur-lex.europa.eu/legal-content/EN/HIS/?uri=CELEX:32001R0973
+            transm_council=soup.find("div", {"class": "procedureHeader"}).find(text=re.compile("Transmission to Parliament")).lstrip()[:10]
+            #transform dates to the iso format (YYYY-MM-DD)
+            transm_council=date_string_to_iso(transm_council)
+        except:
+            print "pb transm_council"
+
+    #transmision to Council
+    if propos_origine!="CONS" or (propos_origine in ["CONS", "EM"] and transm_council is None):
+        try:
+            #(2014-3-20) http://eur-lex.europa.eu/legal-content/EN/HIS/?uri=CELEX:32014L0041 
             transm_council=soup.find("div", {"class": "procedureHeader"}).find(text=re.compile("Transmission to Council")).lstrip()[:10]
             #transform dates to the iso format (YYYY-MM-DD)
             transm_council=date_string_to_iso(transm_council)
-    except:
-        print "pb transm_council"
+        except:
+            print "pb transm_council"
 
     return transm_council
 
@@ -1199,9 +1210,9 @@ def get_data_eurlex(soups, act_ids):
 
 
     #adopt_propos_origine
-    #~ name='adopt_propos_origine'
-    #~ fields[name]=get_adopt_propos_origine(soup_his, act_ids.propos_origine)
-    #~ print name, fields[name]
+    name='adopt_propos_origine'
+    fields[name]=get_adopt_propos_origine(soup_his, act_ids.propos_origine)
+    print name, fields[name]
 
     #~ #com_proc
     #~ name='com_proc'
@@ -1240,8 +1251,9 @@ def get_data_eurlex(soups, act_ids):
 
     
     #transm_council
-    fields['transm_council']=get_transm_council(soup_his, act_ids.propos_origine)
-    print "transm_council:", fields['transm_council']
+    name='transm_council'
+    fields[name]=get_transm_council(soup_his, act_ids.propos_origine)
+    print name, fields[name]
 #~ 
     #~ #nb_point_b
     #~ fields['nb_point_b']=get_nb_point_b(soup, act_ids.propos_origine)
