@@ -1,9 +1,13 @@
-from django import forms
+#models
 from import_app.models import ImportMinAttend
 from act.models import Country, Status, Verbatim, Act
+#forms
+from django import forms
+from common.forms import AbstractModif, regex_propos_origine, regex_propos_chrono, min_value_year, max_value_year
+from django.forms.util import ErrorList
 #variables names
 import act.var_name_data as var_name_data
-from django.forms.util import ErrorList
+#errors
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 
 
@@ -87,40 +91,10 @@ class Add(forms.Form):
 
 
 
-class Modif(forms.Form):
+class Modif(AbstractModif):
     """
     FORM
     details the Modif form (fields for the modification mode of MinAttendForm)
     """
-    #ids input boxes used for the modification
-    releve_annee_modif=forms.IntegerField(label=var_name_data.var_name['releve_annee'], min_value=1957, max_value=2020)
-    releve_mois_modif=forms.IntegerField(label=var_name_data.var_name['releve_mois'], min_value=1, max_value=12)
-    no_ordre_modif=forms.IntegerField(label=var_name_data.var_name['no_ordre'], min_value=1, max_value=99)
-
-    #check if the searched act already exists in the db and has been validated
-    def is_valid(self):
-        print "is valid"
-        # run the parent validation first
-        valid=super(Modif, self).is_valid()
-
-        # we're done now if not valid
-        if not valid:
-            return valid
-
-        #if the form is valid
-        releve_annee_modif=self.cleaned_data.get("releve_annee_modif")
-        releve_mois_modif=self.cleaned_data.get("releve_mois_modif")
-        no_ordre_modif=self.cleaned_data.get("no_ordre_modif")
-
-        try:
-            #can't filter with attendance_pdf__isnull=False cause some attendances were imported with a csv file
-            act=Act.objects.get(releve_annee=releve_annee_modif, releve_mois=releve_mois_modif, no_ordre=no_ordre_modif)
-            if act.validated_attendance==0:
-                self._errors['__all__']=ErrorList([u"The act you are looking for has not been validated yet!"])
-                return False
-        except Exception, e:
-            self._errors['__all__']=ErrorList([u"The act you are looking for doesn't exist in our database!"])
-            return False
-            
-        # form valid -> return True
-        return True
+    #fake field for the is_valid method
+    validated_modif=forms.CharField(widget=forms.HiddenInput(), initial="act.validated_attendance==0")

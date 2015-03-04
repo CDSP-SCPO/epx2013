@@ -3,7 +3,7 @@ common functions used by forms of other modules (act, act_ids and attendance)
 """
 
 #models
-from models import ActIds
+from act_ids.models import ActIds
 from act.models import Act
 #forms
 from django import forms
@@ -28,7 +28,7 @@ def min_value_year():
     
 def max_value_year():
     return 2020
-
+    
 
 class AbstractModif(forms.Form):
     """
@@ -64,7 +64,7 @@ class AbstractModif(forms.Form):
 
 
     def clean(self):
-        cleaned_data = super(Modif, self).clean()
+        cleaned_data = super(AbstractModif, self).clean()
         #~ cleaned_data=self.cleaned_data
 
         #releve ids or propos ids?
@@ -87,9 +87,9 @@ class AbstractModif(forms.Form):
             
         
     #check if the searched act already exists in the db and has been validated
-    def is_valid(self):
+    def is_valid(self, *args, **kwargs):
         # run the parent validation first
-        valid=super(Modif, self).is_valid()
+        valid=super(AbstractModif, self).is_valid()
 
         # we're done now if not valid
         if not valid:
@@ -97,37 +97,36 @@ class AbstractModif(forms.Form):
 
         #if the form is valid
         ids=self.cleaned_data.get("ids_radio")
+        fields={}
 
         #check releve_ids
         if ids=="releve":
-            releve_annee_modif=self.cleaned_data.get("releve_annee_modif")
-            releve_mois_modif=self.cleaned_data.get("releve_mois_modif")
-            no_ordre_modif=self.cleaned_data.get("no_ordre_modif")
-            
-            try:
-                act=Act.objects.get(releve_annee=releve_annee_modif, releve_mois=releve_mois_modif, no_ordre=no_ordre_modif)
-                if act.validated==0:
-                    self._errors['__all__']=ErrorList([u"The act you are looking for has not been validated yet!"])
-                    return False
-            except Exception, e:
-                self._errors['__all__']=ErrorList([u"The act you are looking for doesn't exist in our database!"])
-                return False
-                
+            Model=Act
+            fields["releve_annee"]=self.cleaned_data.get("releve_annee_modif")
+            fields["releve_mois"]=self.cleaned_data.get("releve_mois_modif")
+            fields["no_ordre"]=self.cleaned_data.get("no_ordre_modif")
         else:
             #check propos_ids
-            propos_origine_modif=self.cleaned_data.get("propos_origine_modif")
-            propos_annee_modif=self.cleaned_data.get("propos_annee_modif")
-            propos_chrono_modif=self.cleaned_data.get("propos_chrono_modif")
-
-            try:
-                act=ActIds.objects.get(src="index", propos_origine=propos_origine_modif, propos_annee=propos_annee_modif, propos_chrono=propos_chrono_modif)
-                if act.act.validated==0:
-                    self._errors['__all__']=ErrorList([u"The act you are looking for has not been validated yet!"])
-                    return False
-            except Exception, e:
-                self._errors['__all__']=ErrorList([u"The act you are looking for doesn't exist in our database!"])
+            Model=ActIds
+            fields["src"]="index"
+            fields["propos_origine"]=self.cleaned_data.get("propos_origine_modif")
+            fields["propos_annee"]=self.cleaned_data.get("propos_annee_modif")
+            fields["propos_chrono"]=self.cleaned_data.get("propos_chrono_modif")
+            
+        try:
+            act=Model.objects.get(**fields)
+            if Model!=Act:
+                act=act.act
+            #ActIds form: check act.validated==0
+            #MinAttend form: check act.validated_attendance==0
+            #Act form: check act.validated<2
+            if eval(self.cleaned_data.get("validated_modif")):
+                self._errors['__all__']=ErrorList([u"The act you are looking for has not been validated yet!"])
                 return False
-        
+        except Exception, e:
+            self._errors['__all__']=ErrorList([u"The act you are looking for doesn't exist in our database!"])
+            print "exception", e
+            return False
 
         # form valid -> return True
         return True

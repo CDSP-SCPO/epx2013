@@ -24,7 +24,7 @@ def get_ordered_queryset(releve_annee, releve_mois, no_ordre):
     RETURN
     sorted queryset [Queryset object]
     """
-    queryset_no_order=ImportMinAttend.objects.filter(releve_annee=releve_mois, releve_mois=releve_annee, no_ordre=no_ordre)
+    queryset_no_order=ImportMinAttend.objects.filter(releve_annee=releve_annee, releve_mois=releve_mois, no_ordre=no_ordre)
     #1st: rows without status, ordered by country
     queryset=queryset_no_order.filter(status=None).order_by("country")
     #must hit the database to have _result_cache working
@@ -64,7 +64,7 @@ def check_add_modif_forms(request, response, Add, Modif, form):
     queryset: act / ministers' attendance to validate or modify [Act or ImportMinAttend model instance(s)]
     response: all the forms being used or to use [dictionary]
     """
-    print "add_modif_fct"
+    print "check_add_modif_forms"
     logger.debug('check_add_modif_forms')
     #~ logger.debug('request.POST' + str(request.POST))
     add_modif=mode=queryset=None
@@ -98,7 +98,6 @@ def check_add_modif_forms(request, response, Add, Modif, form):
     #request.POST["modif_button_clicked"]=="yes" -> with ajax
     #(request.POST["ids_radio"]=="releve" and request.POST["releve_annee_modif"]!="") or (request.POST["ids_radio"]=="propos" and request.POST["propos_annee_modif"]!="") -> update or save act to modify (or errors)
     elif "modif_act" in request.POST or request.POST["modif_button_clicked"]=="yes" or (request.POST["ids_radio"]=="releve" and request.POST["releve_annee_modif"]!="") or (request.POST["ids_radio"]=="propos" and request.POST["propos_annee_modif"]!=""):
-        print "modif"
         mode="modif"
         logger.debug('mode=modif')
         modif=Modif(request.POST)
@@ -107,7 +106,7 @@ def check_add_modif_forms(request, response, Add, Modif, form):
         if modif.is_valid():
             #we display the act to modify it
             add_modif="modif"
-            
+                        
             #releve ids
             fields={}
             if request.POST["ids_radio"]=="releve":
@@ -137,7 +136,5 @@ def check_add_modif_forms(request, response, Add, Modif, form):
                 response['modif_act_errors']=get_ajax_errors(modif)
             print "modif form not valid", modif.errors
             logger.debug('modif form not valid' + str(modif.errors))
-
-        print "queryset", queryset
 
     return mode, add_modif, queryset, response

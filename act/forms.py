@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
-from django import forms
+#models
 from models import Act, Person, CodeSect, DG, Country
-#modif form: add non field error
+#forms
+from django import forms
+from common.forms import AbstractModif, regex_propos_origine, regex_propos_chrono, min_value_year, max_value_year
+#errors
 from django.forms.util import ErrorList
 #variables names
 import var_name_data
@@ -250,38 +253,10 @@ class Add(forms.Form):
     act_to_validate=forms.ModelChoiceField(queryset=Act.objects.filter(validated=1).order_by("releve_annee", "releve_mois", "no_ordre"), empty_label="Select an act to validate")
 
 
-class Modif(forms.Form):
+class Modif(AbstractModif):
     """
     FORM
     details the Modif form (fields for the modification mode of ActForm)
     """
-    #ids input boxes used for the modification
-    releve_annee_modif=forms.IntegerField(label=var_name_data.var_name['releve_annee'], min_value=1957, max_value=2020)
-    releve_mois_modif=forms.IntegerField(label=var_name_data.var_name['releve_mois'], min_value=1, max_value=12)
-    no_ordre_modif=forms.IntegerField(label=var_name_data.var_name['no_ordre'], min_value=1, max_value=99)
-
-    #check if the searched act already exists in the db and has been validated
-    def is_valid(self):
-        # run the parent validation first
-        valid=super(Modif, self).is_valid()
-
-        # we're done now if not valid
-        if not valid:
-            return valid
-
-        #if the form is valid
-        releve_annee_modif=self.cleaned_data.get("releve_annee_modif")
-        releve_mois_modif=self.cleaned_data.get("releve_mois_modif")
-        no_ordre_modif=self.cleaned_data.get("no_ordre_modif")
-
-        try:
-            act=Act.objects.get(releve_annee=releve_annee_modif, releve_mois=releve_mois_modif, no_ordre=no_ordre_modif)
-            if act.validated<2:
-                self._errors['__all__']=ErrorList([u"The act you are looking for has not been validated yet!"])
-                return False
-        except Exception, e:
-            self._errors['__all__']=ErrorList([u"The act you are looking for doesn't exist in our database!"])
-            return False
-
-        # form valid -> return True
-        return True
+    #fake field for the is_valid method
+    validated_modif=forms.CharField(widget=forms.HiddenInput(), initial="act.validated<2")

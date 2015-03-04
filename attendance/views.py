@@ -88,7 +88,12 @@ class MinAttendUpdate(UpdateView):
             act_ids=act_ids=ActIds.objects.get(src="index", act__pk=post['act_to_validate'])
         else:
             try:
-                act_ids=ActIds.objects.get(src="index", act__releve_annee=post['releve_annee_modif'], act__releve_mois=post['releve_mois_modif'], act__no_ordre=post['no_ordre_modif'])
+                #releve ids to modify the act
+                if post['ids_radio']=="releve":
+                    act_ids=ActIds.objects.get(src="index", act__releve_annee=post['releve_annee_modif'], act__releve_mois=post['releve_mois_modif'], act__no_ordre=post['no_ordre_modif'])
+                #propos ids to modify the act    
+                else:
+                    act_ids=ActIds.objects.get(src="index", propos_origine=post['propos_origine_modif'], propos_annee=post['propos_annee_modif'], propos_chrono=post['propos_chrono_modif'])
             except Exception, e:
                 print "exception get_act_ids", e
                 act_ids=None

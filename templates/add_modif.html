@@ -31,12 +31,9 @@
         <div class="row-fluid"><h4>Search a validated act to modify</h4></div>
         <br />
         <div id="id_modif_act__all__errors" class="row-fluid">{{ modif.non_field_errors }}</div>
+            <!-- hidden field for the is_valid method of the form -->
+            {{ modif.validated_modif }}
             <div id="modif" class="row-fluid">
-
-<!--
-                {{ modif.ids_radio }}
--->
-                
 
                 <!-- wrap radio buttons and texboxes-->
                 <div id="radio_button_and_textbox_div" class="span9">
@@ -46,9 +43,6 @@
                          <div id="releve_ids" class="fieldWrapper span2">
                             <div class="modif_errors_releve"></div>
                             {{ modif.ids_radio.0 }}
-<!--
-                            <input id="releve_ids_radio" name="ids_radio" type="radio" value="releve">releve ids
--->
                         </div>
 
                          <div id="releve_annee_modif" class="fieldWrapper span2">
@@ -73,9 +67,6 @@
                          <div id="propos_ids" class="fieldWrapper span2">
                             <div class="modif_errors_propos"></div>
                             {{ modif.ids_radio.1 }}
-<!--
-                            <input id="propos_ids_radio" name="ids_radio" type="radio" value="propos">propos ids
--->
                         </div>
 
                          <div id="propos_origine_modif" class="fieldWrapper span2">
