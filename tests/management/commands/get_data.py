@@ -20,7 +20,7 @@ abs_file_path = os.path.join(script_dir, rel_path)
 soup_his=BeautifulSoup(open(abs_file_path).read())
 
 #act ids
-act_ids=["2001", "5", "3"]
+act_ids=["1996", "3", "8"]
 act_ids=ActIds.objects.get(src="index", act__releve_annee=act_ids[0], act__releve_mois=act_ids[1], act__no_ordre=act_ids[2])
 
 

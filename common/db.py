@@ -19,6 +19,7 @@ def get_act_ids(act):
     act_ids_instances=ActIds.objects.filter(act=act)
     for act_ids_instance in act_ids_instances:
         act_ids[act_ids_instance.src]=act_ids_instance
+    #~ print "get_act_ids", act_ids["index"].id
     return act_ids
 
 

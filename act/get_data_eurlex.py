@@ -30,7 +30,7 @@ from datetime import datetime
 def get_titre_en(soup):
     """
     FUNCTION
-    get the titre_en variable from the eurlex url
+    get the titre_en variable
     PARAMETERS
     soup: eurlex url content [BeautifulSoup object]
     RETURN
@@ -50,7 +50,7 @@ def get_titre_en(soup):
 def get_directory_code(soup_all, soup_his):
     """
     FUNCTION
-    get the html code of the directory code part from the eurlex url
+    get the html code of the directory code part
     PARAMETERS
     soup_all: eurlex url content from the all tab [BeautifulSoup object]
     soup_his: eurlex url content from the his tab [BeautifulSoup object]
@@ -110,7 +110,7 @@ def get_directory_code(soup_all, soup_his):
 def get_code_sect(directory_code, tab="ALL"):
     """
     FUNCTION
-    get the CodeSect1-4 variables from the eurlex url
+    get the CodeSect1-4 variables
     PARAMETERS
     directory_code: html source of each directory code [list of BeautifulSoup objects]
     tab: which tab is used to retrieve the variable? [string]
@@ -143,7 +143,7 @@ def get_code_sect(directory_code, tab="ALL"):
 def get_rep_en(directory_code, tab="ALL"):
     """
     FUNCTION
-    get the rep_en_1, rep_en_2, rep_en_3 and rep_en_4 variables from the eurlex url
+    get the rep_en_1, rep_en_2, rep_en_3 and rep_en_4 variables
     PARAMETERS
     directory_code: html source of each directory code [list of BeautifulSoup objects]
     tab: which tab is used to retrieve the variable? [string]
@@ -214,7 +214,7 @@ def save_code_agenda(code_sects):
 def get_type_acte(soup):
     """
     FUNCTION
-    get the type_acte variable from the eurlex url
+    get the type_acte variable
     PARAMETERS
     soup: eurlex url content [BeautifulSoup object]
     RETURN
@@ -268,7 +268,7 @@ def get_type_acte(soup):
 def get_base_j(soup):
     """
     FUNCTION
-    get the base_j variable from the eurlex url
+    get the base_j variable
     PARAMETERS
     soup: eurlex url content [BeautifulSoup object]
     RETURN
@@ -313,7 +313,7 @@ def get_base_j(soup):
 def get_date_doc(soup):
     """
     FUNCTION
-    get the date of the act (used for gvt_compo when ProposOrigine="EM", "CONS", "BCE", "CJUE") from the eurlex url
+    get the date of the act (used for gvt_compo when ProposOrigine="EM", "CONS", "BCE", "CJUE")
     PARAMETERS
     soup: eurlex url content [BeautifulSoup object]
     RETURN
@@ -376,7 +376,7 @@ def pdf_to_string(file_object):
 def get_nb_mots(no_celex):
     """
     FUNCTION
-    get the number of words of the text of the act from the eurlex url
+    get the number of words of the text of the act
     PARAMETERS
     no_celex: no_celex of the act [string]
     RETURN
@@ -419,7 +419,6 @@ def get_nb_mots(no_celex):
         for text in texts.split():
             nb_mots+=1
 
-    print nb_mots
     return nb_mots
 
 
@@ -427,13 +426,10 @@ def get_nb_mots(no_celex):
     #http://eur-lex.europa.eu/legal-content/EN/TXT/PDF/?uri=CELEX:32000D0283(01)&from=EN
 
 
-
-# TO DO
-
 def get_adopt_propos_origine(soup, propos_origine):
     """
     FUNCTION
-    get the adopt_propos_origine variable from the eurlex url
+    get the adopt_propos_origine variable
     PARAMETERS
     soup: eurlex url content [BeautifulSoup object]
     propos_origine: propos_origine variable [string]
@@ -444,7 +440,7 @@ def get_adopt_propos_origine(soup, propos_origine):
     try:
         #(2013-12-45) http://eur-lex.europa.eu/legal-content/EN/HIS/?uri=CELEX:32013L0062
         if propos_origine=="COM":
-            adopt_propos_origine=soup.find("div", {"class": "procedureHeader"}).find(text=re.compile("Adoption by Commission")).lstrip()[:10]
+            adopt_propos_origine=soup.find(text=re.compile("Adoption by Commission")).lstrip()[:10]
         #TODO
         #(2014-3-20) http://eur-lex.europa.eu/legal-content/EN/HIS/?uri=CELEX:32014L0041
         elif propos_origine=="JAI":
@@ -469,7 +465,7 @@ def get_adopt_propos_origine(soup, propos_origine):
 def get_com_proc(soup, propos_origine):
     """
     FUNCTION
-    get the com_proc variable from the eurlex url
+    get the com_proc variable
     PARAMETERS
     soup: eurlex url content [BeautifulSoup object]
     propos_origine: propos_origine variable [string]
@@ -490,12 +486,13 @@ def get_com_proc(soup, propos_origine):
 #~ Null if ProposOrigine !=COM
 
 
-def get_dg_1(soup):
+def get_dg_1(soup, propos_origine):
     """
     FUNCTION
-    get the dg_1 variable from the eurlex url
+    get the dg_1 variable
     PARAMETERS
     soup: eurlex url content [BeautifulSoup object]
+    propos_origine: propos_origine variable [string]
     RETURN
     dg_1 variable [string]
     """
@@ -548,12 +545,13 @@ def check_resp_format(names):
     return True
 
 
-def get_dg_2_3(soup):
+def get_dg_2_3(soup, propos_origine):
     """
     FUNCTION
-    get the dg_2 and dg_3 variable (if any) from the eurlex url
+    get the dg_2 and dg_3 variable (if any)
     PARAMETERS
     soup: eurlex url content [BeautifulSoup object]
+    propos_origine: propos_origine variable [string]
     RETURN
     dg_2: dg_2 variable [string]
     dg_3: dg_3 variable [string]
@@ -704,7 +702,7 @@ def format_resp_name(names):
 def get_resp_1(soup):
     """
     FUNCTION
-    get the resp_1 variable from the eurlex url
+    get the resp_1 variable
     PARAMETERS
     soup: eurlex url content [BeautifulSoup object]
     RETURN
@@ -725,7 +723,7 @@ def get_resp_1(soup):
 def get_resp_2_3(soup):
     """
     FUNCTION
-    get the resp_2 variable and resp_3 variable (if any) from the eurlex url
+    get the resp_2 variable and resp_3 variable (if any)
     PARAMETERS
     soup: eurlex url content [BeautifulSoup object]
     RETURN
@@ -806,7 +804,7 @@ def display_resps(resp, name):
 def get_transm_council(soup, propos_origine):
     """
     FUNCTION
-    get the transm_council variable from the eurlex url
+    get the transm_council variable
     PARAMETERS
     soup: prelex url content [BeautifulSoup object]
     propos_origine: propos_origine variable [string]
@@ -814,25 +812,26 @@ def get_transm_council(soup, propos_origine):
     transm_council: transm_council variable [date]
     """
     transm_council=None
-    #Transmission to Parliament
-    if propos_origine in ["CONS", "EM"]:
-        try:
-            #(2001-05-03) http://eur-lex.europa.eu/legal-content/EN/HIS/?uri=CELEX:32001R0973
-            transm_council=soup.find("div", {"class": "procedureHeader"}).find(text=re.compile("Transmission to Parliament")).lstrip()[:10]
-            #transform dates to the iso format (YYYY-MM-DD)
-            transm_council=date_string_to_iso(transm_council)
-        except:
-            print "pb transm_council"
 
     #transmision to Council
-    if propos_origine!="CONS" or (propos_origine in ["CONS", "EM"] and transm_council is None):
+    if propos_origine!="CONS":
         try:
             #(2014-3-20) http://eur-lex.europa.eu/legal-content/EN/HIS/?uri=CELEX:32014L0041 
-            transm_council=soup.find("div", {"class": "procedureHeader"}).find(text=re.compile("Transmission to Council")).lstrip()[:10]
+            transm_council=soup.find(text=re.compile("Transmission to Council")).lstrip()[:10]
             #transform dates to the iso format (YYYY-MM-DD)
             transm_council=date_string_to_iso(transm_council)
-        except:
-            print "pb transm_council"
+        except Exception, e:
+            print "pb transm_council Council", e
+
+    if transm_council is None:
+        #Transmission to Parliament
+        try:
+            #(2001-05-03) http://eur-lex.europa.eu/legal-content/EN/HIS/?uri=CELEX:32001R0973
+            transm_council=soup.find(text=re.compile("Transmission to Parliament")).lstrip()[:10]
+            #transform dates to the iso format (YYYY-MM-DD)
+            transm_council=date_string_to_iso(transm_council)
+        except Exception, e:
+            print "pb transm_council Parliament", e
 
     return transm_council
 
@@ -841,54 +840,107 @@ def get_transm_council(soup, propos_origine):
 #AAAA-MM-JJ format
 
 
-def get_nb_point_b(soup, propos_origine):
+def get_point_b_tables(soup, propos_origine):
     """
     FUNCTION
-    get the nb_point_b variable from the prelex url
+    get the html content of the tables concerning each cons_b variable
     PARAMETERS
-    soup: prelex url content [BeautifulSoup object]
-    propos_origine: propos_origine variable [string]
+    soup: eurlex url content [BeautifulSoup object]
     RETURN
-    nb_point_b: nb_point_b variable [int]
+    tables: html content of the tables concerning each cons_b variable [list of BeautifulSoup objects]
     """
-    nb_point_b=None
-    try:
-        if propos_origine not in ["CONS", "BCE", "EM", "CJUE"]:
-            nb_point_b= len(soup.find_all(text=re.compile('ITEM "B"')))
-    except:
-        print "no nb_point_b!"
+    if propos_origine not in ["CONS", "BCE", "EM", "CJUE"]:
+        tables=[]
+        temps=soup.find_all(text=re.compile('ITEM "B"'))
+        for temp in temps:
+            tables.append(temp.find_parent("table"))
 
-    return nb_point_b
+        return tables
 
+    return None
+    
+
+def get_nb_point_b(tables):
+    """
+    FUNCTION
+    get the nb_point_b variable
+    PARAMETERS
+    tables: html content of the tables concerning each cons_b variable [list of BeautifulSoup objects]
+    RETURN
+    nb_point: nb_point_b variable [int]
+    """
+    if tables is not None:
+        #(2005-7-3) http://eur-lex.europa.eu/legal-content/EN/HIS/?uri=CELEX:32005D0600
+        return len(tables)
+    return None
+    
 #~ in front of "COUNCIL AGENDA": counts the number of 'ITEM "B"' on the page
 #~ not NULL
 #~ De 0 a 20
 #~ if propos_origine=="CONS" or "BCE", filled manually
 
 
-def get_cons_b(soup, propos_origine):
+def get_date_cons_b(tables):
     """
     FUNCTION
-    get the cons_b variable from the prelex url
+    get the date_cons_b variable
     PARAMETERS
-    soup: prelex url content [BeautifulSoup object]
-    propos_origine: propos_origine variable [string]
+    tables: html content of the tables concerning each cons_b variable [list of BeautifulSoup objects]
+    RETURN
+    date_cons: date_cons_b variable [int]
+    """
+    if tables is not None:
+        date_cons=""
+        for table in tables:
+            #(2005-7-3) http://eur-lex.europa.eu/legal-content/EN/HIS/?uri=CELEX:32005D0600
+            date_cons+=table.find_previous("img", {"alt": "Council of the European Union"}).get_text().lstrip()[:10]+'; '
+        #remove last "; "
+        if date_cons!="":
+            date_cons=date_cons[:-2]
+                
+            return date_cons
+        
+    return None
+    
+#can be Null
+#pour chaque point b, date en face du titre du tableau qui contient ITEM "B".
+#concatenate all the values, even if redundancy
+#~ if propos_origine=="CONS", filled manually
+
+
+def get_cons_b(tables):
+    """
+    FUNCTION
+    get the cons_b variable
+    PARAMETERS
+    tables: html content of the tables concerning each cons_b variable [list of BeautifulSoup objects]
     RETURN
     cons_b variable [string]
     """
-    cons_b=None
-    try:
-        if propos_origine not in ["CONS", "BCE", "EM", "CJUE"]:
-            cons_b_temp=""
-            for tables in soup.find_all(text=re.compile('ITEM "B" ON COUNCIL AGENDA')):
-                cons_b_temp+=tables.find_parent('table').find(text=re.compile("SUBJECT")).find_next("font", {"size":-2}).get_text().strip()+'; '
-            if cons_b_temp!="":
-                cons_b=cons_b_temp[:-2]
-    except:
-        print "no nb_point_b!"
-
-    return cons_b
-
+    if tables is not None:
+        cons=""
+        for table in tables:
+            try:
+                #in front of Subject
+                #(2005-7-3) http://eur-lex.europa.eu/legal-content/EN/HIS/?uri=CELEX:32005D0600
+                cons+=table.find("th", text="Subject:").find_next("td").get_text().strip()+'; '
+            except:
+                cons+="??; "
+                #no Subject: below ITEM B, find the number in front of Council session
+                #below that number, click on the PRES link, and find the cons variable in the new page below the searched number (at the top of the document)
+                
+                #TODO
+                #(2005-7-3) http://eur-lex.europa.eu/legal-content/EN/HIS/?uri=CELEX:31999D1296
+                pass
+                
+        #remove last "; "
+        if cons!="":
+            cons=cons[:-2]
+                
+            return cons
+        
+    return None
+  
 #can be Null
 #in front of SUBJECT, only if the act is processed at B point (preceded by 'ITEM "B" ON COUNCIL AGENDA')
 #concatenate all the values, even if redundancy
@@ -898,30 +950,44 @@ def get_cons_b(soup, propos_origine):
 def get_split_propos(soup, split_propos):
     """
     FUNCTION
-    update the split_propos variable if wrong from the prelex url
+    update the split_propos variable if act not marked as a split proposition and is actually split
     PARAMETERS
-    soup: prelex url content [BeautifulSoup object]
+    soup: eurlex url content [BeautifulSoup object]
     split_propos: split_propos variable [boolean]
     RETURN
-    split_propos: split_propos variable [boolean]
+    split_propos: updated split_propos variable [boolean]
     """ 
-    #if split proposition, do nothing
+    #if the act was marked as a split proposition, do nothing
     if not split_propos:
-        #otherwise, check on the prelex bandeau if there are many no celex -> indicated split propos
-        nb_no_celex=len(soup.find_all(text=re.compile("Community legislation in force")))
-        if nb_no_celex>1:
-            print "many no celex"
+        #otherwise, check if there are many no celex in the Procedure bandeau -> if yes, it is a split propos
+        #(1999-1-23) http://eur-lex.europa.eu/legal-content/EN/HIS/?uri=CELEX:31999L0003
+        no_celex=soup.find(text=re.compile("Adopted acts:")).find_parent("p").find_all("a")
+        if len(no_celex)>1:
             split_propos=True
             
     return split_propos
-    
-    
-def get_adopt_conseil(soup, suite_2e_lecture_pe, split_propos, nb_lectures):
+
+
+def get_date_in_front_of(soup, string):
     """
     FUNCTION
-    get the adopt_conseil variable from the prelex url
+    get the date variable in front of the string field in parameter
     PARAMETERS
     soup: prelex url content [BeautifulSoup object]
+    string: string field to search [string]
+    RETURN
+    date: searched date [date]
+    """
+    return soup.find(text=re.compile(string)).lstrip()[:10]
+    
+    
+def get_adopt_conseil(soup, no_unique_type, suite_2e_lecture_pe, split_propos, nb_lectures):
+    """
+    FUNCTION
+    get the adopt_conseil variable
+    PARAMETERS
+    soup: eurlex url content [BeautifulSoup object]
+    no_unique_type: no_unique_tpye variable [string]
     suite_2e_lecture_pe: suite_2e_lecture_pe variable [boolean]
     split_propos: split_propos variable [boolean]
     nb_lectures: nb_lectures variable [int]
@@ -930,45 +996,65 @@ def get_adopt_conseil(soup, suite_2e_lecture_pe, split_propos, nb_lectures):
     """
     adopt_conseil=None
 
-    # if Suite2LecturePE=Y and split_propos=N
-    if split_propos==False:
-        if suite_2e_lecture_pe or nb_lectures==2:
-            try:
-                #~ http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=en&DosId=156619
-                date_table_soup=soup.find("b", text="EP opinion 2nd rdg").find_parent("table")
-                # "Approval without amendment"
-                if date_table_soup.find(text="Approval without amendment"):
-                    #if conditions are met, then get the date
-                    adopt_conseil=date_table_soup.find("b").get_text()
-                # "Approval with amendment"
-                else:
-                    date_table_soup=soup.find("b", text="Council approval 2nd rdg").find_parent("table")
-                    adopt_conseil=date_table_soup.find("b").get_text()
-               
-            except Exception, e:
-                print "pb AdoptionConseil (case split_propos==0)", e
-        elif nb_lectures==3:
-            #~ http://ec.europa.eu/prelex/detail_dossier_real.cfm?CL=en&DosId=137644
-            date_table_soup=soup.find("b", text="Council decision at 3rd rdg").find_parent("table")
-            #check next table title is "Signature by EP and Council"
-            next_table_title=date_table_soup.find_next("table").find(text="Signature by EP and Council")
-            #if conditions are met, then get the date
-            adopt_conseil=date_table_soup.find("b").get_text()
+    if no_unique_type=="COD":
+        if  nb_lectures==3:
+            #in front of "Council decision on 3rd reading"
+            #(1996-7-8) http://eur-lex.europa.eu/legal-content/EN/HIS/?uri=CELEX:31996D1692
+            if not split_propos:
+                adopt_conseil=get_date_in_front_of(soup, "Council decision on 3rd reading")
+        elif nb_lectures==2:
 
-    # if there is no  2d Lecture at PE
-    #~ if no unique type != COD OU nb lectures=1 OU suite_2e_lecture_pe==False:
-    if adopt_conseil==None and suite_2e_lecture_pe==False:
-        acts=["Formal adoption by Council", "Adoption common position", "Council approval 1st rdg"]
-        for act in acts:
+            if suite_2e_lecture_pe:
+
+                if split_propos:
+                    temp=soup.find(text=re.compile("Formal adoption by Council"))
+                    table_soup=temp.find_next("table").find_next("table")
+                    #date in front of "Formal adoption by Council" IF just before "Signature by the President of the EP and by the President of the Council"
+                    #(2001-7-1) http://eur-lex.europa.eu/legal-content/EN/HIS/?uri=CELEX:32001R1724
+                    if table_soup.find(text=re.compile("Signature by the President of the EP and by the President of the Council")):
+                        adopt_conseil=temp.lstrip()[:10]
+                    # else date in front of "Approval by the Council of the EP amendments at 2nd reading"
+                    #exemple??
+                    else:
+                        adopt_conseil=get_date_in_front_of(soup, "Approval by the Council of the EP amendments at 2nd reading")
+
+                #date not found with the previous rule
+                if adopt_conseil is None:
+                    temp=soup.find(text=re.compile("EP opinion on 2nd reading"))
+                    table_soup=temp.find_next("table")
+                    #date in front of "EP opinion on 2nd reading" IF "Approval without amendment"
+                    #(2014-1-1) http://eur-lex.europa.eu/legal-content/EN/HIS/?uri=CELEX:32014R0165
+                    if table_soup.find(text="Approval without amendment"):
+                        adopt_conseil=temp.lstrip()[:10]
+                    # "Approval with amendments"
+                    #exemple??
+                    else:
+                        #TO TEST
+                        adopt_conseil=get_date_in_front_of(soup, "Council approval on 2nd reading")
+
+            elif not split_propos:
+                #date in front of "Approval by the Council of the EP amendments at 2nd reading"
+                #(1999-1-8) http://eur-lex.europa.eu/legal-content/EN/HIS/?uri=CELEX:31999D0372
+                adopt_conseil=get_date_in_front_of(soup, "Approval by the Council of the EP amendments at 2nd reading")
+
+
+    #if date not found with all the previous rules:
+    if adopt_conseil is None:
+        #find date in front of one of the following texts
+        texts=["Formal adoption by Council", "Adoption common position", "Council approval 1st rdg", "Approval by the Council of the EP position at 1st reading"]
+        for text in texts:
             try:
-                adopt_conseil=soup.find("a", text=re.compile(act)).find_next('br').next.strip()
+                #(2004-1-1) http://eur-lex.europa.eu/legal-content/EN/HIS/?uri=CELEX:32004R0139
+                #??
+                #??
+                #(2014-3-22) http://eur-lex.europa.eu/legal-content/EN/HIS/?uri=CELEX:32014R0259
+                adopt_conseil=get_date_in_front_of(soup, text)
                 break
-            except:
-                print "pb", act
+            except Exception, e:
+                print "exception", text, e
 
     #transform dates to the iso format (YYYY-MM-DD)
-    if adopt_conseil!=None:
-        adopt_conseil=date_string_to_iso(adopt_conseil)
+    adopt_conseil=date_string_to_iso(adopt_conseil)
     return adopt_conseil
 
 #~ date in front of "Formal adoption by Council" or "Adoption common position" or "Council approval 1st rdg"
@@ -984,55 +1070,108 @@ def get_adopt_conseil(soup, suite_2e_lecture_pe, split_propos, nb_lectures):
 # if Suite2LecturePE=Y and split_propos=Y -> to fill manually
 
 
-def get_nb_point_a(soup, propos_origine):
+def get_point_a_tables(soup, propos_origine):
     """
     FUNCTION
-    get the nb_point_a variable from the prelex url
+    get the html content of the tables concerning each cons_a variable
     PARAMETERS
-    soup: prelex url content [BeautifulSoup object]
-    propos_origine: propos_origine variable [string]
+    soup: eurlex url content [BeautifulSoup object]
     RETURN
-    nb_point_a: nb_point_a variable [int]
+    tables: html content of the tables concerning each cons_a variable [list of BeautifulSoup objects]
     """
-    nb_point_a=None
-    try:
-        #~ and propos origine != EM
-        if propos_origine not in ["CONS", "BCE", "EM", "CJUE"]:
-            nb_point_a=len(soup.find_all(text=re.compile('ITEM "A"')))
-    except:
-        print "no nb_point_a!"
+    if propos_origine not in ["CONS", "BCE", "EM", "CJUE"]:
+        tables=[]
+        temps=soup.find_all(text=re.compile('ITEM "A"'))
+        for temp in temps:
+            tables.append(temp.find_parent("table"))
 
-    return nb_point_a
+        return tables
 
+    return None
+    
+
+def get_nb_point_a(tables):
+    """
+    FUNCTION
+    get the nb_point_a variable
+    PARAMETERS
+    tables: html content of the tables concerning each cons_a variable [list of BeautifulSoup objects]
+    RETURN
+    nb_point: nb_point_a variable [int]
+    """
+    if tables is not None:
+        #(2014-3-20) http://eur-lex.europa.eu/legal-content/EN/HIS/?uri=CELEX:32014L0041
+        return len(tables)
+    return None
+    
 #~ in front of "COUNCIL AGENDA": counts the number of 'ITEM "A"' on the page
 #~ not NULL
 #~ De 0 a 20
 #~ if propos_origine=="CONS" or "BCE", filled manually
 
 
-def get_council_a(soup):
+def get_date_cons_a(tables):
     """
     FUNCTION
-    get the council_a variable from the prelex url
+    get the date_cons_a variable
     PARAMETERS
-    soup: prelex url content [BeautifulSoup object]
+    tables: html content of the tables concerning each cons_a variable [list of BeautifulSoup objects]
     RETURN
-    council_a: council_a variable [string]
+    date_cons: date_cons_a variable [int]
     """
-    council_a=None
-    try:
-        council_a_temp=""
-        for tables in soup.find_all(text=re.compile('ITEM "A" ON COUNCIL AGENDA')):
-            try:
-                council_a_temp+=tables.find_parent('table').find(text=re.compile("SUBJECT")).find_next("font", {"size":-2}).get_text().strip()+'; '
-            except Exception, e:
-                print "exception council_a", e
-                council_a_temp+='None; '
-        council_a=council_a_temp[:-2]
-    except Exception, e:
-        print "no council_a!", e
+    if tables is not None:
+        date_cons=""
+        for table in tables:
+            #(2014-3-20) http://eur-lex.europa.eu/legal-content/EN/HIS/?uri=CELEX:32014L0041 
+            date_cons+=table.find_previous("img", {"alt": "Council of the European Union"}).get_text().lstrip()[:10]+'; '
+        #remove last "; "
+        if date_cons!="":
+            date_cons=date_cons[:-2]
+                
+            return date_cons
+        
+    return None
+    
+#can be Null
+#pour chaque point a, date en face du titre du tableau qui contient ITEM "A".
+#concatenate all the values, even if redundancy
+#~ if propos_origine=="CONS", filled manually
 
-    return council_a
+
+def get_cons_a(tables):
+    """
+    FUNCTION
+    get the cons_a variable
+    PARAMETERS
+    tables: html content of the tables concerning each cons_a variable [list of BeautifulSoup objects]
+    RETURN
+    cons_a variable [string]
+    """
+    if tables is not None:
+        cons=""
+        for table in tables:
+            try:
+                #in front of Subject
+                #(2014-3-20) http://eur-lex.europa.eu/legal-content/EN/HIS/?uri=CELEX:32014L0041
+                cons+=table.find("th", text="Subject:").find_next("td").get_text().strip()+'; '
+            except:
+                cons+="??; "
+                #(1999-1-23) http://eur-lex.europa.eu/legal-content/EN/HIS/?uri=CELEX:31999L0003
+                #subject can't be found automatically -> to be filled manually
+                print "cons_a to be found manually!"
+                
+        #remove last "; "
+        if cons!="":
+            cons=cons[:-2]
+                
+            return cons
+        
+    return None
+  
+#can be Null
+#in front of SUBJECT, only if the act is processed at B point (preceded by 'ITEM "B" ON COUNCIL AGENDA')
+#concatenate all the values, even if redundancy
+#~ if propos_origine=="CONS", filled manually
 
 #not Null
 #in front of SUBJECT, only if the act is processed at A point (preceded by 'ITEM "A" ON COUNCIL AGENDA')
@@ -1053,6 +1192,20 @@ def save_config_cons(code_sect_1):
     save_fk_code_sect(code_sect_1, "config_cons")
 
 
+def get_chgt_base_j(soup):
+    """
+    FUNCTION
+    get the cons_a variable
+    PARAMETERS
+    soup: eurlex url content [BeautifulSoup object]
+    RETURN
+    chgt_base_j variable [boolean]
+    """
+    if soup.find(text=re.compile("Change of legal basis")) is not None:
+        return True
+    return False
+
+    
 def get_date_diff(date_1, date_2):
     """
     FUNCTION
@@ -1150,173 +1303,204 @@ def get_data_eurlex(soups, act_ids):
     #HIS tab (Procedure)
     #<div class="tabContent tabContentForDocument">
     soup_his=soups[1].find("div", {"class": "tabContent"})
+    #remove script tags
+    [s.extract() for s in soup_his('script')]
     
 
     #titre_en
-    #~ name='titre_en'
-    #~ fields[]=get_titre_en(soup_all)
-    #~ print name, fields[name]
-#~ 
-    #~ #all and his url
-    #~ directory_code_soup, tab=get_directory_code(soup_all, soup_his)
-#~ 
-    #~ #code_sect_1, code_sect_2, code_sect_3, code_sect_4
-    #~ code_sects=get_code_sect(directory_code_soup, tab)
-#~ 
-    #~ #code_agenda_1-4
-    #~ save_code_agenda(code_sects)
-#~ 
-    #~ #print code_sect_* and code_agenda_*
-    #~ name='code_sect_'
-    #~ for index in xrange(len(code_sects)):
-        #~ num=str(index+1)
-        #~ #django adds "_id" to foreign keys field names
-        #~ fields[name+num+"_id"]=code_sects[index]
-        #~ if code_sects[index]!=None:
-            #~ print name+num+": ", fields[name+num+"_id"].code_sect
-            #~ print 'code_agenda_'+num+": ", fields[name+num+"_id"].code_agenda.code_agenda
-#~ 
-    #~ #rep_en_1, rep_en_2, rep_en_3, rep_en_4
-    #~ rep_ens=get_rep_en(directory_code_soup, tab)
-    #~ name='rep_en_'
-    #~ for index in xrange(len(rep_ens)):
-        #~ num=str(index+1)
-        #~ fields[name+num]=rep_ens[index]
-        #~ print name+num+": ", fields[name+num]
-#~ 
-    #~ #type_acte
-    #~ name='type_acte'
-    #~ fields[name]=get_type_acte(soup_all)
-    #~ print name, fields[name]
-#~ 
+    name='titre_en'
+    fields[name]=get_titre_en(soup_all)
+    print name, fields[name]
+
+    #all and his url
+    directory_code_soup, tab=get_directory_code(soup_all, soup_his)
+
+    #code_sect_1, code_sect_2, code_sect_3, code_sect_4
+    code_sects=get_code_sect(directory_code_soup, tab)
+
+    #code_agenda_1-4
+    save_code_agenda(code_sects)
+
+    #print code_sect_* and code_agenda_*
+    name='code_sect_'
+    for index in xrange(len(code_sects)):
+        num=str(index+1)
+        #django adds "_id" to foreign keys field names
+        fields[name+num+"_id"]=code_sects[index]
+        if code_sects[index]!=None:
+            print name+num+": ", fields[name+num+"_id"].code_sect
+            print 'code_agenda_'+num+": ", fields[name+num+"_id"].code_agenda.code_agenda
+
+    #rep_en_1, rep_en_2, rep_en_3, rep_en_4
+    rep_ens=get_rep_en(directory_code_soup, tab)
+    name='rep_en_'
+    for index in xrange(len(rep_ens)):
+        num=str(index+1)
+        fields[name+num]=rep_ens[index]
+        print name+num+": ", fields[name+num]
+
+    #type_acte
+    name='type_acte'
+    fields[name]=get_type_acte(soup_all)
+    print name, fields[name]
+
     #~ #base_j
-    #~ name='base_j'
-    #~ fields[name]=get_base_j(soup_all)
-    #~ print name, fields[name]
+    name='base_j'
+    fields[name]=get_base_j(soup_all)
+    print name, fields[name]
 #~ 
-    #~ #date_doc
-    #~ name='date_doc'
-    #~ fields[name]=get_date_doc(soup_all)
-    #~ print name, fields[name]
+    #date_doc
+    name='date_doc'
+    fields[name]=get_date_doc(soup_all)
+    print name, fields[name]
+
+    #nb_mots
+    name="nb_mots"
+    fields[name]=get_nb_mots(act_ids.no_celex)
+    print name, fields[name]
 #~ 
-    #~ #nb_mots
-    #~ name="nb_mots"
-    #~ fields[name]=get_nb_mots(act_ids.no_celex)
-    #~ print name, fields[name]
-
-
-    #TO DO
-
-
-
-    #adopt_propos_origine
+#~ 
+    #~ #FROM PRELEX
+#~ 
+    #~ #adopt_propos_origine
     name='adopt_propos_origine'
     fields[name]=get_adopt_propos_origine(soup_his, act_ids.propos_origine)
     print name, fields[name]
-
-    #~ #com_proc
-    #~ name='com_proc'
-    #~ fields[name]=get_com_proc(soup_his, act_ids.propos_origine)
-    #~ print name, fields[name]
 #~ 
-    #dg_1, #dg_2, dg_3
-    #~ fields["dg_1"]=get_dg_1(soup_his)
-    #~ fields["dg_2"], fields["dg_3"]=get_dg_2_3(soup_his)
-    #~ for index in range(nb_dgs):
-        #~ index=str(index+1)
-        #~ name="dg_"+index
-        #~ #dg names as written on eurlex
-        #~ dg_names.append(fields[name])
-        #~ #DG instances
-        #~ fields[name]=get_dgs(fields[name])
-        #~ display_dgs(fields[name], name)
-#~ 
-    #~ print "dg_names", dg_names
-    
-#~ 
-    #~ #resp_1, resp_2, res_3
-    
-    #~ fields["resp_1"]=get_resp_1(soup_his)
-    #~ fields["resp_2"], fields["resp_3"]=get_resp_2_3(soup_his)
-    #~ for index in range(nb_resps):
-        #~ index=str(index+1)
-        #~ name="resp_"+index
-        #~ #resp names as written on eurlex
-        #~ resp_names.append(fields[name])
-        #~ #Person instances
-        #~ fields[name]=get_resp(fields[name])
-        #~ display_resps(fields[name], name)
+    #com_proc
+    name='com_proc'
+    fields[name]=get_com_proc(soup_his, act_ids.propos_origine)
+    print name, fields[name]
 
-    #~ print "resp_names", resp_names
+    #~ #dg_1, #dg_2, dg_3
+    fields["dg_1"]=get_dg_1(soup_his, act_ids.propos_origine)
+    fields["dg_2"], fields["dg_3"]=get_dg_2_3(soup_his, act_ids.propos_origine)
+    for index in range(nb_dgs):
+        index=str(index+1)
+        name="dg_"+index
+        #dg names as written on eurlex
+        dg_names.append(fields[name])
+        #DG instances
+        fields[name]=get_dgs(fields[name])
+        display_dgs(fields[name], name)
 
-    
-    #transm_council
+    print "dg_names eurlex", dg_names
+
+    #resp_1, resp_2, res_3
+    #~ 
+    fields["resp_1"]=get_resp_1(soup_his)
+    fields["resp_2"], fields["resp_3"]=get_resp_2_3(soup_his)
+    for index in range(nb_resps):
+        index=str(index+1)
+        name="resp_"+index
+        #resp names as written on eurlex
+        resp_names.append(fields[name])
+        #Person instances
+        fields[name]=get_resp(fields[name])
+        display_resps(fields[name], name)
+#~ 
+    print "resp_names eurlex", resp_names
+    #~ 
+    #~ #transm_council
     name='transm_council'
     fields[name]=get_transm_council(soup_his, act_ids.propos_origine)
     print name, fields[name]
 #~ 
-    #~ #nb_point_b
-    #~ fields['nb_point_b']=get_nb_point_b(soup, act_ids.propos_origine)
-    #~ print "nb_point_b:", fields['nb_point_b']
-#~ 
-    #~ #cons_b
-    #~ fields['cons_b']=get_cons_b(soup, act_ids.propos_origine)
-    #~ print "cons_b:", fields['cons_b']
+    #~ #point_b html tables
+    point_b_tables=get_point_b_tables(soup_his, act_ids.propos_origine)
 
-    #~ 
-    #~ #check and update split_propos
-    #~ fields['split_propos']=get_split_propos(soup, act.split_propos)
-    #~ print "split_propos:", fields['split_propos']
+    #nb_point_b
+    name='nb_point_b'
+    fields[name]=get_nb_point_b(point_b_tables)
+    print name, fields[name]
+    
+    #date_cons_b
+    name='date_cons_b'
+    fields[name]=get_date_cons_b(point_b_tables)
+    print name, fields[name]
+
+    #~ #cons_b
+    name='cons_b'
+    fields[name]=get_cons_b(point_b_tables)
+    print name, fields[name]
+#~ 
+    #check and update split_propos
+    name='split_propos'
+    fields[name]=get_split_propos(soup_his, act.split_propos)
+    print name, fields[name]
 #~ 
     #~ #adopt_conseil
-    #~ fields['adopt_conseil']=get_adopt_conseil(soup, act.suite_2e_lecture_pe, fields['split_propos'], act.nb_lectures)
-    #~ print "adopt_conseil:", fields['adopt_conseil']
+    name="adopt_conseil"
+    fields[name]=get_adopt_conseil(soup_his, act_ids.no_unique_type, act.suite_2e_lecture_pe, fields['split_propos'], act.nb_lectures)
+    print name, fields[name]
+
+    #~ #point_a html tables
+    point_a_tables=get_point_a_tables(soup_his, act_ids.propos_origine)
+
+    #nb_point_a
+    name='nb_point_a'
+    fields[name]=get_nb_point_a(point_a_tables)
+    print name, fields[name]
+    
+    #date_cons_a
+    name='date_cons_a'
+    fields[name]=get_date_cons_a(point_a_tables)
+    print name, fields[name]
+
+    #~ #cons_a
+    name='council_a'
+    fields[name]=get_cons_a(point_a_tables)
+    print name, fields[name]
+
+    #config_cons
+    save_config_cons(act.code_sect_1)
 #~ 
-    #~ #nb_point_a
-    #~ fields['nb_point_a']=get_nb_point_a(soup, act_ids.propos_origine)
-    #~ print "nb_point_a:", fields['nb_point_a']
 #~ 
-    #~ #council_a
-    #~ fields['council_a']=get_council_a(soup)
-    #~ print "council_a:", fields['council_a']
-#~ 
-    #~ #config_cons
-    #~ save_config_cons(act.code_sect_1_id)
+    #~ #chgt_base_j
+    name='chgt_base_j'
+    fields[name]=get_chgt_base_j(soup_his)
+    print name, fields[name]
 #~ 
     #~ #duree_adopt_trans
-    #~ fields['duree_adopt_trans']=get_date_diff(fields['transm_council'], fields['adopt_propos_origine'])
-    #~ print "duree_adopt_trans:", fields['duree_adopt_trans']
-#~ 
-    #~ #duree_proc_depuis_prop_com
-    #~ fields['duree_proc_depuis_prop_com']=get_date_diff(fields['adopt_conseil'], fields['adopt_propos_origine'])
-    #~ print "duree_proc_depuis_prop_com:", fields['duree_proc_depuis_prop_com']
-#~ 
-    #~ #duree_proc_depuis_trans_cons
-    #~ fields['duree_proc_depuis_trans_cons']=get_date_diff(fields['adopt_conseil'], fields['transm_council'])
-    #~ print "duree_proc_depuis_trans_cons:", fields['duree_proc_depuis_trans_cons']
-#~ 
-    #~ #duree_tot_depuis_prop_com
-    #~ fields['duree_tot_depuis_prop_com']=get_date_diff(str(act.sign_pecs), fields['adopt_propos_origine'])
-    #~ #if no sign_pecs
-    #~ if fields['duree_tot_depuis_prop_com']==None:
-        #~ fields['duree_tot_depuis_prop_com']=fields['duree_proc_depuis_prop_com']
-    #~ print "duree_tot_depuis_prop_com:", fields['duree_tot_depuis_prop_com']
-#~ 
-    #~ #duree_tot_depuis_trans_cons
-    #~ fields['duree_tot_depuis_trans_cons']=get_date_diff(str(act.sign_pecs), fields['transm_council'])
-    #~ #if no sign_pecs
-    #~ if fields['duree_tot_depuis_trans_cons']==None:
-        #~ fields['duree_tot_depuis_trans_cons']=fields['duree_proc_depuis_trans_cons']
-    #~ print "duree_tot_depuis_trans_cons:", fields['duree_tot_depuis_trans_cons']
-#~ 
-    #~ #vote_public
-    #~ fields['vote_public']=get_vote_public(act.adopt_cs_contre, act.adopt_cs_abs)
-    #~ print "vote_public:", fields['vote_public']
-#~ 
-    #~ #adopt_pc_contre, #adopt_pc_abs
-    #~ adopt_pc=save_get_adopt_pc(act, act_ids)
-    #~ if adopt_pc!=None:
-        #~ print "adopt_pc_contre:", adopt_pc.adopt_pc_contre
-        #~ print "adopt_pc_abs:", adopt_pc.adopt_pc_abs
+    name='duree_adopt_trans'
+    fields[name]=get_date_diff(fields['transm_council'], fields['adopt_propos_origine'])
+    print name, fields[name]
+
+    #duree_proc_depuis_prop_com
+    name='duree_proc_depuis_prop_com'
+    fields[name]=get_date_diff(fields['adopt_conseil'], fields['adopt_propos_origine'])
+    print name, fields[name]
+
+    #duree_proc_depuis_trans_cons
+    name='duree_proc_depuis_trans_cons'
+    fields[name]=get_date_diff(fields['adopt_conseil'], fields['transm_council'])
+    print name, fields[name]
+
+    #duree_tot_depuis_prop_com
+    name='duree_tot_depuis_prop_com'
+    fields[name]=get_date_diff(act.sign_pecs, fields['adopt_propos_origine'])
+    #if no sign_pecs
+    if fields[name]==None:
+        fields[name]=fields['duree_proc_depuis_prop_com']
+    print name, fields[name]
+
+    #duree_tot_depuis_trans_cons
+    name='duree_tot_depuis_trans_cons'
+    fields[name]=get_date_diff(act.sign_pecs, fields['transm_council'])
+    #if no sign_pecs
+    if fields[name]==None:
+        fields[name]=fields['duree_proc_depuis_trans_cons']
+    print name, fields[name]
+
+    #vote_public
+    name='vote_public'
+    fields[name]=get_vote_public(act.adopt_cs_contre, act.adopt_cs_abs)
+    print name, fields[name]
+
+    #adopt_pc_contre, #adopt_pc_abs
+    adopt_pc=save_get_adopt_pc(act, act_ids)
+    if adopt_pc!=None:
+        print "adopt_pc_contre:", adopt_pc.adopt_pc_contre
+        print "adopt_pc_abs:", adopt_pc.adopt_pc_abs
 
     return fields, dg_names, resp_names

@@ -273,13 +273,15 @@
                                                     <tr>
                                                         {% for col_index in nb_cols|numeric_loop %}
                                                             <td class="table_column_title date_cons_border">{{ display_name.date_cons_a}}</td>
-                                                            <td class="table_column_title cons_border">{{ display_name.cons_a }}</td>
+                                                            <td class="table_column_title cons_border">{{ display_name.council_a }}</td>
                                                         {% endfor %}
                                                     </tr>
 
                                                     <!-- display 15 date_cons vars and 15 cons vars -->
                                                     <tr>
-
+<!--
+                                                    {{ form_data.cons_a_fields }}
+-->
                                                     {% for cons_field in form_data.cons_a_fields %}
                                                         {% if 'date' in cons_field.name %}
                                                             <td class="date_cons_border">

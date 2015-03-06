@@ -105,6 +105,7 @@ class AbstractModif(forms.Form):
             print "exception", e
             raise ValidationError("The act you are looking for doesn't exist in our database!")
 
+        #the act was found in the db
         if act is not None:
             #ActIds form: check act.validated==0
             #MinAttend form: check act.validated_attendance==0

@@ -14,7 +14,8 @@ from django.forms.models import model_to_dict
 #variables name
 import act_ids.var_name_ids as var_name_ids
 import act.var_name_data as var_name_data
-from common.config_file import max_cons
+#number cons variables, dgs and resps -> constants in config_file
+from common.config_file import max_cons, nb_dgs, nb_resps
 #retrieve url contents
 from import_app.get_ids_eurlex import get_url_eurlex, get_url_content_eurlex
 from import_app.get_ids_oeil import get_url_oeil, get_url_content_oeil
@@ -90,7 +91,7 @@ def get_data(src, act_ids, url):
     get data of an act from a source in parameter
     PARAMETERS
     src: source (eurlex or oeil) [string]
-    act_ids: ids of the act for a given source source [ActIds model instance]
+    act_ids: dictionary of act ids for each source [dictionary of ActIds instances]
     url: link to the act page [string]
     RETURN
     fields:  dictionary which contains retrieved data for a given source [dictionary]
@@ -99,8 +100,8 @@ def get_data(src, act_ids, url):
     """
     logger.debug('get_data')
     fields={}
-    dg_names=[None]*2
-    resp_names=[None]*3
+    dg_names=[None]*nb_dgs
+    resp_names=[None]*nb_resps
     ok=False
     
     logger.debug("get_url_content_"+src)
@@ -117,17 +118,17 @@ def get_data(src, act_ids, url):
         
     #if the url exists and there is a valid content
     if ok:
-         setattr(act_ids, "url_exists", True)
-         fields, dg_names, resp_names=eval("get_data_"+src)(url_content, act_ids)
+         setattr(act_ids[src], "url_exists", True)
+         fields, dg_names, resp_names=eval("get_data_"+src)(url_content, act_ids["index"])
     else:
-        setattr(act_ids, "url_exists", False)
+        setattr(act_ids[src], "url_exists", False)
         logger.debug("error while retrieving "+src+" url")
         print "error while retrieving "+src+" url"
 
 
-    #actualization url exist attribute
+    #update url exist attribute
     logger.debug("act_ids to be saved")
-    act_ids.save()
+    act_ids[src].save()
 
     return fields, dg_names, resp_names
 
@@ -163,33 +164,36 @@ def check_multiple_dgs(act):
     return dgs, act
 
 
-def store_dg_resp(act, eurlex_list, oeil_list, field):
+def store_dg_resp(act, eurlex_list, oeil_list, var_name):
     """
     FUNCTION
-    get all the dgs and resps on eurlex / œil and save œil dgs / resps in Act model if none was found on eurlex
+    get all the dgs and resps on eurlex / oeil and save oeil dgs / resps in Act model if none was found on eurlex
     PARAMETERS
     act: instance of the data of the act [Act model instance]
     eurlex_list: list of dg or resp names from eurlex [list of strings]
     oeil_list: list of dg or resp names from oeil [list of strings]
-    field: name of the field ("dg" or "resp") [string]
+    var_name: name of the field ("dg" or "resp") [string]
     RETURN
     act: instance of the data of the act (with updated dgs or resps if any) [Act model instance]
     eurlex_dic: list of dg or resp names from eurlex [dictionary of strings]
     oeil_dic: list of dg or resp names from oeil [dictionary of strings]
     """
+    print "eurlex_list", eurlex_list
     print "oeil_list", oeil_list
+    
     oeil_dic={}
-    for index, field in enumerate(oeil_list):
-        index=str(index+1)
-        oeil_dic[index]=field
+    for index, field in enumerate(oeil_list, start=1):
+        num=str(index)
+        oeil_dic[num]=field
     eurlex_dic={}
-    for index, field in enumerate(eurlex_list):
-        num=str(index+1)
+    for index, field in enumerate(eurlex_list, start=1):
+        num=str(index)
         eurlex_dic[num]=field
-        if field==None and oeil_dic[num]!=None:
+        
+        if field is None and oeil_dic[num] is not None:
             try:
                 #update the act instance with the oeil resp
-                if field=="resp":
+                if var_name=="resp":
                     setattr(act, "resp_"+num, Person.objects.get(name=oeil_dic[num]))
                 else:
                     #update the act instance with the oeil dg
@@ -240,6 +244,47 @@ def check_update(POST):
     return False
 
 
+def get_cons_vars(character, date_cons="", cons=""):
+    """
+    FUNCTION
+    from the character (a or b), date_cons and cons fields in parameter, return a dictionary of all the temp_date_cons and temp_cons values
+    PARAMETERS
+    character: "a" or "b" [string]
+    date_cons: value of the date_cons field [string]
+    cons: value of the cons field [string]
+    RETURN
+    cons_vars: dictionary of all the temp_date_cons and temp_cons values [dictionary]
+    """
+    #initialization
+    cons_vars=OrderedDict({})
+    date_cons_name="date_cons_"
+    cons_name="cons_"
+    for num in xrange(1, max_cons+1):
+        suffix=character+"_"+str(num)
+        #initialize date_cons and cons
+        cons_vars[date_cons_name+suffix]=None
+        cons_vars[cons_name+suffix]=None
+
+    #there is at least one cons variable
+    if date_cons is not None:
+        date_conss=date_cons.split(";")
+        conss=cons.split(";")
+        for num in xrange(len(date_conss)):
+            suffix=character+"_"+str(num+1)
+            if date_conss[num].strip() != "":
+                #fill dictionary with vartiable values
+                cons_vars[date_cons_name+suffix]=date_conss[num]
+                cons_vars[cons_name+suffix]=conss[num]
+            else:
+                #no more cons variable
+                break
+            
+
+    print "cons_vars", cons_vars
+
+    return cons_vars
+    
+
 def get_data_all(context, add_modif, act, POST):
     """
     FUNCTION
@@ -271,13 +316,13 @@ def get_data_all(context, add_modif, act, POST):
         
         logger.debug('oeil to be processed')
         print "oeil to be processed"
-        fields, dg_names_oeil, resp_names_oeil=get_data("oeil", act_ids["oeil"], urls["url_oeil"])
+        fields, dg_names_oeil, resp_names_oeil=get_data("oeil", act_ids, urls["url_oeil"])
         act.__dict__.update(fields)
 
         #adopt_conseil from eurlex needs nb_lectures from oeil -> eurlex after oeil
         logger.debug('eurlex to be processed')
         print "eurlex to be processed"
-        fields, dg_names_eurlex, resp_names_eurlex=get_data("eurlex", act_ids["eurlex"], urls["url_eurlex"])
+        fields, dg_names_eurlex, resp_names_eurlex=get_data("eurlex", act_ids, urls["url_eurlex"])
         act.__dict__.update(fields)
         
         #~ #store dg/resp from eurlex and oeil to be displayed as text in the template
@@ -324,52 +369,11 @@ def get_data_all(context, add_modif, act, POST):
     context["party_family"]=get_party_family({"1": act.resp_1_id, "2": act.resp_2_id, "3": act.resp_3_id})
     context["cons_vars_b"]=get_cons_vars("b", act.date_cons_b, act.cons_b)
     context["cons_vars_a"]=get_cons_vars("a", act.date_cons_a, act.council_a)
+    #~ print 'context["cons_vars_a"] end of get data all', context["cons_vars_a"]
     context['act_ids']=act_ids
     context['form_data']=form_data
     
     return context
-
-
-
-def get_cons_vars(character, date_cons="", cons=""):
-    """
-    FUNCTION
-    from the character (a or b), date_cons and cons fields in parameter, return a dictionary of all the temp_date_cons and temp_cons values
-    PARAMETERS
-    character: "a" or "b" [string]
-    date_cons: value of the date_cons field [string]
-    cons: value of the cons field [string]
-    RETURN
-    cons_vars: dictionary of all the temp_date_cons and temp_cons values [dictionary]
-    """
-    #initialization
-    cons_vars=OrderedDict({})
-    date_cons_name="date_cons_"
-    cons_name="cons_"
-    for num in xrange(1, max_cons+1):
-        suffix=character+"_"+str(num)
-        #initialize date_cons and cons
-        cons_vars[date_cons_name+suffix]=None
-        cons_vars[cons_name+suffix]=None
-
-    #there is at least one cons variable
-    if date_cons is not None:
-        date_conss=date_cons.split(";")
-        conss=cons.split(";")
-        for num in xrange(1, max_cons+1):
-            suffix=character+"_"+str(num)
-            try:
-                #fill dictionary with vartiable values
-                cons_vars[date_cons_name+suffix]=date_conss[num]
-                cons_vars[cons_name+suffix]=conss[num]
-            except Exception, e:
-                #no more cons variable
-                break
-            
-
-    print "cons_vars", cons_vars
-
-    return cons_vars
 
 
 def init_context(context):
@@ -464,8 +468,8 @@ class ActUpdate(UpdateView):
         if "state" not in context:
             context['state']="display"
 
-        context["cons_vars_b"]=get_cons_vars("b")
-        context["cons_vars_a"]=get_cons_vars("a")
+        #~ context["cons_vars_b"]=get_cons_vars("b")
+        #~ context["cons_vars_a"]=get_cons_vars("a")
         
         print "end get_context_data"
 

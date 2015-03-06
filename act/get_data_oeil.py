@@ -7,6 +7,8 @@ import re
 from bs4 import BeautifulSoup
 import urllib
 from common.functions import date_string_to_iso
+#number of dgs and resps -> constants in config_file
+from common.config_file import nb_rapps, nb_dgs, nb_resps
 #save rapp
 from common.db import save_get_field_and_fk
 from act.models import Country, Person, Party, PartyFamily
@@ -231,7 +233,7 @@ def get_rapps_html(soup, searched_text):
     RETURN
     rapps: rapporteurs data [BeautifulSoup object]
     """
-    rapps=[None]*5
+    rapps=[None]*nb_rapps
     if searched_text!=None:
         try:
             #exclude shadow rapporteurs (parent: <div class="result_moredata shadow">)
@@ -444,7 +446,7 @@ def get_dg_names(soup):
     RETURN
     dg_names: list of dg names [list of strings]
     """
-    dgs=[None]*2
+    dgs=[None]*nb_dgs
     try:
         #view-source:http://www.europarl.europa.eu/oeil/popups/ficheprocedure.do?lang=en&reference=2005/0223(COD) (2 dgs)
         #<td class="players_committee">
@@ -476,7 +478,7 @@ def get_resp_names(soup):
     RETURN
     resp_names: list of resp names [list of strings]
     """
-    resp_names=[None]*3
+    resp_names=[None]*nb_resps
     try:
         #http://www.europarl.europa.eu/oeil/popups/ficheprocedure.do?lang=en&reference=2007/0128(COD)
         #<td class="players_rapporter_com">
@@ -485,7 +487,7 @@ def get_resp_names(soup):
         resp_names=soup.find_all("p", {"class": "players_content"})
         #<p class="players_content">KYPRIANOU  Markos</p>
         resp_names=[resp_name.get_text().strip() for resp_name in resp_names]
-        while len(resp_names)<3:
+        while len(resp_names)<nb_resps:
             resp_names.append(None)
     except Exception, e:
         print "exception get_resp_names", e
@@ -616,15 +618,12 @@ def get_data_oeil(soup, act_ids):
 
     #get dg names
     dg_names=get_dg_names(soup_dg_resp)
-    print "dg_names:", dg_names
+    print "dg_names oeil:", dg_names
     logger.debug("dg_names: "+ str(dg_names))
 
     #get resp names
     resp_names=get_resp_names(soup_dg_resp)
-    print "resp_names:", resp_names
+    print "resp_names oeil:", resp_names
     logger.debug("resp_names: "+ str(resp_names))
-
-    #~ print "NB LECTURES OEIL", fields["nb_lectures"]
-    #~ logger.debug("nb_lectures: "+ str(fields["nb_lectures"]))
 
     return fields, dg_names, resp_names
