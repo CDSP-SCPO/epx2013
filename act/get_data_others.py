@@ -132,7 +132,8 @@ def save_get_min_attend(act_ids):
             try:
                 MinAttend.objects.create(act=act_ids.act, country=Country.objects.get(pk=min_attend.country), verbatim=verbatim)
             except Exception, e:
-                print "min_attend already exists!", e
+                pass
+                #~ print "min_attend already exists!", e
 
             #check if there is at least one status different from AB and NA -> check if there are attendances for the act
             if min_attend.status not in ["AB", "NA"]:

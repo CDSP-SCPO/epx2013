@@ -163,6 +163,9 @@
                                     
                                 <!--resp: original values  -->
                                 {% elif field.name|slice:":5" == 'resp_' %}
+<!--
+                                    {{ field.value }}
+-->
                                     {% with index=field.name|slice:"-1:" %}
                                         <div class="row-fluid">
                                             {% with resp_eurlex=resp_names_eurlex|get_value:index resp_oeil=resp_names_oeil|get_value:index %}

@@ -20,7 +20,7 @@ from common.config_file import max_cons, nb_dgs, nb_resps
 from import_app.get_ids_eurlex import get_url_eurlex, get_url_content_eurlex
 from import_app.get_ids_oeil import get_url_oeil, get_url_content_oeil
 #retrieve data
-from get_data_eurlex import get_data_eurlex, get_date_diff, save_config_cons
+from get_data_eurlex import get_data_eurlex, get_duration_fields, save_config_cons
 from get_data_oeil import get_data_oeil
 from get_data_others import get_data_others
 #redirect to login page if not logged
@@ -178,6 +178,7 @@ def store_dg_resp(act, eurlex_list, oeil_list, var_name):
     eurlex_dic: list of dg or resp names from eurlex [dictionary of strings]
     oeil_dic: list of dg or resp names from oeil [dictionary of strings]
     """
+    print "var_name", var_name
     print "eurlex_list", eurlex_list
     print "oeil_list", oeil_list
     
@@ -191,6 +192,10 @@ def store_dg_resp(act, eurlex_list, oeil_list, var_name):
         eurlex_dic[num]=field
         
         if field is None and oeil_dic[num] is not None:
+            print "field", field
+            print "eurlex_dic[num]", eurlex_dic[num]
+            print "oeil_dic[num]", oeil_dic[num]
+            
             try:
                 #update the act instance with the oeil resp
                 if var_name=="resp":
@@ -280,7 +285,7 @@ def get_cons_vars(character, date_cons="", cons=""):
                 break
             
 
-    print "cons_vars", cons_vars
+    #~ print "cons_vars", cons_vars
 
     return cons_vars
     
@@ -315,15 +320,18 @@ def get_data_all(context, add_modif, act, POST):
         #COMMENT FOR TESTS ONLY
         
         logger.debug('oeil to be processed')
-        print "oeil to be processed"
-        fields, dg_names_oeil, resp_names_oeil=get_data("oeil", act_ids, urls["url_oeil"])
-        act.__dict__.update(fields)
+        dg_names_oeil=[None]*nb_dgs
+        resp_names_oeil=[None]*nb_resps
+        #~ print "oeil to be processed"
+        #~ fields, dg_names_oeil, resp_names_oeil=get_data("oeil", act_ids, urls["url_oeil"])
+        #~ act.__dict__.update(fields)
 
         #adopt_conseil from eurlex needs nb_lectures from oeil -> eurlex after oeil
         logger.debug('eurlex to be processed')
         print "eurlex to be processed"
         fields, dg_names_eurlex, resp_names_eurlex=get_data("eurlex", act_ids, urls["url_eurlex"])
         act.__dict__.update(fields)
+        
         
         #~ #store dg/resp from eurlex and oeil to be displayed as text in the template
         logger.debug('dg and resp to be processed')
@@ -697,39 +705,15 @@ def update_durations_fct(post):
     """
     context={}
     context['duree_adopt_trans']=context['duree_proc_depuis_prop_com']=context['duree_proc_depuis_trans_cons']=context['duree_tot_depuis_prop_com']=context['duree_tot_depuis_trans_cons']=[None]*5
-    transm_council=post["transm_council"]
-    adopt_propos_origine=post["adopt_propos_origine"]
-    adopt_conseil=post["adopt_conseil"]
+
+    duration_fields={}
+    duration_fields["transm_council"]=post["transm_council"]
+    duration_fields["adopt_propos_origine"]=post["adopt_propos_origine"]
+    duration_fields["adopt_conseil"]=post["adopt_conseil"]
     sign_pecs=post["sign_pecs"]
 
-
-    #duree_adopt_trans
-    context['duree_adopt_trans']=get_date_diff(transm_council, adopt_propos_origine)
-    print "duree_adopt_trans:", context['duree_adopt_trans']
-
-    #duree_proc_depuis_prop_com
-    context['duree_proc_depuis_prop_com']=get_date_diff(adopt_conseil, adopt_propos_origine)
-    print "duree_proc_depuis_prop_com:", context['duree_proc_depuis_prop_com']
-
-    #duree_proc_depuis_trans_cons
-    context['duree_proc_depuis_trans_cons']=get_date_diff(adopt_conseil, transm_council)
-    print "duree_proc_depuis_trans_cons:", context['duree_proc_depuis_trans_cons']
-
-    #duree_tot_depuis_prop_com
-    context['duree_tot_depuis_prop_com']=get_date_diff(sign_pecs, adopt_propos_origine)
-    #if no sign_pecs
-    if context['duree_tot_depuis_prop_com']==None:
-        context['duree_tot_depuis_prop_com']=context['duree_proc_depuis_prop_com']
-    print "duree_tot_depuis_prop_com:", context['duree_tot_depuis_prop_com']
-
-    #duree_tot_depuis_trans_cons
-    context['duree_tot_depuis_trans_cons']=get_date_diff(sign_pecs, transm_council)
-    #if no sign_pecs
-    if context['duree_tot_depuis_trans_cons']==None:
-        context['duree_tot_depuis_trans_cons']=context['duree_proc_depuis_trans_cons']
-    print "duree_tot_depuis_trans_cons:", context['duree_tot_depuis_trans_cons']
-
-    print "update_durations_fct"
+    #duration fields: duree_adopt_trans, duree_proc_depuis_prop_com, duree_proc_depuis_trans_cons, duree_tot_depuis_prop_com, duree_tot_depuis_trans_cons
+    context.update(get_duration_fields(duration_fields, sign_pecs))
 
     return context
     

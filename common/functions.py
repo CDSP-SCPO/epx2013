@@ -34,7 +34,7 @@ def date_split_to_iso(year, month, day):
     PARAMETERS
     year, month, day: year, month and day of the date to transform  [int, int, int]
     RETURN
-    date in the iso format [date]
+    date in the iso format [string]
     """
     year=int(year)
     month=int(month)
@@ -54,7 +54,7 @@ def date_string_to_iso(string):
     PARAMETERS
     string: string date to convert [string]
     RETURN
-    date in the iso format [date]
+    date in the iso format [string]
     """
     date=None
     if string is not None:

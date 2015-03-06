@@ -38,7 +38,7 @@ def get_related_field(model_name, value_pk, name_son):
         field=getattr(model.objects.get(pk=value_pk), name_son)
         field=getattr(field, name_son)
     except Exception, e:
-        #~ print "pb get_field", e
+        #~ print "pb get_related_field", e
         pass
 
     return field

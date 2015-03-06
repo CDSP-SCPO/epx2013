@@ -1211,8 +1211,8 @@ def get_date_diff(date_1, date_2):
     FUNCTION
     compute the difference between two dates
     PARAMETERS
-    date_1: first date [date]
-    date_2: second date [date]
+    date_1: first date [string]
+    date_2: second date [string]
     RETURN
     difference between the two dates in parameters  [int]
     """
@@ -1234,6 +1234,53 @@ def get_date_diff(date_1, date_2):
 #DureeProcedureDepuisTransCons (AdoptionConseil – TransmissionConseil)
 #DureeTotaleDepuisPropCom (SignPECS – AdoptionProposOrigine)
 #DureeTotaleDepuisTransCons (SignPECS – TransmissionConseil) 
+
+
+def get_duration_fields(fields, sign_pecs):
+    """
+    FUNCTION
+    get all the duration fields: duree_adopt_trans, duree_proc_depuis_prop_com, duree_proc_depuis_trans_cons, duree_tot_depuis_prop_com, duree_tot_depuis_trans_cons
+    PARAMETERS
+    fields: date fields necessary to compute the durations (from eurlex) [dictionary]
+    sign_pecs: sign_pecs variable from oeil [date]
+    RETURN
+    duration_fields: duration fields [dictionary]
+    """
+    duration_fields={}
+    sign_pecs=str(sign_pecs)
+    
+      #~ #duree_adopt_trans
+    name='duree_adopt_trans'
+    duration_fields[name]=get_date_diff(fields['transm_council'], fields['adopt_propos_origine'])
+    print name, duration_fields[name]
+
+    #duree_proc_depuis_prop_com
+    name='duree_proc_depuis_prop_com'
+    duration_fields[name]=get_date_diff(fields['adopt_conseil'], fields['adopt_propos_origine'])
+    print name, duration_fields[name]
+
+    #duree_proc_depuis_trans_cons
+    name='duree_proc_depuis_trans_cons'
+    duration_fields[name]=get_date_diff(fields['adopt_conseil'], fields['transm_council'])
+    print name, duration_fields[name]
+
+    #duree_tot_depuis_prop_com
+    name='duree_tot_depuis_prop_com'
+    duration_fields[name]=get_date_diff(sign_pecs, fields['adopt_propos_origine'])
+    #if no sign_pecs
+    if duration_fields[name]==None:
+        duration_fields[name]=duration_fields['duree_proc_depuis_prop_com']
+    print name, duration_fields[name]
+
+    #duree_tot_depuis_trans_cons
+    name='duree_tot_depuis_trans_cons'
+    duration_fields[name]=get_date_diff(sign_pecs, fields['transm_council'])
+    #if no sign_pecs
+    if duration_fields[name]==None:
+        duration_fields[name]=duration_fields['duree_proc_depuis_trans_cons']
+    print name, duration_fields[name]
+
+    return duration_fields
 
 
 def get_vote_public(adopt_cs_contre, adopt_cs_abs):
@@ -1307,7 +1354,7 @@ def get_data_eurlex(soups, act_ids):
     [s.extract() for s in soup_his('script')]
     
 
-    #titre_en
+    #~ #titre_en
     name='titre_en'
     fields[name]=get_titre_en(soup_all)
     print name, fields[name]
@@ -1381,8 +1428,8 @@ def get_data_eurlex(soups, act_ids):
         #dg names as written on eurlex
         dg_names.append(fields[name])
         #DG instances
-        fields[name]=get_dgs(fields[name])
-        display_dgs(fields[name], name)
+        fields[name+"_id"]=get_dgs(fields[name])
+        display_dgs(fields[name+"_id"], name)
 
     print "dg_names eurlex", dg_names
 
@@ -1396,8 +1443,8 @@ def get_data_eurlex(soups, act_ids):
         #resp names as written on eurlex
         resp_names.append(fields[name])
         #Person instances
-        fields[name]=get_resp(fields[name])
-        display_resps(fields[name], name)
+        fields[name+"_id"]=get_resp(fields[name])
+        display_resps(fields[name+"_id"], name)
 #~ 
     print "resp_names eurlex", resp_names
     #~ 
@@ -1423,8 +1470,8 @@ def get_data_eurlex(soups, act_ids):
     name='cons_b'
     fields[name]=get_cons_b(point_b_tables)
     print name, fields[name]
-#~ 
-    #check and update split_propos
+
+    #~ #check and update split_propos
     name='split_propos'
     fields[name]=get_split_propos(soup_his, act.split_propos)
     print name, fields[name]
@@ -1434,7 +1481,7 @@ def get_data_eurlex(soups, act_ids):
     fields[name]=get_adopt_conseil(soup_his, act_ids.no_unique_type, act.suite_2e_lecture_pe, fields['split_propos'], act.nb_lectures)
     print name, fields[name]
 
-    #~ #point_a html tables
+    #point_a html tables
     point_a_tables=get_point_a_tables(soup_his, act_ids.propos_origine)
 
     #nb_point_a
@@ -1461,36 +1508,8 @@ def get_data_eurlex(soups, act_ids):
     fields[name]=get_chgt_base_j(soup_his)
     print name, fields[name]
 #~ 
-    #~ #duree_adopt_trans
-    name='duree_adopt_trans'
-    fields[name]=get_date_diff(fields['transm_council'], fields['adopt_propos_origine'])
-    print name, fields[name]
-
-    #duree_proc_depuis_prop_com
-    name='duree_proc_depuis_prop_com'
-    fields[name]=get_date_diff(fields['adopt_conseil'], fields['adopt_propos_origine'])
-    print name, fields[name]
-
-    #duree_proc_depuis_trans_cons
-    name='duree_proc_depuis_trans_cons'
-    fields[name]=get_date_diff(fields['adopt_conseil'], fields['transm_council'])
-    print name, fields[name]
-
-    #duree_tot_depuis_prop_com
-    name='duree_tot_depuis_prop_com'
-    fields[name]=get_date_diff(act.sign_pecs, fields['adopt_propos_origine'])
-    #if no sign_pecs
-    if fields[name]==None:
-        fields[name]=fields['duree_proc_depuis_prop_com']
-    print name, fields[name]
-
-    #duree_tot_depuis_trans_cons
-    name='duree_tot_depuis_trans_cons'
-    fields[name]=get_date_diff(act.sign_pecs, fields['transm_council'])
-    #if no sign_pecs
-    if fields[name]==None:
-        fields[name]=fields['duree_proc_depuis_trans_cons']
-    print name, fields[name]
+    #duration fields: duree_adopt_trans, duree_proc_depuis_prop_com, duree_proc_depuis_trans_cons, duree_tot_depuis_prop_com, duree_tot_depuis_trans_cons
+    fields.update(get_duration_fields(fields, act.sign_pecs))
 
     #vote_public
     name='vote_public'
