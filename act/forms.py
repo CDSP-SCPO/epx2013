@@ -99,6 +99,13 @@ class ActForm(forms.ModelForm):
     resp_2=forms.ModelChoiceField(queryset=Person.objects.order_by('name').filter(src="resp"), empty_label="Select a " + var_name_data.var_name["resp"], widget=forms.Select(attrs={'id': 'resp_2_id', 'name': "resp_2_id",}), required=False)
     resp_3=forms.ModelChoiceField(queryset=Person.objects.order_by('name').filter(src="resp"), empty_label="Select a " + var_name_data.var_name["resp"], widget=forms.Select(attrs={'id': 'resp_3_id', 'name': "resp_3_id",}), required=False)
 
+    #display dgs and resps names from eurlex and oeil (hidden fields to store all the names)
+    hidden_dg_eurlex_dic=forms.CharField(required=False)
+    hidden_dg_oeil_dic=forms.CharField(required=False)
+    hidden_resp_eurlex_dic=forms.CharField(required=False)
+    hidden_resp_oeil_dic=forms.CharField(required=False)
+    hidden_dg_dic=forms.CharField(required=False)
+    
     #prevent zero value
     duree_proc_depuis_prop_com=forms.IntegerField(min_value=1)
     duree_proc_depuis_trans_cons=forms.IntegerField(min_value=1)
@@ -147,6 +154,12 @@ class ActForm(forms.ModelForm):
                 suffix=character+"_"+str(index)
                 date_name="date_cons_"+suffix
                 cons_name="cons_"+suffix
+                
+                #get post values
+                #~ value_date=self.data[date_name]
+                #~ value_cons=self.data[cons_name]
+                #~ if date_name
+                
                 #create form fields
                 self.fields[date_name] = forms.DateField(required=False)
                 self.fields[date_name].max_length=10
@@ -172,14 +185,16 @@ class ActForm(forms.ModelForm):
         for index in range(len(names)):
             #for each of the 8 drop down lists
             for nb in range(1,9):
+                name=names[index]+str(nb)
                 #add drop down list to the list of fields
-                self.fields[names[index]+str(nb)]=forms.ModelChoiceField(queryset=Country.objects.only("country_code"), empty_label="Select a country", required=False)
+                self.fields[name]=forms.ModelChoiceField(queryset=Country.objects.only("country_code"), empty_label="Select a country", required=False)
                 #don't display the country, just its code
-                self.fields[names[index]+str(nb)].label_from_instance = lambda obj: "%s" % obj.country_code
-                self.fields[names[index]+str(nb)].widget.attrs.update({'class' : names[index]})
-                lists[index].append(self[names[index]+str(nb)])
-
-        #update the adopt variables of the form
+                self.fields[name].label_from_instance = lambda obj: "%s" % obj.country_code
+                self.fields[name].widget.attrs.update({'class' : names[index]})
+                #add fields to cs_contre, pc_contre, cs_abs and pc_abs variables
+                lists[index].append(self[name])
+#~ 
+        #~ #update the adopt variables of the form with the above variables
         self.cs_contre=cs_contre
         self.pc_contre=pc_contre
         self.cs_abs=cs_abs
@@ -243,6 +258,28 @@ class ActForm(forms.ModelForm):
             self._errors['__all__']=ErrorList(msg)
 
         return cleaned_data
+
+    #save the cons variables 
+    def save(self, *args, **kwargs):
+        date_cons={"a": "", "b": ""}
+        cons={"a": "", "b": ""}
+        
+        for character in "ab":
+            date_name="date_cons_"+character
+            cons_name="cons_"+character
+            for index in range(max_cons):
+                index=str(index+1)
+                date_cons[character]+=getattr(self.instance, date_name+"_"+index)+"; "
+                cons[character]+=getattr(self.instance, cons_name+"_"+index)+"; "
+
+            #update act cons fields
+            setattr(getattr(self.instance, date_name), date_cons[character][:-2])
+            setattr(getattr(self.instance, cons_name), cons[character][:-2])
+            
+        instance = super(ImportMinAttendForm, self).save(*args, **kwargs)
+        
+        return instance
+
 
 
 class Add(forms.Form):

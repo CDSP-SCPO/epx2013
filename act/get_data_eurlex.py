@@ -512,37 +512,29 @@ def get_dg_1(soup, propos_origine):
 def check_resp_format(names):
     """
     FUNCTION
-    check that the resp_name string in parameter matches the resp name format: Firstname(s) LASTNAME(S)
+    check that the names string in parameter matches the resp name format: Firstname(s) LASTNAME(S)
     PARAMETERS
     names: resp name? [string]
     RETURN
-    True if resp_name is a resp and False otherwise [boolean]
+    True if names corresponds to a resp and False otherwise [boolean]
     """
     if names is not None:
         names=names.split()
-        first_name=0
-        last_name=False
-        #check format
+        firstname=False
+        lastname=False
         for name in names:
-            #checking Firstname(s)
-            if not last_name:
-                if not name[0].isupper() or not name [1:].islower():
-                    #it does not match a first name format and no first name was found before -> this is not a responsible!
-                    if first_name==0:
-                        return False
-                    else:
-                        #we are now checking last names
-                        last_name=True
-                else:
-                    #this is a first name
-                    first_name=1
-
-            #checking LASTNAME(S)
-            if last_name and not name.isupper():
-                return False
-
-    #if the string matches the responsible name format (none error was detected), return True
-    return True
+            if name[0].isupper():
+                #only caps letters: lastname
+                if name[1:].isupper():
+                    lastname=True
+                #only first letter in caps letter -> firstname
+                elif name[1:].islower():
+                    firstname=True
+            #if at least one first name and one lastname was found -> it is a resp!
+            if firstname and lastname:
+                return True
+            
+    return False
 
 
 def get_dg_2_3(soup, propos_origine):
@@ -568,8 +560,8 @@ def get_dg_2_3(soup, propos_origine):
             #Joint leading service is also used to identify for resp_2 / resp_3)
             #use find_all to get both dg_2 and resp_2 / resp_2
             #take the first item and check if the field format matches a resp
-            #if yes, dg_1 is in the second item
-            #if no, dg_1 is in the first item
+            #if yes, dg_2 is in the second item
+            #if no, dg_2 is in the first item
             fields_temp=soup.find_all("th", text="Joint leading service:")
             fields=[]
             #for each field, split it if more than one dg / resp
@@ -587,7 +579,7 @@ def get_dg_2_3(soup, propos_origine):
                 dg_2=fields[0][0].strip()
                 dg_3=fields[0][1].strip()
         except Exception, e:
-            print "dg_2 except", e
+            #~ print "dg_2 except", e
             pass
         
     return dg_2, dg_3
@@ -733,19 +725,34 @@ def get_resp_2_3(soup):
     resp_2=None
     resp_3=None
     try:
-        #1 dg only (dg_2)
+        #no problem
         #(1999-4-2) http://eur-lex.europa.eu/legal-content/EN/HIS/?uri=CELEX:31999D1296
-        resps=soup.find("th", text="Leading person:").find_next("th", text="Joint leading service:").find_next('td').get_text().strip()
-        #variables separated by a semicolon
-        resps=resps.split(";")
-        resp_2=resps[0]
         
-        #if more than one dg (dg_2 and dg_3)
+        #problem
         #(2005-7-3) http://eur-lex.europa.eu/legal-content/EN/HIS/?uri=CELEX:32005D0600
-        if len(resps)>1:
-            resp_3=resps[1]
-
-    except:
+        #Joint leading service is also used to identify for resp_2 / resp_3)
+        #use find_all to get both dg_2 and resp_2 / resp_2
+        #take the first item and check if the field format matches a resp
+        #if yes, resp_2 is in the second item
+        #if no, resp_2 is in the first item
+        fields_temp=soup.find_all("th", text="Joint leading service:")
+        fields=[]
+        #for each field, split it if more than one dg / resp
+        for field in fields_temp:
+            fields.append(field.find_next('td').get_text().split(";"))
+        #check only the first field (there is maximum two Joint leading service on the same page)
+        check=check_resp_format(fields[0][0])
+        #resp_format, the resp variable is the first item
+        if check:
+            if len(fields)>1:
+                resp_2=fields[0][0].strip()
+                resp_3=fields[0][1].strip()
+        else:
+            #the field doesn't match a responsible, the resp is in the second item (if any)
+            resp_2=fields[1][0].strip()
+            resp_3=fields[1][1].strip()
+    except Exception, e:
+        print "dg_2 except", e
         pass
 
     return resp_2, resp_3
@@ -1354,7 +1361,7 @@ def get_data_eurlex(soups, act_ids):
     [s.extract() for s in soup_his('script')]
     
 
-    #~ #titre_en
+    #titre_en
     name='titre_en'
     fields[name]=get_titre_en(soup_all)
     print name, fields[name]
@@ -1448,7 +1455,7 @@ def get_data_eurlex(soups, act_ids):
 #~ 
     print "resp_names eurlex", resp_names
     #~ 
-    #~ #transm_council
+    #transm_council
     name='transm_council'
     fields[name]=get_transm_council(soup_his, act_ids.propos_origine)
     print name, fields[name]

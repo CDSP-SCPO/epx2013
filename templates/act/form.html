@@ -120,15 +120,14 @@
     <!-- link view to add a resp -->
     <div id="link_add_resp" style="display:none">{% url form_add field='resp' %}</div>
 
-    <input id="hidden_dg_eurlex_dic" name="hidden_dg_eurlex_dic" type="hidden" value="{{dg_names_eurlex}}"></input>
-    <input id="hidden_dg_oeil_dic" name="hidden_dg_oeil_dic" type="hidden" value="{{dg_names_oeil}}"></input>
-    
-    <input id="hidden_resp_eurlex_dic" name="hidden_resp_eurlex_dic" type="hidden" value="{{resp_names_eurlex}}"></input>
-    <input id="hidden_resp_oeil_dic" name="hidden_resp_oeil_dic" type="hidden" value="{{resp_names_oeil}}"></input>
-    
-    <input id="hidden_dg_dic" name="hidden_dg_dic" type="hidden" value="{{dg}}"></input>
+     <!-- hidden fields to display dgs and resps names from eurlex and oeil -->
+    {{ form_data.hidden_dg_eurlex_dic.as_hidden }}
+    {{ form_data.hidden_dg_oeil_dic.as_hidden }}
+    {{ form_data.hidden_resp_eurlex_dic.as_hidden }}
+    {{ form_data.hidden_resp_oeil_dic.as_hidden }}
+    {{ form_data.hidden_dg_dic.as_hidden }}
 
-
+        
     {% for field in form_data %}
 
         {% if field.name in vars_eurlex_2 %}
@@ -145,16 +144,16 @@
                                 {% if field.name|slice:":3" == 'dg_' %}
                                     {% with index=field.name|slice:"-1:" %}
                                         <div class="row-fluid">
-                                            {% with dg_eurlex=dg_names_eurlex|get_value:index dg_oeil=dg_names_oeil|get_value:index %}
+                                            {% with dg_eurlex=form_data.hidden_dg_eurlex_dic.value|get_value:index dg_oeil=form_data.hidden_dg_oeil_dic.value|get_value:index %}
                                                 {% if dg_eurlex != dg_oeil %}
                                                     <span class="error_msg">
                                                 {% else %}
                                                     <span>
                                                 {% endif %}
                                                 Value found on eurlex: {{ dg_eurlex }}; Value found on oeil: {{ dg_oeil }}.</span>
-                                                {% if dg and dg|get_value:index %}
+                                                {% if form_data.hidden_dg_dic.value and form_data.hidden_dg_dic.value|get_value:index %}
                                                     <strong class="data_msg">
-                                                        More than one possible value. Please choose among: {{ dg|get_value:index }}
+                                                        More than one possible value. Please choose among: {{ form_data.hidden_dg_dic.value|get_value:index }}
                                                     </strong>
                                                 {% endif %}
                                             {% endwith %}
@@ -168,7 +167,7 @@
 -->
                                     {% with index=field.name|slice:"-1:" %}
                                         <div class="row-fluid">
-                                            {% with resp_eurlex=resp_names_eurlex|get_value:index resp_oeil=resp_names_oeil|get_value:index %}
+                                            {% with resp_eurlex=form_data.hidden_resp_eurlex_dic.value|get_value:index resp_oeil=form_data.hidden_resp_oeil_dic.value|get_value:index %}
                                                 {% if resp_eurlex != resp_oeil %}
                                                     <span class="error_msg">
                                                 {% else %}
@@ -374,7 +373,7 @@
                     <!-- adopt_cs_contre, adopt_cs_abs, adopt_pc_contre, adopt_pc_abs -->
                     
                     <!-- hidden control to get the list of countries -->
-                    <div id="countries">{{ form_data.countries }}</div> 
+                    <div id="countries">{{ form_data.countries }}</div>
                     
                     {% elif  field.name == "adopt_cs_contre" %}
                         <div class="fieldWrapper"><div id="id_{{ field.name }}_errors" class="row-fluid">{{ field.errors }}</div></div>

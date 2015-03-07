@@ -223,7 +223,7 @@ def get_adopt_variables(act):
     #for each variable:
     for name in names:
         countries=getattr(act, name).all()
-        #for each of the country drop down lists
+        #for each country of the drop down lists
         for index in range(len(countries)):
             adopts[name+"_"+str(index+1)]=countries[index]
         
@@ -232,21 +232,6 @@ def get_adopt_variables(act):
     print ""
 
     return adopts
-
-
-def check_update(POST):
-    """
-    FUNCTION
-    check if we are updating a field of the act form (code_sect, rapp or resp)
-    PARAMETERS
-    POST: request.POST object [dictionary]
-    RETURN
-    True if a field is being updated and False otherwise [Boolean]
-    """
-    for key in POST:
-        if key.startswith('update'):
-            return True
-    return False
 
 
 def get_cons_vars(character, date_cons="", cons=""):
@@ -261,7 +246,7 @@ def get_cons_vars(character, date_cons="", cons=""):
     cons_vars: dictionary of all the temp_date_cons and temp_cons values [dictionary]
     """
     #initialization
-    cons_vars=OrderedDict({})
+    cons_vars={}
     date_cons_name="date_cons_"
     cons_name="cons_"
     for num in xrange(1, max_cons+1):
@@ -271,15 +256,21 @@ def get_cons_vars(character, date_cons="", cons=""):
         cons_vars[cons_name+suffix]=None
 
     #there is at least one cons variable
-    if date_cons is not None:
-        date_conss=date_cons.split(";")
+    if cons is not None:
+        #date_cons can be null because this field was added in the end -> not updated for already validated acts
+        temp=None
+        if date_cons is not None:
+            date_conss=date_cons.split(";")
         conss=cons.split(";")
-        for num in xrange(len(date_conss)):
+        for num in xrange(len(conss)):
             suffix=character+"_"+str(num+1)
-            if date_conss[num].strip() != "":
+            if conss[num].strip() != "":
                 #fill dictionary with vartiable values
-                cons_vars[date_cons_name+suffix]=date_conss[num]
-                cons_vars[cons_name+suffix]=conss[num]
+                #date_cons can be null because this field was added in the end -> not updated for already validated acts
+                if date_cons is not None:
+                    temp=date_conss[num].strip()
+                cons_vars[date_cons_name+suffix]=temp
+                cons_vars[cons_name+suffix]=conss[num].strip()
             else:
                 #no more cons variable
                 break
@@ -288,6 +279,21 @@ def get_cons_vars(character, date_cons="", cons=""):
     #~ print "cons_vars", cons_vars
 
     return cons_vars
+    
+
+def check_update(POST):
+    """
+    FUNCTION
+    check if we are updating a field of the act form (code_sect, rapp or resp)
+    PARAMETERS
+    POST: request.POST object [dictionary]
+    RETURN
+    True if a field is being updated and False otherwise [Boolean]
+    """
+    for key in POST:
+        if key.startswith('update'):
+            return True
+    return False
     
 
 def get_data_all(context, add_modif, act, POST):
@@ -322,9 +328,9 @@ def get_data_all(context, add_modif, act, POST):
         logger.debug('oeil to be processed')
         dg_names_oeil=[None]*nb_dgs
         resp_names_oeil=[None]*nb_resps
-        #~ print "oeil to be processed"
-        #~ fields, dg_names_oeil, resp_names_oeil=get_data("oeil", act_ids, urls["url_oeil"])
-        #~ act.__dict__.update(fields)
+        print "oeil to be processed"
+        fields, dg_names_oeil, resp_names_oeil=get_data("oeil", act_ids, urls["url_oeil"])
+        act.__dict__.update(fields)
 
         #adopt_conseil from eurlex needs nb_lectures from oeil -> eurlex after oeil
         logger.debug('eurlex to be processed')
@@ -335,35 +341,30 @@ def get_data_all(context, add_modif, act, POST):
         
         #~ #store dg/resp from eurlex and oeil to be displayed as text in the template
         logger.debug('dg and resp to be processed')
-        act, context["dg_names_eurlex"], context["dg_names_oeil"]=store_dg_resp(act, dg_names_eurlex, dg_names_oeil, "dg")
-        act, context["resp_names_eurlex"], context["resp_names_oeil"]=store_dg_resp(act, resp_names_eurlex, resp_names_oeil, "resp")
+        act, dg_names_eurlex, dg_names_oeil=store_dg_resp(act, dg_names_eurlex, dg_names_oeil, "dg")
+        act, resp_names_eurlex, resp_names_oeil=store_dg_resp(act, resp_names_eurlex, resp_names_oeil, "resp")
 #~
         #~ #check multiple values for dgs with numbers
-        context["dg"], act=check_multiple_dgs(act)
-    else:
-        #on ADD
-        #get information about dg and resp when updating a field
-        #literal_eval to convert unicode dic to dic
-        names={"dg_names_eurlex": "hidden_dg_eurlex_dic", "dg_names_oeil": "hidden_dg_oeil_dic", "resp_names_eurlex": "hidden_resp_eurlex_dic", "resp_names_oeil": "hidden_resp_oeil_dic", "dg": "hidden_dg_dic"}
-        for name in names:
-            try:
-                context[name]=literal_eval(POST[names[name]])
-            except Exception, e:
-                print "pb literal_eval", names[name], e
-                context[name]={}
+        dgs, act=check_multiple_dgs(act)
 
     #we have selected an act in the drop down list or clicked on the modification button
     if "add_act" in POST or "modif_act" in POST:
         #display adopt variables (countries in the drop down lists)
-        adopts=get_adopt_variables(act)
+        initial_dic=get_adopt_variables(act)
+        #display cons variables
+        initial_dic.update(get_cons_vars("b", act.date_cons_b, act.cons_b))
+        initial_dic.update(get_cons_vars("a", act.date_cons_a, act.council_a))
 
         if "add_act" in POST:
-            adopts["releve_mois_init"]=act.releve_mois
-            form_data=ActForm(instance=act, initial=adopts)
-            #~ context["status"]="add"
-        else:
-            form_data=ActForm(instance=act, initial=adopts)
-            #~ context["status"]="modif"
+            initial_dic["releve_mois_init"]=act.releve_mois
+            initial_dic["hidden_dg_eurlex_dic"]=dg_names_eurlex
+            initial_dic["hidden_dg_oeil_dic"]=dg_names_oeil
+            initial_dic["hidden_resp_eurlex_dic"]=resp_names_eurlex
+            initial_dic["hidden_resp_oeil_dic"]=resp_names_oeil
+            initial_dic["hidden_dg_dic"]=dgs
+
+
+        form_data=ActForm(instance=act, initial=initial_dic)
     else:
         form_data=ActForm(POST, instance=act)
 
@@ -375,9 +376,6 @@ def get_data_all(context, add_modif, act, POST):
     context['gvt_compos']=temp["gvt_compo"]
     context['min_attends']=temp["min_attend"]
     context["party_family"]=get_party_family({"1": act.resp_1_id, "2": act.resp_2_id, "3": act.resp_3_id})
-    context["cons_vars_b"]=get_cons_vars("b", act.date_cons_b, act.cons_b)
-    context["cons_vars_a"]=get_cons_vars("a", act.date_cons_a, act.council_a)
-    #~ print 'context["cons_vars_a"] end of get data all', context["cons_vars_a"]
     context['act_ids']=act_ids
     context['form_data']=form_data
     
@@ -476,9 +474,6 @@ class ActUpdate(UpdateView):
         if "state" not in context:
             context['state']="display"
 
-        #~ context["cons_vars_b"]=get_cons_vars("b")
-        #~ context["cons_vars_a"]=get_cons_vars("a")
-        
         print "end get_context_data"
 
         #prints are normally displayed (back to normal)

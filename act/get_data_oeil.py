@@ -4,7 +4,7 @@
 get data from Oeil (data for the statistical analysis)
 """
 import re
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, Comment
 import urllib
 from common.functions import date_string_to_iso
 #number of dgs and resps -> constants in config_file
@@ -449,9 +449,7 @@ def get_dg_names(soup):
     dgs=[None]*nb_dgs
     try:
         #view-source:http://www.europarl.europa.eu/oeil/popups/ficheprocedure.do?lang=en&reference=2005/0223(COD) (2 dgs)
-        #<td class="players_committee">
-        soup=soup.find("td", {"class": "players_committee"})
-        # <p class="players_content">
+        soup=soup.find("p", text="Commission DG").find_parent()
         dg_names=soup.find_all("p", {"class": "players_content"})
         #<p class="players_content"><a href="http://epp.eurostat.ec.europa.eu/portal/page/portal/eurostat/home" title="Eurostat" target="_blank">Eurostat</a></p>
         #<p class="players_content">Energy and Transport</p>
@@ -481,9 +479,7 @@ def get_resp_names(soup):
     resp_names=[None]*nb_resps
     try:
         #http://www.europarl.europa.eu/oeil/popups/ficheprocedure.do?lang=en&reference=2007/0128(COD)
-        #<td class="players_rapporter_com">
-        soup=soup.find("td", {"class": "players_rapporter_com"})
-        # <p class="players_content">
+        soup=soup.find("p", text="Commissioner").find_parent()
         resp_names=soup.find_all("p", {"class": "players_content"})
         #<p class="players_content">KYPRIANOU  Markos</p>
         resp_names=[resp_name.get_text().strip() for resp_name in resp_names]
@@ -510,12 +506,17 @@ def get_data_oeil(soup, act_ids):
     """
     fields={}
     act=act_ids.act
+
+    #remove comments
+    comments = soup.find_all(text=lambda text:isinstance(text, Comment))
+    [comment.extract() for comment in comments]
     
     #<table style="margin:0;" width="100%" id="key_players">
     soup_key_players=soup.find("table", {"id": "key_players"})
+
     #<div id="keyEvents" class="ep_borderbox">
     soup_key_events=soup.find("div", {"id": "keyEvents"})
-
+    
     #nb_lectures
     fields['nb_lectures']=get_nb_lectures(soup_key_events, act.suite_2e_lecture_pe, act_ids.no_unique_type)
     print "nb_lectures:", fields['nb_lectures']
@@ -528,7 +529,6 @@ def get_data_oeil(soup, act_ids):
 
     #html content of the votes page
     vote_page_soup=get_vote_page(soup_key_events)
-    #~ print votesSectionSoup
 
     #com_amdt_tabled
     fields['com_amdt_tabled']=get_com_amdt_tabled(vote_page_soup)
@@ -598,7 +598,7 @@ def get_data_oeil(soup, act_ids):
             print rapp+": ", rapps[rapp].name
             print 'country_'+num+": ", rapps[rapp].country.country_code
             print 'party_'+num+": ", rapps[rapp].party.party
-            logger.debug("rapp: "+ str(rapps[rapp].name)+", "+str(rapps[rapp].country.country_code)+", "+str(rapps[rapp].party.party))
+            logger.debug("rapp: "+ str(rapps[rapp].name.encode("utf-8"))+", "+str(rapps[rapp].country.country_code)+", "+str(rapps[rapp].party.party))
 
     #modif_propos
     fields['modif_propos']=get_modif_propos(soup_key_events)
@@ -610,19 +610,13 @@ def get_data_oeil(soup, act_ids):
     print "sign_pecs:", fields['sign_pecs']
     logger.debug("sign_pecs: "+ str(fields['sign_pecs']))
 
-    try:
-        soup_dg_resp=soup_key_players.find("a", {"title": "European Commission"}).find_next("table")
-    except Exception, e:
-        print "exception soup_dg_resp", e
-        soup_dg_resp=None
-
     #get dg names
-    dg_names=get_dg_names(soup_dg_resp)
+    dg_names=get_dg_names(soup)
     print "dg_names oeil:", dg_names
     logger.debug("dg_names: "+ str(dg_names))
 
     #get resp names
-    resp_names=get_resp_names(soup_dg_resp)
+    resp_names=get_resp_names(soup)
     print "resp_names oeil:", resp_names
     logger.debug("resp_names: "+ str(resp_names))
 
