@@ -232,6 +232,10 @@ def get_cons_vars(character, date_cons="", cons=""):
     RETURN
     cons_vars: dictionary of all the temp_date_cons and temp_cons values [dictionary]
     """
+    logger.debug('get_cons_vars '+character)
+    logger.debug('date_cons: '+str(date_cons))
+    logger.debug('cons: '+str(cons))
+    
     #initialization
     cons_vars={}
     date_cons_name="date_cons_"
@@ -264,6 +268,8 @@ def get_cons_vars(character, date_cons="", cons=""):
             
 
     #~ print "cons_vars", cons_vars
+
+    logger.debug('cons_vars: '+ str(cons_vars))
 
     return cons_vars
     

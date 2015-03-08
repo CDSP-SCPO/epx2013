@@ -199,12 +199,6 @@ class ActForm(forms.ModelForm):
         self.fields["nb_mots"].widget.attrs['readonly'] = True
 
 
-    def get_date_cons_b_fields(self):
-        for name in self.fields:
-            if name.startswith("temp_date_cons_"):
-                yield([self[name], self[name]])
-
-
     def clean(self):
         cleaned_data=super(ActForm, self).clean()
 

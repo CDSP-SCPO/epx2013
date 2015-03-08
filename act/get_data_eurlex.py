@@ -21,7 +21,10 @@ import tempfile, subprocess
 from django.db.models.loading import get_model
 from datetime import datetime
 
-
+#log file
+import logging
+# Get an instance of a logger
+logger = logging.getLogger(__name__)
 
 
 #All the fields are extracted from the "ALL" tab except the directory code section (code_sect and rep_en variables): for some acts, the variables are extracted from the "Procedure" tab, for others they are extracted from the "ALL" tab.
@@ -1131,17 +1134,23 @@ def get_date_cons_a(tables):
     date_cons: date_cons_a variable [int]
     """
     if tables is not None:
+        logger.debug('date_cons_a: tables is not none')
         date_cons=""
         for table in tables:
+            logger.debug('date_cons_a: +1')
             #(2014-3-20) http://eur-lex.europa.eu/legal-content/EN/HIS/?uri=CELEX:32014L0041 
             date_cons+=table.find_previous("img", {"alt": "Council of the European Union"}).get_text().lstrip()[:10]+'; '
+            logger.debug('date_cons_a: '+date_cons)
         #remove last "; "
         if date_cons!="":
+            logger.debug('date_cons_a: different from ""')
             date_cons=date_cons[:-2]
 
             #convert to american format
+            logger.debug('date_cons_a iso format: '+date_string_to_iso(date_cons))
             return date_string_to_iso(date_cons)
-        
+            
+    logger.debug('date_cons_a : None!!!!!')
     return None
     
 #can be Null
