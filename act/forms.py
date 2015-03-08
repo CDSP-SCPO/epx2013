@@ -155,11 +155,6 @@ class ActForm(forms.ModelForm):
                 date_name="date_cons_"+suffix
                 cons_name="cons_"+suffix
                 
-                #get post values
-                #~ value_date=self.data[date_name]
-                #~ value_cons=self.data[cons_name]
-                #~ if date_name
-                
                 #create form fields
                 self.fields[date_name] = forms.DateField(required=False)
                 self.fields[date_name].max_length=10
@@ -258,27 +253,6 @@ class ActForm(forms.ModelForm):
             self._errors['__all__']=ErrorList(msg)
 
         return cleaned_data
-
-    #save the cons variables 
-    def save(self, *args, **kwargs):
-        date_cons={"a": "", "b": ""}
-        cons={"a": "", "b": ""}
-        
-        for character in "ab":
-            date_name="date_cons_"+character
-            cons_name="cons_"+character
-            for index in range(max_cons):
-                index=str(index+1)
-                date_cons[character]+=getattr(self.instance, date_name+"_"+index)+"; "
-                cons[character]+=getattr(self.instance, cons_name+"_"+index)+"; "
-
-            #update act cons fields
-            setattr(getattr(self.instance, date_name), date_cons[character][:-2])
-            setattr(getattr(self.instance, cons_name), cons[character][:-2])
-            
-        instance = super(ImportMinAttendForm, self).save(*args, **kwargs)
-        
-        return instance
 
 
 

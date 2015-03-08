@@ -1,5 +1,7 @@
 from act.models import PartyFamily, Person
 from django.db.models.loading import get_model
+#convert unicode to dict
+from ast import literal_eval
 from django import template
 register=template.Library()
 
@@ -15,7 +17,11 @@ def get_value(dic, key):
     value [string]
     """
     if dic:
-        return dic.get(key)
+        #python dictionary passed from the view to the template: when page is reloaded, it is converted to unicode object!
+        if isinstance(dic, unicode):
+            dic=literal_eval(dic)
+        return dic.get(key) 
+        
     else:
         return ""
 

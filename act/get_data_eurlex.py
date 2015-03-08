@@ -904,8 +904,9 @@ def get_date_cons_b(tables):
         #remove last "; "
         if date_cons!="":
             date_cons=date_cons[:-2]
-                
-            return date_cons
+
+            #convert to amerian format
+            return date_string_to_iso(date_cons)
         
     return None
     
@@ -1134,8 +1135,9 @@ def get_date_cons_a(tables):
         #remove last "; "
         if date_cons!="":
             date_cons=date_cons[:-2]
-                
-            return date_cons
+
+            #convert to american format
+            return date_string_to_iso(date_cons)
         
     return None
     
@@ -1502,7 +1504,7 @@ def get_data_eurlex(soups, act_ids):
     print name, fields[name]
 
     #~ #cons_a
-    name='council_a'
+    name='cons_a'
     fields[name]=get_cons_a(point_a_tables)
     print name, fields[name]
 

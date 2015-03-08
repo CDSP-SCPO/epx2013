@@ -264,7 +264,7 @@
                              <!-- date_cons_a and cons_a fields -->
                             {% elif field.name == 'nb_point_a' %}
                                 <tr>
-                                    <td class="first_column table_column_title">{{ display_name.council_a }}</td>
+                                    <td class="first_column table_column_title">{{ display_name.cons_a }}</td>
                                     <td class="second_column">
 
                                         <div class="fieldWrapper cons_b_div">
@@ -275,7 +275,7 @@
                                                     <tr>
                                                         {% for col_index in nb_cols|numeric_loop %}
                                                             <td class="table_column_title date_cons_border">{{ display_name.date_cons_a}}</td>
-                                                            <td class="table_column_title cons_border">{{ display_name.council_a }}</td>
+                                                            <td class="table_column_title cons_border">{{ display_name.cons_a }}</td>
                                                         {% endfor %}
                                                     </tr>
 

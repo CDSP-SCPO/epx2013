@@ -63,7 +63,7 @@ var_name["cons_b"]="ConsB"
 var_name["adopt_conseil"]="AdoptionConseil"
 var_name["nb_point_a"]="NbPointA"
 var_name["date_cons_a"]="DateConsA"
-var_name["council_a"]="CouncilA"
+var_name["cons_a"]="CouncilA"
 
 var_name["rejet_conseil"]="RejetConseil"
 var_name["config_cons"]="ConfigCons"

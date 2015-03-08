@@ -551,7 +551,7 @@ def list_acts(Model, search, cs, fields):
 
 def q120():
     #Liste des actes pour lesquels au moins 1 CodeSect commence par 03 / 12 / 13 / 15
-    list_acts(ActIds, "cs", "03", ["titre_rmc", "code_sect_1", "code_sect_2", "code_sect_3", "code_sect_4", "propos_origine", "resp_1", "resp_2", "resp_3", "cons_b", "council_a"])
+    list_acts(ActIds, "cs", "03", ["titre_rmc", "code_sect_1", "code_sect_2", "code_sect_3", "code_sect_4", "propos_origine", "resp_1", "resp_2", "resp_3", "cons_b", "cons_a"])
     list_acts(Act, "cs", "15", ["titre_rmc", "code_sect_1", "code_sect_2", "code_sect_3", "code_sect_4", "nb_point_b", "votes_for_1", "votes_for_2", "commission", "com_amdt_tabled", "com_amdt_adopt", "amdt_tabled", "amdt_adopt", "adopt_cs_contre", "adopt_cs_abs"])
     list_acts(Act, "cs", "12", ["titre_rmc", "code_sect_1", "code_sect_2", "code_sect_3", "code_sect_4", "nb_point_b", "votes_for_1", "votes_for_2", "commission", "com_amdt_tabled", "com_amdt_adopt", "amdt_tabled", "amdt_adopt", "adopt_cs_contre", "adopt_cs_abs"])
     list_acts(ActIds, "cs", "13", ["titre_rmc", "propos_origine", "dg_1", "dg_2", "commission", "votes_for_1", "votes_for_2", "votes_agst_1", "votes_agst_2", "votes_abs_1", "votes_abs_2", "adopt_cs_contre", "adopt_cs_abs", "np", "nb_mots", "duree_tot_depuis_trans_cons"])

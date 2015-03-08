@@ -35,8 +35,6 @@ import sys
 import os
 import time
 import logging
-#convert unicode to dict
-from ast import literal_eval
 from collections import OrderedDict
  
 # Get an instance of a logger
@@ -178,9 +176,6 @@ def store_dg_resp(act, eurlex_list, oeil_list, var_name):
     eurlex_dic: list of dg or resp names from eurlex [dictionary of strings]
     oeil_dic: list of dg or resp names from oeil [dictionary of strings]
     """
-    print "var_name", var_name
-    print "eurlex_list", eurlex_list
-    print "oeil_list", oeil_list
     
     oeil_dic={}
     for index, field in enumerate(oeil_list, start=1):
@@ -192,10 +187,6 @@ def store_dg_resp(act, eurlex_list, oeil_list, var_name):
         eurlex_dic[num]=field
         
         if field is None and oeil_dic[num] is not None:
-            print "field", field
-            print "eurlex_dic[num]", eurlex_dic[num]
-            print "oeil_dic[num]", oeil_dic[num]
-            
             try:
                 #update the act instance with the oeil resp
                 if var_name=="resp":
@@ -227,10 +218,6 @@ def get_adopt_variables(act):
         for index in range(len(countries)):
             adopts[name+"_"+str(index+1)]=countries[index]
         
-    print "adopts"
-    print adopts
-    print ""
-
     return adopts
 
 
@@ -353,16 +340,17 @@ def get_data_all(context, add_modif, act, POST):
         initial_dic=get_adopt_variables(act)
         #display cons variables
         initial_dic.update(get_cons_vars("b", act.date_cons_b, act.cons_b))
-        initial_dic.update(get_cons_vars("a", act.date_cons_a, act.council_a))
+        initial_dic.update(get_cons_vars("a", act.date_cons_a, act.cons_a))
 
         if "add_act" in POST:
+            print "add_act", POST["add_act"]
+            #~ print "modif_act", POST["modif_act"]
             initial_dic["releve_mois_init"]=act.releve_mois
             initial_dic["hidden_dg_eurlex_dic"]=dg_names_eurlex
             initial_dic["hidden_dg_oeil_dic"]=dg_names_oeil
             initial_dic["hidden_resp_eurlex_dic"]=resp_names_eurlex
             initial_dic["hidden_resp_oeil_dic"]=resp_names_oeil
             initial_dic["hidden_dg_dic"]=dgs
-
 
         form_data=ActForm(instance=act, initial=initial_dic)
     else:
@@ -572,12 +560,32 @@ class ActUpdate(UpdateView):
         Called if all forms are valid.
         """
         print "form_valid"
+
+        #save cons_variables
+        date_cons={"a": "", "b": ""}
+        cons={"a": "", "b": ""}
+        for character in "ab":
+            date_name="date_cons_"+character
+            cons_name="cons_"+character
+            for index in range(max_cons):
+                index=str(index+1)
+                #if cons not null
+                if form_data.cleaned_data[cons_name+"_"+index].strip() not in [None, ""]:
+                    date_cons[character]+=str(form_data.cleaned_data[date_name+"_"+index])+"; "
+                    cons[character]+=form_data.cleaned_data[cons_name+"_"+index].strip()+"; "
+                else:
+                    #no more cons variables
+                    break
+
+            #update act cons fields
+            setattr(act, date_name, date_cons[character][:-2])
+            setattr(act, cons_name, cons[character][:-2])
     
         #if use form_data m2m are deleted!
         act.validated=2
         act.notes=self.request.POST['notes']
         act.save()
-        
+
         #save adopt variables
         names=["adopt_cs_contre", "adopt_pc_contre", "adopt_cs_abs", "adopt_pc_abs"]
         for name in names:

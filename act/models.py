@@ -193,7 +193,7 @@ class Act(models.Model):
     #string dates separated by ";"
     date_cons_a=models.CharField(max_length=200, blank=True, null=True, default=None)
     #strings separated by ";"
-    council_a=models.CharField(max_length=500, blank=True, null=True, default=None)
+    cons_a=models.CharField(max_length=500, blank=True, null=True, default=None)
 
     chgt_base_j=models.BooleanField(default=False)
     duree_adopt_trans=models.PositiveSmallIntegerField(max_length=5, blank=True, null=True, default=None)
