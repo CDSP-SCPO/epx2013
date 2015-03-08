@@ -1147,7 +1147,7 @@ def get_date_cons_a(tables):
             date_cons=date_cons[:-2]
 
             #convert to american format
-            logger.debug('date_cons_a iso format: '+date_string_to_iso(date_cons))
+            logger.debug('date_cons_a iso format: '+str(date_string_to_iso(date_cons)))
             return date_string_to_iso(date_cons)
             
     logger.debug('date_cons_a : None!!!!!')
