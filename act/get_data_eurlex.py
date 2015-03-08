@@ -969,9 +969,12 @@ def get_split_propos(soup, split_propos):
     if not split_propos:
         #otherwise, check if there are many no celex in the Procedure bandeau -> if yes, it is a split propos
         #(1999-1-23) http://eur-lex.europa.eu/legal-content/EN/HIS/?uri=CELEX:31999L0003
-        no_celex=soup.find(text=re.compile("Adopted acts:")).find_parent("p").find_all("a")
-        if len(no_celex)>1:
-            split_propos=True
+        try:
+            no_celex=soup.find(text=re.compile("Adopted acts:")).find_parent("p").find_all("a")
+            if len(no_celex)>1:
+                split_propos=True
+        except:
+            print "no procedure tab!"
             
     return split_propos
 
