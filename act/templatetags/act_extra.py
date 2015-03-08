@@ -78,5 +78,4 @@ def numeric_loop(val):
     RETURN
     range: for loop [list of integers]
     """
-    print val
     return range(val)
