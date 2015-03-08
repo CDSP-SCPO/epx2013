@@ -112,9 +112,9 @@ This package let you download other packakes from the internet via a terminal.
 Python 2.7 is the language used for this project.
 
 ```shell
-    curl -O  https://www.python.org/ftp/python/2.7.3/Python-2.7.3.tgz
+    curl -O  https://www.python.org/ftp/python/2.7.6/Python-2.7.6.tgz
     cd ~/Downloads
-    tar zxf Python-2.7.tgz
+    tar zxf Python-2.7.6.tgz
     cd Python-2.7
     ./configure
 ```

@@ -1141,8 +1141,9 @@ def get_date_cons_a(tables):
             logger.debug('date_cons_a table: '+str(table))
             logger.debug('date_cons_a: +1')
             logger.debug('date_cons_a tables.find_previous img: '+str(table.find_previous("img", {"alt": "Council of the European Union"})))
-            #(2014-3-20) http://eur-lex.europa.eu/legal-content/EN/HIS/?uri=CELEX:32014L0041 
+            #(2014-3-20) http://eur-lex.europa.eu/legal-content/EN/HIS/?uri=CELEX:32014L0041
             date_cons+=table.find_previous("img", {"alt": "Council of the European Union"}).get_text().lstrip()[:10]+'; '
+            #~ date_cons+=table.find_previous("img", {"alt": "Council of the European Union"}).get_text().lstrip()[:10]+'; '
             logger.debug('date_cons_a: '+date_cons)
         #remove last "; "
         if date_cons!="":

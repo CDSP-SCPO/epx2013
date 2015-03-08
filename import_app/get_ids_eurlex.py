@@ -38,7 +38,8 @@ def get_url_content_eurlex(url):
     """
     url_content=False
     try:
-        soup=BeautifulSoup(urllib.urlopen(url))
+        #use html.parser to parse the page
+        soup=BeautifulSoup(urllib.urlopen(url), "html.parser")
         #http://new.eur-lex.europa.eu/legal-content/EN/ALL/?uri=CELEX:32006L1929
         if not(soup.find(text="The requested document does not exist.")):
             url_content=soup
