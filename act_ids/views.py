@@ -161,7 +161,7 @@ def act_ids(request):
                     #check if the corresponding data are equal -> they will appear in red if not
                     for field in fields:
                         param=[]
-                        for src in act_ids:
+                        for src in ["index", "eurlex", "oeil"]:
                             param.append(getattr(act_ids[src], field))
                         data[field]=check_equality_fields(param)
 
