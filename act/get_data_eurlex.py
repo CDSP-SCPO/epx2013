@@ -936,13 +936,23 @@ def get_cons_b(tables):
                 #(2005-7-3) http://eur-lex.europa.eu/legal-content/EN/HIS/?uri=CELEX:32005D0600
                 cons+=table.find("th", text="Subject:").find_next("td").get_text().strip()+'; '
             except:
-                cons+="??; "
-                #no Subject: below ITEM B, find the number in front of Council session
-                #below that number, click on the PRES link, and find the cons variable in the new page below the searched number (at the top of the document)
-                
-                #TODO
-                #(2005-7-3) http://eur-lex.europa.eu/legal-content/EN/HIS/?uri=CELEX:31999D1296
-                pass
+                #NO SUBJECT
+                #(1999-4-2) http://eur-lex.europa.eu/legal-content/EN/HIS/?uri=CELEX:31999D1296
+                #get the PRES link below
+                press=table.find(text=re.compile("PRES")).find_parent("a")["href"]
+                #http://europa.eu/rapid/press-release_PRES-98-113_en.htm?locale=en
+                #get the title tag
+                press_soup=BeautifulSoup(urllib.urlopen(press), "html.parser")
+                title=press_soup.title.get_text()
+                #find the cons variable inside it, after "Council meeting"
+                titles=title.split()
+                meeting_index=titles.index("meeting")
+                titles=titles[meeting_index+1:]
+                #find the cons variable before the comma that delimits the place and date
+                for index in range(len(titles)):
+                    if"," in titles[index]:
+                        cons+=" ".join(titles[:index])+"; "
+                        break
                 
         #remove last "; "
         if cons!="":
@@ -1477,7 +1487,7 @@ def get_data_eurlex(soups, act_ids):
     name='transm_council'
     fields[name]=get_transm_council(soup_his, act_ids.propos_origine)
     print name, fields[name]
-#~ 
+
     #~ #point_b html tables
     point_b_tables=get_point_b_tables(soup_his, act_ids.propos_origine)
 

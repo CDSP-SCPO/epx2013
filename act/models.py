@@ -172,7 +172,7 @@ class Act(models.Model):
     base_j=models.CharField(max_length=300, blank=True, null=True, default=None)
     #used for gvt_compo when propos_origine= "EM", "CONS", "BCE", "CJUE"
     date_doc=models.DateField(max_length=10, blank=True, null=True, default=None)
-    nb_mots=models.PositiveIntegerField(max_length=6, blank=False, null=False, validators=[MinValueValidator(1)])
+    nb_mots=models.PositiveIntegerField(max_length=6, blank=True, null=True, validators=[MinValueValidator(1)])
 
     adopt_propos_origine=models.DateField(max_length=10, blank=True, null=True, default=None)
     com_proc=models.CharField(max_length=100, blank=True, null=True, default=None)

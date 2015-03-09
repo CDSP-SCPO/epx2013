@@ -54,3 +54,5 @@ class Command(NoArgsCommand):
                         print ids_row["releve_annee"], ids_row["releve_mois"], ids_row["no_ordre"]
                         #actualisation button -> use acts ids retrieval from the import module
                         get_save_act_ids([ids_row])
+
+                

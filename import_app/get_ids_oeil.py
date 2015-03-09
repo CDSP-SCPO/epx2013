@@ -57,9 +57,7 @@ def get_url_content_oeil(url):
     try:
         html=urllib2.urlopen(url, timeout=10).read()
         soup=BeautifulSoup(html, "html.parser")
-        logger.debug("soup oeil retrieved :)")
         if not (soup.title.string=="Procedure File: ERROR"):
-            logger.debug("soup oeil: no error :)")
             url_content=soup
     except Exception, e:
         logger.debug("no content for oeil url"+ str(e))

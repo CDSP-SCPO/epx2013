@@ -6,6 +6,10 @@ import re
 from bs4 import BeautifulSoup
 from common import config_file as conf
 
+#log file
+import logging
+logger = logging.getLogger(__name__)
+
 
 def get_url_eurlex(no_celex, tab="ALL"):
     """
@@ -44,6 +48,7 @@ def get_url_content_eurlex(url):
         if not(soup.find(text="The requested document does not exist.")):
             url_content=soup
     except:
+        logger.debug("no content for eurlex url"+ str(e))
         print "no content for eurlex url"
 
     return url_content
