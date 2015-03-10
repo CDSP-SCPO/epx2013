@@ -3,8 +3,9 @@
 from django.core.management.base import NoArgsCommand
 #models
 from act.models import Act, DG
-import re
 from common.config_file import nb_dgs
+from common.functions import format_dg_name
+
 
 
 class Command(NoArgsCommand):
@@ -18,13 +19,9 @@ class Command(NoArgsCommand):
         dgs={}
         print "get old and new values"
         for dg in DG.objects.all():
-            new_dg=dg.dg
-            #remove dg / directorate-general at the beginning or end
-            pattern = re.compile("dg | dg", re.IGNORECASE)
-            new_dg=pattern.sub("", new_dg)
-            pattern = re.compile("^directorate-general( for)?( the)?|directorate-general( for)?( the)?$", re.IGNORECASE)
-            new_dg=pattern.sub("", new_dg)
-            new_dg="DG "+new_dg.strip()
+            old_dg=dg.dg
+            #format dg name: "DG ..."
+            new_dg=format_dg_name(old_dg)
             #add to the dictionary of dgs to update if the name has changed
             if dg.dg != new_dg:
                 dgs[dg.dg.encode("utf-8")]=new_dg.encode("utf-8")

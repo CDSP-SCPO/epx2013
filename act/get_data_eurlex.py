@@ -10,7 +10,7 @@ from bs4 import BeautifulSoup
 from act.models import CodeSect, DG, DGNb, Person, CodeSect, GvtCompo, PartyFamily
 from import_app.views import save_adopt_cs_pc
 from import_app.models import ImportAdoptPC
-from common.functions import list_reverse_enum, date_string_to_iso
+from common.functions import list_reverse_enum, date_string_to_iso, format_dg_name
 from common.db import save_fk_code_sect, save_get_object, save_get_resp_eurlex
 from common.config_file import *
 #get pdf file (nb_mots)
@@ -626,6 +626,8 @@ def get_dgs(dgs):
             else:
                 try:
                     #dg exists
+                    #get good format
+                    dg=format_dg_name(dg)
                     instance=DG.objects.get(dg=dg)
                 except Exception, e:
                     #~ print "dg does not exist yet", e
@@ -903,13 +905,13 @@ def get_date_cons_b(tables):
         date_cons=""
         for table in tables:
             #(2005-7-3) http://eur-lex.europa.eu/legal-content/EN/HIS/?uri=CELEX:32005D0600
-            date_cons+=table.find_previous("img", {"alt": "Council of the European Union"}).get_text().lstrip()[:10]+'; '
+            date=table.find_previous("img", {"alt": "Council of the European Union"}).get_text().lstrip()[:10]
+            #convert to amerian format
+            date_cons+=date_string_to_iso(date)+'; '
         #remove last "; "
         if date_cons!="":
             date_cons=date_cons[:-2]
-
-            #convert to amerian format
-            return date_string_to_iso(date_cons)
+            return date_cons
         
     return None
     
@@ -1152,17 +1154,16 @@ def get_date_cons_a(tables):
             logger.debug('date_cons_a: +1')
             logger.debug('date_cons_a tables.find_previous img: '+str(table.find_previous("img", {"alt": "Council of the European Union"})))
             #(2014-3-20) http://eur-lex.europa.eu/legal-content/EN/HIS/?uri=CELEX:32014L0041
-            date_cons+=table.find_previous("img", {"alt": "Council of the European Union"}).get_text().lstrip()[:10]+'; '
+            date=table.find_previous("img", {"alt": "Council of the European Union"}).get_text().lstrip()[:10]
+            #convert to american format
+            date_cons+=date_string_to_iso(date)+'; '
             #~ date_cons+=table.find_previous("img", {"alt": "Council of the European Union"}).get_text().lstrip()[:10]+'; '
             logger.debug('date_cons_a: '+date_cons)
         #remove last "; "
         if date_cons!="":
             logger.debug('date_cons_a: different from ""')
             date_cons=date_cons[:-2]
-
-            #convert to american format
-            logger.debug('date_cons_a iso format: '+str(date_string_to_iso(date_cons)))
-            return date_string_to_iso(date_cons)
+            return date_cons
             
     logger.debug('date_cons_a : None!!!!!')
     return None

@@ -16,6 +16,7 @@ import act_ids.var_name_ids as var_name_ids
 import act.var_name_data as var_name_data
 #number cons variables, dgs and resps -> constants in config_file
 from common.config_file import max_cons, nb_dgs, nb_resps
+from common.functions import format_dg_name
 #retrieve url contents
 from import_app.get_ids_eurlex import get_url_eurlex, get_url_content_eurlex
 from import_app.get_ids_oeil import get_url_oeil, get_url_content_oeil
@@ -192,8 +193,10 @@ def store_dg_resp(act, eurlex_list, oeil_list, var_name):
                 if var_name=="resp":
                     setattr(act, "resp_"+num, Person.objects.get(name=oeil_dic[num]))
                 else:
+                    #format dg name: "DG ..."
+                    new_dg=format_dg_name(oeil_dic[num])
                     #update the act instance with the oeil dg
-                    setattr(act, "dg_"+num, DG.objects.get(dg=oeil_dic[num]))
+                    setattr(act, "dg_"+num, DG.objects.get(dg=new_dg))
             except Exception, e:
                 print "except store_dg_resp", e
 

@@ -5,6 +5,7 @@ common functions to many modules (date, revere list, remove accents)
 from datetime import date
 #remove accents
 import unicodedata
+import re
 
 def split_fr_date(date_str):
     """
@@ -108,3 +109,24 @@ def remove_nonspacing_marks(string):
     string without accents [string]
     """
     return ''.join(c for c in unicodedata.normalize('NFKD', string) if unicodedata.category(c) !='Mn')
+
+
+def format_dg_name(old_dg):
+    """
+    FUNCTION
+    format the DG name as "DG ..."
+    PARAMETERS
+    old_dg: name to format [string]
+    RETURN
+    new_dg: dg name in the new format [string]
+    """
+    new_dg=old_dg
+    
+    #remove dg / directorate-general at the beginning or end
+    pattern = re.compile("dg | dg", re.IGNORECASE)
+    new_dg=pattern.sub("", new_dg)
+    pattern = re.compile("^directorate-general( for)?( the)?|directorate-general( for)?( the)?$", re.IGNORECASE)
+    new_dg=pattern.sub("", new_dg)
+    new_dg="DG "+new_dg.strip()
+    
+    return new_dg
