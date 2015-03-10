@@ -91,7 +91,7 @@ class DGSigle(models.Model):
 class DGNb(models.Model):
     """
     MODEL
-    instances of dg_nb variables
+    instances of dg_nb variables (DG with a number in its name)
     """
     dg_nb=models.CharField(max_length=4, unique=True)
 
