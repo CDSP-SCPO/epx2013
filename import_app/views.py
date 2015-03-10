@@ -286,9 +286,12 @@ def get_data_act(row):
         if council_path!="":
             defaults["council_path"]=council_path
         defaults["notes"]=row[17].strip()
-        attendance_pdf=row[18].strip().strip(".").lower()
-        if attendance_pdf not in ["", "na"]:
-            defaults["attendance_pdf"]=attendance_pdf
+        try:
+            attendance_pdf=row[18].strip().strip(".").lower()
+            if attendance_pdf not in ["", "na"]:
+                defaults["attendance_pdf"]=attendance_pdf
+        except:
+            print "no attendance column!!"
 
         #get instance or create instance if does not already exist
         instance, created = Act.objects.get_or_create(defaults=defaults, **ids_row)
