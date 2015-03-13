@@ -166,7 +166,7 @@ def check_multiple_dgs(act):
 def store_dg_resp(act, eurlex_list, oeil_list, var_name):
     """
     FUNCTION
-    get all the dgs and resps on eurlex / oeil and save oeil dgs / resps in Act model if none was found on eurlex
+    get all the dgs and resps on eurlex / oeil and save oeil dgs / resps in Act model if no dg or a dg with numbers only was found on eurlex
     PARAMETERS
     act: instance of the data of the act [Act model instance]
     eurlex_list: list of dg or resp names from eurlex [list of strings]
@@ -183,11 +183,13 @@ def store_dg_resp(act, eurlex_list, oeil_list, var_name):
         num=str(index)
         oeil_dic[num]=field
     eurlex_dic={}
+    
     for index, field in enumerate(eurlex_list, start=1):
         num=str(index)
         eurlex_dic[num]=field
-        
-        if field is None and oeil_dic[num] is not None:
+
+        #2014-5-1 (dg=101059): if we found a dg with only numbers, without a table of correspondance, it's impossible to tell what dg it is -> we use the dg on oeil instead
+        if (field is None or field.isdigit()) and oeil_dic[num] is not None:
             try:
                 #update the act instance with the oeil resp
                 if var_name=="resp":
