@@ -7,7 +7,7 @@ from django.template.loader import render_to_string
 from django.utils import simplejson
 #models
 from act.models import PartyFamily
-from act.get_data_eurlex import format_resp_name
+from act.get_data_eurlex import format_rapp_resp_name
 #forms
 from forms import AddDG, AddRapp, AddResp
 #variables names
@@ -61,7 +61,7 @@ def add(request, field):
             instance = form.save(commit=False)
             try:
                 if response["var"] in persons:
-                    instance.name=format_resp_name(instance.name)
+                    instance.name=format_rapp_resp_name(instance.name)
                     instance.src=response["var"]
                     if response["var"]=="resp":
                         #save party family

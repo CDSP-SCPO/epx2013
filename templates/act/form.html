@@ -145,10 +145,10 @@
                                     {% with index=field.name|slice:"-1:" %}
                                         <div class="row-fluid">
                                             {% with dg_eurlex=form_data.hidden_dg_eurlex_dic.value|get_value:index dg_oeil=form_data.hidden_dg_oeil_dic.value|get_value:index %}
-                                                {% if dg_eurlex != dg_oeil %}
-                                                    <span class="error_msg">
-                                                {% else %}
+                                                {% if dg_eurlex|compare_dgs:dg_oeil %}
                                                     <span>
+                                                {% else %}
+                                                    <span class="error_msg">
                                                 {% endif %}
                                                 Value found on eurlex: {{ dg_eurlex }}; Value found on oeil: {{ dg_oeil }}.</span>
                                                 {% if form_data.hidden_dg_dic.value and form_data.hidden_dg_dic.value|get_value:index %}
@@ -168,10 +168,10 @@
                                     {% with index=field.name|slice:"-1:" %}
                                         <div class="row-fluid">
                                             {% with resp_eurlex=form_data.hidden_resp_eurlex_dic.value|get_value:index resp_oeil=form_data.hidden_resp_oeil_dic.value|get_value:index %}
-                                                {% if resp_eurlex != resp_oeil %}
-                                                    <span class="error_msg">
-                                                {% else %}
+                                                {% if resp_eurlex|compare_resps:resp_oeil %}
                                                     <span>
+                                                {% else %}
+                                                    <span class="error_msg">
                                                 {% endif %}
                                                 Value found on eurlex: {{ resp_eurlex }}; Value found on oeil: {{ resp_oeil }}.
                                             {% endwith %}

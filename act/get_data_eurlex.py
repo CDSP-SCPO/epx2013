@@ -10,7 +10,7 @@ from bs4 import BeautifulSoup
 from act.models import CodeSect, DG, DGNb, Person, CodeSect, GvtCompo, PartyFamily
 from import_app.views import save_adopt_cs_pc
 from import_app.models import ImportAdoptPC
-from common.functions import list_reverse_enum, date_string_to_iso, format_dg_name
+from common.functions import list_reverse_enum, date_string_to_iso, format_dg_name, format_rapp_resp_name
 from common.db import save_fk_code_sect, save_get_object, save_get_resp_eurlex
 from common.config_file import *
 #get pdf file (nb_mots)
@@ -143,6 +143,21 @@ def get_code_sect(directory_code, tab="ALL"):
 #second, third and fourth: can be null
 
 
+def save_code_agenda(code_sects):
+    """
+    FUNCTION
+    save the code_agenda_* fk variables into the CodeSect model
+    PARAMETERS
+    code_sects: code_sect_* instances [list of CodeSect model instances]
+    RETURN
+    None
+    """
+    #for each code_sect
+    for i in range(len(code_sects)):
+        instance=code_sects[i]
+        save_fk_code_sect(instance, "code_agenda")
+
+
 def get_rep_en(directory_code, tab="ALL"):
     """
     FUNCTION
@@ -197,21 +212,6 @@ def get_rep_en(directory_code, tab="ALL"):
 #texts in front of the code_sect_1, code_sect_2, code_sect_3 and code_sect_4 variables (n "Directory code:")
 #rep_en_1 not NULL
 #rep_en_2, rep_en_3, rep_en_4 can be Null
-
-
-def save_code_agenda(code_sects):
-    """
-    FUNCTION
-    save the code_agenda_* fk variables into the CodeSect model
-    PARAMETERS
-    code_sects: code_sect_* instances [list of CodeSect model instances]
-    RETURN
-    None
-    """
-    #for each code_sect
-    for i in range(len(code_sects)):
-        instance=code_sects[i]
-        save_fk_code_sect(instance, "code_agenda")
 
 
 def get_type_acte(soup):
@@ -667,35 +667,6 @@ def display_dgs(dgs, name):
                 print dg_sigle_name, "dg not found in db so no dg_sigle"
             
 
-def format_resp_name(names):
-    """
-    FUNCTION
-    rewrite  the name of the responsible in the right format (also used for rapporteurs)
-    PARAMETERS
-    names: full name of the person [string]
-    RETURN
-    instance: full name of the person, in the right format [string]
-    """
-    if names is not None:
-        #remove trailing "'"
-        if names[-1]=="'":
-            names=names[:-1]
-        #change name format: "Firstname LASTNAME" -> "LASTNAME Firstname"
-        names=names.split()
-        first_name=last_name=""
-        for name in names:
-            #get last names
-            if name.isupper():
-                last_name+=name+" "
-            #get first names
-            else:
-                first_name+=name+" "
-
-        names=last_name+first_name[:-1]
-
-    return names
-
-
 def get_resp_1(soup):
     """
     FUNCTION
@@ -777,7 +748,7 @@ def get_resp(resp_name):
     """
     if resp_name is not None:
         try:
-            name=format_resp_name(resp_name)
+            name=format_rapp_resp_name(resp_name)
             return save_get_resp_eurlex(name)
         except Exception, e:
             print "exception", e
@@ -1285,7 +1256,7 @@ def get_duration_fields(fields, sign_pecs):
     duration_fields={}
     sign_pecs=str(sign_pecs)
     
-      #~ #duree_adopt_trans
+    #duree_adopt_trans
     name='duree_adopt_trans'
     duration_fields[name]=get_date_diff(fields['transm_council'], fields['adopt_propos_origine'])
     print name, duration_fields[name]

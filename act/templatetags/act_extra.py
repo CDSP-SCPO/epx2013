@@ -1,7 +1,10 @@
+#-*- coding: utf-8 -*-
 from act.models import PartyFamily, Person
 from django.db.models.loading import get_model
 #convert unicode to dict
 from ast import literal_eval
+#compare dg
+from common.functions import format_dg_name, format_rapp_resp_name
 from django import template
 register=template.Library()
 
@@ -79,3 +82,41 @@ def numeric_loop(val):
     range: for loop [list of integers]
     """
     return range(val)
+
+
+@register.filter
+def compare_dgs(dg_1, dg_2):
+    """
+    FUNCTION
+    compare the dgs passed in parameter: return True if they are the same and False otherwise
+    PARAMETERS
+    dg_1: name of the first dg to compare [string]
+    dg_2: name of the second dg to compare [string]
+    RETURN
+    True if the dgs are the same and False otherwise [boolean]
+    """
+    dg_1=format_dg_name(dg_1)
+    dg_2=format_dg_name(dg_2)
+    #2014-2-1: Value found on eurlex: European Anti-Fraud Office; Value found on oeil: European Anti-Fraud Office (OLAF).
+    if dg_1 == dg_2 or dg_1 in dg_2 or dg_2 in dg_1:
+        return True
+    return False
+
+
+@register.filter
+def compare_resps(resp_1, resp_2):
+    """
+    FUNCTION
+    compare the resps passed in parameter: return True if they are the same and False otherwise
+    PARAMETERS
+    resp_1: name of the first resp to compare [string]
+    resp_2: name of the second resp to compare [string]
+    RETURN
+    True if the resps are the same and False otherwise [boolean]
+    """
+    resp_1=format_rapp_resp_name(resp_1)
+    resp_2=format_rapp_resp_name(resp_2)
+    #2014-2-1: Value found on eurlex: Algirdas Gediminas ŠEMETA; Value found on oeil: ŠEMETA Algirdas.
+    if resp_1 == resp_2 or resp_1 in resp_2 or resp_2 in resp_1:
+        return True
+    return False

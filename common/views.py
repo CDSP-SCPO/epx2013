@@ -13,6 +13,19 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+
+def get_ajax_errors(form):
+    """
+    FUNCTION
+    format the form errors so they can be read with ajax
+    PARAMETERS
+    form: form to process [Form object]
+    RETURN
+    dict: form errors stored in a dictionary [dictionary]
+    """
+    return dict([(k, form.error_class.as_text(v)) for k, v in form.errors.items()])
+    
+
 def get_ordered_queryset(releve_annee, releve_mois, no_ordre):
     """
     FUNCTION
@@ -36,18 +49,6 @@ def get_ordered_queryset(releve_annee, releve_mois, no_ordre):
         queryset._result_cache.append(query)
 
     return queryset
-
-
-def get_ajax_errors(form):
-    """
-    FUNCTION
-    format the form errors so they can be read with ajax
-    PARAMETERS
-    form: form to process [Form object]
-    RETURN
-    dict: form errors stored in a dictionary [dictionary]
-    """
-    return dict([(k, form.error_class.as_text(v)) for k, v in form.errors.items()])
     
 
 def check_add_modif_forms(request, response, Add, Modif, form):

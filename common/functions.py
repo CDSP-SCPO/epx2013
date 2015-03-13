@@ -111,6 +111,35 @@ def remove_nonspacing_marks(string):
     return ''.join(c for c in unicodedata.normalize('NFKD', string) if unicodedata.category(c) !='Mn')
 
 
+def format_rapp_resp_name(names):
+    """
+    FUNCTION
+    rewrite  the name of the rapporteur or responsible in the right format "LASTNAME Firstname"
+    PARAMETERS
+    names: full name of the person [string]
+    RETURN
+    instance: full name of the person, in the right format [string]
+    """
+    if names is not None:
+        #remove trailing "'"
+        if names[-1]=="'":
+            names=names[:-1]
+        #change name format: "Firstname LASTNAME" -> "LASTNAME Firstname"
+        names=names.split()
+        first_name=last_name=""
+        for name in names:
+            #get last names
+            if name.isupper():
+                last_name+=name+" "
+            #get first names
+            else:
+                first_name+=name+" "
+
+        names=last_name+first_name[:-1]
+
+    return names
+
+
 def format_dg_name(old_dg):
     """
     FUNCTION
@@ -121,12 +150,13 @@ def format_dg_name(old_dg):
     new_dg: dg name in the new format [string]
     """
     new_dg=old_dg
-    
-    #remove dg / directorate-general at the beginning or end
-    pattern = re.compile("dg | dg", re.IGNORECASE)
-    new_dg=pattern.sub("", new_dg)
-    pattern = re.compile("^directorate-general( for)?( the)?|directorate-general( for)?( the)?$", re.IGNORECASE)
-    new_dg=pattern.sub("", new_dg)
-    new_dg="DG "+new_dg.strip()
+
+    if new_dg not in ["", None]:
+        #remove dg / directorate-general at the beginning or end
+        pattern = re.compile("dg | dg", re.IGNORECASE)
+        new_dg=pattern.sub("", new_dg)
+        pattern = re.compile("^directorate-general( for)?( the)?|directorate-general( for)?( the)?$", re.IGNORECASE)
+        new_dg=pattern.sub("", new_dg)
+        new_dg="DG "+new_dg.strip()
     
     return new_dg
