@@ -607,7 +607,7 @@ def get_dgs(dgs):
         #~ print "dgs", dgs
         temp=dgs.split(";")
         for dg in temp:
-            dg=dg.strip()
+            dg=" ".join(dg.split())
             #if it is a dg_nb, it can refer to more than one DG (manual validation)
             if dg[-1].isdigit():
                 try:
@@ -748,7 +748,7 @@ def get_resp(resp_name):
     """
     if resp_name is not None:
         try:
-            name=format_rapp_resp_name(resp_name)
+            name=" ".join(format_rapp_resp_name(resp_name).split())
             return save_get_resp_eurlex(name)
         except Exception, e:
             print "exception", e

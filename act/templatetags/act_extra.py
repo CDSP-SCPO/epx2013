@@ -95,11 +95,16 @@ def compare_dgs(dg_1, dg_2):
     RETURN
     True if the dgs are the same and False otherwise [boolean]
     """
-    dg_1=format_dg_name(dg_1)
-    dg_2=format_dg_name(dg_2)
-    #2014-2-1: Value found on eurlex: European Anti-Fraud Office; Value found on oeil: European Anti-Fraud Office (OLAF).
-    if dg_1 == dg_2 or dg_1 in dg_2 or dg_2 in dg_1:
+    if dg_1 is None and dg_2 is None:
         return True
+        
+    if dg_1 is not None and dg_2 is not None:
+        dg_1=format_dg_name(dg_1)
+        dg_2=format_dg_name(dg_2)
+        #2014-2-1: Value found on eurlex: European Anti-Fraud Office; Value found on oeil: European Anti-Fraud Office (OLAF).
+        if dg_1 == dg_2 or dg_1 in dg_2 or dg_2 in dg_1:
+            return True
+            
     return False
 
 
@@ -114,9 +119,14 @@ def compare_resps(resp_1, resp_2):
     RETURN
     True if the resps are the same and False otherwise [boolean]
     """
-    resp_1=format_rapp_resp_name(resp_1)
-    resp_2=format_rapp_resp_name(resp_2)
-    #2014-2-1: Value found on eurlex: Algirdas Gediminas ŠEMETA; Value found on oeil: ŠEMETA Algirdas.
-    if resp_1 == resp_2 or resp_1 in resp_2 or resp_2 in resp_1:
+    if resp_1 is None and resp_2 is None:
         return True
+        
+    if resp_1 is not None and resp_2 is not None:
+        resp_1=format_rapp_resp_name(resp_1)
+        resp_2=format_rapp_resp_name(resp_2)
+        #2014-2-1: Value found on eurlex: Algirdas Gediminas ŠEMETA; Value found on oeil: ŠEMETA Algirdas.
+        if resp_1 == resp_2 or resp_1 in resp_2 or resp_2 in resp_1:
+            return True
+            
     return False

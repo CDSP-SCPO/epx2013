@@ -264,7 +264,8 @@ def get_rapps(rapps_html):
         #django adds "_id" to foreign keys field names
         data['rapp_'+num+"_id"]=None
         if rapps_html[index]!=None:
-            field=[Person, "name", get_rapp(rapps_html[index])]
+            rapp=" ".join(get_rapp(rapps_html[index]).split())
+            field=[Person, "name", rapp]
             fks=[]
             
             try:
@@ -456,11 +457,13 @@ def get_dg_names(soup):
         for index, dg_name in enumerate(dg_names):
             try:
                 #with link
-                dgs[index]=dg_name.find("a").get_text().strip()
+                dgs[index]=dg_name.find("a").get_text()
             except Exception, e:
                 print "exception get_dg_names 1", e
                 #without link
-                dgs[index]=dg_name.get_text().strip()
+                dgs[index]=dg_name.get_text()
+            if dgs[index] is not None:
+                dgs[index]=" ".join(dgs[index].split())
     except Exception, e:
         print "exception get_dg_names 2", e
 
@@ -482,7 +485,7 @@ def get_resp_names(soup):
         soup=soup.find("p", text="Commissioner").find_parent()
         resp_names=soup.find_all("p", {"class": "players_content"})
         #<p class="players_content">KYPRIANOU  Markos</p>
-        resp_names=[resp_name.get_text().strip() for resp_name in resp_names]
+        resp_names=[" ".join(resp_name.get_text().split()) for resp_name in resp_names]
         while len(resp_names)<nb_resps:
             resp_names.append(None)
     except Exception, e:
