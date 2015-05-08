@@ -134,3 +134,8 @@ var_name["verbatim"]="Verbatim"
 var_name["country_min_attend"]="MinAttendCountry"
 var_name["status_min_attend"]="MinAttendStatus"
 var_name["verbatim_min_attend"]="MinAttendVerbatim"
+
+#EPGroupsVotes
+var_name["group_votes"]="EPGroupsVotes"
+var_name["title"]=var_name["titre_rmc"]
+var_name["group_name"]="EPGroup"

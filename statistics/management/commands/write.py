@@ -27,8 +27,8 @@ path=settings.PROJECT_ROOT+'/statistics/management/commands/queries.csv'
 writer=csv.writer(open(path, 'w'))
 
 
-nb_acts=Act.objects.filter(validated=2, releve_annee__lte=last_validated_year).count()
-writer.writerow(["Les requêtes suivantes sont recueillies à partir des "+ str(nb_acts)+ " actes validés sur la période 1996-"+str(last_validated_year)+"."])
+nb_acts=Act.objects.filter(validated=2, releve_annee__lte=max_year).count()
+writer.writerow(["Les requêtes suivantes sont recueillies à partir des "+ str(nb_acts)+ " actes validés sur la période 1996-"+str(max_year)+"."])
 writer.writerow(["En présence de la variable secteur, chaque acte peut être compté jusqu'à 4 fois (une fois pour chaque secteur)."])
 writer.writerow([""])
 
@@ -112,7 +112,7 @@ def write_all(res, res_2, count, percent, query):
     writer.writerow([res_final])
 
 
-def write_year_cs_country_periods(factor, res, res_2, count, percent, query, res_total, periods):
+def write_cs_year_country_periods(factor, res, res_2, count, percent, query, res_total, periods):
     """
     FUNCTION
     write the results table of the query in a csv file (year, cs, country or periods analysis)
@@ -211,7 +211,7 @@ def write(factor, question, res, res_2=None, count=True, percent=100, query=None
     print question
     writer.writerow([question])
 
-    #if we don't want to compute a percentage or an average but count the number of occurences
+    #if we don't want to compute a percentage but count the number of occurences
     if not count and res_total is None:
         percent=1
 
@@ -226,8 +226,8 @@ def write(factor, question, res, res_2=None, count=True, percent=100, query=None
     if factor=="all":
         write_all(res, res_2, count, percent, query)
 
-    elif factor in ["year", "cs", "country", "periods"]:
-        write_year_cs_country_periods(factor, res, res_2, count, percent, query, res_total, periods)
+    elif factor in ["cs", "year", "country", "periods"]:
+        write_cs_year_country_periods(factor, res, res_2, count, percent, query, res_total, periods)
 
     elif factor=="csyear":
       write_csyear(res, res_2, count, percent, query)
@@ -449,3 +449,27 @@ def write_list_acts(question, acts, fields):
             
     writer.writerow("")
     print ""
+
+
+def write_list_acts_by_year_and_dg_or_resp(question, res):
+    print question
+    writer.writerow([question])
+    writer.writerow("")
+
+    #for each year
+    for year in years_list:
+        writer.writerow(["AdoptionProposOrigine="+year])
+        writer.writerow("")
+
+        #for each dg or resp
+        for var in res[year]:
+            writer.writerow([var])
+            #for each act
+            for titre in res[year][var]:
+                writer.writerow([titre])  
+            writer.writerow("")
+            
+        writer.writerow("")
+
+    writer.writerow("")
+    

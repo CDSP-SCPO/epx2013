@@ -1,5 +1,6 @@
 from django.db import models
 import act.var_name_data as var_name_data
+from hashlib import md5
 
 
 def file_path(instance, file_name):
@@ -104,3 +105,32 @@ class ImportRappPartyFamily(models.Model):
     """
     party=models.CharField(max_length=70, unique=True, blank=False, null=False)
     party_family=models.CharField(max_length=50, blank=False, null=False)
+
+
+class ImportGroupVotes(models.Model):
+    """
+    MODEL
+    tempory model: for each act (identified by its title), gives the ep group votes
+    """
+    title=models.CharField(max_length=2000)
+    title_md5 = models.CharField(max_length=32)
+    #ADLE, S&D, PPE-DE, ECR, EFD, Greens/EFA, GUE-NGL, NI
+    group_name=models.CharField(max_length=15)
+    col_for=models.PositiveSmallIntegerField(max_length=3)
+    col_against=models.PositiveSmallIntegerField(max_length=3)
+    col_abstension=models.PositiveSmallIntegerField(max_length=3)
+    col_present=models.PositiveSmallIntegerField(max_length=3)
+    col_absent=models.PositiveSmallIntegerField(max_length=3)
+    col_non_voters=models.PositiveSmallIntegerField(max_length=3)
+    col_total_members=models.PositiveSmallIntegerField(max_length=3)
+    col_cohesion=models.PositiveSmallIntegerField(max_length=3)
+
+    def save(self, *args, **kwargs):
+        #saving title using md5 hash to use the constraint unique together on title (with the hash) and group_name
+        #otherwise error django.db.utils.DatabaseError: (1071, 'Specified key was too long; max key length is 767 bytes')
+        self.title_md5 = md5(self.title).hexdigest()
+        super(ImportGroupVotes, self).save(*args, **kwargs)
+
+    #joined primary keys
+    class Meta:
+        unique_together=(("title_md5", "group_name"), )

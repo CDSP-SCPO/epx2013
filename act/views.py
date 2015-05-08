@@ -144,7 +144,7 @@ def check_multiple_dgs(act):
     act: updated instance of the data of the act [Act model instance]
     """
     dgs={}
-    for index in range(1,3):
+    for index in range(1, nb_dgs+1):
         num=str(index)
         name="dg_"+num+"_id"
         instances=getattr(act, name)
@@ -191,7 +191,6 @@ def store_dg_resp(act, eurlex_list, oeil_list, var_name):
         #if no dg on eurlex, we use the dg on oeil
         #2014-5-1 (dg=101059): if we found a dg with only numbers on eurlex, without a table of correspondance it's impossible to tell what dg it is -> we use the dg on oeil
         if (field is None or field.isdigit()) and oeil_dic[num] is not None:
-            print var_name, "eurlex none oeil not none", "'"+oeil_dic[num]+"'"
             try:
                 #update the act instance with the oeil resp
                 if var_name=="resp":

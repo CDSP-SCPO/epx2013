@@ -484,8 +484,8 @@ class Command(NoArgsCommand):
         #2015-02-20
         #TESTS
         #Nombre d'actes
-        factors=["all", "year", "cs", "csyear", "periods"]
-        acts.q2(factors=factors, periods=periods)
+        #~ factors=["all", "year", "cs", "csyear", "periods"]
+        #~ acts.q2(factors=factors, periods=periods)
         #~ factors=["year"]
         #~ #Nombre de mots moyen
         #~ nb_mots.q54(factors=factors, periods=periods)
@@ -494,15 +494,61 @@ class Command(NoArgsCommand):
         #Parmi les votes AdoptCSAbs=Y, pourcentage de chaque Etat membre
         #~ factors=["country"]
         #~ country.q126(factors=factors, periods=periods)
-        
+#~ 
         #Pourcentage d'actes avec au moins un EM sans statut 'M' (et au moins un 'CS' ou 'CS_PR')
+        #~ factors=["cs"]
         #~ acts.q122(factors=factors, periods=periods)
         #Pourcentage d'actes provenant de la Commission et adoptés par procédure écrite
         #~ acts.q71(factors=factors, periods=periods)
         #Nombre moyen de EPVotesFor1-2
+        #~ factors=["csyear"]
         #~ ep_amdt_vote.q127(factors=factors, periods=periods)
         #Pourcentage d'actes adoptés en 1ère lecture parmi les actes de codécision
         #~ factors=["periods"]
         #~ acts.q74(factors=factors, periods=periods)
         #Durée de la procédure (= Moyenne DureeTotaleDepuisTransCons ET DureeProcedureDepuisTransCons)
         #~ duree.q128(factors=factors, periods=periods)
+
+
+        #2015-03-16
+        #Liste des actes par annee et par dg / resp
+        #~ acts.q129()
+
+
+        #2015-04-22
+        #~ factors=["year", "periods", "cs"]
+        #~ periods=(
+            #~ ("01/07/1999", "30/06/2004"),
+            #~ ("01/07/2004", "30/06/2009"),
+            #~ ("01/07/2009", "30/06/2014")
+        #~ )
+        #~ #Nombre d'actes
+            #~ #par année
+            #~ #pour les periodes suivantes: 01/07/1999-31/06/2004, 01/07/2004- 31/06/2009, 01/07/2009-31/06/2014
+            #~ #par secteur       
+        #~ acts.q2(factors=factors, periods=periods)
+        #~ #Nombre d'actes
+            #~ #pour les actes CS REG + REG
+            #~ #pour les actes CS DVE + DVE
+            #~ #pour les actes CS DEC+DEC+CS DEC W/O ADD+ CS DEC W/ADD
+        #~ acts.q124(factors=["all", "periods"], periods=periods)
+#~ 
+        #~ #Nombre de mots
+            #~ #par année
+            #~ #pour les periodes suivantes: 01/07/1999-31/06/2004, 01/07/2004- 31/06/2009, 01/07/2009-31/06/2014
+            #~ #par secteur
+        #~ nb_mots.q130(factors=factors, periods=periods)    
+        #~ #Nombre de mots
+            #~ #pour les actes CS REG + REG
+            #~ #pour les actes CS DVE + DVE
+            #~ #pour les actes CS DEC+DEC+CS DEC W/O ADD+ CS DEC W/ADD
+        #~ nb_mots.q123(factors=["all", "periods"], periods=periods)
+
+        #2015-05-03
+        factors=["periods"]
+        periods=(
+            ("01/06/1999", "31/05/2004"),
+            ("01/06/2004", "31/05/2009"),
+            ("01/06/2009", "31/05/2014")
+        )
+        acts.q131(factors=factors, periods=periods)

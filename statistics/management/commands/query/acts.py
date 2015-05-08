@@ -33,8 +33,8 @@ def q2(factors=factors, periods=None):
     #Nombre d'actes
     init_question="Nombre d'actes"
 
-    #get the factors specific to the question
-    factors_question=get_factors_question(factors)
+    #get the factors specific to the question and update the periods (fr to us format)
+    factors_question, periods=prepare_query(factors, periods)
 
     #for each factor
     for factor, question in factors_question.iteritems():
@@ -603,8 +603,8 @@ def q124(factors=factors, periods=None):
     filter_vars_acts={}
     type_actes=[["CS DVE", "DVE"], ["CS DEC CAD", "CS DEC", "DEC", "DEC W/O ADD", "CS DEC W/O ADD"], ["CS REG", "REG"]]
     
-    #get the factors specific to the question
-    factors_question=get_factors_question(factors)
+    #get the factors specific to the question and update the periods (fr to us format)
+    factors_question, periods=prepare_query(factors, periods)
 
     #for each type
     for type_acte in type_actes:
@@ -617,3 +617,38 @@ def q124(factors=factors, periods=None):
             res=init(factor, count=False)
             res=get(factor, res, filter_vars_acts=filter_vars_acts, periods=periods, count=False)
             write(factor, question, res, periods=periods, count=False)
+
+
+def list_dg_resp(var_name, nb):
+    #init
+    question="Liste des actes par annee et par "+var_name.upper()
+    res=init(factor="year", empty_dic=True)
+
+    #get
+    res=get_list_acts_by_year_and_dg_or_resp(res, var_name, nb)
+
+    #write
+    write_list_acts_by_year_and_dg_or_resp(question, res)
+
+
+def q129():
+    #list of dgs
+    list_dg_resp("dg", nb_dgs)
+    #list of resps
+    list_dg_resp("resp", nb_resps)
+
+
+def q131(factors=factors, periods=None):
+    #Nombre d’actes avec NoUniqueType=COD
+    init_question="Nombre d’actes avec NoUniqueType=COD"
+    filter_vars_acts_ids={"no_unique_type": "COD"}
+
+    #get the factors specific to the question and update the periods (fr to us format)
+    factors_question, periods=prepare_query(factors, periods)
+
+    #for each factor
+    for factor, question in factors_question.iteritems():
+        question=init_question+question
+        res=init(factor, count=False)
+        res=get(factor, res, Model=ActIds, filter_vars_acts_ids=filter_vars_acts_ids, periods=periods, count=False)
+        write(factor, question, res, periods=periods, count=False)

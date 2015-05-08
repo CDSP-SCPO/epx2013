@@ -82,6 +82,26 @@ def init_country(count):
     return res, res_total
 
 
+def init_cs(count, total, empty_dic, empty_list):
+    """
+    FUNCTION
+    initialize the data structure that is going to store the results of the "cs" analysis
+    PARAMETERS
+    count: True if need to count the number of occurences for percentage or average computation; False otherwise (used for simple count analysis) [boolean]
+    total: used for percentage computation, True if need to compute the total number of occurences of a row / column (row / column analysis); False otherwise (cell analysis) [boolean]
+    empty_dic: TO BE TESTED AND REMOVED IF NOT NEEDED ANYMORE
+    empty_list: TO BE TESTED AND REMOVED IF NOT NEEDED ANYMORE
+    RETURN
+    res: data structure that is going to store all the results of the analysis [dictionary]
+    """
+    res={}
+    for cs in css:
+        res[cs]=init_temp(count, empty_dic, empty_list)
+        if empty_dic and total:
+            res[cs]["total"]=0
+    return res
+
+
 def init_year(count, total, empty_dic, empty_list):
     """
     FUNCTION
@@ -101,27 +121,6 @@ def init_year(count, total, empty_dic, empty_list):
         if empty_dic and total:
             res[year]["total"]=0
             
-    return res
-
-
-
-def init_cs(count, total, empty_dic, empty_list):
-    """
-    FUNCTION
-    initialize the data structure that is going to store the results of the "cs" analysis
-    PARAMETERS
-    count: True if need to count the number of occurences for percentage or average computation; False otherwise (used for simple count analysis) [boolean]
-    total: used for percentage computation, True if need to compute the total number of occurences of a row / column (row / column analysis); False otherwise (cell analysis) [boolean]
-    empty_dic: TO BE TESTED AND REMOVED IF NOT NEEDED ANYMORE
-    empty_list: TO BE TESTED AND REMOVED IF NOT NEEDED ANYMORE
-    RETURN
-    res: data structure that is going to store all the results of the analysis [dictionary]
-    """
-    res={}
-    for cs in css:
-        res[cs]=init_temp(count, empty_dic, empty_list)
-        if empty_dic and total:
-            res[cs]["total"]=0
     return res
 
 
@@ -198,12 +197,12 @@ def init(factor, count=True, total=False, amdt=False, empty_dic=False, empty_lis
 
     elif factor=="country":
         res, res_total=init_country(count)
-            
-    elif factor=="year":
-        res=init_year(count, total, empty_dic, empty_list)
         
     elif factor=="cs":
         res=init_cs(count, total, empty_dic, empty_list)
+                
+    elif factor=="year":
+        res=init_year(count, total, empty_dic, empty_list)
 
     elif factor=="csyear":
         res=init_csyear(count, total, empty_dic, empty_list, amdt)

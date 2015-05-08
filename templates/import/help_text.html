@@ -31,6 +31,8 @@
             {{ display_name.no_celex }}, {{ display_name.country }},  {{ display_name.status }},  {{ display_name.verbatim }}.
         {% elif form.file_to_import.value == "rapp_party_family" %}
             {{ display_name.party }}, {{ display_name.party_family }}.
+        {% elif form.file_to_import.value == "group_votes" %}
+            {{ display_name.title }}, {{ display_name.group_name }}, FOR, AGAINST, ABSTENTION, PRESENT, ABSENT, NON VOTERS, TOTAL MEMBERS, COHESION.
         {% endif %}
         <br />
 

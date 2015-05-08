@@ -56,16 +56,17 @@ def get_css(min_cs=1, max_cs=20):
     return css
 
 
-def get_years(last_validated_year):
+def get_years(min_year, max_year):
     """
     FUNCTION
     #get all the different possible years for the analysis (currently from 1996 to 2014)
     PARAMETERS
-    last_validated_year: last validated year to analyse (currently 2013) [int]
+    min_year: first validated year [int]
+    max_year: last validated year to analyse (currently 2013) [int]
     RETURN
     years: all the possible years for the analysis [list of strings]
     """
-    return [str(n) for n in range(1996, last_validated_year+1)]
+    return [str(n) for n in range(min_year, max_year+1)]
 
 
 def add_blank(list_var):
@@ -161,7 +162,7 @@ def get_validated_acts(Model, filter_vars_acts={}, filter_vars_acts_ids={}):
     filter_vars={}
     filter_vars_acts["validated"]=2
     #do not use validated acts of 2014
-    filter_vars_acts["releve_annee__lte"]= last_validated_year
+    filter_vars_acts["releve_annee__lte"]= max_year
     #TEST ONLY
     #~ filter_vars_acts["releve_annee__gte"]= 2009
 
@@ -202,31 +203,34 @@ def get_validated_acts_periods(Model, period, filter_vars):
     return filter_vars
         
 
-def get_periods():
+def get_periods(periods):
     """
     FUNCTION
     get the periods to use (for the periods analysis only)
     PARAMETERS
-    None
+    periods: list of periods to analyse [tuple of tuples of strings]
     RETURN
-    periods: periods to use [tuple of tuples of strings]
+    periods: periods to use [list of tuples of strings]
     """
-    #2014-12-4
-    periods=(
-        ("Période 01/01/1996 - 15/09/1999", fr_to_us_date("01/01/1996"), fr_to_us_date("15/09/1999")),
-        ("Période 16/09/1999 - 30/04/2004", fr_to_us_date("16/09/1999"), fr_to_us_date("30/04/2004")),
-        ("Période 01/05/2004 - 14/09/2008", fr_to_us_date("01/05/2004"), fr_to_us_date("14/09/2008")),
-        ("Période 15/09/2008 - 31/12/2013", fr_to_us_date("15/09/2008"), fr_to_us_date("31/12/2013"))
-    )
-    return periods
+    new_periods=[] 
+    for period in periods:
+        new_periods.append(("Période "+ period[0] + " - " + period[1], fr_to_us_date(period[0]), fr_to_us_date(period[1])))
+    #~ periods=(
+        #~ ("Période 01/01/1996 - 15/09/1999", fr_to_us_date("01/01/1996"), fr_to_us_date("15/09/1999")),
+        #~ ("Période 16/09/1999 - 30/04/2004", fr_to_us_date("16/09/1999"), fr_to_us_date("30/04/2004")),
+        #~ ("Période 01/05/2004 - 14/09/2008", fr_to_us_date("01/05/2004"), fr_to_us_date("14/09/2008")),
+        #~ ("Période 15/09/2008 - 31/12/2013", fr_to_us_date("15/09/2008"), fr_to_us_date("31/12/2013"))
+    #~ )
+    return new_periods
 
 
-def get_nb_periods(factor):
+def get_nb_periods(factor, periods):
     """
     FUNCTION
     get the number of periods (for the periods analysis only)
     PARAMETERS
     factor: factor of the analysis [string]
+    periods: periods to use [list of tuples of strings]
     RETURN
     nb_periods: number of periods of the analysis [int]
     """
@@ -261,7 +265,7 @@ def get_factors_dic():
     factors: ordered dictionary of all the possible factors [OrderedDict]
     """
     factors=OrderedDict({})
-    factors["all"]=", pour la période 1996-"+str(last_validated_year)
+    factors["all"]=", pour la période 1996-"+str(max_year)
     factors["periods"]=", par période"
     factors["year"]=", par année"
     factors["cs"]=", par secteur"
@@ -285,13 +289,34 @@ def get_factors_question(factors):
     return factors_question
 
 
+def prepare_query(factors, periods):
+    """
+    FUNCTION
+    get the factors of the query and update the list of periods
+    PARAMETERS
+    factors: list of factors of the query [list of strings]
+    periods: periods to use in the French format [tuple of tuples of strings]
+    RETURN
+    factors_question: ordered dictionary of the factors of the query [OrderedDict]
+    periods: periods to use in the American format [list of tuples of strings]
+    """
+    #get the factors specific to the question
+    factors_question=get_factors_question(factors)
+    #update periods
+    if periods is not None:
+        periods=get_periods(periods)
+    return factors_question, periods
+    
 
 ### GLOBAL VARIABLES ###
 
-#last validated year
-last_validated_year=2013
+#min and max year
+min_year=1996
+max_year=2014
 #there is up to 4 code sectoriels for one act
 nb_css=4
+#number of dgs
+nb_dgs=3
 #nb rapporteurs
 nb_rapps=5
 #nb resp_propos
@@ -300,7 +325,9 @@ nb_resps=3
 css=get_css()
 
 #list of years
-years_list=get_years(last_validated_year)
+years_list=get_years(min_year, max_year)
+#SPECIFIC QUERY, TO REMOVE
+#~ years_list=get_years(2006, 2013)
 years_list_zero=add_blank(years_list)
 #list of months
 months_list=get_months()
@@ -308,7 +335,7 @@ months_list=get_months()
 countries_list=get_countries()
 countries_list_zero=add_blank(countries_list)
 #list of periods
-periods=get_periods()
+#~ periods=get_periods()
 
 #list of factors (variables to study)
 factors=get_factors()

@@ -318,3 +318,26 @@ class MinAttend(models.Model):
 
     class Meta:
         unique_together=(("act", "country", "verbatim"), )
+
+
+
+class GroupVotes(models.Model):
+    """
+    MODEL
+    tempory model: for each act (identified by its title), gives the ep group votes
+    """
+    act = models.ForeignKey(Act)
+    #ADLE, S&D, PPE-DE, ECR, EFD, Greens/EFA, GUE-NGL, NI
+    group_name=models.CharField(max_length=15)
+    col_for=models.PositiveSmallIntegerField(max_length=3)
+    col_against=models.PositiveSmallIntegerField(max_length=3)
+    col_abstension=models.PositiveSmallIntegerField(max_length=3)
+    col_present=models.PositiveSmallIntegerField(max_length=3)
+    col_absent=models.PositiveSmallIntegerField(max_length=3)
+    col_non_voters=models.PositiveSmallIntegerField(max_length=3)
+    col_total_members=models.PositiveSmallIntegerField(max_length=3)
+    col_cohesion=models.PositiveSmallIntegerField(max_length=3)
+
+    #joined primary keys
+    class Meta:
+        unique_together=(("act", "group_name"), )

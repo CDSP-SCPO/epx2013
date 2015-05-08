@@ -607,7 +607,7 @@ def get(factor, res_init, Model=Act, count=True, variable=None, variable_2=None,
     same=None
     filter_vars=get_validated_acts(Model, filter_vars_acts=filter_vars_acts, filter_vars_acts_ids=filter_vars_acts_ids)
     #if factor != period, nb_periods=1 so we loop once and once only through all the acts
-    nb_periods=get_nb_periods(factor)
+    nb_periods=get_nb_periods(factor, periods)
 
     #for each period or loop through all the acts only once if there is no period
     for index in range(nb_periods):
@@ -622,10 +622,6 @@ def get(factor, res_init, Model=Act, count=True, variable=None, variable_2=None,
         for act in Model.objects.filter(**filter_vars).exclude(**exclude_vars_acts):
             ok=True
             act_act=get_act(Model, act)
-
-            #last period
-            #~ if index==3:
-                #~ print act_act, act_act.nb_lectures, act.no_unique_type
             
             value=1
             if variable is not None:
@@ -955,3 +951,34 @@ def get_list_acts(Model, search, cs, fields):
             acts.append(act_fields)
 
     return acts
+
+
+def get_list_acts_by_year_and_dg_or_resp(res, var_name, nb):
+    Model=Act
+    filter_vars=get_validated_acts(Model)
+    #adoption_propos_origine: from 2006 to 2013
+    filter_vars["adopt_propos_origine__gte"]= str_to_date("2006-01-01")
+    filter_vars["adopt_propos_origine__lte"]= str_to_date("2013-12-31")
+
+    for act in Model.objects.filter(**filter_vars):
+        act_act=get_act(Model, act)
+        year=str(act_act.adopt_propos_origine.year)
+        titre=act_act.titre_rmc.encode("utf-8")
+        
+        for index in range(1, nb+1):
+            num=str(index)
+            var=getattr(act_act, var_name+"_"+num)
+            if var is not None:
+                if var_name=="dg":
+                    var=var.dg
+                elif var_name=="resp":
+                    var=var.name
+                var=var.encode("utf-8")
+                    
+                if var not in res[year]:
+                    res[year][var]=[titre]
+                else:
+                    res[year][var].append(titre)
+                    
+    return res
+    

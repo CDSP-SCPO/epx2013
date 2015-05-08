@@ -164,12 +164,12 @@ def q116(factors=factors):
         nb_mots_moyen_type_acte(factors, type_acte)
 
 
-def q123(factors=factors):
+def q123(factors=factors, periods=None):
     #Nombre total de mots pour les actes de type...
     variable="nb_mots"
     filter_vars_acts={variable+"__isnull": False}
-    #get the factors specific to the question
-    factors_question=get_factors_question(factors)
+    #get the factors specific to the question and update the periods (fr to us format)
+    factors_question, periods=prepare_query(factors, periods)
 
     #CS DEC, CS DEC CAD, DEC, DEC W/O ADD, DEC W/ ADD
     type_actes=[["CS DVE", "DVE"], ["CS DEC CAD", "CS DEC", "DEC", "DEC W/O ADD", "CS DEC W/O ADD"], ["CS REG", "REG"]]
@@ -183,8 +183,8 @@ def q123(factors=factors):
         for factor, question in factors_question.iteritems():
             question=init_question+question
             res=init(factor, count=False)
-            res=get(factor, res, variable=variable, filter_vars_acts=filter_vars_acts, count=False)
-            write(factor, question, res, count=False)
+            res=get(factor, res, variable=variable, filter_vars_acts=filter_vars_acts, periods=periods, count=False)
+            write(factor, question, res, periods=periods, count=False)
 
 
 def q125(factors=factors):
@@ -208,3 +208,20 @@ def q125(factors=factors):
             res=init(factor)
             res=get(factor, res, variable=variable, filter_vars_acts=filter_vars_acts)
             write(factor, question, res, percent=1)
+
+
+def q130(factors=factors, periods=None):
+    #Nombre total de mots
+    variable="nb_mots"
+    filter_vars_acts={variable+"__isnull": False}
+    #get the factors specific to the question and update the periods (fr to us format)
+    factors_question, periods=prepare_query(factors, periods)
+
+    init_question="Nombre total de mots"
+
+    #for each factor
+    for factor, question in factors_question.iteritems():
+        question=init_question+question
+        res=init(factor, count=False)
+        res=get(factor, res, variable=variable, filter_vars_acts=filter_vars_acts, periods=periods, count=False)
+        write(factor, question, res, periods=periods, count=False)
