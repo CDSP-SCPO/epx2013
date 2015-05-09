@@ -1,12 +1,16 @@
 #-*- coding: utf-8 -*-
 #for accents between comments inside this file
 """
-get government composition from the file Composition politique gvts nationaux 93-12.csv (NationGvtPoliticalComposition) and opal variables
+get external data: gvt_compo, opal and group_votes
 """
 from act.models import GvtCompo, Country, NP, MinAttend, Verbatim, Status, PartyFamily
-from import_app.models import ImportNP, ImportMinAttend
+from import_app.models import ImportNP, ImportMinAttend, ImportGroupVotes
 from bs4 import BeautifulSoup
 import re
+from django.forms.models import model_to_dict
+from collections import OrderedDict
+from common.config_file import groups
+from  act import var_name_data
 
 
 def get_date(act_ids, act):
@@ -159,7 +163,7 @@ def save_get_opal(act_ids, act):
     act_ids: instance of the ids of the act [ActIds model instance]
     act: instance of the act [Act model instance]
     RETURN
-    opal_dic: opal variables [dictionary]
+    opal_dic: opal variables [OrderedDict]
     """
     opal_dic={}
 
@@ -192,6 +196,50 @@ def save_get_opal(act_ids, act):
     return opal_dic
 
 
+def save_get_group_votes(act):
+    """
+    FUNCTION
+    fill the table that links an act to its ep group votes variables (if not done already) and return them
+    PARAMETERS
+    act: instance of the act [Act model instance]
+    RETURN
+    group_votes_dic: group votes variables [dictionary of lists of strings]
+    """
+    #to be displayed in the template
+    group_votes_dic=OrderedDict({})
+    groups_values={}
+    #for each group pol
+    for group in groups:
+        #~ group_votes_dic[group]=[]
+        groups_values[var_name_data.var_name[group]]=group
+
+    #alreay exists
+    if act.group_vote_adle is not None:
+        for group_vote in groups:
+            votes=getattr(act, group_vote).split(";")
+            for i, vote_col in enumerate(votes):
+                group_votes_dic[group_vote+"_"+str(i)]=vote_col
+            
+    #doesn't exist yet
+    else:
+        #Are there matches in the ImportGroupVotes table?
+        group_votes=ImportGroupVotes.objects.filter(title=act.titre_rmc)
+
+        for group_vote in group_votes:
+            field_name=groups_values[group_vote.group_name]
+            vote_cols=[group_vote.col_for, group_vote.col_against, group_vote.col_abstension, group_vote.col_present, group_vote.col_absent, group_vote.col_non_voters, group_vote.col_total_members, group_vote.col_cohesion]
+            field_value=';'.join(map(str, vote_cols))
+            setattr(act, field_name, field_value)
+            act.save()
+
+            #get the data to be displayed in the template
+            for i, vote_col in enumerate(vote_cols):
+                group_votes_dic[field_name+"_"+str(i)]=vote_col
+
+    return group_votes_dic
+
+
+      
 
 def get_data_others(act_ids, act):
     """
@@ -207,6 +255,9 @@ def get_data_others(act_ids, act):
 
     #link the act with the gvt_compo variables
     save_gvt_compo(act_ids, act)
+
+    #link the act with the group_votes variables
+    fields["group_votes"]=save_get_group_votes(act)
 
     #get the gvts composition of the act
     fields["gvt_compo"]=get_gvt_compo(act_ids, act)

@@ -164,14 +164,13 @@
 }
 
 
-/* cons_b, cons_a, gvt_compo opal, and min_attend tables */
 .cons_b_table_div, .cons_a_table_div, .gvt_compo_table_div, .opal_table_div, .min_attend_table_div
 {
     padding-bottom: 0;
 }
 
 
-#cons_a, #cons_b, #gvt_compo, #opal, #min_attend
+#cons_a, #cons_b, #gvt_compo, #opal, #min_attend, #group_votes
 {
     margin: 2px;
     width: auto;
@@ -197,6 +196,14 @@
 {
     width: 184px;
 }
+
+
+/* group vote fields */
+#group_votes  input[type="text"]
+{
+    width: 94%;
+}
+
 
 /* borders for min_attend table*/
 #min_attend tbody tr

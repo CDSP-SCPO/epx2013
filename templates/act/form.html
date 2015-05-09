@@ -220,7 +220,7 @@
                                     <td class="first_column table_column_title">{{ display_name.cons_b }}</td>
                                     <td class="second_column">
 
-                                        <div class="fieldWrapper cons_b_div">
+                                        <div class="cons_b_div">
                                             <table id="cons_b" class="table table-bordered table-condensed">
                                                 {% with nb_cols=3 nb_vars_col=6 %} 
                                                     
@@ -237,11 +237,12 @@
 
                                                     {% for cons_field in form_data.cons_b_fields %}
                                                         {% if 'date' in cons_field.name %}
-                                                            <td class="date_cons_border">
+                                                            <td class="date_cons_border fieldWrapper">
                                                         {% else %}
-                                                            <td class="cons_border">
+                                                            <td class="cons_border fieldWrapper">
                                                         {% endif %}
-                                                            {{ cons_field }}
+                                                            <div id="id_{{ cons_field.name }}_errors" class="row-fluid">{{ cons_field.errors }}</div>
+                                                            <div class="row-fluid">{{ cons_field }}</div>
                                                         </td>
 
                                                         <!-- create a new row when reach maximum number of columns -->
@@ -267,7 +268,7 @@
                                     <td class="first_column table_column_title">{{ display_name.cons_a }}</td>
                                     <td class="second_column">
 
-                                        <div class="fieldWrapper cons_b_div">
+                                        <div class="cons_b_div">
                                             <table id="cons_a" class="table table-bordered table-condensed">
                                                 {% with nb_cols=3 nb_vars_col=6 %} 
                                                     
@@ -286,11 +287,12 @@
 -->
                                                     {% for cons_field in form_data.cons_a_fields %}
                                                         {% if 'date' in cons_field.name %}
-                                                            <td class="date_cons_border">
+                                                            <td class="date_cons_border fieldWrapper">
                                                         {% else %}
-                                                            <td class="cons_border">
+                                                            <td class="cons_border fieldWrapper">
                                                         {% endif %}
-                                                            {{ cons_field }}
+                                                            <div id="id_{{ cons_field.name }}_errors" class="row-fluid">{{ cons_field.errors }}</div>
+                                                            <div class="row-fluid">{{ cons_field }}</div>
                                                         </td>
 
                                                         <!-- create a new row when reach maximum number of columns -->
@@ -501,6 +503,46 @@
             </tr>
         {% endif %}
     {% endfor %}
+    <!-- EPGroupVotes -->
+    <tr>
+        <td class="first_column table_column_title">{{ display_name|get_value:"group_votes" }}</td>
+        <td class="second_column">
+
+             <div class="fieldWrapper group_votes_div">
+                <table id="group_votes" class="table table-bordered table-condensed">
+                    
+                    <!-- column names -->
+                    <tr>
+                        {% for col in group_vote_cols %}
+                            <td class="table_column_title">{{ display_name|get_value:col }}</td>
+                        {% endfor %}
+                    </tr>
+
+                    <!-- display ep group variables -->
+
+                    {% for group, vote_fields in form_data.group_votes.items %}
+                        <tr>
+                            <td class="group_votes_lg_titles">{{ display_name|get_value:group }}</td>
+                            {% for vote_field in vote_fields %}
+                                <td class="group_votes_fields fieldWrapper">
+                                    <div id="id_{{ vote_field.name }}_errors" class="row-fluid">{{ vote_field.errors }}</div>
+                                    <div class="row-fluid">{{ vote_field }}</div>
+                                </td>
+                            {% endfor %}
+
+                        </tr>
+                    {% endfor %}
+                    
+                </table>
+            </div>
+
+        </td>
+    </tr>
+
+
+
+
+
 </table>
 
 <br />

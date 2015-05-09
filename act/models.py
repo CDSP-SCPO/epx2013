@@ -236,6 +236,19 @@ class Act(models.Model):
     modif_propos=models.BooleanField(default=False)
     nb_lectures=models.PositiveSmallIntegerField(max_length=1, blank=True, null=True, default=None)
     sign_pecs=models.DateField(max_length=10, blank=True, null=True, default=None)
+    #group votes: for each variable: FOR; AGAINST; ABSTENTION; PRESENT; ABSENT; NON VOTERS; TOTAL MEMBERS; COHESION (semicolon-separated list)
+    group_vote_adle=models.CharField(max_length=35, blank=True, null=True)
+    group_vote_sd=models.CharField(max_length=35, blank=True, null=True)
+    group_vote_ppe=models.CharField(max_length=35, blank=True, null=True)
+    group_vote_ecr=models.CharField(max_length=35, blank=True, null=True)
+    group_vote_efd=models.CharField(max_length=35, blank=True, null=True)
+    group_vote_greens=models.CharField(max_length=35, blank=True, null=True)
+    group_vote_gue=models.CharField(max_length=35, blank=True, null=True)
+    group_vote_ni=models.CharField(max_length=35, blank=True, null=True)
+
+
+    #strings separated by ";"
+    cons_a=models.CharField(max_length=500, blank=True, null=True, default=None)
 
     
     #GENERAL
@@ -318,26 +331,3 @@ class MinAttend(models.Model):
 
     class Meta:
         unique_together=(("act", "country", "verbatim"), )
-
-
-
-class GroupVotes(models.Model):
-    """
-    MODEL
-    tempory model: for each act (identified by its title), gives the ep group votes
-    """
-    act = models.ForeignKey(Act)
-    #ADLE, S&D, PPE-DE, ECR, EFD, Greens/EFA, GUE-NGL, NI
-    group_name=models.CharField(max_length=15)
-    col_for=models.PositiveSmallIntegerField(max_length=3)
-    col_against=models.PositiveSmallIntegerField(max_length=3)
-    col_abstension=models.PositiveSmallIntegerField(max_length=3)
-    col_present=models.PositiveSmallIntegerField(max_length=3)
-    col_absent=models.PositiveSmallIntegerField(max_length=3)
-    col_non_voters=models.PositiveSmallIntegerField(max_length=3)
-    col_total_members=models.PositiveSmallIntegerField(max_length=3)
-    col_cohesion=models.PositiveSmallIntegerField(max_length=3)
-
-    #joined primary keys
-    class Meta:
-        unique_together=(("act", "group_name"), )

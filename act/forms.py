@@ -10,7 +10,9 @@ from django.forms.util import ErrorList
 import var_name_data
 #reverse list with original index
 from common.functions import list_reverse_enum
-from common.config_file import max_cons
+from common.config_file import max_cons, groups, nb_groups, nb_cols
+from collections import OrderedDict
+
 
 
 def check_order_fields(fields):
@@ -168,6 +170,23 @@ class ActForm(forms.ModelForm):
                 elif character=="b":
                     self.cons_b_fields.append(self[date_name])
                     self.cons_b_fields.append(self[cons_name])
+
+        #GROUP VOTES
+        #groups: ADLE, S&D, PPE-DE, ECR, EFD, Greens/EFA, GUE-NGL, NI
+        #values for each group: FOR; AGAINST; ABSTENTION; PRESENT; ABSENT; NON VOTERS; TOTAL MEMBERS; COHESION
+        #64 variables!
+        self.group_votes=OrderedDict({})
+        #use label to display in template
+        #~ groups_list=groups+[""]
+        for group in range(nb_groups):
+            self.group_votes[groups[group]]=[]
+            for col in range(nb_cols):
+                vote_var=groups[group]+"_"+str(col)
+                #create form field
+                self.fields[vote_var] = forms.IntegerField(max_value=999, required=False)
+                #add form fields to a list to loop over them in template
+                self.group_votes[groups[group]].append(self[vote_var])
+        
         
         #don't display the country, just its code
         self.fields["countries"].label_from_instance = lambda obj: "%s" % obj.country_code

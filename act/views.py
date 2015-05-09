@@ -15,7 +15,7 @@ from django.forms.models import model_to_dict
 import act_ids.var_name_ids as var_name_ids
 import act.var_name_data as var_name_data
 #number cons variables, dgs and resps -> constants in config_file
-from common.config_file import max_cons, nb_dgs, nb_resps
+from common.config_file import max_cons, nb_dgs, nb_resps, group_vote_cols, nb_groups, nb_cols, groups
 from common.functions import format_dg_name
 #retrieve url contents
 from import_app.get_ids_eurlex import get_url_eurlex, get_url_content_eurlex
@@ -346,6 +346,14 @@ def get_data_all(context, add_modif, act, POST):
         #~ #check multiple values for dgs with numbers
         dgs, act=check_multiple_dgs(act)
 
+    #COMMENT FOR TESTS ONLY
+    temp=get_data_others(act_ids["index"], act)
+    context['opals']=temp["opal"]
+    context['gvt_compos']=temp["gvt_compo"]
+    context['min_attends']=temp["min_attend"]
+    context['group_votes']=temp["group_votes"]
+    print "group_votes", context['group_votes']
+    
     #we have selected an act in the drop down list or clicked on the modification button
     if "add_act" in POST or "modif_act" in POST:
         #display adopt variables (countries in the drop down lists)
@@ -353,6 +361,7 @@ def get_data_all(context, add_modif, act, POST):
         #display cons variables
         initial_dic.update(get_cons_vars("b", act.date_cons_b, act.cons_b))
         initial_dic.update(get_cons_vars("a", act.date_cons_a, act.cons_a))
+        initial_dic.update(context['group_votes'])
 
         if "add_act" in POST:
             print "add_act", POST["add_act"]
@@ -370,11 +379,6 @@ def get_data_all(context, add_modif, act, POST):
 
     context["urls"]=urls
     context['act']=act
-    #COMMENT FOR TESTS ONLY
-    temp=get_data_others(act_ids["index"], act)
-    context['opals']=temp["opal"]
-    context['gvt_compos']=temp["gvt_compo"]
-    context['min_attends']=temp["min_attend"]
     context["party_family"]=get_party_family({"1": act.resp_1_id, "2": act.resp_2_id, "3": act.resp_3_id})
     context['act_ids']=act_ids
     context['form_data']=form_data
@@ -473,6 +477,7 @@ class ActUpdate(UpdateView):
          #state=display (display the data of an act), saved (the act is being saved) or ongoing (validation errors while saving)
         if "state" not in context:
             context['state']="display"
+        context["group_vote_cols"]=["group_name"]+group_vote_cols
 
         print "end get_context_data"
 
@@ -592,6 +597,22 @@ class ActUpdate(UpdateView):
             #update act cons fields
             setattr(act, date_name, date_cons[character][:-2])
             setattr(act, cons_name, cons[character][:-2])
+
+        #save group_votes variables
+        group_votes={}
+        for group in range(nb_groups):
+            group_votes[groups[group]]=""
+            for col in range(nb_cols):
+                name=groups[group]+"_"+str(col)
+                var=form_data.cleaned_data[name]
+                if var is None:
+                    var=""
+                group_votes[groups[group]]+=str(var)+";"
+
+            #update fields in Act model
+            #~ print "groups[group]", groups[group]
+            #~ print "group_votes[groups[group]][:-1]", group_votes[groups[group]][:-1]
+            setattr(act, groups[group], group_votes[groups[group]][:-1])
     
         #if use form_data m2m are deleted!
         act.validated=2

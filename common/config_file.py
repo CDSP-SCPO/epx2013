@@ -20,3 +20,9 @@ nb_resps=3
 
 #nb date_cons and cons to display in the Act data validation
 max_cons=15
+
+#groups votes
+groups=["group_vote_adle", "group_vote_sd", "group_vote_ppe", "group_vote_ecr", "group_vote_efd", "group_vote_greens", "group_vote_gue", "group_vote_ni"]
+group_vote_cols=["col_for", "col_against", "col_abstension", "col_present", "col_absent", "col_non_voters", "col_total_members", "col_cohesion"]
+nb_groups=8
+nb_cols=8
