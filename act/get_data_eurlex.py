@@ -98,17 +98,28 @@ def get_directory_code(soup_all, soup_his):
     tab="ALL"
     try:
         #extraction from the ALL tab
+        print "his"
+        print soup_his.find("td", {"id": "directoryCodeProc"}).find_all("span")
+        print ""
         return soup_his.find("td", {"id": "directoryCodeProc"}).find_all("span"), "HIS"
     except Exception, e :
         print "exception, get_directory_code", e
         try:
             #extraction from the HIS tab
+            print "all"
+            #~ print soup_all.find(text=re.compile("Directory code:")).find_parent("li")
             return soup_all.find(text=re.compile("Directory code:")).find_parent("li"), tab
         except Exception, e :
             print "exception, get_directory_code 2", e
 
     return None, tab
 
+
+
+def contains_digits(d):
+    digits = re.compile('\d')
+    return bool(digits.search(d))
+    
 
 def get_code_sect(directory_code, tab="ALL"):
     """
@@ -129,9 +140,15 @@ def get_code_sect(directory_code, tab="ALL"):
                 code_sects[i]=save_get_object(CodeSect,  {"code_sect": code_sect})
 
         elif tab=="HIS":
-            for i in range(len(directory_code)):
-                code_sect=directory_code[i].find(text=True).strip()
-                code_sects[i]=save_get_object(CodeSect,  {"code_sect": code_sect})
+            i=0
+            for element in directory_code:
+                code_sect_temp=element.find(text=True).strip()
+                #we have extracted a code sect
+                if contains_digits(code_sect_temp):
+                    code_sect=element.find(text=True).strip()
+                    code_sects[i]=save_get_object(CodeSect,  {"code_sect": code_sect})
+                    i+=1
+                    
     except Exception, e:
         print "no code_sect_*!", e
 
@@ -197,11 +214,15 @@ def get_rep_en(directory_code, tab="ALL"):
 
         elif tab=="HIS":
             for i in range(len(directory_code)):
-                links=directory_code[i].find_all("a")
+                print "directory code i", i
+                print directory_code[i]
+                print "links"
+                links=directory_code[i].find_all("span")
+                print links
                 for link in links:
                     rep_ens[i]+=link.get_text()+"; "
-    except:
-        print "less than four rep_en_*"
+    except Exception, e:
+        print "less than four rep_en_*", e
 
     #remove trailing "; "
     for i in range(len(rep_ens)):
