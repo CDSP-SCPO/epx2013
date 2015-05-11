@@ -1383,7 +1383,7 @@ def get_data_eurlex(soups, act_ids):
         fields[name+num+"_id"]=code_sects[index]
         if code_sects[index]!=None:
             print name+num+": ", fields[name+num+"_id"].code_sect
-            print 'code_agenda_'+num+": ", fields[name+num+"_id"].code_agenda.code_agenda
+            #~ print 'code_agenda_'+num+": ", fields[name+num+"_id"].code_agenda.code_agenda
 
     #rep_en_1, rep_en_2, rep_en_3, rep_en_4
     rep_ens=get_rep_en(directory_code_soup, tab)
