@@ -605,6 +605,50 @@ def get_data_rapp_party_family(row):
     return instance, msg, not created
 
 
+def modify_group_votes_file(csv_file):
+    """
+    FUNCTION
+    open the group votes csv file and change its format so every row starts with the act title (id of the row)
+    PARAMETERS
+    csv_file: file to handle [file object]
+    RETURN
+    new_file: new file to handle [file object]
+    """
+    with open(csv_file, 'r') as csv_file_temp:
+        #detect delimiter and skip header
+        original_header=csv_file_temp.readline()
+        header=original_header.replace(",","").replace(";","").strip()
+        while header=="":
+            original_header=csv_file_temp.readline()
+            header=original_header.replace(",","").replace(";","").strip()
+
+        delimiter=detect_delim(original_header)
+        #~ print "delimiter modify_group_votes_file", delimiter
+        reader=csv.reader(csv_file_temp, delimiter=delimiter)
+
+        new_file_content=[]
+        title=""
+        for index, row in enumerate(reader):
+            if index % 9 == 0:
+                title=row[0].strip(",").strip()
+                #~ print title
+            else:
+                #no votes for this act
+                if row[1] not in [None, ""]:
+                    #~ print "row[1]", row[1]
+                    new_row=[title]+row
+                    new_file_content.append(new_row)
+
+        #save to new file
+        new_file=csv_file+".csv"
+        writer = csv.writer(open(new_file, 'w'))
+        writer.writerow(["TITLE", "GROUP", "FOR", "AGAINST", "ABSTENTION", "PRESENT", "ABSENT", "NON VOTERS", "TOTAL MEMBERS", "COHESION"])
+        writer.writerows(new_file_content)
+
+        return new_file
+        
+        
+
 def get_data_group_votes(row):
     """
     FUNCTION
@@ -616,6 +660,8 @@ def get_data_group_votes(row):
     msg: id of the row, used to display an error message [string]
     exist (not created): True if the instance already exists, False otherwise [boolean]
     """
+    #~ print "row"
+    #~ print row
     #used to identify the row
     ids_row={}
     ids_row["title"]=row[0].strip()
@@ -631,7 +677,7 @@ def get_data_group_votes(row):
     defaults["col_absent"]=int(row[6])
     defaults["col_non_voters"]=int(row[7])
     defaults["col_total_members"]=int(row[8])
-    defaults["col_cohesion"]=int(row[9])
+    defaults["col_cohesion"]=float(row[9].replace(",", "."))
     
     #get instance or create instance if does not already exist
     instance, created = ImportGroupVotes.objects.get_or_create(defaults=defaults, **ids_row)
@@ -656,17 +702,20 @@ def import_table(csv_file, import_type):
     rows_not_saved=[]
     with open(csv_file, 'r') as csv_file_temp:
         #detect delimiter and skip header
-        header=csv_file_temp.readline()
-        #skip empty lines at the beginning of the file
-        while header.strip()=="":
-            header=csv_file_temp.readline()
-        delimiter=detect_delim(header)
+        original_header=csv_file_temp.readline()
+        header=original_header.replace(",","").replace(";","").strip()
+        while header=="":
+            original_header=csv_file_temp.readline()
+            header=original_header.replace(",","").replace(";","").strip()
+
+        delimiter=detect_delim(original_header)
+        #~ print "delimiter import_table", delimiter
         reader=csv.reader(csv_file_temp, delimiter=delimiter)
 
         min_attend_update_set=set()
 
         for row in reader:
-            print "row", row
+            #~ print "row", row
             #delete previous records
             if import_type=="min_attend_update":
                 no_celex=row[0].strip()
@@ -751,7 +800,12 @@ def import_view(request):
 
             #importation of data to be saved in one table only: dos_id, act, adopt_pc, gvt_compo, np or min_attend file, group_votes
             if file_to_import in ["dos_id","act","adopt_pc","gvt_compo", "np", "min_attend_insert", "min_attend_update", "rapp_party_family", "group_votes"]:
+                if file_to_import=="group_votes":
+                    #modify the format of the file to have the id on each row (title of the act)
+                    path=modify_group_votes_file(path)
+                    
                 rows_saved, rows_not_saved=import_table(path, file_to_import)
+                
                 if file_to_import=="act":
                     #save retrieved ids
                     get_save_act_ids(rows_saved)

@@ -1,6 +1,7 @@
 from django.db import models
 import act.var_name_data as var_name_data
 from hashlib import md5
+from django.core.validators import MaxValueValidator, MinValueValidator
 
 
 def file_path(instance, file_name):
@@ -123,13 +124,16 @@ class ImportGroupVotes(models.Model):
     col_absent=models.PositiveSmallIntegerField(max_length=3)
     col_non_voters=models.PositiveSmallIntegerField(max_length=3)
     col_total_members=models.PositiveSmallIntegerField(max_length=3)
-    col_cohesion=models.PositiveSmallIntegerField(max_length=3)
+    col_cohesion=models.FloatField(validators = [MinValueValidator(0.0), MaxValueValidator(100.0)])
 
     def save(self, *args, **kwargs):
         #saving title using md5 hash to use the constraint unique together on title (with the hash) and group_name
         #otherwise error django.db.utils.DatabaseError: (1071, 'Specified key was too long; max key length is 767 bytes')
         self.title_md5 = md5(self.title).hexdigest()
         super(ImportGroupVotes, self).save(*args, **kwargs)
+
+    def __unicode__(self):
+        return self.title+", "+self.group_name
 
     #joined primary keys
     class Meta:

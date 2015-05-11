@@ -180,12 +180,17 @@ class ActForm(forms.ModelForm):
         #~ groups_list=groups+[""]
         for group in range(nb_groups):
             self.group_votes[groups[group]]=[]
-            for col in range(nb_cols):
+            for col in range(nb_cols-1):
                 vote_var=groups[group]+"_"+str(col)
                 #create form field
                 self.fields[vote_var] = forms.IntegerField(max_value=999, required=False)
                 #add form fields to a list to loop over them in template
                 self.group_votes[groups[group]].append(self[vote_var])
+
+            #cohesion column (percentage, not number of votes)
+            vote_var=groups[group]+"_"+str(nb_cols-1)
+            self.fields[vote_var] = forms.FloatField(min_value=0.0, max_value=100.0, required=False)
+            self.group_votes[groups[group]].append(self[vote_var])
         
         
         #don't display the country, just its code

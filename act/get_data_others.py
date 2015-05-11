@@ -230,6 +230,9 @@ def save_get_group_votes(act):
             vote_cols=[group_vote.col_for, group_vote.col_against, group_vote.col_abstension, group_vote.col_present, group_vote.col_absent, group_vote.col_non_voters, group_vote.col_total_members, group_vote.col_cohesion]
             field_value=';'.join(map(str, vote_cols))
             setattr(act, field_name, field_value)
+            print "act", act
+            print "field_name", field_name
+            print "field_value", field_value, type(field_value)
             act.save()
 
             #get the data to be displayed in the template
