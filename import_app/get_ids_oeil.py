@@ -24,7 +24,7 @@ def get_url_oeil(no_unique_type, no_unique_annee, no_unique_chrono):
     """
     #no_unique_chrono coded on 4 digits if numbers only and 5 if final character is a letter
     #if empty
-    if no_unique_chrono in [None, ""] :
+    if no_unique_chrono in [None, "", "CS"] :
         return None
     #if only digits
     if no_unique_chrono[-1].isdigit():
