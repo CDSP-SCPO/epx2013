@@ -99,8 +99,8 @@ def get_directory_code(soup_all, soup_his):
     try:
         #extraction from the ALL tab
         print "his"
-        print soup_his.find("td", {"id": "directoryCodeProc"}).find_all("span")
-        print ""
+        #~ print soup_his.find("td", {"id": "directoryCodeProc"}).find_all("span")
+        #~ print ""
         return soup_his.find("td", {"id": "directoryCodeProc"}).find_all("span"), "HIS"
     except Exception, e :
         print "exception, get_directory_code", e
@@ -214,11 +214,11 @@ def get_rep_en(directory_code, tab="ALL"):
 
         elif tab=="HIS":
             for i in range(len(directory_code)):
-                print "directory code i", i
-                print directory_code[i]
-                print "links"
+                #~ print "directory code i", i
+                #~ print directory_code[i]
+                #~ print "links"
                 links=directory_code[i].find_all("span")
-                print links
+                #~ print links
                 for link in links:
                     rep_ens[i]+=link.get_text()+"; "
     except Exception, e:
@@ -464,7 +464,12 @@ def get_adopt_propos_origine(soup, propos_origine):
     try:
         #(2013-12-45) http://eur-lex.europa.eu/legal-content/EN/HIS/?uri=CELEX:32013L0062
         if propos_origine=="COM":
-            adopt_propos_origine=soup.find(text=re.compile("Adoption by Commission")).lstrip()[:10]
+            #more recent acts?
+            #~ adopt_propos_origine=soup.find(text=re.compile("Adoption by Commission")).lstrip()[:10]
+            #older acts?
+            adopt_propos_origine=soup.find("span", text=re.compile("Adoption by Commission")).previous.replace(":", "").strip()
+            #~ print "adopt_propos_origine", adopt_propos_origine
+            
         #TODO
         #(2014-3-20) http://eur-lex.europa.eu/legal-content/EN/HIS/?uri=CELEX:32014L0041
         elif propos_origine=="JAI":
@@ -820,8 +825,11 @@ def get_transm_council(soup, propos_origine):
     #transmision to Council
     if propos_origine!="CONS":
         try:
-            #(2014-3-20) http://eur-lex.europa.eu/legal-content/EN/HIS/?uri=CELEX:32014L0041 
-            transm_council=soup.find(text=re.compile("Transmission to Council")).lstrip()[:10]
+            #(2014-3-20) http://eur-lex.europa.eu/legal-content/EN/HIS/?uri=CELEX:32014L0041
+            #newer acts?
+            #~ transm_council=soup.find(text=re.compile("Transmission to Council")).lstrip()[:10]
+            #older acts?
+            transm_council=soup.find("span", text=re.compile("Transmission to Council")).previous.replace(":", "").strip()
             #transform dates to the iso format (YYYY-MM-DD)
             transm_council=date_string_to_iso(transm_council)
         except Exception, e:
@@ -996,7 +1004,10 @@ def get_date_in_front_of(soup, string):
     RETURN
     date: searched date [date]
     """
-    return soup.find(text=re.compile(string)).lstrip()[:10]
+    #newer acts?
+    #~ return soup.find(text=re.compile(string)).lstrip()[:10]
+    #older acts
+    return soup.find("span", text=re.compile(string)).previous.replace(":", "").strip()
     
     
 def get_adopt_conseil(soup, no_unique_type, suite_2e_lecture_pe, split_propos, nb_lectures):
