@@ -143,6 +143,46 @@ def capitalized_word(words, display=False):
     return False
 
 
+def remove_footer_header(new_participants, country_list):
+    #if two pages, remove footer and header of separation
+    begin=-1
+    for i in range(len(new_participants)):
+        participant=new_participants[i].strip()
+        #don't take into account countries after UK (last country) -> countries part of the commission or accedding states
+        if "United Kingdom" in participant:
+            break
+        
+        #'Ms Audron MORNIEN', 'Deputy minister for Social Security and Labour', '16611/2/09 REV 2 (en) (Presse 348)                                                                             5', 'E', '30.XI-1.XII.2009', 'Luxembourg:', 'Mr Mars DIBO'
+        #find beginning of string (footer / header) to be removed
+        if any(char.isdigit() for char in participant):
+            #remove isolated footer / header elements
+            if begin==-1:
+                begin=i
+
+            #http://www.consilium.europa.eu/uedocs/cms_data/docs/pressdata/en/trans/137408.pdf
+            #remove footer / header elements inside verbatim
+            
+
+        #new page starts with a minister's name from a country started on the previous page
+        #http://www.consilium.europa.eu/uedocs/cms_data/docs/pressdata/en/gena/87078.pdf
+        #or new page starts with a new country
+        if begin!=-1 and (participant[:2].lower() in ["mr", "ms"] or capitalized_word(participant) or participant.split(":")[0].strip() in country_list):
+            #~ print "PB"
+            #~ print new_participants[i]
+            #~ print new_participants[i-5:i+5]
+            #~ capitalized_word(new_participants[i], True)
+            #~ print ""
+            #~ print new_participants
+            new_participants=new_participants[:begin]+new_participants[i:]
+            #~ print ""
+            #~ print new_participants
+            #~ begin=-1
+            break
+
+    return new_participants
+            
+
+
 def format_participants(participants, country_list):
     """
     FUNCTION
@@ -195,25 +235,11 @@ def format_participants(participants, country_list):
     #~ print new_participants
     #~ print ""
 
-    #if two pages, remove footer and header of separation
-    begin=end=-1
-    for i in range(len(new_participants)):
-        #'Ms Audron MORNIEN', 'Deputy minister for Social Security and Labour', '16611/2/09 REV 2 (en) (Presse 348)                                                                             5', 'E', '30.XI-1.XII.2009', 'Luxembourg:', 'Mr Mars DIBO'
-        if any(char.isdigit() for char in new_participants[i].strip()):
-            if begin==-1:
-                begin=i
+    #remove first header / footer
+    new_participants=remove_footer_header(new_participants, country_list)
+    #remove second header / footer
+    new_participants=remove_footer_header(new_participants, country_list)
 
-        #new page starts with a minister's name from a country started on the previous page
-        #http://www.consilium.europa.eu/uedocs/cms_data/docs/pressdata/en/gena/87078.pdf
-        #or new page starts with a new country
-        if begin!=-1 and (new_participants[i].lstrip()[:2].lower() in ["mr", "ms"] or capitalized_word(new_participants[i]) or new_participants[i].split(":")[0].strip() in country_list):
-            #~ print "PB"
-            #~ print new_participants[i]
-            #~ print new_participants[i-5:i+5]
-            #~ capitalized_word(new_participants[i], True)
-            #~ print ""
-            new_participants=new_participants[:begin]+new_participants[i:]
-            break
 
     #~ print "begin new_participants before UK"
     #~ print new_participants
@@ -232,14 +258,20 @@ def format_participants(participants, country_list):
             #~ print participant.strip()
 
     new_participants=new_participants[:index_uk]
+#~ 
+    #~ print "new_participants BEFORE"
+    #~ print new_participants
+    #~ print ""
 
-    #remove "*" before the word "Commission"
+    #~ #remove "*" before the word "Commission" and remove final header / footer
     for i, element in reversed(list(enumerate(new_participants))):
-        if "*" not in element:
+        element=element.strip()
+        #~ print "element", element
+        if "*" not in element and not any(char.isdigit() for char in element) and element !="EN" and len(element)>1:
             new_participants=new_participants[:i+1]
             break
 
-    #~ print "new_participants"
+    #~ print "new_participants AFTER"
     #~ print new_participants
     #~ print ""
     return new_participants
@@ -374,7 +406,7 @@ class Command(NoArgsCommand):
         #~ ImportMinAttend.objects.filter(validated=False).delete()
 
         #~ #get all the acts with a non null attendance_path and attendances not yet validated
-        acts_ids=ActIds.objects.filter(src="index", act__attendance_pdf__isnull=False, act__validated_attendance=0,  act__releve_annee=2013)
+        acts_ids=ActIds.objects.filter(src="index", act__attendance_pdf__isnull=False, act__validated_attendance=0,  act__releve_annee=2013,  act__releve_mois=6)
         for act_ids in acts_ids:
             ok=False
             act=act_ids.act
@@ -430,7 +462,7 @@ class Command(NoArgsCommand):
                 ok=True
        
                 
-            #if the verbatims have been extracted
+            #~ #if the verbatims have been extracted
             if ok:
                 #remove non validated ministers' attendances
                 ImportMinAttend.objects.filter(no_celex=act_ids.no_celex).delete()
@@ -453,8 +485,8 @@ class Command(NoArgsCommand):
                         #print "integrity error", e
                     
                 #validate attendance in act table
-                act.validated_attendance=1
-                act.save()
+                #~ act.validated_attendance=1
+                #~ act.save()
         #~ #~
                 #TEST ONLY
                 #~ break

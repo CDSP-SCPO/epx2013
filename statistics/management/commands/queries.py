@@ -544,11 +544,18 @@ class Command(NoArgsCommand):
             #~ #pour les actes CS DEC+DEC+CS DEC W/O ADD+ CS DEC W/ADD
         #~ nb_mots.q123(factors=["all", "periods"], periods=periods)
 
+
         #2015-05-03
-        factors=["periods"]
-        periods=(
-            ("01/06/1999", "31/05/2004"),
-            ("01/06/2004", "31/05/2009"),
-            ("01/06/2009", "31/05/2014")
-        )
-        acts.q131(factors=factors, periods=periods)
+        #~ factors=["periods"]
+        #~ periods=(
+            #~ ("01/06/1999", "31/05/2004"),
+            #~ ("01/06/2004", "31/05/2009"),
+            #~ ("01/06/2009", "31/05/2014")
+        #~ )
+        #~ acts.q131(factors=factors, periods=periods)
+
+
+        #2015-05-12
+        factors=["csyear"]
+        periods=None
+        nb_mots.q130(factors=factors, periods=periods)   
