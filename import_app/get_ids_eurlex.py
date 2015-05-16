@@ -47,7 +47,7 @@ def get_url_content_eurlex(url):
         #http://new.eur-lex.europa.eu/legal-content/EN/ALL/?uri=CELEX:32006L1929
         if not(soup.find(text="The requested document does not exist.")):
             url_content=soup
-    except:
+    except Exception, e:
         logger.debug("no content for eurlex url"+ str(e))
         print "no content for eurlex url"
 

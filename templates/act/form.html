@@ -505,7 +505,7 @@
     {% endfor %}
     <!-- EPGroupVotes -->
     <tr>
-        <td class="first_column table_column_title">{{ display_name|get_value:"group_votes" }}</td>
+        <td class="first_column table_column_title">{{ display_name|get_value:"group_vote_names" }}</td>
         <td class="second_column">
 
              <div class="fieldWrapper group_votes_div">
@@ -521,8 +521,11 @@
                     <!-- display ep group variables -->
 
                     {% for group, vote_fields in form_data.group_votes.items %}
+
                         <tr>
-                            <td class="group_votes_lg_titles">{{ display_name|get_value:group }}</td>
+                            {% with index=forloop.counter0|stringformat:"s" %}
+                                <td class="group_votes_lg_titles">{{ group_vote_names|get_value:index }}</td>
+                            {% endwith %}
                             {% for vote_field in vote_fields %}
                                 <td class="group_votes_fields fieldWrapper">
                                     <div id="id_{{ vote_field.name }}_errors" class="row-fluid">{{ vote_field.errors }}</div>

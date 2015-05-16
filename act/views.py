@@ -15,7 +15,7 @@ from django.forms.models import model_to_dict
 import act_ids.var_name_ids as var_name_ids
 import act.var_name_data as var_name_data
 #number cons variables, dgs and resps -> constants in config_file
-from common.config_file import max_cons, nb_dgs, nb_resps, group_vote_cols, nb_groups, nb_cols, groups
+from common.config_file import max_cons, nb_dgs, nb_resps, group_vote_cols, nb_groups, nb_cols
 from common.functions import format_dg_name
 #retrieve url contents
 from import_app.get_ids_eurlex import get_url_eurlex, get_url_content_eurlex
@@ -353,6 +353,8 @@ def get_data_all(context, add_modif, act, POST):
     context['min_attends']=temp["min_attend"]
     context['group_votes']=temp["group_votes"]
     print "group_votes", context['group_votes']
+    group_names=act.group_vote_names_as_dict()
+    context["group_vote_names"]=group_names
     
     #we have selected an act in the drop down list or clicked on the modification button
     if "add_act" in POST or "modif_act" in POST:
@@ -477,6 +479,7 @@ class ActUpdate(UpdateView):
          #state=display (display the data of an act), saved (the act is being saved) or ongoing (validation errors while saving)
         if "state" not in context:
             context['state']="display"
+        #group votes
         context["group_vote_cols"]=["group_name"]+group_vote_cols
 
         print "end get_context_data"
@@ -599,20 +602,19 @@ class ActUpdate(UpdateView):
             setattr(act, cons_name, cons[character][:-2])
 
         #save group_votes variables
-        group_votes={}
-        for group in range(nb_groups):
-            group_votes[groups[group]]=""
-            for col in range(nb_cols):
-                name=groups[group]+"_"+str(col)
-                var=form_data.cleaned_data[name]
+        group_votes=OrderedDict({})
+        for i in range(nb_groups):
+            row=str(i)
+            group="group_vote_"+row
+            group_votes[group]=""
+            for j in range(nb_cols):
+                vote_var=group+"_"+str(j)
+                var=form_data.cleaned_data[vote_var]
                 if var is None:
                     var=""
-                group_votes[groups[group]]+=str(var)+";"
-
+                group_votes[group]+=str(var)+";"
             #update fields in Act model
-            #~ print "groups[group]", groups[group]
-            #~ print "group_votes[groups[group]][:-1]", group_votes[groups[group]][:-1]
-            setattr(act, groups[group], group_votes[groups[group]][:-1])
+            setattr(act, group, group_votes[group][:-1])
     
         #if use form_data m2m are deleted!
         act.validated=2

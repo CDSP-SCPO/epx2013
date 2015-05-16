@@ -117,14 +117,14 @@ class ImportGroupVotes(models.Model):
     title_md5 = models.CharField(max_length=32)
     #ADLE, S&D, PPE-DE, ECR, EFD, Greens/EFA, GUE-NGL, NI
     group_name=models.CharField(max_length=15)
-    col_for=models.PositiveSmallIntegerField(max_length=3)
-    col_against=models.PositiveSmallIntegerField(max_length=3)
-    col_abstension=models.PositiveSmallIntegerField(max_length=3)
-    col_present=models.PositiveSmallIntegerField(max_length=3)
-    col_absent=models.PositiveSmallIntegerField(max_length=3)
-    col_non_voters=models.PositiveSmallIntegerField(max_length=3)
-    col_total_members=models.PositiveSmallIntegerField(max_length=3)
-    col_cohesion=models.FloatField(validators = [MinValueValidator(0.0), MaxValueValidator(100.0)])
+    col_for=models.PositiveSmallIntegerField(max_length=3, blank=True, null=True)
+    col_against=models.PositiveSmallIntegerField(max_length=3, blank=True, null=True)
+    col_abstension=models.PositiveSmallIntegerField(max_length=3, blank=True, null=True)
+    col_present=models.PositiveSmallIntegerField(max_length=3, blank=True, null=True)
+    col_absent=models.PositiveSmallIntegerField(max_length=3, blank=True, null=True)
+    col_non_voters=models.PositiveSmallIntegerField(max_length=3, blank=True, null=True)
+    col_total_members=models.PositiveSmallIntegerField(max_length=3, blank=True, null=True)
+    col_cohesion=models.FloatField(validators = [MinValueValidator(0.0), MaxValueValidator(100.0)], blank=True, null=True)
 
     def save(self, *args, **kwargs):
         #saving title using md5 hash to use the constraint unique together on title (with the hash) and group_name

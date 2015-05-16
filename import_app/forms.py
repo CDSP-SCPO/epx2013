@@ -44,7 +44,7 @@ def get_choices(group=""):
         choices.append(('np', 'Import opal file (NP variables)'))
         choices.append(('min_attend_insert', 'Import new Attendance of ministers'))
         choices.append(('rapp_party_family', 'Import party families of Rapporteurs'))
-        choices.append(('group_votes', 'Import '+var_name_data.var_name['group_votes']))
+        choices.append(('group_votes', 'Import '+var_name_data.var_name['group_vote_names']))
 
     #import available to everyone (except temporary persons)
     choices.append(('min_attend_update', 'Update Attendance of ministers'))

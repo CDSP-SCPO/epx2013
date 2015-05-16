@@ -2,7 +2,7 @@ from django.db import models
 #min and max values for integer fields
 from django.core.validators import MinValueValidator, MaxValueValidator
 import var_name_data
-
+from common.config_file import nb_groups
 
         
 
@@ -237,14 +237,15 @@ class Act(models.Model):
     nb_lectures=models.PositiveSmallIntegerField(max_length=1, blank=True, null=True, default=None)
     sign_pecs=models.DateField(max_length=10, blank=True, null=True, default=None)
     #group votes: for each variable: FOR; AGAINST; ABSTENTION; PRESENT; ABSENT; NON VOTERS; TOTAL MEMBERS; COHESION (semicolon-separated list)
-    group_vote_adle=models.CharField(max_length=35, blank=True, null=True)
-    group_vote_sd=models.CharField(max_length=35, blank=True, null=True)
-    group_vote_ppe=models.CharField(max_length=35, blank=True, null=True)
-    group_vote_ecr=models.CharField(max_length=35, blank=True, null=True)
-    group_vote_efd=models.CharField(max_length=35, blank=True, null=True)
-    group_vote_greens=models.CharField(max_length=35, blank=True, null=True)
-    group_vote_gue=models.CharField(max_length=35, blank=True, null=True)
-    group_vote_ni=models.CharField(max_length=35, blank=True, null=True)
+    group_vote_names=models.CharField(max_length=100, blank=True, null=True)
+    group_vote_0=models.CharField(max_length=35, blank=True, null=True)
+    group_vote_1=models.CharField(max_length=35, blank=True, null=True)
+    group_vote_2=models.CharField(max_length=35, blank=True, null=True)
+    group_vote_3=models.CharField(max_length=35, blank=True, null=True)
+    group_vote_4=models.CharField(max_length=35, blank=True, null=True)
+    group_vote_5=models.CharField(max_length=35, blank=True, null=True)
+    group_vote_6=models.CharField(max_length=35, blank=True, null=True)
+    group_vote_7=models.CharField(max_length=35, blank=True, null=True)
 
 
     #strings separated by ";"
@@ -259,7 +260,14 @@ class Act(models.Model):
     validated=models.PositiveSmallIntegerField(max_length=1, default=0, db_index=True)
     #1 if the attendances of the act have been validated, 0 otherwise
     validated_attendance=models.BooleanField(default=False, db_index=True)
+
         
+    def group_vote_names_as_dict(self):
+        groups={}
+        if self.group_vote_names is not None:
+            for i, group in enumerate(self.group_vote_names.split(';')):
+                groups[str(i)]=group
+        return groups
 
     #joined primary keys
     class Meta:

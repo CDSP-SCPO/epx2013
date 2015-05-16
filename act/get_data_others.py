@@ -9,7 +9,7 @@ from bs4 import BeautifulSoup
 import re
 from django.forms.models import model_to_dict
 from collections import OrderedDict
-from common.config_file import groups
+from common.config_file import nb_groups
 from  act import var_name_data
 
 
@@ -207,37 +207,39 @@ def save_get_group_votes(act):
     """
     #to be displayed in the template
     group_votes_dic=OrderedDict({})
-    groups_values={}
-    #for each group pol
-    for group in groups:
-        #~ group_votes_dic[group]=[]
-        groups_values[var_name_data.var_name[group]]=group
 
     #alreay exists
-    if act.group_vote_adle is not None:
-        for group_vote in groups:
-            votes=getattr(act, group_vote).split(";")
-            for i, vote_col in enumerate(votes):
-                group_votes_dic[group_vote+"_"+str(i)]=vote_col
+    if act.group_vote_names not in [None, ""] :
+        for i in range(nb_groups):
+            row=str(i)
+            votes=getattr(act, "group_vote_"+row).split(";")
+            for j, vote_col in enumerate(votes):
+                group_votes_dic["group_vote_"+row+"_"+str(j)]=vote_col
             
     #doesn't exist yet
     else:
         #Are there matches in the ImportGroupVotes table?
-        group_votes=ImportGroupVotes.objects.filter(title=act.titre_rmc)
+        group_votes=ImportGroupVotes.objects.filter(title=act.titre_en)
 
-        for group_vote in group_votes:
-            field_name=groups_values[group_vote.group_name]
-            vote_cols=[group_vote.col_for, group_vote.col_against, group_vote.col_abstension, group_vote.col_present, group_vote.col_absent, group_vote.col_non_voters, group_vote.col_total_members, group_vote.col_cohesion]
-            field_value=';'.join(map(str, vote_cols))
-            setattr(act, field_name, field_value)
-            print "act", act
-            print "field_name", field_name
-            print "field_value", field_value, type(field_value)
+        if group_votes:
+            group_vote_names=""
+            for i, group_vote in enumerate(group_votes):
+                row=str(i)
+                votes=[group_vote.col_for, group_vote.col_against, group_vote.col_abstension, group_vote.col_present, group_vote.col_absent, group_vote.col_non_voters, group_vote.col_total_members, group_vote.col_cohesion]
+                field_value=';'.join(map(str, votes))
+                setattr(act, "group_vote_"+row, field_value)
+                #~ print "group_vote_"+row, field_value
+                group_vote_names+=group_vote.group_name+";"
+                #~ print str(act.__dict__)
+                #~ act.save()
+
+                #get the data to be displayed in the template
+                for j, vote_col in enumerate(votes):
+                    group_votes_dic["group_vote_"+row+"_"+str(j)]=vote_col
+
+            #~ print "group_vote_names[:-1]", group_vote_names[:-1]
+            act.group_vote_names=group_vote_names[:-1]
             act.save()
-
-            #get the data to be displayed in the template
-            for i, vote_col in enumerate(vote_cols):
-                group_votes_dic[field_name+"_"+str(i)]=vote_col
 
     return group_votes_dic
 

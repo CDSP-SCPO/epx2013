@@ -59,11 +59,15 @@ def none_or_var(var, var_type):
     """
     var_new=None
     if var_type=="str":
-        if var.strip()!="NULL" and var.strip()!="":
+        var=var.strip()
+        if var.stri!="NULL" and var!="":
             var_new=var
-    elif var_type=="int":
+    else:
         try:
-            int(var)
+            if var_type=="int":
+                var=int(var)
+            elif var_type=="float":
+                var=float(var)
             var_new=var
         except:
             pass
@@ -670,14 +674,14 @@ def get_data_group_votes(row):
 
     #extra fields to save if the act does not exist yet
     defaults={}
-    defaults["col_for"]=int(row[2])
-    defaults["col_against"]=int(row[3])
-    defaults["col_abstension"]=int(row[4])
-    defaults["col_present"]=int(row[5])
-    defaults["col_absent"]=int(row[6])
-    defaults["col_non_voters"]=int(row[7])
-    defaults["col_total_members"]=int(row[8])
-    defaults["col_cohesion"]=float(row[9].replace(",", "."))
+    defaults["col_for"]=none_or_var(row[2], "int")
+    defaults["col_against"]=none_or_var(row[3], "int")
+    defaults["col_abstension"]=none_or_var(row[4], "int")
+    defaults["col_present"]=none_or_var(row[5], "int")
+    defaults["col_absent"]=none_or_var(row[6], "int")
+    defaults["col_non_voters"]=none_or_var(row[7], "int")
+    defaults["col_total_members"]=none_or_var(row[8], "int")
+    defaults["col_cohesion"]=none_or_var(row[9].replace(",", "."), "float")
     
     #get instance or create instance if does not already exist
     instance, created = ImportGroupVotes.objects.get_or_create(defaults=defaults, **ids_row)

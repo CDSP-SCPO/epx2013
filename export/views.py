@@ -18,6 +18,7 @@ import act.var_name_data  as var_name_data
 #redirect to login page if not logged or does not belong to authorized group
 from django.contrib.auth.decorators import login_required, user_passes_test
 from common.db import is_member
+from common.config_file import group_vote_cols
 
 #use json for the ajax request
 from django.utils import simplejson
@@ -183,8 +184,20 @@ def get_save_acts(excl_fields_acts_ids, excl_fields_acts, writer):
                     else:
                         fields.extend([None, None])
                 else:
-                    #for all the other non fk fields, get its value
-                    fields.append(getattr(act, field.name))
+                    if "group_vote_" in field.name and field.name != "group_vote_names" and act.group_vote_names is not None:
+                        new_vote=""
+                        try:
+                            votes=getattr(act, field.name).split(";")
+                            for i, vote in enumerate(votes):
+                                new_vote+=var_name_data.var_name[group_vote_cols[i]]+":"+vote+";"
+                        except Exception, e:
+                            print str(e)
+                        fields.append(new_vote[:-1])
+                    else:
+                        if  field.name== "group_vote_names":
+                            print act, act.group_vote_names
+                        #for all the other non fk fields, get its value
+                        fields.append(getattr(act, field.name))
 
         #Act many to many fields
         for field in Act()._meta.many_to_many:

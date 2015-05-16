@@ -136,17 +136,9 @@ var_name["status_min_attend"]="MinAttendStatus"
 var_name["verbatim_min_attend"]="MinAttendVerbatim"
 
 #EPGroupsVotes
-var_name["group_votes"]="EPGroupsVotes"
+var_name["group_vote_names"]="EPGroupsVotes"
 var_name["title"]=var_name["titre_rmc"]
 var_name["group_name"]="EPGroup"
-var_name["group_vote_adle"]="ALDE/ADLE"
-var_name["group_vote_sd"]="S&D"
-var_name["group_vote_ppe"]="EPP"
-var_name["group_vote_ecr"]="ECR"
-var_name["group_vote_efd"]="EFD"
-var_name["group_vote_greens"]="GREENS/EFA"
-var_name["group_vote_gue"]="GUE-NGL"
-var_name["group_vote_ni"]="NI"
 var_name["col_for"]="FOR"
 var_name["col_against"]="AGAINST"
 var_name["col_abstension"]="ABSTENTION"
@@ -155,3 +147,6 @@ var_name["col_absent"]="ABSENT"
 var_name["col_non_voters"]="NON VOTERS"
 var_name["col_total_members"]="TOTAL MEMBERS"
 var_name["col_cohesion"]="COHESION"
+for i in range(nb_groups):
+    row=str(i)
+    var_name["group_vote_"+row]="GroupVote"+row

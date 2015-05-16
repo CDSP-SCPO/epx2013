@@ -10,7 +10,7 @@ from django.forms.util import ErrorList
 import var_name_data
 #reverse list with original index
 from common.functions import list_reverse_enum
-from common.config_file import max_cons, groups, nb_groups, nb_cols
+from common.config_file import max_cons, nb_groups, nb_cols
 from collections import OrderedDict
 
 
@@ -141,7 +141,7 @@ class ActForm(forms.ModelForm):
     class Meta:
         model=Act
         #fields NOT used for the validation and not displayed in the form
-        exclude=('id', 'releve_annee', 'releve_mois', 'no_ordre', 'titre_rmc', 'council_path', 'attendance_pdf', 'date_doc', "validated", "validated_attendance")
+        exclude=('id', 'releve_annee', 'releve_mois', 'no_ordre', 'titre_rmc', 'council_path', 'attendance_pdf', 'date_doc', "group_vote_names", "validated", "validated_attendance")
 
 
     def __init__(self, *args, **kwargs):
@@ -178,19 +178,21 @@ class ActForm(forms.ModelForm):
         self.group_votes=OrderedDict({})
         #use label to display in template
         #~ groups_list=groups+[""]
-        for group in range(nb_groups):
-            self.group_votes[groups[group]]=[]
-            for col in range(nb_cols-1):
-                vote_var=groups[group]+"_"+str(col)
+        for i in range(nb_groups):
+            row=str(i)
+            group="group_vote_"+row
+            self.group_votes[group]=[]
+            for j in range(nb_cols-1):
+                vote_var=group+"_"+str(j)
                 #create form field
                 self.fields[vote_var] = forms.IntegerField(max_value=999, required=False)
                 #add form fields to a list to loop over them in template
-                self.group_votes[groups[group]].append(self[vote_var])
+                self.group_votes[group].append(self[vote_var])
 
             #cohesion column (percentage, not number of votes)
-            vote_var=groups[group]+"_"+str(nb_cols-1)
+            vote_var=group+"_"+str(nb_cols-1)
             self.fields[vote_var] = forms.FloatField(min_value=0.0, max_value=100.0, required=False)
-            self.group_votes[groups[group]].append(self[vote_var])
+            self.group_votes[group].append(self[vote_var])
         
         
         #don't display the country, just its code
