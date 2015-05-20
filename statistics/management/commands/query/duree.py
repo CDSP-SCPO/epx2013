@@ -501,8 +501,8 @@ def q128(factors=factors, periods=None):
     init_question="Durée moyenne de la procédure (= Moyenne DureeTotaleDepuisTransCons + DureeProcedureDepuisTransCons)"
     variables=("duree_tot_depuis_trans_cons", "duree_proc_depuis_trans_cons")
     filter_vars_acts={variables[0]+"__gt": 1, variables[1]+"__gt": 1}
-    #get the factors specific to the question
-    factors_question=get_factors_question(factors)
+    #get the factors specific to the question and update the periods (fr to us format)
+    factors_question, periods=prepare_query(factors, periods)
 
     #for each factor
     for factor, question in factors_question.iteritems():

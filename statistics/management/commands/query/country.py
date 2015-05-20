@@ -96,8 +96,8 @@ def q114(factors=factors, periods=None):
 def q126(factors=factors, periods=None):
     #Parmi les votes AdoptCSAbs=Y, pourcentage de chaque Etat membre
     init_question="Parmi les votes AdoptCSAbs=Y, pourcentage de votes de chaque Etat membre"
-    #get the factors specific to the question
-    factors_question=get_factors_question(factors)
+    #get the factors specific to the question and update the periods (fr to us format)
+    factors_question, periods=prepare_query(factors, periods)
     variable="adopt_cs_abs"
     exclude_vars_acts={variable: None}
     

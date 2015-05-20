@@ -227,8 +227,8 @@ def q71(factors=factors, periods=None):
     init_question="Pourcentage d'actes provenant de la Commission et adoptés par procédure écrite"
     check_vars_acts={"com_proc": "Written procedure"}
     check_vars_acts_ids={"propos_origine": "COM"}
-    #get the factors specific to the question
-    factors_question=get_factors_question(factors)
+    #get the factors specific to the question and update the periods (fr to us format)
+    factors_question, periods=prepare_query(factors, periods)
 
     #for each factor
     for factor, question in factors_question.iteritems():
@@ -259,8 +259,8 @@ def q74(factors=factors, periods=None):
     init_question="Pourcentage d'actes adoptés en 1ère lecture parmi les actes de codécision"
     filter_vars_acts_ids={"no_unique_type": "COD"}
     check_vars_acts={"nb_lectures": 1}
-    #get the factors specific to the question
-    factors_question=get_factors_question(factors)
+    #get the factors specific to the question and update the periods (fr to us format)
+    factors_question, periods=prepare_query(factors, periods)
 
     #for each factor
     for factor, question in factors_question.iteritems():
@@ -431,8 +431,8 @@ def q107(factors=factors, periods=None):
     #Pourcentage d'actes avec VotePublic=Y
     init_question="Pourcentage d'actes avec VotePublic=Y"
     check_vars_acts={"vote_public": True}
-    #get the factors specific to the question
-    factors_question=get_factors_question(factors)
+    #get the factors specific to the question and update the periods (fr to us format)
+    factors_question, periods=prepare_query(factors, periods)
 
     #for each factor
     for factor, question in factors_question.iteritems():
@@ -565,8 +565,8 @@ def q121():
 def q122(factors=factors, periods=None):
     #Pourcentage d'actes avec au moins un EM sans statut 'M'
 
-    #get the factors specific to the question
-    factors_question=get_factors_question(factors)
+    #get the factors specific to the question and update the periods (fr to us format)
+    factors_question, periods=prepare_query(factors, periods)
 
     #~ init_question="Nombre d'actes avec au moins une présence de ministre (au moins un statut différent de 'NA' et 'AB')"
     #~ for factor, question in factors_question.iteritems():

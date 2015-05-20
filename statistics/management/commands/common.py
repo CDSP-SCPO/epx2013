@@ -321,9 +321,9 @@ nb_dgs=3
 nb_rapps=5
 #nb resp_propos
 nb_resps=3
+
 #list of cs to look for
 css=get_css()
-
 #list of years
 years_list=get_years(min_year, max_year)
 #SPECIFIC QUERY, TO REMOVE

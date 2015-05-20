@@ -16,8 +16,8 @@ def q54(factors=factors, periods=None):
     variable="nb_mots"
     filter_vars_acts={variable+"__isnull": False}
 
-    #get the factors specific to the question
-    factors_question=get_factors_question(factors)
+    #get the factors specific to the question and update the periods (fr to us format)
+    factors_question, periods=prepare_query(factors, periods)
 
     #for each factor
     for factor, question in factors_question.iteritems():

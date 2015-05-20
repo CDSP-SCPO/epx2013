@@ -277,8 +277,8 @@ def q127(factors=factors, periods=None):
     #Nombre moyen de EPVotesFor1-2
     init_question="Nombre moyen de EPVotesFor1-2"
     variable="votes_for_"
-    #get the factors specific to the question
-    factors_question=get_factors_question(factors)
+    #get the factors specific to the question and update the periods (fr to us format)
+    factors_question, periods=prepare_query(factors, periods)
     #the two variables cannot be null or equal to zero at the same time
     exclude_vars_acts={variable+"1": 0, variable+"2": 0}
 

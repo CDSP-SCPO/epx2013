@@ -194,8 +194,6 @@ def get_save_acts(excl_fields_acts_ids, excl_fields_acts, writer):
                             print str(e)
                         fields.append(new_vote[:-1])
                     else:
-                        if  field.name== "group_vote_names":
-                            print act, act.group_vote_names
                         #for all the other non fk fields, get its value
                         fields.append(getattr(act, field.name))
 

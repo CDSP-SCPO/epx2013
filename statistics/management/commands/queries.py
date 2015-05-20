@@ -484,30 +484,35 @@ class Command(NoArgsCommand):
         #2015-02-20
         #TESTS
         #Nombre d'actes
-        #~ factors=["all", "year", "cs", "csyear", "periods"]
-        #~ acts.q2(factors=factors, periods=periods)
-        #~ factors=["year"]
-        #~ #Nombre de mots moyen
-        #~ nb_mots.q54(factors=factors, periods=periods)
-        #Pourcentage d'actes avec un vote public
-        #~ acts.q107(factors=factors, periods=periods)
-        #Parmi les votes AdoptCSAbs=Y, pourcentage de chaque Etat membre
-        #~ factors=["country"]
-        #~ country.q126(factors=factors, periods=periods)
-#~ 
-        #Pourcentage d'actes avec au moins un EM sans statut 'M' (et au moins un 'CS' ou 'CS_PR')
-        #~ factors=["cs"]
-        #~ acts.q122(factors=factors, periods=periods)
-        #Pourcentage d'actes provenant de la Commission et adoptés par procédure écrite
-        #~ acts.q71(factors=factors, periods=periods)
-        #Nombre moyen de EPVotesFor1-2
-        #~ factors=["csyear"]
-        #~ ep_amdt_vote.q127(factors=factors, periods=periods)
-        #Pourcentage d'actes adoptés en 1ère lecture parmi les actes de codécision
-        #~ factors=["periods"]
-        #~ acts.q74(factors=factors, periods=periods)
-        #Durée de la procédure (= Moyenne DureeTotaleDepuisTransCons ET DureeProcedureDepuisTransCons)
-        #~ duree.q128(factors=factors, periods=periods)
+        factors=["all", "year", "cs", "csyear", "periods"]
+        periods=(
+            ("01/07/1999", "30/06/2004"),
+            ("01/07/2004", "30/06/2009"),
+            ("01/07/2009", "30/06/2014")
+        )
+        acts.q2(factors=factors, periods=periods)
+        factors=["year"]
+        #Nombre de mots moyen
+        nb_mots.q54(factors=factors, periods=periods)
+        #~ #Pourcentage d'actes avec un vote public
+        acts.q107(factors=factors, periods=periods)
+        #~ #Parmi les votes AdoptCSAbs=Y, pourcentage de chaque Etat membre
+        factors=["country"]
+        country.q126(factors=factors, periods=periods)
+
+        #~ #Pourcentage d'actes avec au moins un EM sans statut 'M' (et au moins un 'CS' ou 'CS_PR')
+        factors=["cs"]
+        acts.q122(factors=factors, periods=periods)
+        #~ #Pourcentage d'actes provenant de la Commission et adoptés par procédure écrite
+        acts.q71(factors=factors, periods=periods)
+        #~ #Nombre moyen de EPVotesFor1-2
+        factors=["csyear"]
+        ep_amdt_vote.q127(factors=factors, periods=periods)
+        #~ #Pourcentage d'actes adoptés en 1ère lecture parmi les actes de codécision
+        factors=["periods"]
+        acts.q74(factors=factors, periods=periods)
+        #~ #Durée de la procédure (= Moyenne DureeTotaleDepuisTransCons ET DureeProcedureDepuisTransCons)
+        duree.q128(factors=factors, periods=periods)
 
 
         #2015-03-16
@@ -558,4 +563,4 @@ class Command(NoArgsCommand):
         #2015-05-12
         factors=["csyear"]
         periods=None
-        nb_mots.q130(factors=factors, periods=periods)   
+        #~ nb_mots.q130(factors=factors, periods=periods)   
