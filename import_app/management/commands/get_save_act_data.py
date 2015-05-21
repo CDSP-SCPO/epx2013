@@ -14,7 +14,7 @@ from act.get_data_others import get_data_others
 
 
 def set_empty_dg(dg):
-    if dg==[]:
+    if dg in [[], [None], [None, None]] :
         return None
     return dg
 
@@ -25,14 +25,17 @@ class Command(NoArgsCommand):
 
     def handle(self, **options):
         
-        acts_to_validate=[]
-        acts_to_validate.append([2003, 10, 1])
-        acts_to_validate.append([2003, 10, 9])
-        acts_to_validate.append([2003, 10, 10])
-        
-        for act_ids in acts_to_validate:
+        #~ acts_to_validate=[]
+        #~ acts_to_validate.append([2003, 10, 1])
+        #~ acts_to_validate.append([2003, 10, 9])
+        #~ acts_to_validate.append([2003, 10, 10])
+        #~ 
+        #~ for act_ids in acts_to_validate:
             
-            act=Act.objects.get(releve_annee=act_ids[0], releve_mois=act_ids[1], no_ordre=act_ids[2])
+            #~ act=Act.objects.get(releve_annee=act_ids[0], releve_mois=act_ids[1], no_ordre=act_ids[2])
+
+        #import and "validate" acts not yet validated by experts
+        for act in Act.objects.filter(validated=1):
             
             #the act has not been validated yet
             if act.validated==1:
@@ -41,21 +44,22 @@ class Command(NoArgsCommand):
                 act_ids=get_act_ids(act)
 
                 #"compute" the url of the eurlex and oeil page
-                urls=get_urls(act_ids["index"], act_ids["index"].dos_id)
+                urls=get_urls(act_ids["index"])
 
+                #get data on oeil
+                fields, dg_names_oeil, resp_names_oeil=get_data("oeil", act_ids, urls["url_oeil"])
+                act.__dict__.update(fields)
+    
                 #get data on eurlex
-                fields, dg_names_eurlex, resp_names_eurlex=get_data("eurlex", act_ids["eurlex"], urls["url_eurlex"])
+                fields, dg_names_eurlex, resp_names_eurlex=get_data("eurlex", act_ids, urls["url_eurlex"])
                 act.__dict__.update(fields)
-                #get data on œil
-                fields, dg_names_oeil, resp_names_oeil=get_data("oeil", act_ids["oeil"], urls["url_oeil"])
-                act.__dict__.update(fields)
+                
 
                 #pb empty dgs (empty list instead of None)
                 fields["dg_1_id"]=set_empty_dg(fields["dg_1_id"])
                 fields["dg_2_id"]=set_empty_dg(fields["dg_2_id"])
+                fields["dg_3_id"]=set_empty_dg(fields["dg_3_id"])
                 act.__dict__.update(fields)
-                #nb_lectures already retrieved from oeil
-                act.nb_lectures=nb_lectures
                 
                 #~ #store dg/resp from eurlex and oeil to be displayed as text in the template
                 act=store_dg_resp(act, dg_names_eurlex, dg_names_oeil, "dg")[0]
@@ -83,6 +87,7 @@ class Command(NoArgsCommand):
                     print field, value
                 
                 #save the act
+                print act.__dict__
                 act.save()
                 
                 print "the act", act, "has been validated :)."
