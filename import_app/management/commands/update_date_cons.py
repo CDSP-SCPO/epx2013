@@ -17,7 +17,7 @@ class Command(NoArgsCommand):
     """
     def handle(self, **options):
         
-        for act_ids in ActIds.objects.filter(src="index", act__validated=2, act__releve_annee=2013, act__releve_mois=12, act__date_cons_a__isnull=True, act__date_cons_b__isnull=True):
+        for act_ids in ActIds.objects.filter(src="index", act__validated=2, act__date_cons_a__isnull=True, act__date_cons_b__isnull=True):
             act=act_ids.act
             print act
             
