@@ -226,7 +226,8 @@ def save_get_group_votes(act):
             for i, group_vote in enumerate(group_votes):
                 row=str(i)
                 votes=[group_vote.col_for, group_vote.col_against, group_vote.col_abstension, group_vote.col_present, group_vote.col_absent, group_vote.col_non_voters, group_vote.col_total_members, group_vote.col_cohesion]
-                field_value=';'.join(map(str, votes))
+                #remove None values
+                field_value=';'.join(map(str, votes)).replace("None", "")
                 setattr(act, "group_vote_"+row, field_value)
                 #~ print "group_vote_"+row, field_value
                 group_vote_names+=group_vote.group_name+";"
