@@ -239,6 +239,8 @@ def save_get_group_votes(act):
 
             #~ print "group_vote_names[:-1]", group_vote_names[:-1]
             act.group_vote_names=group_vote_names[:-1]
+            print "group_vote_names", act.group_vote_names
+            print "group_vote_3", act.group_vote_3
             act.save()
 
     return group_votes_dic
