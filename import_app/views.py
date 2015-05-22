@@ -445,7 +445,16 @@ def get_data_gvt_compo(row):
             if data["party_family"]=="Conservative/ Christian Democracy":
                 data["party_family"]="Conservative/Christian Democracy"
             #save party_family
-            save_get_object(PartyFamily, data)
+            try:
+                save_get_object(PartyFamily, data)
+            except Exception, e:
+                #inconsistency in data -> the source file must be fixed before saving the data again
+                print "get_data_gvt_compo exception", e
+                msg="Can't save the row " + str(ids_row) + ". '" + data["country"].country_code + "'+'" + data["party"].party + "' can't be associated to '" + str(data["party_family"]) + "' because they are already associated to '" + PartyFamily.objects.get(country=data["country"], party=data["party"]).party_family + "' !"
+                print msg
+                instance.delete()
+                raise ValueError(msg)
+                
             #~ PartyFamily.objects.get_or_create(defaults={"party_family": party_family}, **data)
 
     msg=get_error_msg(ids_row)
