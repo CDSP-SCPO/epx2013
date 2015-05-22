@@ -229,85 +229,6 @@ def q36():
     write_cs_year(question, res)
 
 
-def q49():
-    question="DureeTotaleDepuisTransCons moyenne pour les actes avec au moins une discussion en point B, par secteur"
-    print question
-    res={}
-    for cs in cs_list:
-        res[cs]=[0,0]
-
-    for act in Act.objects.filter(validated=2, nb_point_b__isnull=False, duree_tot_depuis_trans_cons__isnull=False):
-        if act.nb_point_b>0:
-            for nb in range(1,5):
-                code_sect=getattr(act, "code_sect_"+str(nb))
-                if code_sect!=None:
-                    cs=get_cs(code_sect.code_sect)
-                    res[cs][0]+=act.duree_tot_depuis_trans_cons
-                    res[cs][1]+=1
-
-    print "res", res
-
-    writer.writerow([question])
-    writer.writerow(cs_list)
-    row=[]
-    for cs in cs_list:
-        if res[cs][0]==0:
-            res_cs=0
-        else:
-            res_cs=round(float(res[cs][0])/res[cs][1], 3)
-        row.append(res_cs)
-    writer.writerow(row)
-    writer.writerow("")
-    print ""
-
-
-def q50():
-    question="DureeTotaleDepuisTransCons moyenne pour les actes avec au moins une discussion en point B, par secteur et par année"
-    print question
-    res=init_cs_year()
-
-    for act in Act.objects.filter(validated=2, nb_point_b__isnull=False, duree_tot_depuis_trans_cons__isnull=False):
-        if act.nb_point_b>0:
-            for nb in range(1,5):
-                code_sect=getattr(act, "code_sect_"+str(nb))
-                if code_sect!=None:
-                    cs=get_cs(code_sect.code_sect)
-                    year=str(act.releve_annee)
-                    res[cs][year][0]+=act.duree_tot_depuis_trans_cons
-                    res[cs][year][1]+=1
-
-    print "res", res
-
-    write_cs_year(question, res)
-    
-
-    question="DureeTotaleDepuisTransCons moyenne pour les actes avec au moins une discussion en point B, par année"
-    print question
-    res={}
-    for year in years_list:
-        res[year]=[0,0]
-
-    for act in Act.objects.filter(validated=2, nb_point_b__isnull=False, duree_tot_depuis_trans_cons__isnull=False):
-        if act.nb_point_b>0:
-            year=str(act.releve_annee)
-            res[year][0]+=act.duree_tot_depuis_trans_cons
-            res[year][1]+=1
-
-    print "res", res
-
-    writer.writerow([question])
-    writer.writerow(years_list)
-    row=[]
-    for year in years_list:
-        if res[year][0]==0:
-            res_year=0
-        else:
-            res_year=round(float(res[year][0])/res[year][1], 3)
-        row.append(res_year)
-    writer.writerow(row)
-    writer.writerow("")
-    print ""
-
 
 def q58():
     #DureeTotaleDepuisPropCom moyenne des actes pour lesquels il y a concordance des PartyFamilyResp et GroupePolitiqueRapporteur ("Social Democracy")
@@ -434,12 +355,12 @@ def q110(factors=factors, periods=None, nb_figures_cs=2):
     
     filters=(
         ("", {}),
-        #~ (" avec VotePublic=Y", {"vote_public": True}),
-        #~ (" avec VotePublic=N", {"vote_public": False}),
-        #~ (" avec AdoptCSRegleVote=U", {"adopt_cs_regle_vote": "U"}),
-        #~ (" avec AdoptCSRegleVote=V", {"adopt_cs_regle_vote": "V"}),
-        #~ (" avec VotePublic=Y et AdoptCSRegleVote=U", {"vote_public": True, "adopt_cs_regle_vote": "U"}),
-        #~ (" avec VotePublic=Y et AdoptCSRegleVote=V", {"vote_public": True, "adopt_cs_regle_vote": "V"})
+        (" avec VotePublic=Y", {"vote_public": True}),
+        (" avec VotePublic=N", {"vote_public": False}),
+        (" avec AdoptCSRegleVote=U", {"adopt_cs_regle_vote": "U"}),
+        (" avec AdoptCSRegleVote=V", {"adopt_cs_regle_vote": "V"}),
+        (" avec VotePublic=Y et AdoptCSRegleVote=V", {"vote_public": True, "adopt_cs_regle_vote": "V"}),
+        (" avec VotePublic=F et AdoptCSRegleVote=V", {"vote_public": False, "adopt_cs_regle_vote": "V"})
     )
     variable=("duree_tot_depuis_trans_cons", "DureeTotaleDepuisTransCons")
     filter_vars_acts.update({variable[0]+"__gt": 1})
@@ -462,10 +383,11 @@ def q118(factors=factors, periods=None, nb_figures_cs=2):
     var="nb_point_b"
     variable="duree_tot_depuis_trans_cons"
     filters=(
-        ({var: 0}, "exactement zéro point B"),
-        ({var: 1}, "exactement un point B"),
-        ({var: 2}, "exactement deux points B"),
-        ({var+"__gt": 2}, "plus de deux points B"),
+        ({var+"__gt": 0}, "au moins un point B"),
+        #~ ({var: 0}, "exactement zéro point B"),
+        #~ ({var: 1}, "exactement un point B"),
+        #~ ({var: 2}, "exactement deux points B"),
+        #~ ({var+"__gt": 2}, "plus de deux points B"),
     )
     
     #get parameters specific to the question

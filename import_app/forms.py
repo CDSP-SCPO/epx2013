@@ -6,6 +6,7 @@ import time
 #variables name
 import act_ids.var_name_ids as var_name_ids
 import act.var_name_data as var_name_data
+from common.db import is_member
 
 
 def ext_validation(csv_file):
@@ -68,5 +69,5 @@ class CSVUploadForm(forms.Form):
         #show all the different imports to the administrator only
         self.user = user
         super(CSVUploadForm, self).__init__(*args, **kwargs)
-        if self.user.is_superuser:
+        if self.user.is_superuser or is_member(self.user, ["import_export"]):
             self.fields['file_to_import'].choices = get_choices("admin")

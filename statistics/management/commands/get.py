@@ -609,7 +609,7 @@ def get(factor, res_init, Model=Act, count=True, variable=None, variable_2=None,
     #if factor != period, nb_periods=1 so we loop once and once only through all the acts
     nb_periods=get_nb_periods(factor, periods)
 
-    #for each period or loop through all the acts only once if there is no period
+    #for each period (if the factor is not the period, we loop through all the acts once)
     for index in range(nb_periods):
         res_temp=copy.deepcopy(res_init)
         res_total_temp=copy.deepcopy(res_total_init)
