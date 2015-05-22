@@ -450,10 +450,13 @@ def get_data_gvt_compo(row):
             except Exception, e:
                 #inconsistency in data -> the source file must be fixed before saving the data again
                 print "get_data_gvt_compo exception", e
-                msg="Can't save the row " + str(ids_row) + ". '" + data["country"].country_code + "'+'" + data["party"].party + "' can't be associated to '" + str(data["party_family"]) + "' because they are already associated to '" + PartyFamily.objects.get(country=data["country"], party=data["party"]).party_family + "' !"
+                #~ msg="Cant save the row"
+                msg=str("Can't save the row " + str(ids_row) + ". '" + data["country"].country_code + "'+'" + data["party"].party + "' can't be associated to '" + str(data["party_family"]) + "' because they are already associated to '" + PartyFamily.objects.get(country=data["country"], party=data["party"]).party_family + "' !")
                 print msg
+                exist=True
                 instance.delete()
-                raise ValueError(msg)
+                return instance, msg, exist
+                #~ raise ValueError(msg)
                 
             #~ PartyFamily.objects.get_or_create(defaults={"party_family": party_family}, **data)
 
