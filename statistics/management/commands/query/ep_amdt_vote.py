@@ -8,72 +8,6 @@ from  ..get import *
 from  ..write import *
 
 
-def q16():
-    #nombre moyen de EPComAmdtTabled, EPComAmdtAdopt, EPAmdtTabled, EPAmdtAdopt
-    question="nombre moyen de EPComAmdtTabled, EPComAmdtAdopt, EPAmdtTabled, EPAmdtAdopt par année"
-    print question
-    amdts={}
-    amdts["EPComAmdtTabled"]="com_amdt_tabled"
-    amdts["EPComAmdtAdopt"]="com_amdt_adopt"
-    amdts["EPAmdtTabled"]="amdt_tabled"
-    amdts["EPAmdtAdopt"]="amdt_adopt"
-    res={}
-    for amdt in amdts:
-        res[amdt]={}
-        for year in years_list:
-            res[amdt][year]=[0,0]
-
-    for act in Act.objects.filter(validated=2):
-        year=str(act.releve_annee)
-        for amdt in amdts:
-            if getattr(act, amdts[amdt])!=None:
-                res[amdt][year][1]+=1
-                res[amdt][year][0]+=getattr(act, amdts[amdt])
-    print "res", res
-
-    writer.writerow([question])
-    writer.writerow(years_list_zero)
-    for amdt in amdts:
-        row=[amdt]
-        for year in years_list:
-            if res[amdt][year][1]==0:
-                res_year=0
-            else:
-                res_year=round(float(res[amdt][year][0])/res[amdt][year][1],3)
-            row.append(res_year)
-        writer.writerow(row)
-    writer.writerow("")
-    print ""
-
-
-def q32(display_name, variable_name):
-    #nombre moyen de EPComAmdtTabled, EPComAmdtAdopt, EPAmdtTabled, EPAmdtAdopt
-    question="nombre moyen de " +display_name+ " par secteur, en fonction de l'année"
-    print question
-    res, total_year=init_cs_year(total=True, amdt=True)
-    res, total_year=get_by_cs_year(res, variable=variable_name, total_year=total_year)
-    write_cs_year(question, res, total_year=total_year, amdt=True)
-
-
-def q75(cs=None):
-    variables={"com_amdt_tabled": "Nombre moyen d’amendements déposés par la commission parlementaire du PE saisie au fond, par période", "amdt_tabled": "Nombre moyen d’amendements déposés au PE, par période"}
-    Model=Act
-    if cs is not None:
-        list_acts_cs=get_list_acts_cs(cs[0], Model=Model)
-
-    for var, question in variables.iteritems():
-        filter_vars_acts={var+"__isnull": False}
-        res, filter_vars, filter_total=init_periods(Model, filter_vars_acts=filter_vars_acts)
-
-        #filter by specific cs
-        if cs is not None:
-            question+=" (code sectoriel : "+cs[1]+")"
-            res=get_by_period_cs(list_acts_cs, res, Model, filter_vars, filter_total, avg_variable=var)
-        else:
-            res=get_by_period(res, Model, filter_vars, filter_total, avg_variable=var)
-
-        write_periods(question, res, percent=1)
-
 
 def q99():
     #Nombre d’EPComAmdtAdopt, 2/Nombre d’EPComAmdtTabled, 3/Nombre d’EPAmdtAdopt, 4/Nombre d’EPAmdtTabled, par année, par secteur, par année et par secteur
@@ -150,41 +84,59 @@ def q100_periods(cs=None):
         write_periods(question, res_vars["res_1"], percent=1, res_2=res_vars["res_2"])
 
 
-def q105(factor="everything"):
+def q105(factors=factors, periods=None):
     #1/ Moyenne EPComAmdtAdopt + EPAmdtAdopt, 2/ Moyenne EPComAmdtTabled + EPAmdtTabled
     #par année, par secteur, par année et par secteur
     variables=(
         (("com_amdt_adopt", "EPComAmdtAdopt"), ("amdt_adopt", "EPAmdtAdopt")),
         (("com_amdt_tabled", "EPComAmdtTabled"), ("amdt_tabled", "EPAmdtTabled"))
     )
-
-    if factor=="csyear":
-        #get by cs and by year only (for specific cs)
-        analyses, nb_figures_cs=get_specific_cs()
+    #get the factors specific to the question and update the periods (fr to us format)
+    factors_question, periods=prepare_query(factors, periods)
 
     for variable in variables:
         filter_vars={variable[0][0]+"__gt": 0, variable[1][0]+"__gt": 0}
         init_question="Nombre moyen de "+variable[0][1]+"+"+variable[1][1]
         
-        for analysis, question in analyses:
+        for factor, question in factors_question.iteritems():
             question=init_question+question
             
-            res_1=init(analysis)
-            res_2=init(analysis)
-            res_1=get(analysis, res_1, variable=variable[0][0], filter_vars_acts=filter_vars, nb_figures_cs=nb_figures_cs)
-            res_2=get(analysis, res_2, variable=variable[1][0], filter_vars_acts=filter_vars, nb_figures_cs=nb_figures_cs)
-            write(analysis, question, res_1, res_2=res_2, percent=1, query="1+2")
+            res_1=init(factor)
+            res_2=init(factor)
+            res_1=get(factor, res_1, variable=variable[0][0], filter_vars_acts=filter_vars, periods=periods)
+            res_2=get(factor, res_2, variable=variable[1][0], filter_vars_acts=filter_vars, periods=periods)
+            write(factor, question, res_1, res_2=res_2, percent=1, query="1+2", periods=periods)
 
 
-#NOT USED
-def q106():
+def q106(factors=factors, periods=None):
     #Nombre moyen (EPComAmdtAdopt+EPAmdtAdopt) / Nombre moyen (EPComAmdtTabled+EPAmdtTabled)
+
+    filters=(
+        ("", {}),
+        (" sans point B et sans vote public", {"nb_point_b": 0, "vote_public": False}),
+        (" avec au moins un point B et avec vote public", {"nb_point_b__gt": 0, "vote_public": True})
+    )
+    #get the factors specific to the question and update the periods (fr to us format)
+    factors_question, periods=prepare_query(factors, periods)
     
     num_vars=("amdt_adopt", "com_amdt_adopt")
     num_names=("EPAmdtAdopt", "EPComAmdtAdopt")
     denom_vars=("amdt_tabled", "com_amdt_tabled")
     denom_names=("EPAmdtTabled", "EPComAmdtTabled")
-    division(num_vars, num_names, denom_vars, denom_names, operation="+")
+
+    filter_vars_acts={num_vars[0]+"__gt": 0, num_vars[1]+"__gt": 0, denom_vars[0]+"__gt": 0, denom_vars[1]+"__gt": 0}
+    init_question="Nombre moyen (" + num_names[0] + "+" +num_names[1]+") /  ("+denom_names[0] + "+" +denom_names[1]+")"
+
+    for filt in filters:
+        filter_vars_temp=filter_vars_acts.copy()
+        #update filter
+        filter_vars_temp.update(filt[1])
+        
+        for factor, question in factors_question.iteritems():
+            question=init_question+filt[0]+question
+            res=init(factor)
+            res=get(factor, res, num_vars=num_vars, denom_vars=denom_vars, filter_vars_acts=filter_vars_temp, operation="+", periods=periods)
+            write(factor, question, res, percent=1, periods=periods)
 
 
 #NOT USED

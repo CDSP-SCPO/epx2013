@@ -83,6 +83,23 @@ def check_css(act, searched_css):
     return False
 
 
+def get_act_type_key(act_type):
+    """
+    FUNCTION
+    get the key of the type of the act (one of the keys of the res dictionnary, "DEC", "REG" or "DVE")
+    PARAMETERS
+    act_type: type of the act being processed [string]
+    RETURN
+    act_type: key act_type [string]
+    """
+    #~ print "act.type_acte", act_type
+    for key in act_types_keys:
+         if key in act_type:
+             return key
+    #~ print "key", key
+    return None
+    
+
 def get_act(Model, act):
     """
     FUNCTION
@@ -129,7 +146,11 @@ def check_vars(act, act_act, check_vars_act, check_vars_act_ids, adopt_var=None)
                 return False
                 
     for key, value in check_vars_act_ids.iteritems():
-        if getattr(act, key)!=value:
+        #acts.q132 no_unique_type <> COD
+        if key[-4:]=="__in":
+            if getattr(act, key[:-4]) not in value:
+                return False
+        elif getattr(act, key)!=value:
             return False
 
     if adopt_var is not None:
@@ -560,6 +581,39 @@ def get_cs_csyear(factor, Model, res, act_act, act, value, count, variable, ok, 
     return res
 
 
+def get_act_type(factor, Model, res, act_act, act, value, count, variable, ok, same, query):
+    """
+    FUNCTION
+    update the result dictionary with the current act ("act_type" analysis)
+    PARAMETERS
+    factor: factor of the analysis [string]
+    Model: Model to use [Act/ActIds/MinAttend model]
+    res: result dictionary [dictionary]
+    act_act: act being processed [Act instance]
+    act: act being processed [ActIds instance]
+    value: value to add to the temporary result (1 if count or percentage computation, variable value if average computation) [int]
+    count: True if need to count the number of occurences for percentage or average computation; False otherwise (used for simple count analysis) [boolean]
+    variable: variable to use (for average computation) [string]
+    ok: indicate whether an act respects the criteria of the analysis (for average computation) [boolean]
+    same: indicate whether the rapps and resps variables of the current act have the same party family [boolean]
+    query: name of the specific query to realize [string]
+    RETURN
+    res: updated result dictionary [dictionary]
+    """
+    key=get_act_type_key(act_act.type_acte)
+
+    if key is not None:
+    
+        #copy data for computation
+        res_temp=copy.copy(res[key])
+        #computation
+        res_temp, res_total=compute(Model, act_act, act, res_temp, value, count, variable, ok, same, query=query)
+        #copy data back to res dictionary (for final result)
+        res[key]=res_temp
+
+    return res
+    
+
 def check_var1_var2(val_1, val_2):
     """
     FUNCTION
@@ -605,7 +659,9 @@ def get(factor, res_init, Model=Act, count=True, variable=None, variable_2=None,
     res=[]
     res_total=[]
     same=None
-    filter_vars=get_validated_acts(Model, filter_vars_acts=filter_vars_acts, filter_vars_acts_ids=filter_vars_acts_ids)
+
+    filter_vars=get_include_filter(Model, filter_vars_acts=filter_vars_acts, filter_vars_acts_ids=filter_vars_acts_ids)
+    exclude_vars=get_exclude_filter(Model, factor, exclude_vars_acts, exclude_vars_acts_ids={})
     #if factor != period, nb_periods=1 so we loop once and once only through all the acts
     nb_periods=get_nb_periods(factor, periods)
 
@@ -616,13 +672,16 @@ def get(factor, res_init, Model=Act, count=True, variable=None, variable_2=None,
         
         #if analysis by period
         if factor=="periods":
-            filter_vars=get_validated_acts_periods(Model, periods[index], filter_vars)
+            filter_vars=get_include_filter_periods(Model, periods[index], filter_vars)
 
         #for each act
-        for act in Model.objects.filter(**filter_vars).exclude(**exclude_vars_acts):
+        #~ print "filter_vars", filter_vars
+        #~ print "exclude_vars", exclude_vars
+        #~ print Model.objects.filter(**filter_vars).exclude(**exclude_vars).query
+        for act in Model.objects.filter(**filter_vars).exclude():
             ok=True
             act_act=get_act(Model, act)
-            
+
             value=1
             if variable is not None:
                 value=getattr(act, variable)
@@ -651,6 +710,8 @@ def get(factor, res_init, Model=Act, count=True, variable=None, variable_2=None,
                 elif factor in ["cs", "csyear"]:
                     #~ print "res_temp", res_temp
                     res_temp=get_cs_csyear(factor, Model, res_temp, act_act, act, value, count, variable, ok, same, query)
+                elif factor=="act_type":
+                    res_temp=get_act_type(factor, Model, res_temp, act_act, act, value, count, variable, ok, same, query)
 
             #~ break
 

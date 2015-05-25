@@ -394,16 +394,17 @@ def q82():
     print ""
 
 
-def q98(factors=factors, periods=None, nb_figures_cs=2):
+def q98(factors=factors, periods=None):
     #Pourcentage d’actes adoptés avec NoUniqueType=COD 1/et NbLectures=1, 2/et NbLectures=2 ou 3, par année, par secteur, par année et par secteur
 
-    #get parameters specific to the question
-    factors_question, filter_vars_acts=get_parameters_question(factors, periods)
+    #get the factors specific to the question and update the periods (fr to us format)
+    factors_question, periods=prepare_query(factors, periods)
     
     #variables=(([1], "1ère lecture"), ([2, 3], "2ème ou 3ème lecture"))
     #2014-12-23
     variables=(([1], "1ère lecture"), ([2], "2ème lecture"), ([3], "3ème lecture"))
-    filter_vars_acts.update({"nb_lectures__isnull": False})
+    #~ variables=(([1], "1ère lecture"),)
+    filter_vars_acts={"nb_lectures__isnull": False}
     filter_vars_acts_ids={"no_unique_type": "COD"}
     init_question="Pourcentage d'actes adoptés en "
 
@@ -413,8 +414,8 @@ def q98(factors=factors, periods=None, nb_figures_cs=2):
         for factor, question in factors_question.iteritems():
             question=init_question+variable[1]+", parmi les actes NoUniqueType=COD"+question
             res=init(factor)
-            res=get(factor, res, Model=ActIds, filter_vars_acts=filter_vars_acts, filter_vars_acts_ids=filter_vars_acts_ids, check_vars_acts=check_vars_acts, nb_figures_cs=nb_figures_cs)
-            write(factor, question, res)
+            res=get(factor, res, Model=ActIds, filter_vars_acts=filter_vars_acts, filter_vars_acts_ids=filter_vars_acts_ids, check_vars_acts=check_vars_acts, periods=periods)
+            write(factor, question, res, periods=periods)
         
 
 def q103():
@@ -639,6 +640,7 @@ def q129():
 
 
 def q131(factors=factors, periods=None):
+    
     #Nombre d’actes avec NoUniqueType=COD
     init_question="Nombre d’actes avec NoUniqueType=COD"
     filter_vars_acts_ids={"no_unique_type": "COD"}
@@ -652,3 +654,19 @@ def q131(factors=factors, periods=None):
         res=init(factor, count=False)
         res=get(factor, res, Model=ActIds, filter_vars_acts_ids=filter_vars_acts_ids, periods=periods, count=False)
         write(factor, question, res, periods=periods, count=False)
+
+
+def q132(factors=factors, periods=None):
+    #Pourcentage d’actes adoptés avec procédures autres que codécision
+    init_question="Pourcentage d’actes adoptés avec procédures autres que codécision"
+
+    #get the factors specific to the question and update the periods (fr to us format)
+    factors_question, periods=prepare_query(factors, periods)
+    
+    check_vars_acts_ids={"no_unique_type__in": [None,'CS','CNS','ACC','SYN','AVC','PRT','CNB','OLP','NLE','APP','SLP']}
+
+    for factor, question in factors_question.iteritems():
+        question=init_question+question
+        res=init(factor)
+        res=get(factor, res, Model=ActIds, check_vars_acts_ids=check_vars_acts_ids, periods=periods)
+        write(factor, question, res, periods=periods)

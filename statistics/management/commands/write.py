@@ -189,7 +189,33 @@ def write_csyear(res, res_2, count, percent, query):
             res_final=compute(res[cs][year], res_2_temp, count, percent, query)
             row.append(res_final)
         writer.writerow(row)
+
+
+def write_act_type(res, res_2, count, percent, query):
+    """
+    FUNCTION
+    write the results table of the query in a csv file (act_type analysis)
+    PARAMETERS
+    res: result dictionary [dictionary]
+    res_2: result dictionary of the second variable if any (average computation) [dictionary]
+    count: True if need to count the number of occurences for percentage or average computation; False otherwise (used for simple count analysis) [boolean]
+    percent: percentage rate to use (by default 100% for percentage computation and 1 for other computations) [int]
+    query: name of the specific query to realize [string]
+    RETURN
+    None
+    """
+    writer.writerow(act_types)
+    res_2_temp=None
+    row=[]
     
+    for key in act_types_keys:
+        if res_2 is not None:
+            res_2_temp=res_2[key]
+        res_final=compute(res[key], res_2_temp, count, percent, query)
+        row.append(res_final)
+        
+    writer.writerow(row)
+
 
 def write(factor, question, res, res_2=None, count=True, percent=100, query=None, res_total=None, periods=None):
     """
@@ -231,6 +257,9 @@ def write(factor, question, res, res_2=None, count=True, percent=100, query=None
 
     elif factor=="csyear":
       write_csyear(res, res_2, count, percent, query)
+
+    elif factor=="act_type":
+        write_act_type(res, res_2, count, percent, query)
         
     writer.writerow("")
     print ""

@@ -346,12 +346,11 @@ def q96(factor="everything"):
             write(analysis, question, res_1, res_2=res_2, percent=1, query="1+2")
         
         
-def q110(factors=factors, periods=None, nb_figures_cs=2):
-    #Durée Moyenne DureeTotaleDepuisTransCons
-    #1/pour tous les actes 2/VotePublic=Y 3/VotePublic=N 4/AdoptCSRegleVote=U 5/AdoptCSRegleVote=V 6/VotePublic=Y et AdoptCSRegleVote=U 7/ VotePublic=Y et AdoptCSRegleVote=V
+def q110(factors=factors, periods=None):
+    #1/Durée moyenne (DuréeTotaleDepuisTransCons) 2/Durée moyenne si Vote public au Conseil 3/Durée moyenne sans Vote public au Conseil 4/Durée moyenne si règle vote Unanimité 5/Durée moyenne si règle vote Majorité qualifiée 6/Durée moyenne si vote public et règle majorité qualifiée 7/Durée moyenne si règle majorité qualifiée mais pas de vote public 8/Durée moyenne pour les actes avec au moins un point B 9/Durée moyenne pour les actes avec point B=N et VotePublic=N 10/Durée moyenne pour les actes point B=Y et VotePublic=Y
     
-    #get parameters specific to the question
-    factors_question, filter_vars_acts=get_parameters_question(factors, periods)
+    #get the factors specific to the question and update the periods (fr to us format)
+    factors_question, periods=prepare_query(factors, periods)
     
     filters=(
         ("", {}),
@@ -360,10 +359,13 @@ def q110(factors=factors, periods=None, nb_figures_cs=2):
         (" avec AdoptCSRegleVote=U", {"adopt_cs_regle_vote": "U"}),
         (" avec AdoptCSRegleVote=V", {"adopt_cs_regle_vote": "V"}),
         (" avec VotePublic=Y et AdoptCSRegleVote=V", {"vote_public": True, "adopt_cs_regle_vote": "V"}),
-        (" avec VotePublic=F et AdoptCSRegleVote=V", {"vote_public": False, "adopt_cs_regle_vote": "V"})
+        (" avec VotePublic=F et AdoptCSRegleVote=V", {"vote_public": False, "adopt_cs_regle_vote": "V"}),
+        (" avec au moins un point B", {"nb_point_b__gt": 0}),
+        (" sans point B et sans vote public", {"nb_point_b": 0, "vote_public": False}),
+        (" avec au moins un point B et avec vote public", {"nb_point_b__gt": 0, "vote_public": True})
     )
     variable=("duree_tot_depuis_trans_cons", "DureeTotaleDepuisTransCons")
-    filter_vars_acts.update({variable[0]+"__gt": 1})
+    filter_vars_acts={variable[0]+"__gt": 1}
     init_question=variable[1] + " moyenne"
 
     for filt in filters:
@@ -374,48 +376,9 @@ def q110(factors=factors, periods=None, nb_figures_cs=2):
         for factor, question in factors_question.iteritems():
             question=init_question+filt[0]+question
             res=init(factor)
-            res=get(factor, res, variable=variable[0], filter_vars_acts=filter_vars_temp, nb_figures_cs=nb_figures_cs)
-            write(factor, question, res, percent=1)
-
-
-def q118(factors=factors, periods=None, nb_figures_cs=2):
-    #DureeTotaleDepuisTransCons quand NbPointsB = 0,1,2,3 ou plus
-    var="nb_point_b"
-    variable="duree_tot_depuis_trans_cons"
-    filters=(
-        ({var+"__gt": 0}, "au moins un point B"),
-        #~ ({var: 0}, "exactement zéro point B"),
-        #~ ({var: 1}, "exactement un point B"),
-        #~ ({var: 2}, "exactement deux points B"),
-        #~ ({var+"__gt": 2}, "plus de deux points B"),
-    )
-    
-    #get parameters specific to the question
-    factors_question, filter_vars_acts=get_parameters_question(factors, periods)
-    
-    init_question="DureeTotaleDepuisTransCons moyenne pour les actes avec "
-
-    for filt in filters:
-        filter_vars_acts_temp=filter_vars_acts.copy()
-        #update filter
-        filter_vars_acts_temp.update(filt[0])
-        init_question_2=init_question+filt[1]
-
-        for factor, question in factors_question.iteritems():
-            question=init_question_2+question
-
-            if factor=="periods":
-                res=[]
-                for period in periods:
-                    filter_vars_acts_temp_2=filter_vars_acts_temp.copy()
-                    filter_vars_acts_temp_2.update(filter_periods_question(filter_vars_acts_temp_2, period))
-                    res.append(init(factor))
-                    res[-1]=get(factor, res[-1], variable=variable, filter_vars_acts=filter_vars_acts_temp_2, nb_figures_cs=nb_figures_cs)
-            else:
-                res=init(factor)
-                res=get(factor, res, variable=variable, filter_vars_acts=filter_vars_acts_temp, nb_figures_cs=nb_figures_cs)
-                
+            res=get(factor, res, variable=variable[0], filter_vars_acts=filter_vars_temp, periods=periods)
             write(factor, question, res, percent=1, periods=periods)
+
 
 
 def q128(factors=factors, periods=None):

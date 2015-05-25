@@ -27,9 +27,7 @@ from collections import OrderedDict
 #~ > - DureeTotaleDepuisTransCons: IMPOSSIBLE
 
 
-
 #If asked about the Durée moyenne... -> take the DureeTotaleDepuisTransCons variable
-
 
 
 from django.db import models
@@ -37,6 +35,8 @@ from act.models import Act, MinAttend
 from act_ids.models import ActIds
 from datetime import datetime
 
+
+################################### FACTORS ####################################
 
 def get_css(min_cs=1, max_cs=20):
     """
@@ -67,20 +67,63 @@ def get_years(min_year, max_year):
     years: all the possible years for the analysis [list of strings]
     """
     return [str(n) for n in range(min_year, max_year+1)]
+    
 
-
-def add_blank(list_var):
+def get_act_types():
     """
     FUNCTION
-    #add an empty space at the first position of the years or cs list; used in the header of the result table in the csv file 
+    get the act_type factor (type_acte variable)
     PARAMETERS
-    list_var: list of cs or years [cs]
+    None
     RETURN
-    list_with_blank: list of cs or years with an empty item in first position [list of strings]
+    act_type: all the different types of acts to analyze together [list of lists of strings]
     """
-    list_with_blank=list(list_var)
-    list_with_blank.insert(0, "")
-    return list_with_blank
+    return [["CS DVE", "DVE"], ["CS DEC CAD", "CS DEC", "DEC", "DEC W/O ADD", "CS DEC W/O ADD"], ["CS REG", "REG"]]
+
+
+def get_act_types_keys():
+    """
+    FUNCTION
+    get the act_type keys for the act_type factor
+    PARAMETERS
+    None
+    RETURN
+    act_type_keys: keys for the types of acts[list of strings]
+    """
+    return ["DVE", "DEC", "REG"]
+
+
+def get_periods(periods):
+    """
+    FUNCTION
+    get the periods to use (for the periods analysis only)
+    PARAMETERS
+    periods: list of periods to analyse [tuple of tuples of strings]
+    RETURN
+    periods: periods to use [list of tuples of strings]
+    """
+    new_periods=[] 
+    for period in periods:
+        new_periods.append(("Période "+ period[0] + " - " + period[1], fr_to_us_date(period[0]), fr_to_us_date(period[1])))
+    return new_periods
+
+
+def get_nb_periods(factor, periods):
+    """
+    FUNCTION
+    get the number of periods (for the periods analysis only)
+    PARAMETERS
+    factor: factor of the analysis [string]
+    periods: periods to use [list of tuples of strings]
+    RETURN
+    nb_periods: number of periods of the analysis [int]
+    """
+    #get the number of periods (1 if there is no period)
+    nb_periods=1
+     #if analysis by period
+    if factor=="periods":
+        nb_periods=len(periods)
+    return nb_periods
 
 
 def get_months():
@@ -107,6 +150,23 @@ def get_countries():
     return Country.objects.values_list("country_code", flat=True)
 
 
+################################ END OF FACTORS ################################
+
+
+def add_blank(list_var):
+    """
+    FUNCTION
+    #add an empty space at the first position of the years or cs list; used in the header of the result table in the csv file 
+    PARAMETERS
+    list_var: list of cs or years [cs]
+    RETURN
+    list_with_blank: list of cs or years with an empty item in first position [list of strings]
+    """
+    list_with_blank=list(list_var)
+    list_with_blank.insert(0, "")
+    return list_with_blank
+
+    
 def str_to_date(string):
     """
     FUNCTION
@@ -136,19 +196,9 @@ def fr_to_us_date(date_fr):
     #~ print "date us"
     #~ print date_us
     return date_us
-    
-
-#transform a us string date to a fr string date
-#~ def us_to_fr_date(date_us):
-    #~ #YYYY-MM-DD to DD/MM/YYYY
-    #~ year=date_us[:4]
-    #~ month=date_us[5:7]
-    #~ day=date_us[8:10]
-    #~ date_fr=day+"/"+month+"/"+year
-    #~ return date_fr
 
 
-def get_validated_acts(Model, filter_vars_acts={}, filter_vars_acts_ids={}):
+def get_include_filter(Model, filter_vars_acts={}, filter_vars_acts_ids={}):
     """
     FUNCTION
     prepare the filter dictionary in order to get all the validated acts that are needed for the analysis
@@ -182,7 +232,7 @@ def get_validated_acts(Model, filter_vars_acts={}, filter_vars_acts_ids={}):
     return filter_vars
     
 
-def get_validated_acts_periods(Model, period, filter_vars):
+def get_include_filter_periods(Model, period, filter_vars):
     """
     FUNCTION
     update the filter dictionary for the periods analysis
@@ -201,46 +251,39 @@ def get_validated_acts_periods(Model, period, filter_vars):
     filter_vars[gte]=str_to_date(period[1])
     filter_vars[lte]=str_to_date(period[2])
     return filter_vars
-        
 
-def get_periods(periods):
+
+def get_exclude_filter(Model, factor, exclude_vars_acts={}, exclude_vars_acts_ids={}):
     """
     FUNCTION
-    get the periods to use (for the periods analysis only)
+    prepare the exclude filter dictionary in order to exclude all the acts not wanted for the analysis
     PARAMETERS
-    periods: list of periods to analyse [tuple of tuples of strings]
-    RETURN
-    periods: periods to use [list of tuples of strings]
-    """
-    new_periods=[] 
-    for period in periods:
-        new_periods.append(("Période "+ period[0] + " - " + period[1], fr_to_us_date(period[0]), fr_to_us_date(period[1])))
-    #~ periods=(
-        #~ ("Période 01/01/1996 - 15/09/1999", fr_to_us_date("01/01/1996"), fr_to_us_date("15/09/1999")),
-        #~ ("Période 16/09/1999 - 30/04/2004", fr_to_us_date("16/09/1999"), fr_to_us_date("30/04/2004")),
-        #~ ("Période 01/05/2004 - 14/09/2008", fr_to_us_date("01/05/2004"), fr_to_us_date("14/09/2008")),
-        #~ ("Période 15/09/2008 - 31/12/2013", fr_to_us_date("15/09/2008"), fr_to_us_date("31/12/2013"))
-    #~ )
-    return new_periods
-
-
-def get_nb_periods(factor, periods):
-    """
-    FUNCTION
-    get the number of periods (for the periods analysis only)
-    PARAMETERS
+    Model: model to use for the analysis [Model object]
     factor: factor of the analysis [string]
-    periods: periods to use [list of tuples of strings]
+    exclude_vars_acts: exclude filtering criteria from the Act model [dictionary]
+    exclude_vars_acts_ids: exclude filtering criteria from the ActIds model [dictionary]
     RETURN
-    nb_periods: number of periods of the analysis [int]
+    exclude_filter_vars: exclude filter dictionary to use for the analysis [dictionary]
     """
-    #get the number of periods (1 if there is no period)
-    nb_periods=1
-     #if analysis by period
-    if factor=="periods":
-        nb_periods=len(periods)
-    return nb_periods
+    exclude_filter_vars={}
 
+    #exclude blank and null type_act
+    if factor=="act_type":
+        exclude_vars_acts["type_acte__exact"]=u''
+        exclude_vars_acts["type_acte__isnull"]=True
+
+    #the filter will be on the Act model
+    if Model==Act:
+        exclude_filter_vars.update(exclude_vars_acts)
+    #the filter will be on the ActIds/MinAttend model
+    else:
+        for key, value in exclude_vars_acts.iteritems():
+            exclude_filter_vars["act__"+key]=value
+        exclude_filter_vars.update(exclude_vars_acts_ids)
+
+    #~ print "exclude_filter_vars", exclude_filter_vars
+    return exclude_filter_vars
+    
 
 def get_factors():
     """
@@ -251,7 +294,7 @@ def get_factors():
     RETURN
     factors: factors of the query [list of strings]
     """
-    factors=["all", "year", "cs", "csyear"]
+    factors=["all", "year", "cs", "csyear", "act_type"]
     return factors
 
 
@@ -270,6 +313,7 @@ def get_factors_dic():
     factors["year"]=", par année"
     factors["cs"]=", par secteur"
     factors["csyear"]=", par secteur et par année"
+    factors["act_type"]=", par type d'acte"
     factors["country"]=", par état membre"
     return factors
     
@@ -334,8 +378,10 @@ months_list=get_months()
 #list of countries
 countries_list=get_countries()
 countries_list_zero=add_blank(countries_list)
-#list of periods
-#~ periods=get_periods()
+#list of types of acts
+act_types=get_act_types()
+#keys
+act_types_keys=get_act_types_keys()
 
 #list of factors (variables to study)
 factors=get_factors()

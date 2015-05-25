@@ -17,7 +17,7 @@ from common import *
 
 
 
-def init_temp(count, empty_dic, empty_list):
+def init_temp(count, empty_dic=None, empty_list=None):
     """
     FUNCTION
     initialize the data structure of the subfactor of the analysis (if year is the factor, a specific year is a subfactor, e.g. 1996)
@@ -56,7 +56,6 @@ def init_all(count):
         res=[0,0]
 
     return res, res_total
-
 
 def init_country(count):
     """
@@ -155,6 +154,22 @@ def init_csyear(count, total, empty_dic, empty_list, amdt):
     return res
 
 
+def init_act_type(count):
+    """
+    FUNCTION
+    initialize the data structure that is going to store the results of the "act_type" analysis
+    PARAMETERS
+    count: True if need to count the number of occurences for percentage or average computation; False otherwise (used for simple count analysis) [boolean]
+    RETURN
+    res: data structure that is going to store all the results of the analysis [dictionnary]
+    """
+    res={}
+    for key in act_types_keys:
+        res[key]=init_temp(count)
+    #~ print "init", res
+    return res
+
+
 def init_month(count=True):
     """
     FUNCTION
@@ -206,6 +221,9 @@ def init(factor, count=True, total=False, amdt=False, empty_dic=False, empty_lis
 
     elif factor=="csyear":
         res=init_csyear(count, total, empty_dic, empty_list, amdt)
+
+    elif factor=="act_type":
+        res=init_act_type(count)
 
     if total:
         return res, res_total
