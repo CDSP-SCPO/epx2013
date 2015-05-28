@@ -217,6 +217,18 @@ def write_act_type(res, res_2, count, percent, query):
     writer.writerow(row)
 
 
+def write_groupvote_year(res, count, percent, query):
+    writer.writerow(years_list_zero)
+
+    for groupvote in groupvotes:
+        row=[groupvote]
+        for year in years_list:
+            res_final=compute(res[groupvote][year], None, count, percent, query)
+            row.append(res_final)
+        
+        writer.writerow(row)
+
+    
 def write(factor, question, res, res_2=None, count=True, percent=100, query=None, res_total=None, periods=None):
     """
     FUNCTION
@@ -260,6 +272,12 @@ def write(factor, question, res, res_2=None, count=True, percent=100, query=None
 
     elif factor=="act_type":
         write_act_type(res, res_2, count, percent, query)
+
+    elif factor=="act_type":
+        write_act_type(res, res_2, count, percent, query)
+
+    elif factor=="groupvote_year":
+        write_groupvote_year(res, count, percent, query)
         
     writer.writerow("")
     print ""

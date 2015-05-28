@@ -1,7 +1,7 @@
 #-*- coding: utf-8 -*-
 
 #common functions used by init, get and write functions
-from act.models import Country
+from act.models import Act, Country
 from collections import OrderedDict
 
 
@@ -150,6 +150,15 @@ def get_countries():
     return Country.objects.values_list("country_code", flat=True)
 
 
+def get_groupvotes():
+    groupvotes=set()
+    for act in Act.objects.filter(validated=2, group_vote_names__isnull=False):
+        if act.group_vote_names.strip() != "":
+            for groupvote in act.group_vote_names.split(";"):
+                groupvotes.add(groupvote.strip())
+    return groupvotes
+
+
 ################################ END OF FACTORS ################################
 
 
@@ -294,7 +303,7 @@ def get_factors():
     RETURN
     factors: factors of the query [list of strings]
     """
-    factors=["all", "year", "cs", "csyear", "act_type"]
+    factors=["all", "year", "cs", "csyear", "act_type", "periods"]
     return factors
 
 
@@ -315,6 +324,10 @@ def get_factors_dic():
     factors["csyear"]=", par secteur et par année"
     factors["act_type"]=", par type d'acte"
     factors["country"]=", par état membre"
+    factors["groupvote_year"]=", par groupe PE et par année"
+    factors["groupvote_period"]=", par groupe PE et par période"
+    factors["groupvote_cs"]=", par groupe PE et par secteur"
+    factors["groupvote_acttype"]=", par groupe PE et par type d'acte"
     return factors
     
 
@@ -382,6 +395,8 @@ countries_list_zero=add_blank(countries_list)
 act_types=get_act_types()
 #keys
 act_types_keys=get_act_types_keys()
+#groupvotes
+groupvotes=get_groupvotes()
 
 #list of factors (variables to study)
 factors=get_factors()

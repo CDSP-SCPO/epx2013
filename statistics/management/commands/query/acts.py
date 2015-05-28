@@ -75,41 +75,22 @@ def q43():
     print ""
 
 
+def q57(factors=factors, periods=None):
+    #Pourcentage d'actes avec plusieurs bases juridiques
+    init_question="Pourcentage d'actes avec plusieurs bases juridiques"
 
+    #get the factors specific to the question and update the periods (fr to us format)
+    factors_question, periods=prepare_query(factors, periods)
 
-def q57(cs="all", name="ALL"):
-    if cs=="all":
-        question="pourcentage d'actes avec plusieurs bases juridiques dans la production législative, par année"
-        percent=1
-        count=True
-    else:
-        question="pourcentage d'actes avec au moins un code sectoriel="+name+" dans la production législative, par année"
-        percent=100
-        count=False
-    print question
-    res=init_year()
+    check_vars_acts={"base_j__gt": 0}
 
-    for act in Act.objects.filter(validated=2):
-        if act.base_j.strip()!="":
-            year=str(act.releve_annee)
-            if cs=="all":
-                nb_bj=act.base_j.count(';')
-                #if more than one BJ, assignate to "many BJ" catageory
-                if nb_bj>0:
-                    nb_bj=1
-                res[year][nb_bj]+=1
-            else:
-                res[year][1]+=1
-                for nb in range(1,5):
-                    code_sect=getattr(act, "code_sect_"+str(nb))
-                    if code_sect is not None and get_cs(code_sect.code_sect)==cs:
-                        res[year][0]+=1
-                        break
-
-    print "res", res
-
-    write_year(question, res, count=count, percent=percent)
-
+    #for each factor
+    for factor, question in factors_question.iteritems():
+        question=init_question+question
+        res=init(factor)
+        res=get(factor, res, check_vars_acts=check_vars_acts, periods=periods, query="base_j")
+        write(factor, question, res, periods=periods)
+    
 
 def nb_bj_cs(cs, name, variable, type_var, question):
     question=question+" en fonction du nombre de bases juridiques et du secteur"
@@ -270,52 +251,6 @@ def q74(factors=factors, periods=None):
         write(factor, question, res, periods=periods)
 
 
-def q77(factors=factors, periods=None):
-    #get the factors specific to the question
-    factors_question=get_factors_question(factors)
-    
-    Model=Act
-    filter_vars_acts={"adopt_cs_regle_vote": "V"}
-    filter_var_acts_vote=filter_vars_acts.copy()
-    filter_var_acts_vote["vote_public"]=True
-
-    question="Pourcentage d’actes adoptés avec un vote public, parmi les actes avec une majorité qualifiée lors de l'adoption au conseil, par période"
-    res, filter_vars, filter_total=init_periods(Model, filter_vars_acts=filter_var_acts_vote, filter_total_acts=filter_total_acts)
-    #filter by specific cs
-    if cs is not None:
-        question+=" (code sectoriel : "+cs[1]+")"
-        res=get_by_period_cs(list_acts_cs, res, Model, filter_vars, filter_total)
-    else:
-        res=get_by_period(res, Model, filter_vars, filter_total)
-    write_periods(question, res)
-
-    question="Pourcentage d’actes adoptés avec avec opposition d'exactement un état, parmi les actes avec une majorité qualifiée lors de l'adoption au conseil, par période"
-    res, filter_vars, filter_total=init_periods(Model, filter_vars_acts=filter_vars_acts, filter_total_acts=filter_total_acts)
-    #filter by specific cs
-    if cs is not None:
-        question+=" (code sectoriel : "+cs[1]+")"
-        res=get_by_period_cs(list_acts_cs, res, Model, filter_vars, filter_total, adopt_cs={"nb_countries": 1})
-    else:
-        res=get_by_period(res, Model, filter_vars, filter_total, adopt_cs={"nb_countries": 1})
-    write_periods(question, res)
-
-    for factor, question in factors_question.iteritems():
-        question="Pourcentage d’actes adoptés avec opposition d'au moins deux états, parmi les actes avec une majorité qualifiée lors de l'adoption au conseil"+question
-        res=init(factor)
-        res=get(factor, res, Model=Model, filter_vars_acts=filter_vars_acts, adopt_var="adopt_cs_contre", query=2, periods=periods)
-        write(factor, question, res, periods=periods)
-#~ 
-    question="Pourcentage d’actes adoptés avec abstention d'au moins un état, parmi les actes avec une majorité qualifiée lors de l'adoption au conseil, par période"
-    res, filter_vars, filter_total=init_periods(Model, filter_vars_acts=filter_vars_acts, filter_total_acts=filter_total_acts)
-    #filter by specific cs
-    if cs is not None:
-        question+=" (code sectoriel : "+cs[1]+")"
-        res=get_by_period_cs(list_acts_cs, res, Model, filter_vars, filter_total, exclude_vars={"adopt_cs_abs": None})
-    else:
-        res=get_by_period(res, Model, filter_vars, filter_total, exclude_vars={"adopt_cs_abs": None})
-    write_periods(question, res)
-
-
 def q79(cs=None):
     question="Pourcentage d’actes adoptés en 2ème lecture parmi les actes de codécision, par période"
     Model=ActIds
@@ -432,50 +367,48 @@ def q107(factors=factors, periods=None):
     #Pourcentage d'actes avec VotePublic=Y
     init_question="Pourcentage d'actes avec VotePublic=Y"
     check_vars_acts={"vote_public": True}
+
+    filters=(
+        ({}, ""),
+        ({"adopt_cs_regle_vote": "V"}, " parmi les actes avec AdoptCSRegleVote=V")
+    )
+    
     #get the factors specific to the question and update the periods (fr to us format)
     factors_question, periods=prepare_query(factors, periods)
 
-    #for each factor
-    for factor, question in factors_question.iteritems():
-        question=init_question+question
-        res=init(factor)
-        res=get(factor, res, check_vars_acts=check_vars_acts, periods=periods)
-        write(factor, question, res, periods=periods)
+    for filt in filters:
+        filter_vars_acts=filt[0]
+
+        #for each factor
+        for factor, question in factors_question.iteritems():
+            question=init_question+filt[1]+question
+            res=init(factor)
+            res=get(factor, res, filter_vars_acts=filter_vars_acts, check_vars_acts=check_vars_acts, periods=periods)
+            write(factor, question, res, periods=periods)
 
 
-def q108(factors=factors, periods=None, nb_figures_cs=2):
+def q108(factors=factors, periods=None):
     #Pourcentage d'actes avec au moins un points B, exactement un point B, deux points B, plus de deux points B
+    init_question="Parmi les actes avec NbPointA > 0 OU NbPointB > 0, pourcentage d'actes avec "
+        
+    #get the factors specific to the question and update the periods (fr to us format)
+    factors_question, periods=prepare_query(factors, periods)
+    
     var="nb_point_b"
     filters=(
-        ({var: 1}, "exactement un point B"),
+        #~ ({var: 1}, "exactement un point B"),
         ({var+"__gte": 1}, "au moins un point B"),
-        ({var: 2}, "exactement deux points B"),
-        ({var+"__gt": 2}, "plus de deux points B")
+        #~ ({var: 2}, "exactement deux points B"),
+        #~ ({var+"__gt": 2}, "plus de deux points B")
     )
-    
-    #get parameters specific to the question
-    factors_question=get_factors_question(factors)
-    
-    init_question="Pourcentage d'actes avec "
-    filter_vars_acts.update({var+"__isnull": False})
 
     for filt in filters:
         check_vars_acts=filt[0]
-        init_question_2=init_question+filt[1]
 
         for factor, question in factors_question.iteritems():
-            question=init_question_2+question
-
-            if factor=="periods":
-                res=[]
-                for period in periods:
-                    filter_vars_acts_temp=filter_periods_question(filter_vars_acts, period)
-                    res.append(init(factor))
-                    res[-1]=get(factor, res[-1], filter_vars_acts=filter_vars_acts_temp, check_vars_acts=check_vars_acts, nb_figures_cs=nb_figures_cs)
-            else:
-                res=init(factor)
-                res=get(factor, res, filter_vars_acts=filter_vars_acts, check_vars_acts=check_vars_acts, nb_figures_cs=nb_figures_cs)
-                
+            question=init_question+filt[1]+question
+            res=init(factor)
+            res=get(factor, res, check_vars_acts=check_vars_acts, periods=periods, query="pt_b_OR_a")
             write(factor, question, res, periods=periods)
                 
 
@@ -670,3 +603,44 @@ def q132(factors=factors, periods=None):
         res=init(factor)
         res=get(factor, res, Model=ActIds, check_vars_acts_ids=check_vars_acts_ids, periods=periods)
         write(factor, question, res, periods=periods)
+
+
+def q133(factors=factors, periods=None):
+    #Nombre d’actes avec plusieurs rapporteurs
+    init_question="Nombre d’actes avec plusieurs rapporteurs"
+
+    #get the factors specific to the question and update the periods (fr to us format)
+    factors_question, periods=prepare_query(factors, periods)
+    
+    filter_vars_acts={"rapp_1__isnull": False, "rapp_2__isnull": False}
+
+    for factor, question in factors_question.iteritems():
+        question=init_question+question
+        res=init(factor, count=False)
+        res=get(factor, res, count=False, filter_vars_acts=filter_vars_acts, periods=periods)
+        write(factor, question, res, count=False, periods=periods)
+
+
+def q138(factors=factors, periods=None):
+    #1/Cohésion moyenne pour chaque Groupe PE 2/Moyenne vote « oui » pour chaque groupe PE 3/Moyenne vote « non » pour chaque groupe PE 4/Moyenne vote « abstention » pour chaque groupe PE 5/Moyenne « present » pour chaque groupe PE 6/Moyenne « absent » pour chaque groupe PE 7/Moyenne « non voters » pour chaque groupe PE
+    init_question="Moyenne du champ "
+    variables=(
+        (0, '"vote oui"'),
+        (1, '"vote non"'),
+        (2, '"vote abstention"'),
+        (3, '"present"'),
+        (4, '"absent"'),
+        (5, '"non voters"'),
+        (7, '"cohesion"')
+    )
+    
+    #get the factors specific to the question and update the periods (fr to us format)
+    factors_question, periods=prepare_query(factors, periods)
+
+    for variable in variables:
+
+        for factor, question in factors_question.iteritems():
+            question=init_question+variable[1]+question
+            res=init(factor)
+            res=get(factor, res, periods=periods, groupvote_var_index=variable[0])
+            write(factor, question, res, percent=1, periods=periods)

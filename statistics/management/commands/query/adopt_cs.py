@@ -105,41 +105,76 @@ def q47(nb_em):
     write_cs_year(question, res)
 
 
-def q88(factor="everything"):
-    adopt_cs=(("adopt_cs_contre", "AdoptCSContre"), ("adopt_cs_abs", "AdoptCSAbs"))
-    regle_vote=("U", "V")
+def q77(factors=factors, periods=None):
+    #1/Nombre de votes « contre » (AdoptCSContre=Y), règle V avec 1 EM 2/Nombre d’abstentions (AdoptCSAbs=Y), règle V avec 1 EM 3/Nombre de votes « contre » (AdoptCSContre=Y), règle V avec 2 EM 4/Nombre d’abstentions (AdoptCSAbs=Y), règle V avec 2 EM 5/Nombre d’abstentions (AdoptCSAbs=Y), règle V avec 3 EM 6/Nombre de votes « contre » (AdoptCSAbs=Y), règle V avec 3 EM
+    init_question="Parmis les actes avec AdoptCSRegleVote=V, nombre d'actes avec "
+    variables=(("adopt_cs_abs", "AdoptCSAbs"), ("adopt_cs_contre", "AdoptCSContre"))
+    countries=(1,2,3)
+    
+    #get the factors specific to the question and update the periods (fr to us format)
+    factors_question, periods=prepare_query(factors, periods)
 
-    if factor=="csyear":
-        #get by cs and by year only (for specific cs)
-        analyses, nb_figures_cs=get_specific_cs()
+    filter_vars_acts={"adopt_cs_regle_vote": "V"}
 
-    for adopt in adopt_cs:
-        for regle in regle_vote:
-            filter_regle={"adopt_cs_regle_vote": regle}
-            init_question="pourcentage "+adopt[1]+"=Y, parmi les actes AdoptCSRegleVote="+regle+""
-            
-            for analysis, question in analyses:
-                question=init_question+question
-                res=init(analysis)
-                res=get(analysis, res, filter_vars_acts=filter_regle, adopt_var=adopt[0], nb_figures_cs=nb_figures_cs)
-                write(analysis, question, res)
+    for variable in variables:
 
+        for country in countries:
 
-def q97(factors=factors, periods=None, nb_figures_cs=2):
+            for factor, question in factors_question.iteritems():
+                question=init_question+variable[1]+"=Y et "+str(country)+ " EM"+question
+                res=init(factor, count=False)
+                res=get(factor, res, count=False, filter_vars_acts=filter_vars_acts, adopt_var=variable[0], nb_adopt_var=country, periods=periods)
+                write(factor, question, res, count=False, periods=periods)
+    
+
+def q97(factors=factors, periods=None):
     #1/Pourcentage "AdoptCSAbs"= Y parmi tous les actes 2/Pourcentage "AdoptCSContre"= Y parmi les actes avec AdoptCSRegleVote=V
     variables=(("adopt_cs_abs", "AdoptCSAbs"), ("adopt_cs_contre", "AdoptCSContre"))
 
-    #get parameters specific to the question
-    factors_question, filter_vars_acts=get_parameters_question(factors, periods)
+    filters=(
+        ({}, ""),
+        ({"adopt_cs_regle_vote": "U"}, " parmi les actes avec AdoptCSRegleVote=U"),
+        ({"adopt_cs_regle_vote": "V"}, " parmi les actes avec AdoptCSRegleVote=V")
+    )
+
+    #get the factors specific to the question and update the periods (fr to us format)
+    factors_question, periods=prepare_query(factors, periods)
 
     for variable in variables:
         init_question="pourcentage "+variable[1]+"=Y"
-        if variable[0]=="adopt_cs_contre":
-            filter_vars_acts.update({"adopt_cs_regle_vote": "V"})
-            init_question+=", parmi les actes AdoptCSRegleVote=V"
+       
+        for filt in filters:
+            filter_vars_acts=filt[0]
         
-        for factor, question in factors_question.iteritems():
-            question=init_question+question
-            res=init(factor)
-            res=get(factor, res, filter_vars_acts=filter_vars_acts, adopt_var=variable[0], nb_figures_cs=nb_figures_cs)
-            write(factor, question, res)
+            for factor, question in factors_question.iteritems():
+                question=init_question+filt[1]+question
+                res=init(factor)
+                res=get(factor, res, filter_vars_acts=filter_vars_acts, adopt_var=variable[0], periods=periods)
+                write(factor, question, res, periods=periods)
+
+
+def q135(factors=factors, periods=None):
+    #1/Nombre de Votes « contre » (AdoptCSContre=Y) pour les actes avec au moins un point B et AdoptCSRegleVote=V 2/Nombre de Votes « contre » (AdoptCSContre=Y) pour les actes avec au moins un point B et AdoptCSRegleVote=U 3/Nombre de votes « abstention » (AdoptCSAbs=Y) pour les actes avec au moins un point B et AdoptCSRegleVote=V 4/Nombre de votes « abstention » (AdoptCSAbs=Y) pour les actes avec au moins un point B et AdoptCSRegleVote=U
+    init_question="Parmi les actes avec au moins un point B, nombre d'actes avec "
+    variables=(("adopt_cs_abs", "AdoptCSAbs"), ("adopt_cs_contre", "AdoptCSContre"))
+    regle_votes=("U","V")
+    #TEST
+    #~ variables=(("adopt_cs_abs", "AdoptCSAbs"),)
+    #~ regle_votes=("V",)
+    
+    #get the factors specific to the question and update the periods (fr to us format)
+    factors_question, periods=prepare_query(factors, periods)
+
+    filter_vars_acts={"nb_point_b__gt": 0}
+
+    for variable in variables:
+
+        for regle_vote in regle_votes:
+            filter_vars_acts_temp=filter_vars_acts.copy()
+            filter_vars_acts_temp["adopt_cs_regle_vote"]=regle_vote
+
+            for factor, question in factors_question.iteritems():
+                question=init_question+variable[1]+"=Y et AdoptCSRegleVote="+regle_vote+question
+                res=init(factor, count=False)
+                res=get(factor, res, count=False, filter_vars_acts=filter_vars_acts_temp, adopt_var=variable[0], periods=periods)
+                write(factor, question, res, count=False, periods=periods)

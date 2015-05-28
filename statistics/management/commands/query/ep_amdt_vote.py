@@ -39,49 +39,30 @@ def q100(factors=factors, periods=None, nb_figures_cs=2):
     #1/Moyenne EPVotesFor1-2, 3/Moyenne EPVotesAgst1-2, 5/Moyenne EPVotesAbs1-2, par année, par secteur, par année et par secteur
     variables=(("votes_for_", "EPVotesFor"), ("votes_agst_", "EPVotesAgst"), ("votes_abs_", "EPVotesAbs"))
     
-    #get parameters specific to the question
-    factors_question, filter_vars_acts=get_parameters_question(factors, periods)
+    #get the factors specific to the question and update the periods (fr to us format)
+    factors_question, periods=prepare_query(factors, periods)
 
     for var in variables:
         #the two variables cannot be null or equal to zero at the same time
         exclude_vars_acts={var[0]+"1": 0, var[0]+"2": 0}
         init_question="Nombre moyen de "+var[1]+"1-2"
 
-        for factor, question in factors_question.iteritems():
-            question=init_question+question
-            res=init(factor)
-            res=get(factor, res, variable=var[0]+"1", variable_2=var[0]+"2", filter_vars_acts=filter_vars_acts, exclude_vars_acts=exclude_vars_acts, nb_figures_cs=nb_figures_cs)
-            write(factor, question, res, percent=1)
+        filters=(
+            ("", {}),
+            (" sans point B et sans vote public", {"nb_point_b": 0, "vote_public": False}),
+            (" avec au moins un point B et avec vote public", {"nb_point_b__gt": 0, "vote_public": True})
+        )
 
+        #for each filter
+        for filt in filters:
+            filter_vars_acts=filt[1]
 
-def q100_periods(cs=None):
-    #1/Moyenne EPVotesFor1-2, 2/Moyenne EPVotesAgst1-2, 3/Moyenne EPVotesAbs1-2, suivant différentes périodes
-    variables={"votes_for_": "EPVotesFor", "votes_agst_": "EPVotesAgst", "votes_abs_": "EPVotesAbs"}
-    res_vars={}
-    nb=2
-    Model=Act
-    if cs is not None:
-        list_acts_cs=get_list_acts_cs(cs[0], Model=Model)
-
-    for key, value in variables.iteritems():
-        question="Nombre moyen de "+value+"1-2, par période"
-        filter_vars_acts={key+"1__gt": 0, key+"2__gt": 0}
-        res, filter_vars, filter_total=init_periods(Model, filter_vars_acts=filter_vars_acts)
-
-        #filter by specific cs
-        if cs is not None:
-            question+=" (code sectoriel : "+cs[1]+")"
-
-        for index in range(1, nb+1):
-            i=str(index)
-            res_vars["res_"+i]=list(res)
-
-            if cs is not None:
-                res_vars["res_"+i]=get_by_period_cs(list_acts_cs, res_vars["res_"+i], Model, filter_vars, filter_total, avg_variable=key+i)
-            else:
-                res_vars["res_"+i]=get_by_period(res_vars["res_"+i], Model, filter_vars, filter_total, avg_variable=key+i)
-
-        write_periods(question, res_vars["res_1"], percent=1, res_2=res_vars["res_2"])
+            #for each factor
+            for factor, question in factors_question.iteritems():
+                question=init_question+filt[0]+question
+                res=init(factor)
+                res=get(factor, res, variable=var[0]+"1", variable_2=var[0]+"2", filter_vars_acts=filter_vars_acts, exclude_vars_acts=exclude_vars_acts, periods=periods)
+                write(factor, question, res, percent=1, periods=periods)
 
 
 def q105(factors=factors, periods=None):

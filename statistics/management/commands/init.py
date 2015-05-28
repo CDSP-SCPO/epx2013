@@ -170,6 +170,27 @@ def init_act_type(count):
     return res
 
 
+def init_groupvote_year(count):
+    res={}
+    for groupvote in groupvotes:
+        res[groupvote]={}
+        for year in years_list:
+            temp=init_temp(count)
+            res[groupvote][year]=temp
+
+    #~ print "init groupvote", res
+    return res
+
+
+def init_groupvote_period(count):
+    res={}
+    for groupvote in groupvotes:
+        res[groupvote]=init_temp(count)
+
+    #~ print "init groupvote", res
+    return res
+
+
 def init_month(count=True):
     """
     FUNCTION
@@ -212,7 +233,7 @@ def init(factor, count=True, total=False, amdt=False, empty_dic=False, empty_lis
 
     elif factor=="country":
         res, res_total=init_country(count)
-        
+
     elif factor=="cs":
         res=init_cs(count, total, empty_dic, empty_list)
                 
@@ -224,6 +245,12 @@ def init(factor, count=True, total=False, amdt=False, empty_dic=False, empty_lis
 
     elif factor=="act_type":
         res=init_act_type(count)
+
+    elif factor=="groupvote_year":
+        res=init_groupvote_year(count)
+
+     elif factor=="groupvote_period":
+        res=init_groupvote_period(count)     
 
     if total:
         return res, res_total

@@ -5,7 +5,7 @@ from django.core.management.base import NoArgsCommand
 
 #import specific queries
 from common import *
-from query import acts, adopt_cs, duree, ep_amdt_vote, min_attend, modif_propos, nb_mots, party_family, pers, point_b, type_acte, vote, country
+from query import acts, adopt_cs, duree, ep_amdt_vote, min_attend, modif_propos, nb_mots, party_family, pers, point_b, type_acte, country
 
 
 
@@ -571,6 +571,8 @@ class Command(NoArgsCommand):
         #~ #TEST
         #~ factors=["act_type"]
         #~ factors=["cs"]
+        #~ factors=["periods"]
+        #~ factors=["year"]
         periods=(
             ("01/01/1996", "15/06/1999"),
             ("16/06/1999", "15/06/2004"),
@@ -594,7 +596,7 @@ class Command(NoArgsCommand):
         #~ ep_amdt_vote.q105(factors=factors, periods=periods)
 #~ 
         #~ #Rapport nb amendements adoptés/Déposés ->Rapport Moyenne (EPComAmdtAdopt + EPAmdtAdopt)/ Moyenne (EPComAmdtTabled + EPAmdtTabled)
-        ep_amdt_vote.q106(factors=factors, periods=periods)
+        #~ ep_amdt_vote.q106(factors=factors, periods=periods)
 #~ 
         #~ #Nombre d’actes avec plusieurs rapporteurs (RapporteurPE)
         #~ acts.q133(factors=factors, periods=periods)
@@ -602,11 +604,14 @@ class Command(NoArgsCommand):
         #~ #Moyenne votes PE 1/ for 2/ against 3/ abs 4/ 3/Moyenne vote PE non (EPVotesAgst) avec point B=N et VotePublic=N 5/Moyenne vote PE abs (EPVotesAbs) avec point B=N et VotePublic=N 6/Moyenne vote PE abs (EPVotesAbs) avec point B=Y et VotePublic=Y, Moyenne vote PE non (EPVotesAgst) avec point B=Y et VotePublic=Y
         #~ ep_amdt_vote.q100(factors=factors, periods=periods)
 #~ 
-        #~ #1/ Pourcentage de votes publics (VotePublic=Y) si règle = majorité qualifiée, 2/Pourcentage de votes « contre » (AdoptCSContre=Y), si règle majorité qualifiée 3/ Pourcentage d’abstentions (AdoptCSAbs=Y), si règle majorité qualifiée 4/Pourcentage d’abstentions (AdoptCSAbs=Y), règle unanimité
-        #~ acts.q77(factors=factors, periods=periods)
+        #~ #Pourcentage de votes publics (VotePublic=Y) si règle = majorité qualifiée
+        #~ acts.q107(factors=factors, periods=periods)
+#~ 
+        #~ #1/Pourcentage de votes « contre » (AdoptCSContre=Y), si règle majorité qualifiée 2/ Pourcentage d’abstentions (AdoptCSAbs=Y), si règle majorité qualifiée 3/Pourcentage d’abstentions (AdoptCSAbs=Y), règle unanimité
+        #~ adopt_cs.q97(factors=factors, periods=periods)
         #~ 
         #~ #1/Nombre de votes « contre » (AdoptCSContre=Y), règle V avec 1 EM 2/Nombre d’abstentions (AdoptCSAbs=Y), règle V avec 1 EM 3/Nombre de votes « contre » (AdoptCSContre=Y), règle V avec 2 EM 4/Nombre d’abstentions (AdoptCSAbs=Y), règle V avec 2 EM 5/Nombre d’abstentions (AdoptCSAbs=Y), règle V avec 3 EM 6/Nombre de votes « contre » (AdoptCSAbs=Y), règle V avec 3 EM
-        #~ acts.q134(factors=factors, periods=periods)
+        #~ adopt_cs.q77(factors=factors, periods=periods)
 #~ 
         #~ #Pourcentage d’actes pour lesquels au moins un point B
         #~ acts.q108(factors=factors, periods=periods)
@@ -617,29 +622,36 @@ class Command(NoArgsCommand):
         #~ #Nombre moyen de mots par acte
         #~ nb_mots.q54(factors=factors, periods=periods)
 #~ 
-        #~ #1/Nombre de Votes « contre » (AdoptCSContre=Y) pour chaque EM 2/Nombre de votes « abstentions » (AdoptCSAbs=Y) pour chaque EM 
-        #~ country.q135(factors=factors, periods=periods)
+        #~ #1/Nombre de Votes « contre » (AdoptCSContre=Y) pour chaque EM 2/Nombre de votes « abstentions » (AdoptCSAbs=Y) pour chaque EM
+        #TODO
+        #~ country.q134(factors=factors, periods=periods)
 #~ 
-        #~ #1/Nombre de Votes « contre » (AdoptCSContre=Y) pour les actes avec au moins un point B et V 2/Nombre de Votes « contre » (AdoptCSContre=Y) pour les actes avec au moins un point B et AdoptCSRegleVote=V 3/Nombre de Votes « contre » (AdoptCSContre=Y) pour les actes avec au moins un point B et AdoptCSRegleVote=U 4/Nombre de votes « abstention » (AdoptCSAbs=Y) pour les actes avec au moins un point B et AdoptCSRegleVote=V 5/Nombre de votes « abstention » (AdoptCSAbs=Y) pour les actes avec au moins un point B et AdoptCSRegleVote=U
-        #~ acts.q136(factors=factors, periods=periods)
+        #~ #1/Nombre de Votes « contre » (AdoptCSContre=Y) pour les actes avec au moins un point B et AdoptCSRegleVote=V 2/Nombre de Votes « contre » (AdoptCSContre=Y) pour les actes avec au moins un point B et AdoptCSRegleVote=U 3/Nombre de votes « abstention » (AdoptCSAbs=Y) pour les actes avec au moins un point B et AdoptCSRegleVote=V 4/Nombre de votes « abstention » (AdoptCSAbs=Y) pour les actes avec au moins un point B et AdoptCSRegleVote=U
+        #~ adopt_cs.q135(factors=factors, periods=periods)
 #~ 
         #~ #Nombre d’actes adoptés pour chaque DGProposition
-        #~ dg.q137(factors=factors, periods=periods)
+        #TODO
+        #~ dg.q136(factors=factors, periods=periods)
 #~ 
         #~ #% Familles politiques des RespPropos
+        #TODO
         #~ party_family.q94(factors=factors, periods=periods)
 #~ 
         #~ #% Nationalités des RespPropos
+        #TODO
         #~ country.q101(factors=factors, periods=periods)
 #~ 
         #~ #% Groupes RapporteurPE
-        #~ pol_group.q138(factors=factors, periods=periods)
+        #TODO
+        #~ pol_group.q137(factors=factors, periods=periods)
 #~ 
         #~ #% Nationalités RapporteurPE
+        #TODO
         #~ country.q102(factors=factors, periods=periods)
 #~ 
         #~ #1/Cohésion moyenne pour chaque Groupe PE 2/Moyenne vote « oui » pour chaque groupe PE 3/Moyenne vote « non » pour chaque groupe PE 4/Moyenne vote « abstention » pour chaque groupe PE 5/Moyenne « present » pour chaque groupe PE 6/Moyenne « absent » pour chaque groupe PE 7/Moyenne « non voters » pour chaque groupe PE
-        #~ vote.q139(factors=factors, periods=periods)
+        factors=["groupvote_year"]
+        acts.q138(factors=factors, periods=periods)
 #~ 
         #~ #% d’actes pour lesquels 
         #ALDE « For » égal ou supérieur à 66
@@ -650,7 +662,8 @@ class Command(NoArgsCommand):
         #PPE « For » égal ou supérieur à 192
         #PSE « For » égal ou supérieur à 145
         #UEN « For » égal ou supérieur à 29
-        #~ vote.q140(factors=factors, periods=periods)
+        #~ acts.q139(factors=factors, periods=periods)
 #~ 
         #~ #Pourcentage d’actes avec plusieurs bases juridiques
+        #~ factors=["year", "periods", "cs", "act_type"]
         #~ acts.q57(factors=factors, periods=periods)

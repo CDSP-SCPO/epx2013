@@ -116,7 +116,7 @@ def get_act(Model, act):
     return act
 
 
-def check_vars(act, act_act, check_vars_act, check_vars_act_ids, adopt_var=None):
+def check_vars(act, act_act, check_vars_act, check_vars_act_ids, adopt_var=None, nb_adopt_var=None, query=None):
     """
     FUNCTION
     from a filter dictionary using django syntax, check whether an act respects the criteria given in the analysis (for percentage computation)
@@ -130,20 +130,25 @@ def check_vars(act, act_act, check_vars_act, check_vars_act_ids, adopt_var=None)
     True if the act respects the criteria and False otherwise [boolean]
     """
     for key, value in check_vars_act.iteritems():
-            #greater than: "nb_lectures__gt": 1
-            if key[-4:]=="__gt":
-                if getattr(act_act, key[:-4])<=value:
+        #greater than: "nb_lectures__gt": 1
+        if key[-4:]=="__gt":
+            #acts.q57: Pourcentage d'actes avec plusieurs bases juridiques
+            if query=="base_j":
+                bj=check_bj(act_act.base_j)
+                if not bj:
                     return False
-            #greater than or equal: "nb_lectures__gte": 1
-            elif key[-5:]=="__gte":
-                if getattr(act_act, key[:-5])<value:
-                    return False
-            #nb_lectures__in
-            elif key[-4:]=="__in":
-                if getattr(act_act, key[:-4]) not in value:
-                    return False
-            elif getattr(act_act, key)!=value:
+            elif getattr(act_act, key[:-4])<=value:
                 return False
+        #greater than or equal: "nb_lectures__gte": 1
+        elif key[-5:]=="__gte":
+            if getattr(act_act, key[:-5])<value:
+                return False
+        #nb_lectures__in
+        elif key[-4:]=="__in":
+            if getattr(act_act, key[:-4]) not in value:
+                return False
+        elif getattr(act_act, key)!=value:
+            return False
                 
     for key, value in check_vars_act_ids.iteritems():
         #acts.q132 no_unique_type <> COD
@@ -153,10 +158,25 @@ def check_vars(act, act_act, check_vars_act, check_vars_act_ids, adopt_var=None)
         elif getattr(act, key)!=value:
             return False
 
+    #adopt_var is not None -> check if AdoptCSContre=Y or AdoptCSAbs=Y
+    #nb_adopt_var -> if not None, it means we check that AdoptCSContre=Y or AdoptCSAbs=Y AND that there is a certain number of countries (1EM, 2 EM, 3EM)
     if adopt_var is not None:
-        if not getattr(act, adopt_var).exists():
-            return False
-    
+        #check that AdoptCSContre=Y or AdoptCSAbs=Y
+        if nb_adopt_var is None:
+            #~ print act_act
+            #~ print "adopt?"
+            if not getattr(act, adopt_var).exists():
+                #~ print "adopt=yes"
+                return False
+        else:
+            #check that AdoptCSContre=Y or AdoptCSAbs=Y AND that there is a certain number of countries (1EM, 2 EM, 3EM)
+            #adopt_cs.q77: Pourcentage d’actes adoptés avec opposition de deux deux états
+            countries=getattr(act_act, adopt_var)
+            #~ print "nb_adopt_var", nb_adopt_var
+            #~ print "len(countries.all())", len(countries.all())
+            if len(countries.all())!=nb_adopt_var:
+                return False
+
     return True
 
 
@@ -367,9 +387,41 @@ def compute_no_minister(act_act, res_temp, query):
         res_temp[1]+=total
                         
     return res_temp
+
+
+def compute_groupvote(act_act, res_temp, groupvote, groupvote_var_index):
+    groupnames=getattr(act_act, "group_vote_names")
+
+    #there are group vote data for the current act
+    if groupnames not in [None, ""]:
+        index=-1
+        #what's the index of the group we are looking for? (each group is separated with ";")
+        groupnames=groupnames.split(";")
+
+        #check that the group is part of the groups of the act
+        for i, group in enumerate(groupnames):
+            #~ print "group", group
+            #~ print "groupvote", groupvote
+            if group==groupvote:
+                index=i
+                break
+
+        #if the group exists
+        if index != -1:
+
+            groupvote_vars=getattr(act_act, "group_vote_"+str(index)).split(";")
+            
+            variable=groupvote_vars[groupvote_var_index]
+            print "variable", variable
+
+            if variable not in [None, "None", ""]:
+                res_temp[0]+=float(variable)
+                res_temp[1]+=1
+                             
+    return res_temp
     
 
-def compute(Model, act_act, act, res_temp, value, count, variable=None, ok=None, same=None, adopt_var=None, res_total=None, query=None):
+def compute(Model, act_act, act, res_temp, value, count, variable=None, ok=None, same=None, res_total=None, query=None, groupvote=None, groupvote_var_index=None):
     """
     FUNCTION
     do the temporary computation of the current analysis of the current subfactor
@@ -383,7 +435,6 @@ def compute(Model, act_act, act, res_temp, value, count, variable=None, ok=None,
     variable: variable to use (for average computation) [string]
     ok: indicate whether an act respects the criteria of the analysis (for average computation) [boolean]
     same: indicate whether the rapps and resps variables of the current act have the same party family [boolean]
-    adopt_var: when using adopt_cs_abs or adopt_cs_contre variables, this indicator tells the program to perform a different result computation [boolean]
     res_total: store the temporary result of the total of each row / column (row / column analysis) [int]
     query: name of the specific query to realize [string]
     RETURN
@@ -403,20 +454,27 @@ def compute(Model, act_act, act, res_temp, value, count, variable=None, ok=None,
             #q122: Pourcentage d'actes avec au moins un EM sans statut 'M' (et au moins un 'CS' ou 'CS_PR')
             if query=="no_minister_percent":
                 res_temp=compute_no_minister(act_act, res_temp, query)
+            #acts.q138: group votes queries
+            elif groupvote_var_index is not None:
+                res_temp=compute_groupvote(act_act, res_temp, groupvote, groupvote_var_index)
             else:
-                #~ print "res_temp", res_temp
-                res_temp[1]+=1
-                #check discordance: if there are at least two different party families (one from the rapps, one from the resps)
-                if same is not None:
-                    if not same:
+                #if filter_current_act is False, don't take the act into account
+                filter_current_act=True
+                #acts.q108 filter nb point b is not null OR nb point a is not null
+                if query=="pt_b_OR_a":
+                    filter_current_act=check_var1_var2(act_act.nb_point_a, act_act.nb_point_b)
+
+                if filter_current_act:
+                    #~ print "res_temp", res_temp
+                    res_temp[1]+=1
+                    #check discordance: if there are at least two different party families (one from the rapps, one from the resps)
+                    if same is not None:
+                        if not same:
+                            res_temp[0]+=value
+                    elif variable is not None or ok:
                         res_temp[0]+=value
-                elif adopt_var is not None:
-                    #q77: Pourcentage d’actes adoptés avec opposition d'au moins deux états
-                    countries=getattr(act_act, adopt_var)
-                    if len(countries.all())>=query:
-                        res_temp[0]+=value   
-                elif variable is not None or ok:
-                    res_temp[0]+=value
+                    #~ else:
+                        #~ print "pb"
     else:
         if res_total is not None and ok:
             #~ print act_act, res_total
@@ -425,7 +483,8 @@ def compute(Model, act_act, act, res_temp, value, count, variable=None, ok=None,
         #q122: Nombre d'actes avec au moins un / au moins deux EM sans statut 'M' (et au moins un 'CS' ou 'CS_PR')
         if query in ["no_minister_nb_1", "no_minister_nb_2", "nb_attendances"]:
             res_temp=compute_no_minister(act_act, res_temp, query)
-        else:
+        elif ok:
+            #~ print "youpi"
             res_temp+=value
 
     #~ print "get compute: res_temp", res_temp
@@ -500,7 +559,7 @@ def get_all_year_periods(factor, Model, res, act_act, act, value, count, adopt_v
         #copy data for computation
         res_temp=copy_res(res_subfactor)
         #computation
-        res_temp, res_total=compute(Model, act_act, act, res_temp, value, count, variable, ok, same, adopt_var=adopt_var, res_total=res_total, query=query)
+        res_temp, res_total=compute(Model, act_act, act, res_temp, value, count, variable, ok, same, res_total=res_total, query=query)
         #copy data back to res dictionary (for final result)
         res=update_res(factor, res, res_temp, year=year)
     return res, res_total
@@ -532,7 +591,7 @@ def get_countries(factor, Model, res, act_act, act, value, count, adopt_var, ok,
         #copy data for computation
         res_temp=copy_res(res[country_code])
         #computation
-        res_temp, res_total=compute(Model, act_act, act, res_temp, value, count, ok=ok, adopt_var=adopt_var, res_total=res_total)
+        res_temp, res_total=compute(Model, act_act, act, res_temp, value, count, ok=ok, res_total=res_total)
         #copy data back to res dictionary (for final result)
         res=update_res(factor, res, res_temp, country=country_code)
         
@@ -614,6 +673,24 @@ def get_act_type(factor, Model, res, act_act, act, value, count, variable, ok, s
     return res
     
 
+def get_groupvote_year(factor, Model, res, act_act, act, value, count, variable, ok, same, query, groupvote_var_index):
+
+    year=str(act_act.releve_annee)
+    for groupvote in groupvotes:
+
+        #~ print "year", year
+        #~ print "groupvote", groupvote
+        
+        #copy data for computation
+        res_temp=copy.copy(res[groupvote][year])
+        #computation
+        res_temp, res_total=compute(Model, act_act, act, res_temp, value, count, variable, ok, same, query=query, groupvote=groupvote, groupvote_var_index=groupvote_var_index)
+        #copy data back to res dictionary (for final result)
+        res[groupvote][year]=res_temp
+
+    return res
+
+    
 def check_var1_var2(val_1, val_2):
     """
     FUNCTION
@@ -629,7 +706,7 @@ def check_var1_var2(val_1, val_2):
     return True
     
 
-def get(factor, res_init, Model=Act, count=True, variable=None, variable_2=None, excluded_values=[None, ""], filter_vars_acts={}, filter_vars_acts_ids={}, exclude_vars_acts={},check_vars_acts={}, check_vars_acts_ids={}, query=None, adopt_var=None, num_vars=None, denom_vars=None, operation=None, res_total_init=None, periods=None):
+def get(factor, res_init, Model=Act, count=True, variable=None, variable_2=None, excluded_values=[None, ""], filter_vars_acts={}, filter_vars_acts_ids={}, exclude_vars_acts={},check_vars_acts={}, check_vars_acts_ids={}, query=None, adopt_var=None, nb_adopt_var=None, num_vars=None, denom_vars=None, operation=None, res_total_init=None, periods=None, groupvote_var_index=None):
     """
     FUNCTION
     update and get the result dictionary with all the acts
@@ -648,6 +725,7 @@ def get(factor, res_init, Model=Act, count=True, variable=None, variable_2=None,
     check_vars_acts_ids: checking criteria from the ActIds model [dictionary]
     query: name of the specific query to realize [string]
     adopt_var: when using adopt_cs_abs or adopt_cs_contre variables, this indicator tells the program to perform a different result computation [boolean]
+    nb_adopt_var is: we check that AdoptCSContre=Y or AdoptCSAbs=Y AND that there is a certain number of countries (1EM, 2 EM, 3EM)
     num_vars: for division queries, list of numerator variables [list of strings]
     denom_vars: for division queries, list of denominator variables [list of strings]
     operation: for division queries, operation to perform for the numerator and the denominator [string]
@@ -689,7 +767,10 @@ def get(factor, res_init, Model=Act, count=True, variable=None, variable_2=None,
                     value_2=getattr(act, variable_2)
                     ok=check_var1_var2(value, value_2)
             if (value not in excluded_values and ok) or (variable_2 not in excluded_values and ok):
-                ok=check_vars(act, act_act, check_vars_acts, check_vars_acts_ids, adopt_var)
+                ok=check_vars(act, act_act, check_vars_acts, check_vars_acts_ids, adopt_var, nb_adopt_var, query=query)
+                #~ print act_act
+                #~ print ok
+                #~ print ""
 
                 #division mode, res=num/denom -> q111: #Nombre moyen de EPComAmdtAdopt / EPComAmdtTabled
                 if num_vars is not None:
@@ -703,15 +784,24 @@ def get(factor, res_init, Model=Act, count=True, variable=None, variable_2=None,
 
                 if factor in ["all", "year", "periods"]:
                     res_temp, res_total_temp=get_all_year_periods(factor, Model, res_temp, act_act, act, value, count, adopt_var, variable, ok, same, res_total_temp, query)
+                    
                 elif factor=="country":
                     res_temp, res_total_temp=get_countries(factor, Model, res_temp, act_act, act, value, count, adopt_var, ok, res_total_temp)
                     #~ print "end get: res_temp", res_temp
                     #~ print "end get: res_total_temp", res_total_temp
+                    
                 elif factor in ["cs", "csyear"]:
                     #~ print "res_temp", res_temp
                     res_temp=get_cs_csyear(factor, Model, res_temp, act_act, act, value, count, variable, ok, same, query)
+                    
                 elif factor=="act_type":
                     res_temp=get_act_type(factor, Model, res_temp, act_act, act, value, count, variable, ok, same, query)
+                    
+                elif factor=="groupvote_year":
+                    res_temp=get_groupvote_year(factor, Model, res_temp, act_act, act, value, count, variable, ok, same, query, groupvote_var_index)
+
+                elif factor=="groupvote_period":
+                    res_temp=groupvote_period(factor, Model, res_temp, act_act, act, value, count, variable, ok, same, query, groupvote_var_index)
 
             #~ break
 
