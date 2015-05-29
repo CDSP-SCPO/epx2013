@@ -64,33 +64,6 @@ def q102():
         res=init_cs_year(total=True, empty_dic=True)
         res=get_percent_pers_cs(res, "rapp", nb_rapp, var="country", year_var=True, filter_vars={"no_unique_type": "COD", nb_lec[1]: 1})
         write_percent_pers_cs_year(question, res, "RapporteurPE", var="country")
-       
-
-#does not work
-def q114(factors=factors, periods=None):
-    #1/pourcentage de AdoptCSContre et 2/pourcentage de AdoptCSAbs pour chaque Etat membre, par périodes
-    variables=(("adopt_cs_abs", "AdoptCSAbs"), ("adopt_cs_contre", "AdoptCSContre"))
-    init_question="Pourcentage de "
-
-    #get the factors specific to the question
-    factors_question=get_factors_question(factors)
-    
-    for var in variables:
-        init_question_2=""
-        filter_vars_acts={}
-        if var[0]=="adopt_cs_contre":
-            filter_vars_acts={"adopt_cs_regle_vote": "V"}
-            init_question_2=", parmi les actes avec AdoptCSRegleVote=V"
-            
-        #~ exclude_vars_acts={var[0]: None}
-
-        #for each factor
-        for factor, question in factors_question.iteritems():
-            question=init_question+var[1]+"=Y"+init_question_2+question
-            res, res_total=init(factor, count=False, total=True)
-            res, res_total=get(factor, res, count=False, filter_vars_acts=filter_vars_acts, res_total_init=res_total, adopt_var=var[0])
-            write(factor, question, res, count=False, res_total=res_total)
-
 
 
 def q126(factors=factors, periods=None):
@@ -99,6 +72,22 @@ def q126(factors=factors, periods=None):
     #get the factors specific to the question and update the periods (fr to us format)
     factors_question, periods=prepare_query(factors, periods)
     variable="adopt_cs_abs"
+    exclude_vars_acts={variable: None}
+    
+    #for each factor
+    for factor, question in factors_question.iteritems():
+        question=init_question+question
+        res, res_total=init(factor, count=False, total=True)
+        res, res_total=get(factor, res, exclude_vars_acts=exclude_vars_acts, count=False, res_total_init=res_total, adopt_var=variable)
+        write(factor, question, res, count=False, res_total=res_total)
+
+
+def q134(factors=factors, periods=None):
+    #1/Nombre de Votes « contre » (AdoptCSContre=Y) pour chaque EM 2/Nombre de votes « abstentions » (AdoptCSAbs=Y) pour chaque EM
+    init_question="Nombre de Parmi les votes AdoptCSAbs=Y, pourcentage de votes de chaque Etat membre"
+    #get the factors specific to the question and update the periods (fr to us format)
+    factors_question, periods=prepare_query(factors, periods)
+    variables=(("adopt_cs_abs", "AdoptCSAbs"), ("adopt_cs_contre", "AdoptCSContre"))
     exclude_vars_acts={variable: None}
     
     #for each factor

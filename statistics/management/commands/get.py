@@ -389,7 +389,21 @@ def compute_no_minister(act_act, res_temp, query):
     return res_temp
 
 
-def compute_groupvote(act_act, res_temp, groupvote, groupvote_var_index):
+def compute_groupvote_majority(res, groupvote, variable):
+    groups={"ALDE/ADLE": 66, "GREENS/EFA": 29, "GUE-NGL": 27, "IND/DEM": 15, "NI": 20, "PPE": 192, "PSE": 145, "UEN": 29}
+
+    for group, value in groups.iteritems():
+        if groupvote == group:
+            res[1]+=1
+            if int(variable)>=value:
+                print variable, value
+                res[0]+=1
+            break
+    
+    return res
+
+
+def compute_groupvote(act_act, res_temp, groupvote, groupvote_var_index, query):
     groupnames=getattr(act_act, "group_vote_names")
 
     #there are group vote data for the current act
@@ -412,11 +426,15 @@ def compute_groupvote(act_act, res_temp, groupvote, groupvote_var_index):
             groupvote_vars=getattr(act_act, "group_vote_"+str(index)).split(";")
             
             variable=groupvote_vars[groupvote_var_index]
-            print "variable", variable
+            #~ print "variable", variable
 
             if variable not in [None, "None", ""]:
-                res_temp[0]+=float(variable)
-                res_temp[1]+=1
+                #query with majority requires votes higher than a given value (groupvote.q139)
+                if query=="groupvote_majority":
+                    res_temp=compute_groupvote_majority(res_temp, groupvote, variable)
+                else:
+                    res_temp[0]+=float(variable)
+                    res_temp[1]+=1
                              
     return res_temp
     
@@ -456,7 +474,7 @@ def compute(Model, act_act, act, res_temp, value, count, variable=None, ok=None,
                 res_temp=compute_no_minister(act_act, res_temp, query)
             #acts.q138: group votes queries
             elif groupvote_var_index is not None:
-                res_temp=compute_groupvote(act_act, res_temp, groupvote, groupvote_var_index)
+                res_temp=compute_groupvote(act_act, res_temp, groupvote, groupvote_var_index, query)
             else:
                 #if filter_current_act is False, don't take the act into account
                 filter_current_act=True
@@ -520,7 +538,7 @@ def update_res(factor, res, res_temp, cs=None, year=None, country=None):
     return res
 
 
-def get_all_year_periods(factor, Model, res, act_act, act, value, count, adopt_var, variable, ok, same, res_total, query):
+def get_all_year(factor, Model, res, act_act, act, value, count, adopt_var, variable, ok, same, res_total, query):
     """
     FUNCTION
     update the result dictionary with the current act ("all", "year" or "periods" analysis)
@@ -543,13 +561,9 @@ def get_all_year_periods(factor, Model, res, act_act, act, value, count, adopt_v
     res_total: result dictionary of the total of each row / column (row / column analysis) [dictionary]
     """
     nb_css=1
-    #q77: by periods for a specific cs
-    if factor=="periods" and len(css)==1:
-        #get all css
-        nb_css=len(get_all_css(act_act))
-
     year=None
     res_subfactor=res
+    
     if factor=="year":
         year=str(act_act.releve_annee)
         res_subfactor=res[year]
@@ -562,6 +576,28 @@ def get_all_year_periods(factor, Model, res, act_act, act, value, count, adopt_v
         res_temp, res_total=compute(Model, act_act, act, res_temp, value, count, variable, ok, same, res_total=res_total, query=query)
         #copy data back to res dictionary (for final result)
         res=update_res(factor, res, res_temp, year=year)
+    return res, res_total
+
+
+
+def check_period(act_act, period):
+    adopt_conseil=act_act.adopt_conseil
+    if adopt_conseil>=period[1] and adopt_conseil<=period[2]:
+        return True
+    return False
+    
+
+def get_period(factor, Model, res, act_act, act, value, count, adopt_var, variable, ok, same, res_total, query, periods):
+    #for each period
+    for period in periods:
+        #the act belongs to the current period -> process it
+        if check_period(act_act, period):
+            #copy data for computation
+            res_temp=copy.copy(res[period[0]])
+            #computation
+            res_temp, res_total=compute(Model, act_act, act, res_temp, value, count, variable, ok, same, res_total=res_total, query=query)
+            #copy data back to res dictionary (for final result)
+            res[period[0]]=res_temp
     return res, res_total
 
 
@@ -690,6 +726,44 @@ def get_groupvote_year(factor, Model, res, act_act, act, value, count, variable,
 
     return res
 
+
+def get_groupvote_period(factor, Model, res, act_act, act, value, count, variable, ok, same, query, groupvote_var_index, periods):
+    for groupvote in groupvotes:
+        for period in periods:
+            if check_period(act_act, period):
+                #copy data for computation
+                res_temp=copy.copy(res[groupvote][period[0]])
+                #computation
+                res_temp, res_total=compute(Model, act_act, act, res_temp, value, count, variable, ok, same, query=query, groupvote=groupvote, groupvote_var_index=groupvote_var_index)
+                #copy data back to res dictionary (for final result)
+                res[groupvote][period[0]]=res_temp
+
+    return res
+
+
+def get_groupvote_cs(factor, Model, res, act_act, act, value, count, variable, ok, same, query, groupvote_var_index):
+    #get all css
+    css=get_all_css(act_act)
+    
+    for groupvote in groupvotes:
+        for cs in css:
+            #computation
+            res_temp, res_total=compute(Model, act_act, act, res[groupvote][cs], value, count, variable, ok, same, query=query, groupvote=groupvote, groupvote_var_index=groupvote_var_index)
+            #copy data back to res dictionary (for final result)
+            res[groupvote][cs]=res_temp
+
+    return res
+
+
+def get_groupvote_acttype(factor, Model, res, act_act, act, value, count, variable, ok, same, query, groupvote_var_index):
+    key=get_act_type_key(act_act.type_acte)
+    if key is not None:
+        for groupvote in groupvotes:
+            #computation
+            res[groupvote][key], res_total=compute(Model, act_act, act, res[groupvote][key], value, count, variable, ok, same, query=query, groupvote=groupvote, groupvote_var_index=groupvote_var_index)
+    return res
+
+
     
 def check_var1_var2(val_1, val_2):
     """
@@ -706,7 +780,7 @@ def check_var1_var2(val_1, val_2):
     return True
     
 
-def get(factor, res_init, Model=Act, count=True, variable=None, variable_2=None, excluded_values=[None, ""], filter_vars_acts={}, filter_vars_acts_ids={}, exclude_vars_acts={},check_vars_acts={}, check_vars_acts_ids={}, query=None, adopt_var=None, nb_adopt_var=None, num_vars=None, denom_vars=None, operation=None, res_total_init=None, periods=None, groupvote_var_index=None):
+def get(factor, res, Model=Act, count=True, variable=None, variable_2=None, excluded_values=[None, ""], filter_vars_acts={}, filter_vars_acts_ids={}, exclude_vars_acts={},check_vars_acts={}, check_vars_acts_ids={}, query=None, adopt_var=None, nb_adopt_var=None, num_vars=None, denom_vars=None, operation=None, res_total=None, periods=None, groupvote_var_index=None):
     """
     FUNCTION
     update and get the result dictionary with all the acts
@@ -734,84 +808,71 @@ def get(factor, res_init, Model=Act, count=True, variable=None, variable_2=None,
     RETURN
     res: final result dictionary [dictionary]
     """
-    res=[]
-    res_total=[]
     same=None
 
     filter_vars=get_include_filter(Model, filter_vars_acts=filter_vars_acts, filter_vars_acts_ids=filter_vars_acts_ids)
     exclude_vars=get_exclude_filter(Model, factor, exclude_vars_acts, exclude_vars_acts_ids={})
-    #if factor != period, nb_periods=1 so we loop once and once only through all the acts
-    nb_periods=get_nb_periods(factor, periods)
 
-    #for each period (if the factor is not the period, we loop through all the acts once)
-    for index in range(nb_periods):
-        res_temp=copy.deepcopy(res_init)
-        res_total_temp=copy.deepcopy(res_total_init)
-        
-        #if analysis by period
-        if factor=="periods":
-            filter_vars=get_include_filter_periods(Model, periods[index], filter_vars)
+    #for each act
+    #~ print "filter_vars", filter_vars
+    #~ print "exclude_vars", exclude_vars
+    #~ print Model.objects.filter(**filter_vars).exclude(**exclude_vars).query
+    for act in Model.objects.filter(**filter_vars).exclude(**exclude_vars):
+        ok=True
+        act_act=get_act(Model, act)
 
-        #for each act
-        #~ print "filter_vars", filter_vars
-        #~ print "exclude_vars", exclude_vars
-        #~ print Model.objects.filter(**filter_vars).exclude(**exclude_vars).query
-        for act in Model.objects.filter(**filter_vars).exclude():
-            ok=True
-            act_act=get_act(Model, act)
+        value=1
+        if variable is not None:
+            value=getattr(act, variable)
+            if variable_2 is not None:
+                value_2=getattr(act, variable_2)
+                ok=check_var1_var2(value, value_2)
+        if (value not in excluded_values and ok) or (variable_2 not in excluded_values and ok):
+            ok=check_vars(act, act_act, check_vars_acts, check_vars_acts_ids, adopt_var, nb_adopt_var, query=query)
+            #~ print act_act
+            #~ print ok
+            #~ print ""
 
-            value=1
-            if variable is not None:
-                value=getattr(act, variable)
-                if variable_2 is not None:
-                    value_2=getattr(act, variable_2)
-                    ok=check_var1_var2(value, value_2)
-            if (value not in excluded_values and ok) or (variable_2 not in excluded_values and ok):
-                ok=check_vars(act, act_act, check_vars_acts, check_vars_acts_ids, adopt_var, nb_adopt_var, query=query)
-                #~ print act_act
-                #~ print ok
-                #~ print ""
+            #division mode, res=num/denom -> q111: #Nombre moyen de EPComAmdtAdopt / EPComAmdtTabled
+            if num_vars is not None:
+                value=get_division_res(act_act, num_vars, denom_vars, operation)
+            #"1+2" with at least one non null value -> q100: Moyenne EPVotesFor1-2
+            elif variable_2 is not None:
+                value=get_average_res([value, value_2])
+            #get percentage of different political families for rapp1 and resp1
+            elif query=="discordance":
+                same=compare_all_rapp_resp(act_act)
 
-                #division mode, res=num/denom -> q111: #Nombre moyen de EPComAmdtAdopt / EPComAmdtTabled
-                if num_vars is not None:
-                    value=get_division_res(act_act, num_vars, denom_vars, operation)
-                #"1+2" with at least one non null value -> q100: Moyenne EPVotesFor1-2
-                elif variable_2 is not None:
-                    value=get_average_res([value, value_2])
-                #get percentage of different political families for rapp1 and resp1
-                elif query=="discordance":
-                    same=compare_all_rapp_resp(act_act)
+            if factor in ["all", "year"]:
+                res, res_total=get_all_year(factor, Model, res, act_act, act, value, count, adopt_var, variable, ok, same, res_total, query)
 
-                if factor in ["all", "year", "periods"]:
-                    res_temp, res_total_temp=get_all_year_periods(factor, Model, res_temp, act_act, act, value, count, adopt_var, variable, ok, same, res_total_temp, query)
-                    
-                elif factor=="country":
-                    res_temp, res_total_temp=get_countries(factor, Model, res_temp, act_act, act, value, count, adopt_var, ok, res_total_temp)
-                    #~ print "end get: res_temp", res_temp
-                    #~ print "end get: res_total_temp", res_total_temp
-                    
-                elif factor in ["cs", "csyear"]:
-                    #~ print "res_temp", res_temp
-                    res_temp=get_cs_csyear(factor, Model, res_temp, act_act, act, value, count, variable, ok, same, query)
-                    
-                elif factor=="act_type":
-                    res_temp=get_act_type(factor, Model, res_temp, act_act, act, value, count, variable, ok, same, query)
-                    
-                elif factor=="groupvote_year":
-                    res_temp=get_groupvote_year(factor, Model, res_temp, act_act, act, value, count, variable, ok, same, query, groupvote_var_index)
+            elif factor=="period":
+                res, res_total=get_period(factor, Model, res, act_act, act, value, count, adopt_var, variable, ok, same, res_total, query, periods)
+                
+            elif factor=="country":
+                res, res_total=get_countries(factor, Model, res, act_act, act, value, count, adopt_var, ok, res_total)
+                
+            elif factor in ["cs", "csyear"]:
+                res=get_cs_csyear(factor, Model, res, act_act, act, value, count, variable, ok, same, query)
+                
+            elif factor=="act_type":
+                res=get_act_type(factor, Model, res, act_act, act, value, count, variable, ok, same, query)
+                
+            elif factor=="groupvote_year":
+                res=get_groupvote_year(factor, Model, res, act_act, act, value, count, variable, ok, same, query, groupvote_var_index)
 
-                elif factor=="groupvote_period":
-                    res_temp=groupvote_period(factor, Model, res_temp, act_act, act, value, count, variable, ok, same, query, groupvote_var_index)
+            elif factor=="groupvote_period":
+                res=get_groupvote_period(factor, Model, res, act_act, act, value, count, variable, ok, same, query, groupvote_var_index, periods)
 
-            #~ break
+            elif factor=="groupvote_cs":
+                res=get_groupvote_cs(factor, Model, res, act_act, act, value, count, variable, ok, same, query, groupvote_var_index)
 
-        res.append(res_temp)
-        if res_total_init is not None:
-            res_total.append(res_total_temp)
+            elif factor=="groupvote_acttype":
+                res=get_groupvote_acttype(factor, Model, res, act_act, act, value, count, variable, ok, same, query, groupvote_var_index)
 
     print "res", res
         
-    if res_total_init is not None:
+    if res_total is not None:
         return res, res_total
     
     return res

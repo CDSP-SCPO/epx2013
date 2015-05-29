@@ -112,7 +112,7 @@ def write_all(res, res_2, count, percent, query):
     writer.writerow([res_final])
 
 
-def write_cs_year_country_periods(factor, res, res_2, count, percent, query, res_total, periods):
+def write_cs_year_country(factor, res, res_2, count, percent, query, res_total, periods):
     """
     FUNCTION
     write the results table of the query in a csv file (year, cs, country or periods analysis)
@@ -138,32 +138,32 @@ def write_cs_year_country_periods(factor, res, res_2, count, percent, query, res
         list_var=css
     elif factor=="country":
         list_var=countries_list
-    elif factor=="periods":
-        list_var=range(len(res))
 
-    #header: every period
-    if factor=="periods":
-        header=[]
-        for period in periods:
-            header.append(period[0])
-        writer.writerow(header)
-    else:
-        writer.writerow(list_var)
+    #write headers
+    writer.writerow(list_var)
         
     for var in list_var:
-        #~ print var
         if res_2 is not None:
             res_2_temp=res_2[var]
-
-        if res_total is not None:
-            if factor=="periods":
-                res_total_temp=res_total[var]
-            #~ else:
-                #~ res_total_temp=res_total[0]
         res_final=compute(res[var], res_2_temp, count, percent, query, res_total_temp)
         row.append(res_final)
+        
     writer.writerow(row)
 
+
+def write_period(factor, res, res_2, count, percent, query, res_total, periods):
+    header=[]
+    for period in periods:
+        header.append(period[0])
+    writer.writerow(header)
+
+    row=[]
+    for period in res:
+        res_final=compute(res[period], res_2, count, percent, query, res_total)
+        row.append(res_final)
+        
+    writer.writerow(row)
+        
 
 def write_csyear(res, res_2, count, percent, query):
     """
@@ -228,7 +228,52 @@ def write_groupvote_year(res, count, percent, query):
         
         writer.writerow(row)
 
-    
+
+def write_groupvote_period(res, count, percent, query, periods):
+    periods_header=[""]
+    for period in periods:
+        periods_header.append(period[0])
+    writer.writerow(periods_header)
+
+    for groupvote in groupvotes:
+        row=[groupvote]
+        for period in periods:
+            #~ print "res[groupvote]", res[groupvote]
+            #~ print "res[groupvote][period]", res[groupvote][period]
+            res_final=compute(res[groupvote][period[0]], None, count, percent, query)
+            row.append(res_final)
+        
+        writer.writerow(row)
+
+
+def write_groupvote_cs(res, count, percent, query):
+    headers=[""]
+    headers=headers+css
+    writer.writerow(headers)
+
+    for groupvote in groupvotes:
+        row=[groupvote]
+        for cs in css:
+            res_final=compute(res[groupvote][cs], None, count, percent, query)
+            row.append(res_final)
+        
+        writer.writerow(row)
+
+
+def write_groupvote_acttype(res, count, percent, query):
+    headers=[""]
+    headers=headers+act_types_keys
+    writer.writerow(headers)
+
+    for groupvote in groupvotes:
+        row=[groupvote]
+        for key in act_types_keys:
+            res_final=compute(res[groupvote][key], None, count, percent, query)
+            row.append(res_final)
+        
+        writer.writerow(row)
+
+
 def write(factor, question, res, res_2=None, count=True, percent=100, query=None, res_total=None, periods=None):
     """
     FUNCTION
@@ -249,23 +294,28 @@ def write(factor, question, res, res_2=None, count=True, percent=100, query=None
     print question
     writer.writerow([question])
 
+    #~ print "res", res
+
     #if we don't want to compute a percentage but count the number of occurences
     if not count and res_total is None:
         percent=1
 
     #only one period -> first element of the list
-    if factor != "periods":
-        res=res[0]
-        if res_2 is not None:
-            res_2=res_2[0]
-        if res_total is not None:
-            res_total=res_total[0]
-    
+    #~ if factor != "period":
+        #~ res=res[0]
+        #~ if res_2 is not None:
+            #~ res_2=res_2[0]
+        #~ if res_total is not None:
+            #~ res_total=res_total[0]
+    #~ 
     if factor=="all":
         write_all(res, res_2, count, percent, query)
 
-    elif factor in ["cs", "year", "country", "periods"]:
-        write_cs_year_country_periods(factor, res, res_2, count, percent, query, res_total, periods)
+    elif factor in ["cs", "year", "country"]:
+        write_cs_year_country(factor, res, res_2, count, percent, query, res_total, periods)
+
+    elif factor == "period":
+        write_period(factor, res, res_2, count, percent, query, res_total, periods)    
 
     elif factor=="csyear":
       write_csyear(res, res_2, count, percent, query)
@@ -278,6 +328,15 @@ def write(factor, question, res, res_2=None, count=True, percent=100, query=None
 
     elif factor=="groupvote_year":
         write_groupvote_year(res, count, percent, query)
+
+    elif factor=="groupvote_period":
+        write_groupvote_period(res, count, percent, query, periods)
+
+    elif factor=="groupvote_cs":
+        write_groupvote_cs(res, count, percent, query)
+
+    elif factor=="groupvote_acttype":
+        write_groupvote_acttype(res, count, percent, query)
         
     writer.writerow("")
     print ""

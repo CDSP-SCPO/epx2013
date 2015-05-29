@@ -39,7 +39,7 @@ def q2(factors=factors, periods=None):
     #for each factor
     for factor, question in factors_question.iteritems():
         question=init_question+question
-        res=init(factor, count=False)
+        res=init(factor, count=False, periods=periods)
         res=get(factor, res, periods=periods, count=False)
         write(factor, question, res, periods=periods, count=False)
 
@@ -338,6 +338,8 @@ def q98(factors=factors, periods=None):
     #variables=(([1], "1ère lecture"), ([2, 3], "2ème ou 3ème lecture"))
     #2014-12-23
     variables=(([1], "1ère lecture"), ([2], "2ème lecture"), ([3], "3ème lecture"))
+    #TEST
+    #~ variables=(([1], "1ère lecture"), )
     #~ variables=(([1], "1ère lecture"),)
     filter_vars_acts={"nb_lectures__isnull": False}
     filter_vars_acts_ids={"no_unique_type": "COD"}
@@ -348,7 +350,7 @@ def q98(factors=factors, periods=None):
     
         for factor, question in factors_question.iteritems():
             question=init_question+variable[1]+", parmi les actes NoUniqueType=COD"+question
-            res=init(factor)
+            res=init(factor, periods=periods)
             res=get(factor, res, Model=ActIds, filter_vars_acts=filter_vars_acts, filter_vars_acts_ids=filter_vars_acts_ids, check_vars_acts=check_vars_acts, periods=periods)
             write(factor, question, res, periods=periods)
         
@@ -619,28 +621,3 @@ def q133(factors=factors, periods=None):
         res=init(factor, count=False)
         res=get(factor, res, count=False, filter_vars_acts=filter_vars_acts, periods=periods)
         write(factor, question, res, count=False, periods=periods)
-
-
-def q138(factors=factors, periods=None):
-    #1/Cohésion moyenne pour chaque Groupe PE 2/Moyenne vote « oui » pour chaque groupe PE 3/Moyenne vote « non » pour chaque groupe PE 4/Moyenne vote « abstention » pour chaque groupe PE 5/Moyenne « present » pour chaque groupe PE 6/Moyenne « absent » pour chaque groupe PE 7/Moyenne « non voters » pour chaque groupe PE
-    init_question="Moyenne du champ "
-    variables=(
-        (0, '"vote oui"'),
-        (1, '"vote non"'),
-        (2, '"vote abstention"'),
-        (3, '"present"'),
-        (4, '"absent"'),
-        (5, '"non voters"'),
-        (7, '"cohesion"')
-    )
-    
-    #get the factors specific to the question and update the periods (fr to us format)
-    factors_question, periods=prepare_query(factors, periods)
-
-    for variable in variables:
-
-        for factor, question in factors_question.iteritems():
-            question=init_question+variable[1]+question
-            res=init(factor)
-            res=get(factor, res, periods=periods, groupvote_var_index=variable[0])
-            write(factor, question, res, percent=1, periods=periods)

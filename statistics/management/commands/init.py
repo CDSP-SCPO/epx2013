@@ -57,6 +57,14 @@ def init_all(count):
 
     return res, res_total
 
+
+def init_period(count, periods):
+    res=OrderedDict({})
+    for period in periods:
+        res[period[0]]=init_temp(count)
+    return res
+    
+
 def init_country(count):
     """
     FUNCTION
@@ -182,12 +190,35 @@ def init_groupvote_year(count):
     return res
 
 
-def init_groupvote_period(count):
+def init_groupvote_period(count, periods):
     res={}
     for groupvote in groupvotes:
-        res[groupvote]=init_temp(count)
-
+        res[groupvote]=OrderedDict({})
+        for period in periods:
+            res[groupvote][period[0]]=init_temp(count)
     #~ print "init groupvote", res
+    return res
+
+
+def init_groupvote_cs(count):
+    res={}
+    
+    for groupvote in groupvotes:
+        res[groupvote]={}
+        for cs in css:
+            res[groupvote][cs]=init_temp(count)
+
+    return res
+
+
+def init_groupvote_acttype(count):
+    res={}
+    
+    for groupvote in groupvotes:
+        res[groupvote]={}
+        for key in act_types_keys:
+            res[groupvote][key]=init_temp(count)
+
     return res
 
 
@@ -210,7 +241,7 @@ def init_month(count=True):
     return res
     
 
-def init(factor, count=True, total=False, amdt=False, empty_dic=False, empty_list=False):
+def init(factor, count=True, total=False, amdt=False, empty_dic=False, empty_list=False, periods=None):
     """
     FUNCTION
     initialize the data structure that is going to store all the results of the analysis
@@ -228,8 +259,11 @@ def init(factor, count=True, total=False, amdt=False, empty_dic=False, empty_lis
     #titles_list: initialize empty list
     res_total=None
 
-    if factor in ["all", "periods"]:
+    if factor == "all":
         res, res_total=init_all(count)
+
+    elif factor== "period":
+        res=init_period(count, periods)
 
     elif factor=="country":
         res, res_total=init_country(count)
@@ -249,8 +283,14 @@ def init(factor, count=True, total=False, amdt=False, empty_dic=False, empty_lis
     elif factor=="groupvote_year":
         res=init_groupvote_year(count)
 
-     elif factor=="groupvote_period":
-        res=init_groupvote_period(count)     
+    elif factor=="groupvote_period":
+        res=init_groupvote_period(count, periods)
+
+    elif factor =="groupvote_cs":
+        res=init_groupvote_cs(count)
+
+    elif factor == "groupvote_acttype":
+        res=init_groupvote_acttype(count)
 
     if total:
         return res, res_total

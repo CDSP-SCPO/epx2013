@@ -5,7 +5,7 @@ from django.core.management.base import NoArgsCommand
 
 #import specific queries
 from common import *
-from query import acts, adopt_cs, duree, ep_amdt_vote, min_attend, modif_propos, nb_mots, party_family, pers, point_b, type_acte, country
+from query import acts, adopt_cs, duree, ep_amdt_vote, groupvote, min_attend, modif_propos, nb_mots, party_family, pers, point_b, type_acte, country
 
 
 
@@ -567,12 +567,12 @@ class Command(NoArgsCommand):
 
 
         #2015-05-21
-        factors=["year", "periods", "cs", "act_type"]
+        factors=["year", "period", "cs", "act_type"]
         #~ #TEST
-        #~ factors=["act_type"]
-        #~ factors=["cs"]
-        #~ factors=["periods"]
         #~ factors=["year"]
+        #~ factors=["period"]
+        #~ factors=["cs"]
+        #~ factors=["act_type"]
         periods=(
             ("01/01/1996", "15/06/1999"),
             ("16/06/1999", "15/06/2004"),
@@ -623,8 +623,7 @@ class Command(NoArgsCommand):
         #~ nb_mots.q54(factors=factors, periods=periods)
 #~ 
         #~ #1/Nombre de Votes « contre » (AdoptCSContre=Y) pour chaque EM 2/Nombre de votes « abstentions » (AdoptCSAbs=Y) pour chaque EM
-        #TODO
-        #~ country.q134(factors=factors, periods=periods)
+        country.q134(factors=factors, periods=periods)
 #~ 
         #~ #1/Nombre de Votes « contre » (AdoptCSContre=Y) pour les actes avec au moins un point B et AdoptCSRegleVote=V 2/Nombre de Votes « contre » (AdoptCSContre=Y) pour les actes avec au moins un point B et AdoptCSRegleVote=U 3/Nombre de votes « abstention » (AdoptCSAbs=Y) pour les actes avec au moins un point B et AdoptCSRegleVote=V 4/Nombre de votes « abstention » (AdoptCSAbs=Y) pour les actes avec au moins un point B et AdoptCSRegleVote=U
         #~ adopt_cs.q135(factors=factors, periods=periods)
@@ -650,8 +649,8 @@ class Command(NoArgsCommand):
         #~ country.q102(factors=factors, periods=periods)
 #~ 
         #~ #1/Cohésion moyenne pour chaque Groupe PE 2/Moyenne vote « oui » pour chaque groupe PE 3/Moyenne vote « non » pour chaque groupe PE 4/Moyenne vote « abstention » pour chaque groupe PE 5/Moyenne « present » pour chaque groupe PE 6/Moyenne « absent » pour chaque groupe PE 7/Moyenne « non voters » pour chaque groupe PE
-        factors=["groupvote_year"]
-        acts.q138(factors=factors, periods=periods)
+        factors=["groupvote_year", "groupvote_period", "groupvote_cs", "groupvote_acttype"]
+        #~ groupvote.q138(factors=factors, periods=periods)
 #~ 
         #~ #% d’actes pour lesquels 
         #ALDE « For » égal ou supérieur à 66
@@ -662,8 +661,8 @@ class Command(NoArgsCommand):
         #PPE « For » égal ou supérieur à 192
         #PSE « For » égal ou supérieur à 145
         #UEN « For » égal ou supérieur à 29
-        #~ acts.q139(factors=factors, periods=periods)
+        #~ groupvote.q139(factors=factors, periods=periods)
 #~ 
         #~ #Pourcentage d’actes avec plusieurs bases juridiques
-        #~ factors=["year", "periods", "cs", "act_type"]
+        #~ factors=["year", "period", "cs", "act_type"]
         #~ acts.q57(factors=factors, periods=periods)

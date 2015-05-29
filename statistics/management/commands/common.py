@@ -104,11 +104,11 @@ def get_periods(periods):
     """
     new_periods=[] 
     for period in periods:
-        new_periods.append(("Période "+ period[0] + " - " + period[1], fr_to_us_date(period[0]), fr_to_us_date(period[1])))
+        new_periods.append(("Période "+ period[0] + " - " + period[1], str_to_date(fr_to_us_date(period[0])), str_to_date(fr_to_us_date(period[1]))))
     return new_periods
 
 
-def get_nb_periods(factor, periods):
+def get_nb_periods(periods):
     """
     FUNCTION
     get the number of periods (for the periods analysis only)
@@ -118,12 +118,7 @@ def get_nb_periods(factor, periods):
     RETURN
     nb_periods: number of periods of the analysis [int]
     """
-    #get the number of periods (1 if there is no period)
-    nb_periods=1
-     #if analysis by period
-    if factor=="periods":
-        nb_periods=len(periods)
-    return nb_periods
+    return len(periods)
 
 
 def get_months():
@@ -239,27 +234,6 @@ def get_include_filter(Model, filter_vars_acts={}, filter_vars_acts_ids={}):
             filter_vars["act__validated_attendance"]=1
 
     return filter_vars
-    
-
-def get_include_filter_periods(Model, period, filter_vars):
-    """
-    FUNCTION
-    update the filter dictionary for the periods analysis
-    PARAMETERS
-    Model: model to use for the analysis [Model object]
-    period: period to use as filtering criteria [string]
-    filter_vars: filter dictionary to to update [dictionary]
-    RETURN
-    filter_vars: updated filter dictionary [dictionary]
-    """
-    gte="adopt_conseil__gte"
-    lte="adopt_conseil__lte"
-    if Model!=Act:
-        gte="act__"+gte
-        lte="act__"+lte
-    filter_vars[gte]=str_to_date(period[1])
-    filter_vars[lte]=str_to_date(period[2])
-    return filter_vars
 
 
 def get_exclude_filter(Model, factor, exclude_vars_acts={}, exclude_vars_acts_ids={}):
@@ -303,7 +277,7 @@ def get_factors():
     RETURN
     factors: factors of the query [list of strings]
     """
-    factors=["all", "year", "cs", "csyear", "act_type", "periods"]
+    factors=["all", "year", "cs", "csyear", "act_type", "period"]
     return factors
 
 
@@ -318,7 +292,7 @@ def get_factors_dic():
     """
     factors=OrderedDict({})
     factors["all"]=", pour la période 1996-"+str(max_year)
-    factors["periods"]=", par période"
+    factors["period"]=", par période"
     factors["year"]=", par année"
     factors["cs"]=", par secteur"
     factors["csyear"]=", par secteur et par année"
