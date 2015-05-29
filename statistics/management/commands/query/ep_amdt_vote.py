@@ -60,7 +60,7 @@ def q100(factors=factors, periods=None, nb_figures_cs=2):
             #for each factor
             for factor, question in factors_question.iteritems():
                 question=init_question+filt[0]+question
-                res=init(factor)
+                res=init(factor, periods=periods)
                 res=get(factor, res, variable=var[0]+"1", variable_2=var[0]+"2", filter_vars_acts=filter_vars_acts, exclude_vars_acts=exclude_vars_acts, periods=periods)
                 write(factor, question, res, percent=1, periods=periods)
 
@@ -82,8 +82,8 @@ def q105(factors=factors, periods=None):
         for factor, question in factors_question.iteritems():
             question=init_question+question
             
-            res_1=init(factor)
-            res_2=init(factor)
+            res_1=init(factor, periods=periods)
+            res_2=init(factor, periods=periods)
             res_1=get(factor, res_1, variable=variable[0][0], filter_vars_acts=filter_vars, periods=periods)
             res_2=get(factor, res_2, variable=variable[1][0], filter_vars_acts=filter_vars, periods=periods)
             write(factor, question, res_1, res_2=res_2, percent=1, query="1+2", periods=periods)
@@ -115,7 +115,7 @@ def q106(factors=factors, periods=None):
         
         for factor, question in factors_question.iteritems():
             question=init_question+filt[0]+question
-            res=init(factor)
+            res=init(factor, periods=periods)
             res=get(factor, res, num_vars=num_vars, denom_vars=denom_vars, filter_vars_acts=filter_vars_temp, operation="+", periods=periods)
             write(factor, question, res, percent=1, periods=periods)
 

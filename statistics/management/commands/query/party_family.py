@@ -208,29 +208,19 @@ def q84(factor="everything"):
         write(analysis, question, res)
 
 
-def q93():
-    initial_question="Pourcentage des familles politiques des RespPropos"
-    #~ -> par secteur
-    question=initial_question+", par secteur"
-    print question
-    res=init_cs(total=True, empty_dic=True)
-    res=get_percent_pf_cs(res, "resp", 3)
-    write_percent_pf(question, cs_list, "CS", res, "RespPropos")
-#~
-    #~ #-> par année
-    question=initial_question+", par année"
-    print question
-    res=init_year(total=True, empty_dic=True)
-    res=get_percent_pf_year(res, "resp", 3)
-    write_percent_pf(question, years_list, "YEAR", res, "RespPropos")
+def q93(factors=factors, periods=None):
+    init_question="Répartition des RespPropos"
+    
+    #get the factors specific to the question and update the periods (fr to us format)
+    factors_question, periods=prepare_query(factors, periods)
+    count=False
 
-    #~ #-> par secteur et par année
-    question=initial_question+", par secteur et par année"
-    print question
-    res=init_cs_year(total=True, empty_dic=True)
-    res=get_percent_pf_cs(res, "resp", 3, year_var=True)
-    write_percent_pf_cs_year(question, res, "RespPropos")
-    #~
+    #for each factor
+    for factor, question in factors_question.iteritems():
+        question=init_question+question
+        res, res_total=init(factor, count=count, periods=periods)
+        res, res_total=get(factor, res, res_total=res_total, count=count, periods=periods)
+        write(factor, question, res, res_total=res_total, count=count, periods=periods)
 
 
 def q94():

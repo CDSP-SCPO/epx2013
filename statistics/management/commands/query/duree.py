@@ -375,7 +375,7 @@ def q110(factors=factors, periods=None):
         
         for factor, question in factors_question.iteritems():
             question=init_question+filt[0]+question
-            res=init(factor)
+            res=init(factor, periods=periods)
             res=get(factor, res, variable=variable[0], filter_vars_acts=filter_vars_temp, periods=periods)
             write(factor, question, res, percent=1, periods=periods)
 

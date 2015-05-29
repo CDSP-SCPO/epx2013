@@ -1,7 +1,7 @@
 #-*- coding: utf-8 -*-
 
 #common functions used by init, get and write functions
-from act.models import Act, Country
+from act.models import Act, Country, DG, Person, PartyFamily
 from collections import OrderedDict
 
 
@@ -143,6 +143,28 @@ def get_countries():
     countries: all the possible countries for the analysis [list of strings]
     """
     return Country.objects.values_list("country_code", flat=True)
+
+
+def get_dg_list():
+    return DG.objects.values_list("dg", flat=True)
+
+
+def get_rappgroup_list():
+    #political groups
+    groups=set()
+    perss=Person.objects.filter(src="rapp")
+    for pers in perss:
+        groups.add(pers.party.party)
+    return groups
+    
+
+def get_resppf_list():
+    #party families
+    pf_list=set()
+    resps=Person.objects.filter(src="resp")
+    for resp in resps:
+        pf_list.add(PartyFamily.objects.get(country=resp.country, party=resp.party).party_family)
+    return pf_list
 
 
 def get_groupvotes():
@@ -297,11 +319,38 @@ def get_factors_dic():
     factors["cs"]=", par secteur"
     factors["csyear"]=", par secteur et par année"
     factors["act_type"]=", par type d'acte"
+    
     factors["country"]=", par état membre"
+    factors["country_year"]=", par état membre et par année"
+    factors["country_period"]=", par état membre et par période"
+    factors["country_cs"]=", par état membre et par secteur"
+    factors["country_acttype"]=", par état membre et par type d'acte"
+    
+    factors["dg_year"]=", par DGProposition et par année"
+    factors["dg_period"]=", par DGProposition et par période"
+    factors["dg_cs"]=", par DGProposition et par secteur"
+    factors["dg_acttype"]=", par DGProposition et par type d'acte"
+    
+    factors["resppf_year"]=", par famille politique et par année"
+    factors["resppf_period"]=", par famille politique et par période"
+    factors["resppf_cs"]=", par famille politique et par secteur"
+    factors["resppf_acttype"]=", par famille politique et par type d'acte"
+
+    factors["perscountry_year"]=", par nationalité et par année"
+    factors["perscountry_period"]=", par nationalité et par période"
+    factors["perscountry_cs"]=", par nationalité et par secteur"
+    factors["perscountry_acttype"]=", par nationalité et par type d'acte"
+
+    factors["rappgroup_year"]=", par groupe politique et par année"
+    factors["rappgroup_period"]=", par groupe politique et par période"
+    factors["rappgroup_cs"]=", par groupe politique et par secteur"
+    factors["rappgroup_acttype"]=", par groupe politique et par type d'acte"
+    
     factors["groupvote_year"]=", par groupe PE et par année"
     factors["groupvote_period"]=", par groupe PE et par période"
     factors["groupvote_cs"]=", par groupe PE et par secteur"
     factors["groupvote_acttype"]=", par groupe PE et par type d'acte"
+    
     return factors
     
 
@@ -355,6 +404,7 @@ nb_resps=3
 
 #list of cs to look for
 css=get_css()
+css_list_zero=add_blank(css)
 #list of years
 years_list=get_years(min_year, max_year)
 #SPECIFIC QUERY, TO REMOVE
@@ -369,8 +419,15 @@ countries_list_zero=add_blank(countries_list)
 act_types=get_act_types()
 #keys
 act_types_keys=get_act_types_keys()
+act_types_keys_zero=add_blank(act_types)
 #groupvotes
 groupvotes=get_groupvotes()
+#dgs
+dg_list=get_dg_list()
+#party family
+resppf_list=get_resppf_list()
+#political group
+rappgroup_list=get_rappgroup_list()
 
 #list of factors (variables to study)
 factors=get_factors()

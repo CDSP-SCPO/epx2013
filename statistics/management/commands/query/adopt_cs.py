@@ -122,7 +122,7 @@ def q77(factors=factors, periods=None):
 
             for factor, question in factors_question.iteritems():
                 question=init_question+variable[1]+"=Y et "+str(country)+ " EM"+question
-                res=init(factor, count=False)
+                res=init(factor, count=False, periods=periods)
                 res=get(factor, res, count=False, filter_vars_acts=filter_vars_acts, adopt_var=variable[0], nb_adopt_var=country, periods=periods)
                 write(factor, question, res, count=False, periods=periods)
     
@@ -175,6 +175,6 @@ def q135(factors=factors, periods=None):
 
             for factor, question in factors_question.iteritems():
                 question=init_question+variable[1]+"=Y et AdoptCSRegleVote="+regle_vote+question
-                res=init(factor, count=False)
+                res=init(factor, count=False, periods=periods)
                 res=get(factor, res, count=False, filter_vars_acts=filter_vars_acts_temp, adopt_var=variable[0], periods=periods)
                 write(factor, question, res, count=False, periods=periods)

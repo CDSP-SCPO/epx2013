@@ -178,6 +178,250 @@ def init_act_type(count):
     return res
 
 
+def init_country_year(count):
+    res={}
+    for country in countries_list:
+        res[country]={}
+        for year in years_list:
+            res[country][year]=init_temp(count)
+    return res
+
+
+def init_country_period(count, periods):
+    res={}
+    for country in countries_list:
+        res[country]={}
+        for period in periods:
+            res[country][period[0]]=init_temp(count)
+    return res
+
+
+def init_country_cs(count):
+    res={}
+    
+    for country in countries_list:
+        res[country]={}
+        for cs in css:
+            res[country][cs]=init_temp(count)
+
+    return res
+
+
+def init_country_acttype(count):
+    res={}
+    
+    for country in countries_list:
+        res[country]={}
+        for key in act_types_keys:
+            res[country][key]=init_temp(count)
+
+    return res
+
+
+def init_dg_year(count):
+    res={}
+    for dg in dg_list:
+        res[dg]={}
+        for year in years_list:
+            res[dg][year]=init_temp(count)
+    return res
+
+
+def init_dg_period(count, periods):
+    res={}
+    for dg in dg_list:
+        res[dg]={}
+        for period in periods:
+            res[dg][period[0]]=init_temp(count)
+    return res
+
+
+def init_dg_cs(count):
+    res={}
+    for dg in dg_list:
+        res[dg]={}
+        for cs in css:
+            res[dg][cs]=init_temp(count)
+    return res
+
+
+def init_dg_acttype(count):
+    res={}
+    for dg in dg_list:
+        res[dg]={}
+        for key in act_types_keys:
+            res[dg][key]=init_temp(count)
+    return res
+    
+
+def init_resppf_year(count):
+    res={}
+    for pf in resppf_list:
+        res[pf]={}
+        for year in years_list:
+            res[pf][year]=init_temp(count)
+
+    res_total={}
+    for year in years_list:
+        res_total[year]=0
+    
+    return res, res_total
+
+
+def init_resppf_period(count, periods):
+    res={}
+    for pf in resppf_list:
+        res[pf]={}
+        for period in periods:
+            res[pf][period[0]]=init_temp(count)
+
+    res_total={}
+    for period in periods:
+        res_total[period[0]]=0
+    
+    return res, res_total
+
+
+def init_resppf_cs(count):
+    res={}
+    for pf in resppf_list:
+        res[pf]={}
+        for cs in css:
+            res[pf][cs]=init_temp(count)
+            
+    res_total={}
+    for cs in css:
+        res_total[cs]=0
+    
+    return res, res_total
+
+
+def init_resppf_acttype(count):
+    res={}
+    for pf in resppf_list:
+        res[pf]={}
+        for key in act_types_keys:
+            res[pf][key]=init_temp(count)
+
+    res_total={}
+    for key in act_types_keys:
+        res_total[key]=0
+    
+    return res, res_total
+
+
+def init_perscountry_year(count):
+    res={}
+    for country in countries_list:
+        res[country]={}
+        for year in years_list:
+            res[country][year]=init_temp(count)
+
+    res_total={}
+    for year in years_list:
+        res_total[year]=0
+    
+    return res, res_total
+
+
+def init_perscountry_period(count, periods):
+    res={}
+    for country in countries_list:
+        res[country]={}
+        for period in periods:
+            res[country][period[0]]=init_temp(count)
+
+    res_total={}
+    for period in periods:
+        res_total[period[0]]=0
+    
+    return res, res_total
+
+
+def init_perscountry_cs(count):
+    res={}
+    for country in countries_list:
+        res[country]={}
+        for cs in css:
+            res[country][cs]=init_temp(count)
+            
+    res_total={}
+    for cs in css:
+        res_total[cs]=0
+    
+    return res, res_total
+
+
+def init_perscountry_acttype(count):
+    res={}
+    for country in countries_list:
+        res[country]={}
+        for key in act_types_keys:
+            res[country][key]=init_temp(count)
+
+    res_total={}
+    for key in act_types_keys:
+        res_total[key]=0
+    
+    return res, res_total
+    
+
+def init_rappgroup_year(count):
+    res={}
+    for group in rappgroup_list:
+        res[group]={}
+        for year in years_list:
+            res[group][year]=init_temp(count)
+
+    res_total={}
+    for year in years_list:
+        res_total[year]=0
+    
+    return res, res_total
+
+
+def init_rappgroup_period(count, periods):
+    res={}
+    for group in rappgroup_list:
+        res[group]={}
+        for period in periods:
+            res[group][period[0]]=init_temp(count)
+
+    res_total={}
+    for period in periods:
+        res_total[period[0]]=0
+    
+    return res, res_total
+
+
+def init_rappgroup_cs(count):
+    res={}
+    for group in rappgroup_list:
+        res[group]={}
+        for cs in css:
+            res[group][cs]=init_temp(count)
+            
+    res_total={}
+    for cs in css:
+        res_total[cs]=0
+    
+    return res, res_total
+
+
+def init_rappgroup_acttype(count):
+    res={}
+    for group in rappgroup_list:
+        res[group]={}
+        for key in act_types_keys:
+            res[group][key]=init_temp(count)
+
+    res_total={}
+    for key in act_types_keys:
+        res_total[key]=0
+    
+    return res, res_total
+
+    
 def init_groupvote_year(count):
     res={}
     for groupvote in groupvotes:
@@ -199,7 +443,7 @@ def init_groupvote_period(count, periods):
     #~ print "init groupvote", res
     return res
 
-
+    
 def init_groupvote_cs(count):
     res={}
     
@@ -280,6 +524,72 @@ def init(factor, count=True, total=False, amdt=False, empty_dic=False, empty_lis
     elif factor=="act_type":
         res=init_act_type(count)
 
+
+    elif factor=="country_year":
+        res=init_country_year(count)
+
+    elif factor=="country_period":
+        res=init_country_period(count, periods)
+
+    elif factor=="country_cs":
+        res=init_country_cs(count)
+
+    elif factor=="country_acttype":
+        res=init_country_acttype(count)
+        
+
+    elif factor=="dg_year":
+        res=init_dg_year(count)
+
+    elif factor=="dg_period":
+        res=init_dg_period(count, periods)
+
+    elif factor=="dg_cs":
+        res=init_dg_cs(count)
+
+    elif factor=="dg_acttype":
+        res=init_dg_acttype(count)
+
+
+    elif factor=="resppf_year":
+        res, res_total=init_resppf_year(count)
+
+    elif factor=="resppf_period":
+        res, res_total=init_resppf_period(count, periods)
+
+    elif factor=="resppf_cs":
+        res, res_total=init_resppf_cs(count)
+
+    elif factor=="resppf_acttype":
+        res, res_total=init_resppf_acttype(count)
+
+
+    elif factor=="perscountry_year":
+        res, res_total=init_perscountry_year(count)
+
+    elif factor=="perscountry_period":
+        res, res_total=init_perscountry_period(count, periods)
+
+    elif factor=="perscountry_cs":
+        res, res_total=init_perscountry_cs(count)
+
+    elif factor=="perscountry_acttype":
+        res, res_total=init_perscountry_acttype(count)
+
+
+    elif factor=="rappgroup_year":
+        res, res_total=init_rappgroup_year(count)
+
+    elif factor=="rappgroup_period":
+        res, res_total=init_rappgroup_period(count, periods)
+
+    elif factor=="rappgroup_cs":
+        res, res_total=init_rappgroup_cs(count)
+
+    elif factor=="rappgroup_acttype":
+        res, res_total=init_rappgroup_acttype(count)
+                
+
     elif factor=="groupvote_year":
         res=init_groupvote_year(count)
 
@@ -292,6 +602,6 @@ def init(factor, count=True, total=False, amdt=False, empty_dic=False, empty_lis
     elif factor == "groupvote_acttype":
         res=init_groupvote_acttype(count)
 
-    if total:
+    if res_total is not None:
         return res, res_total
     return res

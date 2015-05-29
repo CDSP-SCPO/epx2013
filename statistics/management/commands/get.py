@@ -83,6 +83,59 @@ def check_css(act, searched_css):
     return False
 
 
+def get_all_dgs(act):
+    dg_list=[]
+    for nb in range(1, nb_dgs+1):
+        dg=getattr(act, "dg_"+str(nb))
+        if dg is not None:
+            dg_list.append(dg.dg)
+        else:
+            #if one dg is null, all the following are null too
+            break
+    return dg_list
+
+
+def get_all_rappgroups(act):
+    groups=[]
+    for nb in range(1, nb_rapps+1):
+        pers=getattr(act, "rapp_"+str(nb))
+        if pers is not None:
+            groups.append(pers.party.party)
+        else:
+            #if one rapp is null, all the following are null too
+            break
+    return groups
+    
+
+def get_all_resppfs(act):
+    pf_list=[]
+    for nb in range(1, nb_resps+1):
+        resp=getattr(act, "resp_"+str(nb))
+        if resp is not None:
+            pf_list.append(PartyFamily.objects.get(country=resp.country, party=resp.party).party_family)
+        else:
+            #if one resp is null, all the following are null too
+            break
+    return pf_list
+
+
+def get_all_perscountries(act, pers_type):
+    country_list=[]
+    if pers_type=="rapp":
+        nb_pers=nb_rapps
+    elif pers_type=="resp":
+        nb_pers=nb_resps
+        
+    for nb in range(1, nb_pers+1):
+        pers=getattr(act, pers_type+"_"+str(nb))
+        if pers is not None:
+            country_list.append(pers.country.country_code)
+        else:
+            #if one resp is null, all the following are null too
+            break
+    return country_list
+
+    
 def get_act_type_key(act_type):
     """
     FUNCTION
@@ -707,8 +760,236 @@ def get_act_type(factor, Model, res, act_act, act, value, count, variable, ok, s
         res[key]=res_temp
 
     return res
+
+
+def get_country_year(factor, Model, res, act_act, act, value, count, adopt_var, ok, same, query):
+    countries=getattr(act_act, adopt_var)
+    year=str(act_act.releve_annee)
+    #for each country
+    for country in countries.all():
+        country_code=country.country_code
+        #computation
+        res[country_code][year], res_total=compute(Model, act_act, act, res[country_code][year], value, count, ok=ok, same=same, query=query)
+    return res
+                
+def get_country_period(factor, Model, res, act_act, act, value, count, adopt_var, ok, same, query, periods):
+    countries=getattr(act_act, adopt_var)
+    #for each country
+    for country in countries.all():
+        country_code=country.country_code
+        for period in periods:
+            if check_period(act_act, period):
+                #computation
+                res[country_code][period[0]], res_total=compute(Model, act_act, act, res[country_code][period[0]], value, count, ok=ok, same=same, query=query)
+    return res
+
+
+def get_country_cs(factor, Model, res, act_act, act, value, count, adopt_var, ok, same, query):
+    countries=getattr(act_act, adopt_var)
+    #get all css
+    css=get_all_css(act_act)
+    
+    #for each country
+    for country in countries.all():
+        country_code=country.country_code
+        for cs in css:
+            #computation
+            res[country_code][cs], res_total=compute(Model, act_act, act, res[country_code][cs], value, count, ok=ok, same=same, query=query)
+    return res
+
+
+def get_country_acttype(factor, Model, res, act_act, act, value, count, adopt_var, ok, same, query):
+    key=get_act_type_key(act_act.type_acte)
+    if key is not None:
+        countries=getattr(act_act, adopt_var)
+        #for each country
+        for country in countries.all():
+            country_code=country.country_code
+            #computation
+            res[country_code][key], res_total=compute(Model, act_act, act, res[country_code][key], value, count, ok=ok, same=same, query=query)
+    return res
     
 
+def get_dg_year(factor, Model, res, act_act, act, value, count, adopt_var, ok, same, query):
+    dgs=get_all_dgs(act_act)
+    year=str(act_act.releve_annee)
+    #for each dg
+    for dg in dgs:
+        #computation
+        res[dg][year], res_total=compute(Model, act_act, act, res[dg][year], value, count, ok=ok, same=same, query=query)
+    return res
+
+                
+def get_dg_period(factor, Model, res, act_act, act, value, count, adopt_var, ok, same, query, periods):
+    dgs=get_all_dgs(act_act)
+    #for each dg
+    for dg in dgs:
+        for period in periods:
+            if check_period(act_act, period):
+                #computation
+                res[dg][period[0]], res_total=compute(Model, act_act, act, res[dg][period[0]], value, count, ok=ok, same=same, query=query)
+    return res
+
+
+def get_dg_cs(factor, Model, res, act_act, act, value, count, adopt_var, ok, same, query):
+    dgs=get_all_dgs(act_act)
+    #get all css
+    css=get_all_css(act_act)
+    
+   #for each dg
+    for dg in dgs:
+        for cs in css:
+            #computation
+            res[dg][cs], res_total=compute(Model, act_act, act, res[dg][cs], value, count, ok=ok, same=same, query=query)
+    return res
+
+
+def get_dg_acttype(factor, Model, res, act_act, act, value, count, adopt_var, ok, same, query):
+    key=get_act_type_key(act_act.type_acte)
+    if key is not None:
+        dgs=get_all_dgs(act_act)
+        #for each dg
+        for dg in dgs:
+            #computation
+            res[dg][key], res_total=compute(Model, act_act, act, res[dg][key], value, count, ok=ok, same=same, query=query)
+    return res
+
+
+def get_resppf_year(factor, Model, res, act_act, act, value, count, adopt_var, ok, same, query, res_total):
+    pfs=get_all_resppfs(act_act)
+    year=str(act_act.releve_annee)
+    #for each pf
+    for pf in pfs:
+        #computation
+        res[pf][year], res_total[year]=compute(Model, act_act, act, res[pf][year], value, count, ok=ok, same=same, query=query, res_total=res_total[year])
+    return res, res_total
+
+                
+def get_resppf_period(factor, Model, res, act_act, act, value, count, adopt_var, ok, same, query, periods, res_total):
+    pfs=get_all_resppfs(act_act)
+    #for each pf
+    for pf in pfs:
+        for period in periods:
+            if check_period(act_act, period):
+                #computation
+                res[pf][period[0]], res_total[period[0]]=compute(Model, act_act, act, res[pf][period[0]], value, count, ok=ok, same=same, query=query, res_total=res_total[period[0]])
+    return res, res_total
+
+
+def get_resppf_cs(factor, Model, res, act_act, act, value, count, adopt_var, ok, same, query, res_total):
+    pfs=get_all_resppfs(act_act)
+    #get all css
+    css=get_all_css(act_act)
+    
+    #for each pf
+    for pf in pfs:
+        for cs in css:
+            #computation
+            res[pf][cs], res_total[cs]=compute(Model, act_act, act, res[pf][cs], value, count, ok=ok, same=same, query=query, res_total=res_total[cs])
+    return res, res_total
+
+
+def get_resppf_acttype(factor, Model, res, act_act, act, value, count, adopt_var, ok, same, query, res_total):
+    key=get_act_type_key(act_act.type_acte)
+    if key is not None:
+        pfs=get_all_resppfs(act_act)
+        #for each pf
+        for pf in pfs:
+            #computation
+            res[pf][key], res_total[key]=compute(Model, act_act, act, res[pf][key], value, count, ok=ok, same=same, query=query, res_total=res_total[key])
+    return res, res_total
+
+
+def get_perscountry_year(factor, Model, res, act_act, act, value, count, adopt_var, ok, same, query, res_total, pers):
+    countries=get_all_perscountries(act_act, pers)
+    year=str(act_act.releve_annee)
+    #for each country
+    for country in countries:
+        #computation
+        res[country][year], res_total[year]=compute(Model, act_act, act, res[country][year], value, count, ok=ok, same=same, query=query, res_total=res_total[year])
+    return res, res_total
+
+                
+def get_perscountry_period(factor, Model, res, act_act, act, value, count, adopt_var, ok, same, query, periods, res_total, pers):
+    countries=get_all_perscountries(act_act, pers)
+    #for each country
+    for country in countries:
+        for period in periods:
+            if check_period(act_act, period):
+                #computation
+                res[country][period[0]], res_total[period[0]]=compute(Model, act_act, act, res[country][period[0]], value, count, ok=ok, same=same, query=query, res_total=res_total[period[0]])
+    return res, res_total
+
+
+def get_perscountry_cs(factor, Model, res, act_act, act, value, count, adopt_var, ok, same, query, res_total, pers):
+    countries=get_all_perscountries(act_act, pers)
+    #get all css
+    css=get_all_css(act_act)
+    
+    #for each country
+    for country in countries:
+        for cs in css:
+            #computation
+            res[country][cs], res_total[cs]=compute(Model, act_act, act, res[country][cs], value, count, ok=ok, same=same, query=query, res_total=res_total[cs])
+    return res, res_total
+
+
+def get_perscountry_acttype(factor, Model, res, act_act, act, value, count, adopt_var, ok, same, query, res_total, pers):
+    key=get_act_type_key(act_act.type_acte)
+    if key is not None:
+        countries=get_all_perscountries(act_act, pers)
+        #for each country
+        for country in countries:
+            #computation
+            res[country][key], res_total[key]=compute(Model, act_act, act, res[country][key], value, count, ok=ok, same=same, query=query, res_total=res_total[key])
+    return res, res_total
+
+
+def get_rappgroup_year(factor, Model, res, act_act, act, value, count, adopt_var, ok, same, query, res_total):
+    groups=get_all_rappgroups(act)
+    year=str(act_act.releve_annee)
+    #for each group
+    for group in groups:
+        #computation
+        res[group][year], res_total[year]=compute(Model, act_act, act, res[group][year], value, count, ok=ok, same=same, query=query, res_total=res_total[year])
+    return res, res_total
+
+                
+def get_rappgroup_period(factor, Model, res, act_act, act, value, count, adopt_var, ok, same, query, periods, res_total):
+    groups=get_all_rappgroups(act)
+    #for each group
+    for group in groups:
+        for period in periods:
+            if check_period(act_act, period):
+                #computation
+                res[group][period[0]], res_total[period[0]]=compute(Model, act_act, act, res[group][period[0]], value, count, ok=ok, same=same, query=query, res_total=res_total[period[0]])
+    return res, res_total
+
+
+def get_rappgroup_cs(factor, Model, res, act_act, act, value, count, adopt_var, ok, same, query, res_total):
+    groups=get_all_rappgroups(act)
+    #get all css
+    css=get_all_css(act_act)
+    
+    #for each group
+    for group in groups:
+        for cs in css:
+            #computation
+            res[group][cs], res_total[cs]=compute(Model, act_act, act, res[group][cs], value, count, ok=ok, same=same, query=query, res_total=res_total[cs])
+    return res, res_total
+
+
+def get_rappgroup_acttype(factor, Model, res, act_act, act, value, count, adopt_var, ok, same, query, res_total):
+    key=get_act_type_key(act_act.type_acte)
+    if key is not None:
+        groups=get_all_rappgroups(act)
+        #for each group
+        for group in groups:
+            #computation
+            res[group][key], res_total[key]=compute(Model, act_act, act, res[group][key], value, count, ok=ok, same=same, query=query, res_total=res_total[key])
+    return res, res_total
+
+    
 def get_groupvote_year(factor, Model, res, act_act, act, value, count, variable, ok, same, query, groupvote_var_index):
 
     year=str(act_act.releve_annee)
@@ -780,7 +1061,7 @@ def check_var1_var2(val_1, val_2):
     return True
     
 
-def get(factor, res, Model=Act, count=True, variable=None, variable_2=None, excluded_values=[None, ""], filter_vars_acts={}, filter_vars_acts_ids={}, exclude_vars_acts={},check_vars_acts={}, check_vars_acts_ids={}, query=None, adopt_var=None, nb_adopt_var=None, num_vars=None, denom_vars=None, operation=None, res_total=None, periods=None, groupvote_var_index=None):
+def get(factor, res, Model=Act, count=True, variable=None, variable_2=None, excluded_values=[None, ""], filter_vars_acts={}, filter_vars_acts_ids={}, exclude_vars_acts={},check_vars_acts={}, check_vars_acts_ids={}, query=None, adopt_var=None, nb_adopt_var=None, num_vars=None, denom_vars=None, operation=None, res_total=None, periods=None, groupvote_var_index=None, pers=None):
     """
     FUNCTION
     update and get the result dictionary with all the acts
@@ -857,6 +1138,72 @@ def get(factor, res, Model=Act, count=True, variable=None, variable_2=None, excl
                 
             elif factor=="act_type":
                 res=get_act_type(factor, Model, res, act_act, act, value, count, variable, ok, same, query)
+
+
+            elif factor=="country_year":
+                res=get_country_year(factor, Model, res, act_act, act, value, count, adopt_var, ok, same, query)
+
+            elif factor=="country_period":
+                res=get_country_period(factor, Model, res, act_act, act, value, count, adopt_var, ok, same, query, periods)
+
+            elif factor=="country_cs":
+                res=get_country_cs(factor, Model, res, act_act, act, value, count, adopt_var, ok, same, query)
+
+            elif factor=="country_acttype":
+                res=get_country_acttype(factor, Model, res, act_act, act, value, count, adopt_var, ok, same, query)
+
+
+            elif factor=="dg_year":
+                res=get_dg_year(factor, Model, res, act_act, act, value, count, adopt_var, ok, same, query)
+
+            elif factor=="dg_period":
+                res=get_dg_period(factor, Model, res, act_act, act, value, count, adopt_var, ok, same, query, periods)
+
+            elif factor=="dg_cs":
+                res=get_dg_cs(factor, Model, res, act_act, act, value, count, adopt_var, ok, same, query)
+
+            elif factor=="dg_acttype":
+                res=get_dg_acttype(factor, Model, res, act_act, act, value, count, adopt_var, ok, same, query)
+
+
+            elif factor=="resppf_year":
+                res, res_total=get_resppf_year(factor, Model, res, act_act, act, value, count, adopt_var, ok, same, query, res_total)
+
+            elif factor=="resppf_period":
+                res, res_total=get_resppf_period(factor, Model, res, act_act, act, value, count, adopt_var, ok, same, query, periods, res_total)
+
+            elif factor=="resppf_cs":
+                res, res_total=get_resppf_cs(factor, Model, res, act_act, act, value, count, adopt_var, ok, same, query, res_total)
+
+            elif factor=="resppf_acttype":
+                res, res_total=get_resppf_acttype(factor, Model, res, act_act, act, value, count, adopt_var, ok, same, query, res_total)
+
+
+            elif factor=="perscountry_year":
+                res, res_total=get_perscountry_year(factor, Model, res, act_act, act, value, count, adopt_var, ok, same, query, res_total, pers)
+
+            elif factor=="perscountry_period":
+                res, res_total=get_perscountry_period(factor, Model, res, act_act, act, value, count, adopt_var, ok, same, query, periods, res_total, pers)
+
+            elif factor=="perscountry_cs":
+                res, res_total=get_perscountry_cs(factor, Model, res, act_act, act, value, count, adopt_var, ok, same, query, res_total, pers)
+
+            elif factor=="perscountry_acttype":
+                res, res_total=get_perscountry_acttype(factor, Model, res, act_act, act, value, count, adopt_var, ok, same, query, res_total, pers)
+
+
+            elif factor=="rappgroup_year":
+                res, res_total=get_rappgroup_year(factor, Model, res, act_act, act, value, count, adopt_var, ok, same, query, res_total)
+
+            elif factor=="rappgroup_period":
+                res, res_total=get_rappgroup_period(factor, Model, res, act_act, act, value, count, adopt_var, ok, same, query, periods, res_total)
+
+            elif factor=="rappgroup_cs":
+                res, res_total=get_rappgroup_cs(factor, Model, res, act_act, act, value, count, adopt_var, ok, same, query, res_total)
+
+            elif factor=="rappgroup_acttype":
+                res, res_total=get_rappgroup_acttype(factor, Model, res, act_act, act, value, count, adopt_var, ok, same, query, res_total)
+
                 
             elif factor=="groupvote_year":
                 res=get_groupvote_year(factor, Model, res, act_act, act, value, count, variable, ok, same, query, groupvote_var_index)

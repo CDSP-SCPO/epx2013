@@ -33,6 +33,13 @@ writer.writerow(["En présence de la variable secteur, chaque acte peut être co
 writer.writerow([""])
 
 
+def write_header_period(periods):
+    periods_header=[""]
+    for period in periods:
+        periods_header.append(period[0])
+    writer.writerow(periods_header)
+    
+
 def compute(res, res_2, count, percent, query, res_total=None):
     """
     FUNCTION
@@ -217,6 +224,228 @@ def write_act_type(res, res_2, count, percent, query):
     writer.writerow(row)
 
 
+def write_country_year(res, count, percent, query):
+    writer.writerow(years_list_zero)
+
+    for country in countries_list:
+        row=[country]
+        for year in years_list:
+            row.append(compute(res[country][year], None, count, percent, query))
+        
+        writer.writerow(row)
+
+
+def write_country_period(res, count, percent, query, periods):
+    write_header_period(periods)
+
+    for country in countries_list:
+        row=[country]
+        for period in periods:
+            row.append(compute(res[country][period[0]], None, count, percent, query))
+        
+        writer.writerow(row)
+
+
+def write_country_cs(res, count, percent, query):
+    writer.writerow(css_list_zero)
+
+    for country in countries_list:
+        row=[country]
+        for cs in css:
+            row.append(compute(res[country][cs], None, count, percent, query))
+        
+        writer.writerow(row)
+
+
+def write_country_acttype(res, count, percent, query):
+    writer.writerow(act_types_keys_zero)
+
+    for country in countries_list:
+        row=[country]
+        for key in act_types_keys:
+            res_final=compute(res[country][key], None, count, percent, query)
+            row.append(res_final)
+        
+        writer.writerow(row)
+        
+
+def write_dg_year(res, count, percent, query):
+    writer.writerow(years_list_zero)
+
+    for dg in dg_list:
+        row=[dg.encode("utf-8")]
+        for year in years_list:
+            row.append(compute(res[dg][year], None, count, percent, query))
+        
+        writer.writerow(row)
+
+
+def write_dg_period(res, count, percent, query, periods):
+    write_header_period(periods)
+
+    for dg in dg_list:
+        row=[dg.encode("utf-8")]
+        for period in periods:
+            row.append(compute(res[dg][period[0]], None, count, percent, query))
+        
+        writer.writerow(row)
+
+
+def write_dg_cs(res, count, percent, query):
+    writer.writerow(css_list_zero)
+
+    for dg in dg_list:
+        row=[dg.encode("utf-8")]
+        for cs in css:
+            row.append(compute(res[dg][cs], None, count, percent, query))
+        
+        writer.writerow(row)
+
+
+def write_dg_acttype(res, count, percent, query):
+    writer.writerow(act_types_keys_zero)
+
+    for dg in dg_list:
+        row=[dg.encode("utf-8")]
+        for key in act_types_keys:
+            res_final=compute(res[dg][key], None, count, percent, query)
+            row.append(res_final)
+        
+        writer.writerow(row)
+
+
+def write_resppf_year(res, count, percent, query, res_total):
+    writer.writerow(years_list_zero)
+
+    for pf in resppf_list:
+        row=[pf.encode("utf-8")]
+        for year in years_list:
+            row.append(compute(res[pf][year], None, count, percent, query, res_total=res_total[year]))
+        
+        writer.writerow(row)
+
+
+def write_resppf_period(res, count, percent, query, periods, res_total):
+    write_header_period(periods)
+
+    for pf in resppf_list:
+        row=[pf.encode("utf-8")]
+        for period in periods:
+            row.append(compute(res[pf][period[0]], None, count, percent, query, res_total=res_total[period[0]]))
+        
+        writer.writerow(row)
+
+
+def write_resppf_cs(res, count, percent, query, res_total):
+    writer.writerow(css_list_zero)
+
+    for pf in resppf_list:
+        row=[pf.encode("utf-8")]
+        for cs in css:
+            row.append(compute(res[pf][cs], None, count, percent, query, res_total=res_total[cs]))
+        
+        writer.writerow(row)
+
+
+def write_resppf_acttype(res, count, percent, query, res_total):
+    writer.writerow(act_types_keys_zero)
+
+    for pf in resppf_list:
+        row=[pf.encode("utf-8")]
+        for key in act_types_keys:
+            row.append(compute(res[pf][key], None, count, percent, query, res_total=res_total[key]))
+        
+        writer.writerow(row)
+
+
+def write_perscountry_year(res, count, percent, query, res_total):
+    writer.writerow(years_list_zero)
+
+    for country in countries_list:
+        row=[country]
+        for year in years_list:
+            row.append(compute(res[country][year], None, count, percent, query, res_total=res_total[year]))
+        
+        writer.writerow(row)
+
+
+def write_perscountry_period(res, count, percent, query, periods, res_total):
+    write_header_period(periods)
+
+    for country in countries_list:
+        row=[country]
+        for period in periods:
+            row.append(compute(res[country][period[0]], None, count, percent, query, res_total=res_total[period[0]]))
+        
+        writer.writerow(row)
+
+
+def write_perscountry_cs(res, count, percent, query, res_total):
+    writer.writerow(css_list_zero)
+
+    for country in countries_list:
+        row=[country]
+        for cs in css:
+            row.append(compute(res[country][cs], None, count, percent, query, res_total=res_total[cs]))
+        
+        writer.writerow(row)
+
+
+def write_perscountry_acttype(res, count, percent, query, res_total):
+    writer.writerow(act_types_keys_zero)
+
+    for country in countries_list:
+        row=[country]
+        for key in act_types_keys:
+            row.append(compute(res[country][key], None, count, percent, query, res_total=res_total[key]))
+        
+        writer.writerow(row)
+
+
+def write_rappgroup_year(res, count, percent, query, res_total):
+    writer.writerow(years_list_zero)
+
+    for group in rappgroup_list:
+        row=[group.encode("utf-8")]
+        for year in years_list:
+            row.append(compute(res[group][year], None, count, percent, query, res_total=res_total[year]))
+        
+        writer.writerow(row)
+
+
+def write_rappgroup_period(res, count, percent, query, periods, res_total):
+    write_header_period(periods)
+
+    for group in rappgroup_list:
+        row=[group.encode("utf-8")]
+        for period in periods:
+            row.append(compute(res[group][period[0]], None, count, percent, query, res_total=res_total[period[0]]))
+        
+        writer.writerow(row)
+
+
+def write_rappgroup_cs(res, count, percent, query, res_total):
+    writer.writerow(css_list_zero)
+
+    for group in rappgroup_list:
+        row=[group.encode("utf-8")]
+        for cs in css:
+            row.append(compute(res[group][cs], None, count, percent, query, res_total=res_total[cs]))
+        
+        writer.writerow(row)
+
+
+def write_rappgroup_acttype(res, count, percent, query, res_total):
+    writer.writerow(act_types_keys_zero)
+
+    for group in rappgroup_list:
+        row=[group.encode("utf-8")]
+        for key in act_types_keys:
+            row.append(compute(res[group][key], None, count, percent, query, res_total=res_total[key]))
+        
+        writer.writerow(row)
+
+        
 def write_groupvote_year(res, count, percent, query):
     writer.writerow(years_list_zero)
 
@@ -230,16 +459,11 @@ def write_groupvote_year(res, count, percent, query):
 
 
 def write_groupvote_period(res, count, percent, query, periods):
-    periods_header=[""]
-    for period in periods:
-        periods_header.append(period[0])
-    writer.writerow(periods_header)
+    write_header_period(periods)
 
     for groupvote in groupvotes:
         row=[groupvote]
         for period in periods:
-            #~ print "res[groupvote]", res[groupvote]
-            #~ print "res[groupvote][period]", res[groupvote][period]
             res_final=compute(res[groupvote][period[0]], None, count, percent, query)
             row.append(res_final)
         
@@ -247,9 +471,7 @@ def write_groupvote_period(res, count, percent, query, periods):
 
 
 def write_groupvote_cs(res, count, percent, query):
-    headers=[""]
-    headers=headers+css
-    writer.writerow(headers)
+    writer.writerow(css_list_zero)
 
     for groupvote in groupvotes:
         row=[groupvote]
@@ -261,9 +483,7 @@ def write_groupvote_cs(res, count, percent, query):
 
 
 def write_groupvote_acttype(res, count, percent, query):
-    headers=[""]
-    headers=headers+act_types_keys
-    writer.writerow(headers)
+    writer.writerow(act_types_keys_zero)
 
     for groupvote in groupvotes:
         row=[groupvote]
@@ -325,6 +545,72 @@ def write(factor, question, res, res_2=None, count=True, percent=100, query=None
 
     elif factor=="act_type":
         write_act_type(res, res_2, count, percent, query)
+        
+
+    elif factor=="country_year":
+        write_country_year(res, count, percent, query)
+
+    elif factor=="country_period":
+        write_country_period(res, count, percent, query, periods)
+
+    elif factor=="country_cs":
+        write_country_cs(res, count, percent, query)
+
+    elif factor=="country_acttype":
+        write_country_acttype(res, count, percent, query)
+        
+
+    elif factor=="dg_year":
+        write_dg_year(res, count, percent, query)
+
+    elif factor=="dg_period":
+        write_dg_period(res, count, percent, query, periods)
+
+    elif factor=="dg_cs":
+        write_dg_cs(res, count, percent, query)
+
+    elif factor=="dg_acttype":
+        write_dg_acttype(res, count, percent, query)
+
+
+    elif factor=="resppf_year":
+        write_resppf_year(res, count, percent, query, res_total)
+
+    elif factor=="resppf_period":
+        write_resppf_period(res, count, percent, query, periods, res_total)
+
+    elif factor=="resppf_cs":
+        write_resppf_cs(res, count, percent, query, res_total)
+
+    elif factor=="resppf_acttype":
+        write_resppf_acttype(res, count, percent, query, res_total)
+
+
+    elif factor=="perscountry_year":
+        write_perscountry_year(res, count, percent, query, res_total)
+
+    elif factor=="perscountry_period":
+        write_perscountry_period(res, count, percent, query, periods, res_total)
+
+    elif factor=="perscountry_cs":
+        write_perscountry_cs(res, count, percent, query, res_total)
+
+    elif factor=="perscountry_acttype":
+        write_perscountry_acttype(res, count, percent, query, res_total)
+
+
+    elif factor=="rappgroup_year":
+        write_rappgroup_year(res, count, percent, query, res_total)
+        
+    elif factor=="rappgroup_period":
+       write_rappgroup_period(res, count, percent, query, periods, res_total)
+
+    elif factor=="rappgroup_cs":
+        write_rappgroup_cs(res, count, percent, query, res_total)
+
+    elif factor=="rappgroup_acttype":
+        write_rappgroup_acttype(res, count, percent, query, res_total)
+
 
     elif factor=="groupvote_year":
         write_groupvote_year(res, count, percent, query)

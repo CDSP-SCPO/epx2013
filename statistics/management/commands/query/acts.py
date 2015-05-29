@@ -87,7 +87,7 @@ def q57(factors=factors, periods=None):
     #for each factor
     for factor, question in factors_question.iteritems():
         question=init_question+question
-        res=init(factor)
+        res=init(factor, periods=periods)
         res=get(factor, res, check_vars_acts=check_vars_acts, periods=periods, query="base_j")
         write(factor, question, res, periods=periods)
     
@@ -384,7 +384,7 @@ def q107(factors=factors, periods=None):
         #for each factor
         for factor, question in factors_question.iteritems():
             question=init_question+filt[1]+question
-            res=init(factor)
+            res=init(factor, periods=periods)
             res=get(factor, res, filter_vars_acts=filter_vars_acts, check_vars_acts=check_vars_acts, periods=periods)
             write(factor, question, res, periods=periods)
 
@@ -409,7 +409,7 @@ def q108(factors=factors, periods=None):
 
         for factor, question in factors_question.iteritems():
             question=init_question+filt[1]+question
-            res=init(factor)
+            res=init(factor, periods=periods)
             res=get(factor, res, check_vars_acts=check_vars_acts, periods=periods, query="pt_b_OR_a")
             write(factor, question, res, periods=periods)
                 
@@ -602,7 +602,7 @@ def q132(factors=factors, periods=None):
 
     for factor, question in factors_question.iteritems():
         question=init_question+question
-        res=init(factor)
+        res=init(factor, periods=periods)
         res=get(factor, res, Model=ActIds, check_vars_acts_ids=check_vars_acts_ids, periods=periods)
         write(factor, question, res, periods=periods)
 
@@ -618,6 +618,6 @@ def q133(factors=factors, periods=None):
 
     for factor, question in factors_question.iteritems():
         question=init_question+question
-        res=init(factor, count=False)
+        res=init(factor, count=False, periods=periods)
         res=get(factor, res, count=False, filter_vars_acts=filter_vars_acts, periods=periods)
         write(factor, question, res, count=False, periods=periods)

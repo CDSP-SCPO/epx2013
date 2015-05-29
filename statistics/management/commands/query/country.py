@@ -11,29 +11,23 @@ from  ..write import *
 
 
 
-def q101():
-    initial_question="Répartition des nationalités des RespPropos"
-    nb_resp=3
-    #~ #par secteur
-    question=initial_question+", par secteur"
-    print question
-    res=init_cs(total=True, empty_dic=True)
-    res=get_percent_pers_cs(res, "resp", nb_resp, var="country")
-    write_percent_pers(question, get_cs_list(), "CS", res, "RespPropos", var="country")
+def q101(factors=factors, periods=None):
+    #Pourcentage des nationalités des RespPropos / RapporteurPE
+    init_question="Répartition des "
+    variables=(("resp", "RespPropos"), ("rapp", "RapporteurPE"))
+    
+    #get the factors specific to the question and update the periods (fr to us format)
+    factors_question, periods=prepare_query(factors, periods)
+    count=False
 
-    #~ #par année
-    question=initial_question+", par année"
-    print question
-    res=init_year(total=True, empty_dic=True)
-    res=get_percent_pers_year(res, "resp", nb_resp, var="country")
-    write_percent_pers(question, get_years_list(), "YEAR", res, "RespPropos", var="country")
+    for variable in variables:
 
-    #par secteur et par année
-    question=initial_question+", par secteur et par année"
-    print question
-    res=init_cs_year(total=True, empty_dic=True)
-    res=get_percent_pers_cs(res, "resp", nb_resp, var="country", year_var=True)
-    write_percent_pers_cs_year(question, res, "RespPropos", var="country")
+        #for each factor
+        for factor, question in factors_question.iteritems():
+            question=init_question+variable[1]+question
+            res, res_total=init(factor, count=count, periods=periods)
+            res, res_total=get(factor, res, res_total=res_total, count=count, periods=periods, pers=variable[0])
+            write(factor, question, res, res_total=res_total, count=count, periods=periods)
 
 
 def q102():
@@ -84,15 +78,16 @@ def q126(factors=factors, periods=None):
 
 def q134(factors=factors, periods=None):
     #1/Nombre de Votes « contre » (AdoptCSContre=Y) pour chaque EM 2/Nombre de votes « abstentions » (AdoptCSAbs=Y) pour chaque EM
-    init_question="Nombre de Parmi les votes AdoptCSAbs=Y, pourcentage de votes de chaque Etat membre"
+    init_question="Nombre de "
     #get the factors specific to the question and update the periods (fr to us format)
     factors_question, periods=prepare_query(factors, periods)
     variables=(("adopt_cs_abs", "AdoptCSAbs"), ("adopt_cs_contre", "AdoptCSContre"))
-    exclude_vars_acts={variable: None}
-    
-    #for each factor
-    for factor, question in factors_question.iteritems():
-        question=init_question+question
-        res, res_total=init(factor, count=False, total=True)
-        res, res_total=get(factor, res, exclude_vars_acts=exclude_vars_acts, count=False, res_total_init=res_total, adopt_var=variable)
-        write(factor, question, res, count=False, res_total=res_total)
+
+    for variable in variables:
+        
+        #for each factor
+        for factor, question in factors_question.iteritems():
+            question=init_question+variable[1]+"=Y"+question
+            res=init(factor, count=False, periods=periods)
+            res=get(factor, res, count=False, adopt_var=variable[0], periods=periods)
+            write(factor, question, res, count=False, periods=periods)

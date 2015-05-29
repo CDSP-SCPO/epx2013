@@ -22,7 +22,7 @@ def q54(factors=factors, periods=None):
     #for each factor
     for factor, question in factors_question.iteritems():
         question=init_question+question
-        res=init(factor)
+        res=init(factor, periods=periods)
         res=get(factor, res, variable=variable, filter_vars_acts=filter_vars_acts, periods=periods)
         write(factor, question, res, percent=1, periods=periods)
 
@@ -222,6 +222,6 @@ def q130(factors=factors, periods=None):
     #for each factor
     for factor, question in factors_question.iteritems():
         question=init_question+question
-        res=init(factor, count=False)
+        res=init(factor, count=False, periods=periods)
         res=get(factor, res, variable=variable, filter_vars_acts=filter_vars_acts, periods=periods, count=False)
         write(factor, question, res, periods=periods, count=False)

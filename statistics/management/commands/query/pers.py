@@ -4,7 +4,7 @@
 
 
 def q91():
-    initial_question="Liste des RespPropos 1-3,PartyFamily et Nationalite"
+    initial_question="Liste des RespPropos 1-3, PartyFamily et Nationalite"
     #~ -> par secteur
     question=initial_question+", par secteur"
     print question
