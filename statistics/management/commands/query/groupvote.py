@@ -21,7 +21,7 @@ def q138(factors=factors, periods=None):
         (3, '"present"'),
         (4, '"absent"'),
         (5, '"non voters"'),
-        (7, '"cohesion"')
+        (7, '"cohesion"'),
     )
     
     #get the factors specific to the question and update the periods (fr to us format)

@@ -173,7 +173,13 @@ def get_groupvotes():
         if act.group_vote_names.strip() != "":
             for groupvote in act.group_vote_names.split(";"):
                 groupvotes.add(groupvote.strip())
-    return groupvotes
+
+    #remove duplicates (year after year, the same group has different names)
+    groupvotes_list=[]
+    for groupvote in groupvotes:
+        if groupvote not in ["EPP", "S&D"]:
+            groupvotes_list.append(groupvote)
+    return groupvotes_list
 
 
 ################################ END OF FACTORS ################################

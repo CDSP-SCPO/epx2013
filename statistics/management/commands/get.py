@@ -449,7 +449,7 @@ def compute_groupvote_majority(res, groupvote, variable):
         if groupvote == group:
             res[1]+=1
             if int(variable)>=value:
-                print variable, value
+                #~ print variable, value
                 res[0]+=1
             break
     
@@ -463,7 +463,7 @@ def compute_groupvote(act_act, res_temp, groupvote, groupvote_var_index, query):
     if groupnames not in [None, ""]:
         index=-1
         #what's the index of the group we are looking for? (each group is separated with ";")
-        groupnames=groupnames.split(";")
+        groupnames=groupnames.replace("EPP", "PPE").replace("S&D", "PSE").split(";")
 
         #check that the group is part of the groups of the act
         for i, group in enumerate(groupnames):
@@ -476,6 +476,7 @@ def compute_groupvote(act_act, res_temp, groupvote, groupvote_var_index, query):
         #if the group exists
         if index != -1:
 
+            #groupgroupvote_vars: for each group: FOR; AGAINST; ABSTENTION; PRESENT; ABSENT; NON VOTERS; TOTAL MEMBERS; COHESION (semicolon-separated list)
             groupvote_vars=getattr(act_act, "group_vote_"+str(index)).split(";")
             
             variable=groupvote_vars[groupvote_var_index]

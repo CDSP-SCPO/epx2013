@@ -621,34 +621,35 @@ class Command(NoArgsCommand):
  #~ 
         #~ #Nombre moyen de mots par acte
         #~ nb_mots.q54(factors=factors, periods=periods)
+
+        #1/Nombre de Votes « contre » (AdoptCSContre=Y) pour chaque EM 2/Nombre de votes « abstentions » (AdoptCSAbs=Y) pour chaque EM
+        #~ factors=["country_year", "country_period", "country_cs", "country_acttype"]
+        #~ country.q134(factors=factors, periods=periods)
 #~ 
-        #~ #1/Nombre de Votes « contre » (AdoptCSContre=Y) pour chaque EM 2/Nombre de votes « abstentions » (AdoptCSAbs=Y) pour chaque EM
-        factors=["country_year", "country_period", "country_cs", "country_acttype"]
-        country.q134(factors=factors, periods=periods)
-
-        #1/Nombre de Votes « contre » (AdoptCSContre=Y) pour les actes avec au moins un point B et AdoptCSRegleVote=V 2/Nombre de Votes « contre » (AdoptCSContre=Y) pour les actes avec au moins un point B et AdoptCSRegleVote=U 3/Nombre de votes « abstention » (AdoptCSAbs=Y) pour les actes avec au moins un point B et AdoptCSRegleVote=V 4/Nombre de votes « abstention » (AdoptCSAbs=Y) pour les actes avec au moins un point B et AdoptCSRegleVote=U
-        factors=["year", "period", "cs", "act_type"]
-        adopt_cs.q135(factors=factors, periods=periods)
-
-        #Nombre d’actes adoptés pour chaque DGProposition
-        factors=["dg_year", "dg_period", "dg_cs", "dg_acttype"]
-        acts.q2(factors=factors, periods=periods)
-
-        #% Familles politiques des RespPropos
-        factors=["resppf_year", "resppf_period", "resppf_cs", "resppf_acttype"]
-        party_family.q93(factors=factors, periods=periods)
-
-        #% Nationalités des RespPropos / RapporteurPE
-        factors=["perscountry_year", "perscountry_period", "perscountry_cs", "perscountry_acttype"]
-        country.q101(factors=factors, periods=periods)
+        #~ #1/Nombre de Votes « contre » (AdoptCSContre=Y) pour les actes avec au moins un point B et AdoptCSRegleVote=V 2/Nombre de Votes « contre » (AdoptCSContre=Y) pour les actes avec au moins un point B et AdoptCSRegleVote=U 3/Nombre de votes « abstention » (AdoptCSAbs=Y) pour les actes avec au moins un point B et AdoptCSRegleVote=V 4/Nombre de votes « abstention » (AdoptCSAbs=Y) pour les actes avec au moins un point B et AdoptCSRegleVote=U
+        #~ factors=["year", "period", "cs", "act_type"]
+        #~ adopt_cs.q135(factors=factors, periods=periods)
 #~ 
-        #~ #% Groupes RapporteurPE
-        factors=["rappgroup_year", "rappgroup_period", "rappgroup_cs", "rappgroup_acttype"]
-        pol_group.q137(factors=factors, periods=periods)
- 
-        #1/Cohésion moyenne pour chaque Groupe PE 2/Moyenne vote « oui » pour chaque groupe PE 3/Moyenne vote « non » pour chaque groupe PE 4/Moyenne vote « abstention » pour chaque groupe PE 5/Moyenne « present » pour chaque groupe PE 6/Moyenne « absent » pour chaque groupe PE 7/Moyenne « non voters » pour chaque groupe PE
+        #~ #Nombre d’actes adoptés pour chaque DGProposition
+        #~ factors=["dg_year", "dg_period", "dg_cs", "dg_acttype"]
+        #~ acts.q2(factors=factors, periods=periods)
+#~ 
+        #~ #% Familles politiques des RespPropos
+        #~ factors=["resppf_year", "resppf_period", "resppf_cs", "resppf_acttype"]
+        #~ party_family.q93(factors=factors, periods=periods)
+#~ 
+        #~ #% Nationalités des RespPropos / RapporteurPE
+        #~ factors=["perscountry_year", "perscountry_period", "perscountry_cs", "perscountry_acttype"]
+        #~ country.q101(factors=factors, periods=periods)
+
+        #% Groupes RapporteurPE
+        #~ factors=["rappgroup_year", "rappgroup_period", "rappgroup_cs", "rappgroup_acttype"]
+        #~ pol_group.q137(factors=factors, periods=periods)
+ #~ 
+        #~ #1/Cohésion moyenne pour chaque Groupe PE 2/Moyenne vote « oui » pour chaque groupe PE 3/Moyenne vote « non » pour chaque groupe PE 4/Moyenne vote « abstention » pour chaque groupe PE 5/Moyenne « present » pour chaque groupe PE 6/Moyenne « absent » pour chaque groupe PE 7/Moyenne « non voters » pour chaque groupe PE
         factors=["groupvote_year", "groupvote_period", "groupvote_cs", "groupvote_acttype"]
-        groupvote.q138(factors=factors, periods=periods)
+        #factors=["groupvote_year"]
+        #~ groupvote.q138(factors=factors, periods=periods)
 
         #% d’actes pour lesquels 
         #~ #ALDE « For » égal ou supérieur à 66
@@ -662,5 +663,5 @@ class Command(NoArgsCommand):
         groupvote.q139(factors=factors, periods=periods)
 
         #Pourcentage d’actes avec plusieurs bases juridiques
-        factors=["year", "period", "cs", "act_type"]
-        acts.q57(factors=factors, periods=periods)
+        #~ factors=["year", "period", "cs", "act_type"]
+        #~ acts.q57(factors=factors, periods=periods)
