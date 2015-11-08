@@ -121,7 +121,7 @@ def get_save_acts(excl_fields_acts_ids, excl_fields_acts, writer):
     
     qs=Act.objects.filter(validated=2)
     #~ #TEST
-    #~ qs=Act.objects.filter(validated=2, releve_annee=1999, releve_mois=1, no_ordre=1)
+    #~ qs=Act.objects.filter(validated=2, releve_annee=2014, releve_mois=4, no_ordre=34)
     nb=0
 
     for act in qs.iterator():

@@ -22,10 +22,17 @@ class Command(NoArgsCommand):
 
     def handle(self, **options):
 
-        #pb duplicate ReleveAnnee=2008, ReleveMois=3, NoOrdre=31
+        #FIXME
+        #pb duplicates: the following acts cause errors for ministers attendances -> these errors must be fixes
+        # ReleveAnnee=2008, ReleveMois=3, NoOrdre=31
+        # ReleveAnnee=2008, ReleveMois=3, NoOrdre=33
+        # ReleveAnnee=2008, ReleveMois=7, NoOrdre=8
+        # ReleveAnnee=2008, ReleveMois=7, NoOrdre=9
+        # ReleveAnnee=2008, ReleveMois=7, NoOrdre=11
 
         #~ #update min_attend for validated acts
-        act_ids=ActIds.objects.filter(src="index", act__validated=2).exclude(act__releve_annee=2008, act__releve_mois=3, act__no_ordre=31)
+        act_ids=ActIds.objects.filter(src="index", act__validated=2, act__releve_annee=2008).exclude(act__releve_annee=2008, act__releve_mois=3, act__no_ordre=31).exclude(act__releve_annee=2008, act__releve_mois=3, act__no_ordre=33).exclude(act__releve_annee=2008, act__releve_mois=7, act__no_ordre=8).exclude(act__releve_annee=2008, act__releve_mois=7, act__no_ordre=9).exclude(act__releve_annee=2008, act__releve_mois=7, act__no_ordre=11)
+        #~ act_ids=ActIds.objects.filter(src="index", act__validated=2).exclude(act__releve_annee=2008, act__releve_mois=3, act__no_ordre=31).exclude(act__releve_annee=2008, act__releve_mois=3, act__no_ordre=33)
         for act_id in act_ids:
             print act_id.act
             save_get_min_attend(act_id)
