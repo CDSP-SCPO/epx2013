@@ -31,7 +31,7 @@ class Command(NoArgsCommand):
         # ReleveAnnee=2008, ReleveMois=7, NoOrdre=11
 
         #~ #update min_attend for validated acts
-        act_ids=ActIds.objects.filter(src="index", act__validated=2, act__releve_annee=2008).exclude(act__releve_annee=2008, act__releve_mois=3, act__no_ordre=31).exclude(act__releve_annee=2008, act__releve_mois=3, act__no_ordre=33).exclude(act__releve_annee=2008, act__releve_mois=7, act__no_ordre=8).exclude(act__releve_annee=2008, act__releve_mois=7, act__no_ordre=9).exclude(act__releve_annee=2008, act__releve_mois=7, act__no_ordre=11)
+        act_ids=ActIds.objects.filter(src="index", act__validated=2).exclude(act__releve_annee=2008, act__releve_mois=3, act__no_ordre=31).exclude(act__releve_annee=2008, act__releve_mois=3, act__no_ordre=33).exclude(act__releve_annee=2008, act__releve_mois=7, act__no_ordre=8).exclude(act__releve_annee=2008, act__releve_mois=7, act__no_ordre=9).exclude(act__releve_annee=2008, act__releve_mois=7, act__no_ordre=11)
         #~ act_ids=ActIds.objects.filter(src="index", act__validated=2).exclude(act__releve_annee=2008, act__releve_mois=3, act__no_ordre=31).exclude(act__releve_annee=2008, act__releve_mois=3, act__no_ordre=33)
         for act_id in act_ids:
             print act_id.act
