@@ -117,7 +117,9 @@ def save_get_min_attend(act_ids):
     #if the attendances of the act have been validated already
     if act_ids.act.validated_attendance:
         #retrieve all the rows of the act from the ImportMinAttend table
-        min_attends=ImportMinAttend.objects.filter(no_celex=act_ids.no_celex)
+        #~ min_attends=ImportMinAttend.objects.filter(no_celex=act_ids.no_celex)
+        act=act_ids.act
+        min_attends=ImportMinAttend.objects.filter(releve_annee=act.releve_annee, releve_mois=act.releve_mois, no_ordre=act.no_ordre)
         attendance=False
         #for each country and each verbatim fill the association
         for min_attend in min_attends:
